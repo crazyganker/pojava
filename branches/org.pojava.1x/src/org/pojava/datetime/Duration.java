@@ -41,7 +41,7 @@ public class Duration implements Comparable {
 	/** Non-leap Milliseconds since an epoch */
 	protected long millis = 0;
 
-	/** Nanoseconds used by high-resolution timestamps */
+	/** Nanoseconds used by high-resolution time stamps */
 	protected int nanos = 0;
 
 	/**
@@ -93,50 +93,47 @@ public class Duration implements Comparable {
 	 * @param seconds
 	 *            Integral seconds.
 	 * @param nanos
-	 *            Fractional seconds expressed in allowed range of +/- 999999999
-	 *            nanoseconds.
+	 *            Fractional seconds expressed in nanosecond offset of seconds.
 	 * @return
 	 */
 	public static Duration newInstance(long seconds, int nanos) {
 		return new Duration(seconds, nanos);
 	}
 
+	/**
+	 * Add a duration, producing a new duration.
+	 * 
+	 * @param dur
+	 * @return
+	 */
 	public Duration add(Duration dur) {
-		long calcSeconds;
-		int calcNanos;
-		if (dur.getNanos() > 0 && this.nanos > 0) {
-			calcSeconds = this.getSeconds() + dur.getSeconds() + 1;
-			calcNanos = this.nanos + (dur.getNanos() - 1000000000);
-		} else if (dur.getNanos() < 0 && this.nanos < 0) {
-			calcSeconds = this.getSeconds() + dur.getSeconds() - 1;
-			calcNanos = this.nanos + (dur.getNanos() + 1000000000);
-		} else {
-			calcSeconds = this.getSeconds() + dur.getSeconds();
-			calcNanos = this.nanos + dur.getNanos();
-		}
-		return new Duration(calcSeconds, calcNanos);
-	}
-
-	public Duration add(long milliseconds) {
-		return new Duration(this.getSeconds() + milliseconds / 1000, this.nanos
-				+ (int) ((milliseconds%1000) * 1000000));
+		return new Duration(this.getSeconds() + dur.getSeconds(), this.nanos
+				+ dur.nanos);
 	}
 
 	/**
-	 * Seconds + nanos pair is adjusted for safe addition.
+	 * Add fixed number of (+/-) milliseconds to a Duration, producing a new
+	 * Duration.
+	 * 
+	 * @param milliseconds
+	 * @return
+	 */
+	public Duration add(long milliseconds) {
+		return new Duration(this.getSeconds() + milliseconds / 1000, this.nanos
+				+ (int) ((milliseconds % 1000) * 1000000));
+	}
+
+	/**
+	 * Add to a Duration, producing a new Duration.
 	 * 
 	 * @param seconds
 	 * @param nanos
 	 */
 	public Duration add(long seconds, int nanos) {
 		// Adjust to safe range to prevent overflow.
-		while (nanos > 1000000000) {
+		if (nanos > 999999999) {
 			seconds++;
 			nanos -= 1000000000;
-		}
-		while (nanos < -1000000000) {
-			seconds--;
-			nanos += 1000000000;
 		}
 		return new Duration(this.getSeconds() + seconds, this.nanos + nanos);
 	}
