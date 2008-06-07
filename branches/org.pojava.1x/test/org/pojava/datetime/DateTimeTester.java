@@ -99,7 +99,7 @@ public class DateTimeTester extends TestCase {
 		assertEquals("3055-06-14 02:03:04.123", dtNew.toString(format));
 	}
 
-	public void testChart() {
+	public void XtestChart() {
 		// Known leap seconds
 		System.out.println(DateTime.parse("1972-07-01").getMillis());
 		System.out.println(DateTime.parse("1973-01-01").getMillis());
