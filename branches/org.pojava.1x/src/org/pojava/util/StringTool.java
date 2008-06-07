@@ -54,6 +54,9 @@ public class StringTool {
 	 * @return
 	 */
 	public static int parseIntFragment(String str) {
+		if (str==null) {
+			return 0;
+		}
 		int parsed = 0;
 		boolean isNeg = false;
 		char[] strip = str.toCharArray();
