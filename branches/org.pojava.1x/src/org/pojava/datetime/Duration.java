@@ -1,5 +1,7 @@
 package org.pojava.datetime;
 
+import java.security.InvalidParameterException;
+
 /*
  Copyright 2008 John Pile
 
@@ -16,17 +18,13 @@ package org.pojava.datetime;
  limitations under the License.
  */
 
-import org.pojava.validation.Alert;
-import org.pojava.validation.AlertLevel;
-import org.pojava.validation.ValidationException;
-
 /**
  * Duration is the foundation for measurements of time within Current Era.
  * 
  * @author John Pile
  * 
  */
-public class Duration {
+public class Duration implements Comparable {
 
 	public static final long MILLISECOND = 1L;
 
@@ -53,18 +51,24 @@ public class Duration {
 		// Default is zero duration
 	}
 
-	private Duration(long millis) {
+	public Duration(long millis) {
 		this.millis = millis;
 	}
 
+	/**
+	 * Seconds + nanos pair will always be adjusted so that nanos is positive.
+	 * 
+	 * @param seconds
+	 * @param nanos
+	 */
 	public Duration(long seconds, int nanos) {
-		if (nanos < -999999999 || nanos > 999999999) {
-			throw new ValidationException(new Alert(AlertLevel.ERROR,
-					"Nanos may not exceed +/- 999999999."));
+		while (nanos > 999999999) {
+			seconds++;
+			nanos -= 1000000000;
 		}
-		boolean isNegative = (seconds < 0 || seconds == 0 && nanos < 0);
-		if (isNegative && nanos > 0) {
-			nanos = -nanos;
+		while (nanos < 0) {
+			seconds--;
+			nanos += 1000000000;
 		}
 		this.millis = seconds * 1000 + nanos / 1000000;
 		this.nanos = nanos;
@@ -84,7 +88,7 @@ public class Duration {
 	 * Constructs a duration in seconds and fractional seconds expressed in
 	 * nanos. It is possible to input the same values two different ways. For
 	 * example, 1.75 seconds could be (1,750000000) or (2,-250000000). The
-	 * result will be stored using the same sign for both seconds and nanos.
+	 * result will be recalculated to always use positive values for nanos.
 	 * 
 	 * @param seconds
 	 *            Integral seconds.
@@ -95,6 +99,66 @@ public class Duration {
 	 */
 	public static Duration newInstance(long seconds, int nanos) {
 		return new Duration(seconds, nanos);
+	}
+
+	public Duration add(Duration dur) {
+		long calcSeconds;
+		int calcNanos;
+		if (dur.getNanos() > 0 && this.nanos > 0) {
+			calcSeconds = this.getSeconds() + dur.getSeconds() + 1;
+			calcNanos = this.nanos + (dur.getNanos() - 1000000000);
+		} else if (dur.getNanos() < 0 && this.nanos < 0) {
+			calcSeconds = this.getSeconds() + dur.getSeconds() - 1;
+			calcNanos = this.nanos + (dur.getNanos() + 1000000000);
+		} else {
+			calcSeconds = this.getSeconds() + dur.getSeconds();
+			calcNanos = this.nanos + dur.getNanos();
+		}
+		return new Duration(calcSeconds, calcNanos);
+	}
+
+	public Duration add(long milliseconds) {
+		return new Duration(this.getSeconds() + milliseconds / 1000, this.nanos
+				+ (int) ((milliseconds%1000) * 1000000));
+	}
+
+	/**
+	 * Seconds + nanos pair is adjusted for safe addition.
+	 * 
+	 * @param seconds
+	 * @param nanos
+	 */
+	public Duration add(long seconds, int nanos) {
+		// Adjust to safe range to prevent overflow.
+		while (nanos > 1000000000) {
+			seconds++;
+			nanos -= 1000000000;
+		}
+		while (nanos < -1000000000) {
+			seconds--;
+			nanos += 1000000000;
+		}
+		return new Duration(this.getSeconds() + seconds, this.nanos + nanos);
+	}
+
+	/**
+	 * Return relative comparison between two Durations.
+	 */
+	public int compareTo(Object other) {
+		if (other == null) {
+			throw new NullPointerException("Cannot compare DateTime to null.");
+		}
+		if (other.getClass() != DateTime.class) {
+			throw new InvalidParameterException(
+					"Cannot compare DateTime type to "
+							+ other.getClass().getName());
+		}
+		Duration otherDur = (Duration) other;
+		if (this.millis == otherDur.millis) {
+			return nanos < otherDur.nanos ? -1 : nanos == otherDur.nanos ? 0
+					: 1;
+		}
+		return this.millis < otherDur.millis ? -1 : 1;
 	}
 
 	/**
