@@ -101,29 +101,29 @@ public class DateTimeTester extends TestCase {
 
 	public void testChart() {
 		// Known leap seconds
-		System.out.println(DateTime.parse("1972-07-01").millis);
-		System.out.println(DateTime.parse("1973-01-01").millis);
-		System.out.println(DateTime.parse("1974-01-01").millis);
-		System.out.println(DateTime.parse("1975-01-01").millis);
-		System.out.println(DateTime.parse("1976-01-01").millis);
-		System.out.println(DateTime.parse("1977-01-01").millis);
-		System.out.println(DateTime.parse("1978-01-01").millis);
-		System.out.println(DateTime.parse("1979-01-01").millis);
-		System.out.println(DateTime.parse("1980-01-01").millis);
-		System.out.println(DateTime.parse("1981-07-01").millis);
-		System.out.println(DateTime.parse("1982-07-01").millis);
-		System.out.println(DateTime.parse("1983-07-01").millis);
-		System.out.println(DateTime.parse("1985-07-01").millis);
-		System.out.println(DateTime.parse("1988-01-01").millis);
-		System.out.println(DateTime.parse("1990-01-01").millis);
-		System.out.println(DateTime.parse("1991-01-01").millis);
-		System.out.println(DateTime.parse("1992-07-01").millis);
-		System.out.println(DateTime.parse("1993-07-01").millis);
-		System.out.println(DateTime.parse("1994-07-01").millis);
-		System.out.println(DateTime.parse("1996-01-01").millis);
-		System.out.println(DateTime.parse("1997-07-01").millis);
-		System.out.println(DateTime.parse("1999-01-01").millis);
-		System.out.println(DateTime.parse("2006-01-01").millis);
+		System.out.println(DateTime.parse("1972-07-01").getMillis());
+		System.out.println(DateTime.parse("1973-01-01").getMillis());
+		System.out.println(DateTime.parse("1974-01-01").getMillis());
+		System.out.println(DateTime.parse("1975-01-01").getMillis());
+		System.out.println(DateTime.parse("1976-01-01").getMillis());
+		System.out.println(DateTime.parse("1977-01-01").getMillis());
+		System.out.println(DateTime.parse("1978-01-01").getMillis());
+		System.out.println(DateTime.parse("1979-01-01").getMillis());
+		System.out.println(DateTime.parse("1980-01-01").getMillis());
+		System.out.println(DateTime.parse("1981-07-01").getMillis());
+		System.out.println(DateTime.parse("1982-07-01").getMillis());
+		System.out.println(DateTime.parse("1983-07-01").getMillis());
+		System.out.println(DateTime.parse("1985-07-01").getMillis());
+		System.out.println(DateTime.parse("1988-01-01").getMillis());
+		System.out.println(DateTime.parse("1990-01-01").getMillis());
+		System.out.println(DateTime.parse("1991-01-01").getMillis());
+		System.out.println(DateTime.parse("1992-07-01").getMillis());
+		System.out.println(DateTime.parse("1993-07-01").getMillis());
+		System.out.println(DateTime.parse("1994-07-01").getMillis());
+		System.out.println(DateTime.parse("1996-01-01").getMillis());
+		System.out.println(DateTime.parse("1997-07-01").getMillis());
+		System.out.println(DateTime.parse("1999-01-01").getMillis());
+		System.out.println(DateTime.parse("2006-01-01").getMillis());
 
 		// Supported time zones
 		String ids[] = TimeZone.getAvailableIDs();
