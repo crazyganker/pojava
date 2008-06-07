@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.pojava</groupId>
-  <artifactId>org.pojava.util</artifactId>
+  <artifactId>org.pojava</artifactId>
   <name>PoJava Utils</name>
   <version>1.0.0</version>
   <description></description>
