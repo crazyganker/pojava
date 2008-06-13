@@ -1,6 +1,5 @@
 package org.pojava.datetime;
 
-
 /*
  Copyright 2008 John Pile
 
@@ -40,21 +39,11 @@ import org.pojava.util.StringTool;
  * <p>
  * You may think of a DateTime object as a fixed offset of System time measured
  * from the Unix epoch in non-leap milliseconds or non-leap seconds and
- * nanoseconds. Leap years are calculated to match the same interpretation as
- * the java.util.Date object (every 4th year is a leap year). More accurate
- * representations of time, such as ones skipping leap years every century
- * except millenials, or adjusting for leap seconds, will be done by wrapping
- * this object and adding calculations.
- * </p>
- * <p>
- * There are two tables for calculating dates that change over time. One is time
- * zones, and the other is leap seconds. Ideally, updates to those service
- * tables or formulas would not require an update to this API. Handling of leap
- * seconds is a good fit for a wrapper class, (see DateTimeUTC), that adds or
- * subtracts leap time as needed before and after the inner calls to each
- * method. Handling of Daylight Saving Time is mitigated by allowing you to
- * remap your own time zone labels into existing ones provided by the TimeZone
- * object.
+ * nanoseconds. Leap years are calculated according to the Gregorian Calendar,
+ * matching the same interpretation as the java.util.Date object (every 4th year
+ * is a leap year, except for years divisible by 100 but not divisible by 400).
+ * The times are stored according to the UTC (aka GMT) time zone, and a TimeZone
+ * object is referenced to translate to a local time zone.
  * </p>
  * 
  * @author John Pile
@@ -62,7 +51,7 @@ import org.pojava.util.StringTool;
  */
 public class DateTime implements Serializable, Comparable {
 
-	private static final long serialVersionUID = 1;
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * These months have less than 31 days
@@ -74,9 +63,19 @@ public class DateTime implements Serializable, Comparable {
 	private static final int NOV = 10;
 
 	/**
+	 * CE is Common Era, Current Era, or Christian Era, a.k.a. AD.
+	 */
+	private static final long CE = -62135740800000L; // 0001-01-01;
+
+	/**
 	 * Default time zone is determined by system
 	 */
 	protected TimeZone timeZone = TimeZone.getDefault();
+
+	/**
+	 * Config contains info specific to zoning and formatting.
+	 */
+	protected DateTimeConfig config;
 
 	/**
 	 * System time is a lazy calculation of milliseconds from Unix epoch
@@ -85,15 +84,9 @@ public class DateTime implements Serializable, Comparable {
 	 */
 	protected Duration systemDur = null;
 
-	/** Non-leap Milliseconds since an epoch */
-	// protected long millis = 0;
-	/** Nanoseconds used by high-resolution time stamps */
-	// protected int nanos = 0;
-	private static Pattern partsPattern = Pattern.compile("[^A-Z0-9]+");
-	private static Pattern tzPattern = Pattern.compile("[^A-Z0-9/:+-]+");
+	private static final Pattern partsPattern = Pattern.compile("[^A-Z0-9]+");
+	private static final Pattern tzPattern = Pattern.compile("[^A-Z0-9/:+-]+");
 
-	/** A base offset that can be altered for testing. */
-	// protected static long epoch = DateTimeConfig.UNIX_EPOCH;
 	/**
 	 * Default constructor gives current time to millisecond.
 	 */
@@ -154,14 +147,6 @@ public class DateTime implements Serializable, Comparable {
 		}
 	}
 
-	/*
-	 * protected void init(long seconds, int nanos) { if (nanos > 999999999 ||
-	 * nanos < -999999999) { throw new InvalidParameterException( "Nanos must be
-	 * specified in range +/- 999999999"); } if (nanos < 0) { seconds--; nanos +=
-	 * 1000000000; } this.millis = seconds * 1000 + nanos / 1000000; this.nanos =
-	 * nanos; }
-	 */
-
 	/**
 	 * DateTime constructed from a string using global defaults.
 	 * 
@@ -195,13 +180,21 @@ public class DateTime implements Serializable, Comparable {
 		return this.systemDur.compareTo(other.systemDur);
 	}
 
+	/**
+	 * Compare to another Date + Time object to determine ordering
+	 */
 	public int compareTo(Object other) {
-		if (other.getClass() != DateTime.class) {
-			throw new InvalidParameterException(
-					"Cannot compare DateTime type to "
-							+ other.getClass().getName());
+		if (other.getClass() == DateTime.class) {
+			return compareTo((DateTime) other);
 		}
-		return compareTo((DateTime) other);
+		if (other.getClass() == Timestamp.class) {
+			return this.getTimestamp().compareTo((Timestamp) other);
+		}
+		if (Date.class.isAssignableFrom(other.getClass())) {
+			return this.compareTo(new DateTime(((Date) other).getTime()));
+		}
+		throw new InvalidParameterException("Cannot compare DateTime type to "
+				+ other.getClass().getName());
 	}
 
 	/**
@@ -240,8 +233,16 @@ public class DateTime implements Serializable, Comparable {
 	 * second in the same timezone as the system.
 	 */
 	public String toString() {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd HH:mm:ss");
+		if (config == null) {
+			config = DateTimeConfig.getGlobalDefault();
+		}
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(config
+				.getDefaultDateFormat());
+		if (this.systemDur.millis < DateTime.CE) {
+			return simpleDateFormat
+					.format(new Date(this.systemDur.getMillis()))
+					+ " BC";
+		}
 		return simpleDateFormat.format(new Date(this.systemDur.getMillis()));
 	}
 
@@ -438,16 +439,6 @@ public class DateTime implements Serializable, Comparable {
 		return parse(str, config);
 	}
 
-	private static int indexedStartMatch(String[] list, String str) {
-		for (int i = 0; i < list.length; i++) {
-			int len = list[i].length();
-			if (str.length() >= len && list[i].equals(str.substring(0, len))) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
 	/**
 	 * Interpret a DateTime from a String.
 	 * 
@@ -493,7 +484,7 @@ public class DateTime implements Serializable, Comparable {
 				for (int lang = 0; lang < langs.length; lang++) {
 					String[] mos = (String[]) DateTimeConfig.LANGUAGE_MONTHS
 							.get(langs[lang]);
-					int mo = indexedStartMatch(mos, parts[i]);
+					int mo = StringTool.indexedStartMatch(mos, parts[i]);
 					if (mo >= 0) {
 						month = mo;
 						hasMonth = true;
@@ -692,7 +683,7 @@ public class DateTime implements Serializable, Comparable {
 				char c = tzChars[0];
 				/**
 				 * GMT-7 and +07:00 mean the same thing, as do GMT+7 and -07:00.
-				 * This is weird, but predictably so.
+				 * This is a weird POSIX requirement, but predictable.
 				 */
 				boolean isNeg = false;
 				boolean isTz = false;
@@ -782,8 +773,10 @@ public class DateTime implements Serializable, Comparable {
 			return new DateTime(calcTime, this.timeZone);
 		}
 		if (unit == CalendarUnit.WEEK) {
-			long dow = ((calcTime / Duration.DAY) + DateTimeConfig
-					.getGlobalDefault().getEpochDOW()) % 7;
+			if (config == null) {
+				config = DateTimeConfig.getGlobalDefault();
+			}
+			long dow = ((calcTime / Duration.DAY) + config.getEpochDOW()) % 7;
 			calcTime -= (calcTime % Duration.DAY + Duration.DAY * dow);
 			calcTime -= timeZone.getOffset(calcTime);
 			return new DateTime(calcTime, this.timeZone);
@@ -819,7 +812,7 @@ public class DateTime implements Serializable, Comparable {
 	}
 
 	/**
-	 * Return duration truncated seconds.
+	 * Whole seconds offset from epoch.
 	 * 
 	 * @return
 	 */
@@ -827,10 +820,20 @@ public class DateTime implements Serializable, Comparable {
 		return systemDur.getSeconds();
 	}
 
+	/**
+	 * Whole milliseconds offset from epoch.
+	 * 
+	 * @return
+	 */
 	public long getMillis() {
 		return systemDur.getMillis();
 	}
 
+	/**
+	 * Positive nanosecond offset from Seconds.
+	 * 
+	 * @return
+	 */
 	public int getNanos() {
 		return systemDur.getNanos();
 	}
