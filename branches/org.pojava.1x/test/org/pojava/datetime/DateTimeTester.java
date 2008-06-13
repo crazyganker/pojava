@@ -1,6 +1,8 @@
 package org.pojava.datetime;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
@@ -64,6 +66,32 @@ public class DateTimeTester extends TestCase {
 		assertEquals("1968-12-31 23:59:59.123", dt.toString(format));
 		dt = DateTime.parse("1945-03-09 23:42:59.123456789");
 		assertEquals("1945-03-09 23:42:59.123", dt.toString(format));
+	}
+	
+	
+	public void spit(String label, long value) {
+		System.out.print(label+"=");
+		System.out.println(value);
+	}
+
+	public void testTm() {
+		Tm tm=new Tm(new DateTime("1965-06-30 03:04:05.6789"));
+		assertEquals(1965, tm.getYear());
+		assertEquals(6, tm.getMonth());
+		assertEquals(30, tm.getDay());
+		assertEquals(3, tm.getHour());
+		assertEquals(4, tm.getMinute());
+		assertEquals(5, tm.getSecond());
+		assertEquals(678900000, tm.getNanosecond());
+		
+		tm=new Tm(new DateTime("2008-02-29 03:04:05.6789"));
+		assertEquals(2008, tm.getYear());
+		assertEquals(2, tm.getMonth());
+		assertEquals(29, tm.getDay());
+		assertEquals(3, tm.getHour());
+		assertEquals(4, tm.getMinute());
+		assertEquals(5, tm.getSecond());
+		assertEquals(678900000, tm.getNanosecond());
 	}
 
 	/**
@@ -178,7 +206,6 @@ public class DateTimeTester extends TestCase {
 		millis = 253402260044000L;
 		d = new Date(millis);
 		dt = new DateTime(d.toString());
-		System.out.println(dt.toString());
 		assertEquals(millis, dt.getMillis());
 
 		// A year after 9999
@@ -187,12 +214,64 @@ public class DateTimeTester extends TestCase {
 		dt = new DateTime(d.toString());
 		assertEquals(millis, dt.getMillis());
 
-		// A year before 0001
-		millis = -63135700000000L;
-		System.out.println(new Date(millis).toString());
-		System.out.println(new DateTime(millis).toString());
+		// A millisecond prior to the year 0001
+		millis = -62135740800001L;
+		assertEquals(millis, new DateTime("0001-01-01").getMillis()-1);
+		assertEquals("0001-12-31 23:59:59 BC", new DateTime(millis).toString());
 
-		
+	}
+
+	/**
+	 * This tests behavior for leap year calculations.
+	 */
+	public void testLeapYears() {
+		// 100 year leap year exception
+		assertEquals("1900-02-28 23:59:59", new DateTime("1900-03-01").add(-1)
+				.toString());
+		// Regular year
+		assertEquals("1902-02-28 23:59:59", new DateTime("1902-03-01").add(-1)
+				.toString());
+		// Regular leap year
+		assertEquals("1904-02-29 23:59:59", new DateTime("1904-03-01").add(-1)
+				.toString());
+		// 1000 year leap year inclusion
+		assertEquals("1000-02-29 23:59:59", new DateTime("1000-03-01").add(-1)
+				.toString());
+	}
+
+	public void testEdgeCases() {
+		// Add Month to January 30
+		assertEquals("2008-02-29 00:00:00", new DateTime("2008-01-30").add(
+				CalendarUnit.MONTH, 1).toString());
+	}
+	
+	
+	public void testSpeed() {
+		long timer=System.currentTimeMillis();
+		int iterations=100000;
+		for (int i=0; i<iterations; i++) {
+			Tm tm=new Tm(1234567890+i*100000000);
+			int year=tm.getYear();
+			int month=tm.getMonth();
+			int day=tm.getDay();
+			int hour=tm.getHour();
+			int minute=tm.getMinute();
+			int second=tm.getSecond();
+		}
+		long time1=System.currentTimeMillis();
+		for (int i=0; i<iterations; i++) {
+			Calendar cal=new GregorianCalendar();
+			cal.setTimeInMillis(1234567890+i*100000000);
+			int year=cal.get(Calendar.YEAR);
+			int month=cal.get(Calendar.MONTH);
+			int day=cal.get(Calendar.DAY_OF_MONTH);
+			int hour=cal.get(Calendar.HOUR_OF_DAY);
+			int minute=cal.get(Calendar.MINUTE);
+			int second=cal.get(Calendar.SECOND);
+		}
+		long time2=System.currentTimeMillis();
+		// System.out.println(time1-timer);
+		// System.out.println(time2-time1);
 	}
 
 }
