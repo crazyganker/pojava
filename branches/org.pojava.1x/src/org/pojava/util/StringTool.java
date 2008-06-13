@@ -3,6 +3,24 @@ package org.pojava.util;
 public class StringTool {
 
 	/**
+	 * Returns a zero-based offset if the left-most characters of str match all
+	 * of the characters of any member of list.
+	 * 
+	 * @param list
+	 * @param str
+	 * @return -1 if no match, else indexed offset
+	 */
+	public static int indexedStartMatch(String[] list, String str) {
+		for (int i = 0; i < list.length; i++) {
+			int len = list[i].length();
+			if (str.length() >= len && list[i].equals(str.substring(0, len))) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
 	 * True if a string matches /^[-]?[0-9]+$/
 	 * 
 	 * @param s
@@ -54,7 +72,7 @@ public class StringTool {
 	 * @return
 	 */
 	public static int parseIntFragment(String str) {
-		if (str==null) {
+		if (str == null) {
 			return 0;
 		}
 		int parsed = 0;
