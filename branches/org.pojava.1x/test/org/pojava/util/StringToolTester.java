@@ -16,7 +16,7 @@ public class StringToolTester extends TestCase {
 		assertFalse(StringTool.isInteger("1.23"));
 		assertFalse(StringTool.isInteger("123Four"));
 	}
-	
+
 	public void testOnlyDigits() {
 		assertTrue(StringTool.onlyDigits("123412341234"));
 		assertTrue(StringTool.onlyDigits("0"));
@@ -25,7 +25,7 @@ public class StringToolTester extends TestCase {
 		assertFalse(StringTool.onlyDigits("A1B2"));
 		assertFalse(StringTool.onlyDigits("1A"));
 	}
-	
+
 	public void testParsIntFragment() {
 		assertEquals(123, StringTool.parseIntFragment("123"));
 		assertEquals(123, StringTool.parseIntFragment("123.45"));
@@ -34,7 +34,7 @@ public class StringToolTester extends TestCase {
 		assertEquals(18, StringTool.parseIntFragment("18:14"));
 		assertEquals(0, StringTool.parseIntFragment(null));
 	}
-	
+
 	public void startsWithDigit() {
 		assertTrue(StringTool.onlyDigits("-123"));
 		assertTrue(StringTool.onlyDigits("123412341234"));
@@ -42,6 +42,5 @@ public class StringToolTester extends TestCase {
 		assertFalse(StringTool.onlyDigits("A1B2"));
 		assertFalse(StringTool.onlyDigits("1A"));
 	}
-	
-	
+
 }
