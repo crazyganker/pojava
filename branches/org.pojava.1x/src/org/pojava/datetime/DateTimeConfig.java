@@ -53,7 +53,9 @@ public class DateTimeConfig implements IDateTimeConfig {
 	/**
 	 * The default date format used for DateTime.toString();
 	 */
-	private String defaultDateFormat = "yyyy-MM-dd HH:mm:ss.SSS";
+	private String defaultDateFormat = "yyyy-MM-dd HH:mm:ss";
+	
+	private String defaultJdbcFormat = "yyyy-MM-dd HH:mm:ss.SSS";
 
 	/**
 	 * <p>
@@ -145,6 +147,14 @@ public class DateTimeConfig implements IDateTimeConfig {
 
 	public void setDefaultDateFormat(String defaultDateFormat) {
 		this.defaultDateFormat = defaultDateFormat;
+	}
+
+	public String getDefaultJdbcFormat() {
+		return defaultJdbcFormat;
+	}
+
+	public void setDefaultJdbcFormat(String defaultJdbcFormat) {
+		this.defaultJdbcFormat = defaultJdbcFormat;
 	}
 
 	public Object[] getSupportedLanguages() {
