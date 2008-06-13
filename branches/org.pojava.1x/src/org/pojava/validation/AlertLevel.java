@@ -25,6 +25,7 @@ public class AlertLevel extends Ordinal {
 
 	private static final OrdinalSet ordinals = new OrdinalSet();
 
+	public static final AlertLevel DEBUG = new AlertLevel("DEBUG");
 	public static final AlertLevel INFO = new AlertLevel("INFO");
 	public static final AlertLevel ERROR = new AlertLevel("ERROR");
 	public static final AlertLevel WARNING = new AlertLevel("WARNING");
