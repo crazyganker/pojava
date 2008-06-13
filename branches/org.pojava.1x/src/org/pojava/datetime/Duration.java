@@ -183,7 +183,7 @@ public class Duration implements Comparable {
 	 * @return
 	 */
 	public long getSeconds() {
-		if (millis < 0 && millis % 1000 != 0) {
+		if (millis < 0 && (millis % 1000 != 0)) {
 			return millis / 1000 - 1;
 		}
 		return millis / 1000;
