@@ -41,6 +41,7 @@ public class Tm {
 	private int minute;
 	private int second;
 	private int nanosecond;
+	private int weekday;
 
 	/**
 	 * Populate year, month, day, hour, min, sec, nano
@@ -62,7 +63,7 @@ public class Tm {
 
 	/**
 	 * We'll direct the pre-GREG_EPOCH times here for now.
-	 * Most folks don't use them, so it's not my highest priority.
+	 * Most folks don't use them, so optimizing is not my highest priority.
 	 * @param millis
 	 */
 	private void initYeOlde(long millis) {
@@ -75,6 +76,7 @@ public class Tm {
 		this.hour = cal.get(Calendar.HOUR_OF_DAY);
 		this.minute = cal.get(Calendar.MINUTE);
 		this.second = cal.get(Calendar.SECOND);
+		this.weekday = cal.get(Calendar.DAY_OF_WEEK);
 	}
 
 	/**
@@ -85,6 +87,7 @@ public class Tm {
 		long millis=dt.getMillis();
 		long duration = millis - GREG_EPOCH;
 		this.nanosecond=dt.getNanos();
+		this.weekday=dt.getWeekday();
 		if (dt.getTimeZone().inDaylightTime(dt.getDate())) {
 			duration+=HOUR;
 		}
@@ -162,4 +165,8 @@ public class Tm {
 		return nanosecond;
 	}
 
+	public int getWeekday() {
+		return weekday;
+	}
+	
 }
