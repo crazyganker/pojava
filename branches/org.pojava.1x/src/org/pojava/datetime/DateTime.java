@@ -85,8 +85,7 @@ public class DateTime implements Serializable, Comparable {
 	protected Duration systemDur = null;
 
 	private static final Pattern partsPattern = Pattern.compile("[^A-Z0-9]+");
-	private static final Pattern tzPattern = Pattern.compile("[^A-Z0-9/:+-]+");
-
+	
 	/**
 	 * Default constructor gives current time to millisecond.
 	 */
@@ -168,6 +167,55 @@ public class DateTime implements Serializable, Comparable {
 	 */
 	public DateTime(Timestamp ts) {
 		this.systemDur = new Duration(ts.getTime() / 1000, ts.getNanos());
+	}
+
+	/**
+	 * Derive a time zone descriptor from the right side of the date/time string.
+	 * @param str
+	 * @return
+	 */
+	private static final String tzParse(String str) {
+		char[] chars=str.toCharArray();
+		int min=7;
+		int max=str.length()-1;
+		int idx=max;
+		char c;
+		while (idx>min) {
+			c=chars[idx];
+			if (c>='0' && c<='9' || c==':' || c=='+' || c=='-') {
+				idx--;
+			} else {
+				break;
+			}
+		}
+		while (idx>=min) {
+			c=chars[idx];
+			if (c>='A' && c<='Z' || c=='/' || c>='0' && c<='9') {
+				idx--;
+			} else {
+				++idx;
+				while (idx<max && chars[idx]>='0' && chars[idx]<='9') {
+					if (++idx==max) {
+						break;
+					}
+				}
+				break;
+			}
+		}
+		if (idx<min) {
+			return null;
+		}
+		c=chars[idx];
+		if ((c=='-' || c=='+') && idx>0) {
+			if (chars[idx]==' ' || chars[idx]=='\t') {
+				return str.substring(idx);
+			}
+			return null;
+		}
+		if (c>='A' && c<='Z') {
+			return str.substring(idx);
+		}
+		return null;
 	}
 
 	/**
@@ -595,36 +643,21 @@ public class DateTime implements Serializable, Comparable {
 					if (hour >= 0 && hour < 12) {
 						hour += 12;
 					}
-				} else {
-					// Typical format is "Region/City or TLA"
-					if (!hasTimeZone) {
-						String tzParts[] = tzPattern.split(str);
-						if (tzParts != null) {
-							String p = tzParts[tzParts.length - 1];
-							if (p.startsWith("+") || p.startsWith("-")) {
-								tzString = p;
-							} else if (StringTool.isInteger(p)) {
-								tz = TimeZone.getDefault();
-								hasTimeZone = true;
-							} else {
-								/**
-								 * If zone not known, but offset is, then use
-								 * offset + parsed date to determine timezone.
-								 */
-								String ref = (String) config.getTzMap().get(p);
-								if (ref != null) {
-									p = ref;
-								}
-								tz = TimeZone.getTimeZone(p);
-								if (tz.getRawOffset() != 0) {
-									hasTimeZone = true;
-								} else {
-									tzString = p;
-								}
-							}
-						}
-					}
 				}
+			}
+			// Typical formats are "Region/City, PST, Z, GMT+8, PST8PDT, GMT-0800, GMT-08:00"
+			if (!hasTimeZone) {
+				tzString=tzParse(str);
+				if (tzString==null) {
+					tz = TimeZone.getDefault();
+				} else {
+					String ref = (String) config.getTzMap().get(tzString);
+					if (ref != null) {
+						tzString = ref;
+					}
+					tz = TimeZone.getTimeZone(tzString);
+				}
+				hasTimeZone = true;
 			}
 		}
 		/**
