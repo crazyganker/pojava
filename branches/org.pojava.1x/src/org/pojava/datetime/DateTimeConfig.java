@@ -29,9 +29,6 @@ import java.util.Map;
  */
 public class DateTimeConfig implements IDateTimeConfig {
 
-	/** A representation of Unix epoch as millisecond offset of calculated 1 CE */
-	public static final long UNIX_EPOCH = (1969 * 365 + 1969 / 4) * 86400000;
-
 	/**
 	 * Singleton pattern. The globalDefault variable is referenced by DateTime,
 	 * so changes you make here affect new calls to DateTime.
@@ -45,7 +42,7 @@ public class DateTimeConfig implements IDateTimeConfig {
 	private boolean isDmyOrder = false;
 
 	/**
-	 * The 1/1/1970 epoch started on a Thursday. If Sunday is the start of a
+	 * The 1970-01-01 epoch started on a Thursday. If Sunday is the start of a
 	 * week, then this number is 4. If Monday is the start, then set to 3.
 	 */
 	private int epochDOW = 4;
@@ -75,6 +72,9 @@ public class DateTimeConfig implements IDateTimeConfig {
 	 * </pre>
 	 */
 	private static Map tzMap = new HashMap();
+	static {
+		tzMap.put("Z", "UTC");
+	}
 
 	private static final String[] MONTHS_EN_ENG = { "JAN", "FEB", "MAR", "APR",
 			"MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
