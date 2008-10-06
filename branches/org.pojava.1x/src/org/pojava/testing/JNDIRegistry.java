@@ -38,10 +38,10 @@ public class JNDIRegistry {
 	}
 
 	/**
-	 * Optional one-time initialization wipes all values.
+	 * Get an initial context, making one if it doesn't exist.
 	 */
-	public static Context resetInitialContext() throws NamingException {
-		String initialContextFactory = "com.raleys.junit.support.TestContextFactory";
+	public static Context getInitialContext() throws NamingException {
+		String initialContextFactory = "org.pojava.testing.TestingContextFactory";
 		Hashtable env = new Hashtable();
 		env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
 		System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
@@ -50,9 +50,9 @@ public class JNDIRegistry {
 	}
 
 	/**
-	 * Optional one-time initialization wipes all values.
+	 * Get an initial context, making one if it doesn't exist.
 	 */
-	public static Context resetInitialContext(String initialContextFactory)
+	public static Context getInitialContext(String initialContextFactory)
 			throws NamingException {
 		Hashtable env = new Hashtable();
 		env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
