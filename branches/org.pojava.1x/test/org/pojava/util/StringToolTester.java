@@ -42,5 +42,9 @@ public class StringToolTester extends TestCase {
 		assertFalse(StringTool.onlyDigits("A1B2"));
 		assertFalse(StringTool.onlyDigits("1A"));
 	}
+	
+	public void testCapitalize() {
+		assertEquals("Hey, Mo", StringTool.capitalize("hey, Mo"));
+	}
 
 }

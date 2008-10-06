@@ -1,8 +1,8 @@
 package org.pojava.datetime;
 
+import java.security.InvalidParameterException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
@@ -67,15 +67,14 @@ public class DateTimeTester extends TestCase {
 		dt = DateTime.parse("1945-03-09 23:42:59.123456789");
 		assertEquals("1945-03-09 23:42:59.123", dt.toString(format));
 	}
-	
-	
+
 	public void spit(String label, long value) {
-		System.out.print(label+"=");
+		System.out.print(label + "=");
 		System.out.println(value);
 	}
 
 	public void testTm() {
-		Tm tm=new Tm(new DateTime("1965-06-30 03:04:05.6789"));
+		Tm tm = new Tm(new DateTime("1965-06-30 03:04:05.6789"));
 		assertEquals(1965, tm.getYear());
 		assertEquals(6, tm.getMonth());
 		assertEquals(30, tm.getDay());
@@ -83,8 +82,8 @@ public class DateTimeTester extends TestCase {
 		assertEquals(4, tm.getMinute());
 		assertEquals(5, tm.getSecond());
 		assertEquals(678900000, tm.getNanosecond());
-		
-		tm=new Tm(new DateTime("2008-02-29 03:04:05.6789"));
+
+		tm = new Tm(new DateTime("2008-02-29 03:04:05.6789"));
 		assertEquals(2008, tm.getYear());
 		assertEquals(2, tm.getMonth());
 		assertEquals(29, tm.getDay());
@@ -216,7 +215,7 @@ public class DateTimeTester extends TestCase {
 
 		// A millisecond prior to the year 0001
 		millis = -62135740800001L;
-		assertEquals(millis, new DateTime("0001-01-01").getMillis()-1);
+		assertEquals(millis, new DateTime("0001-01-01").getMillis() - 1);
 		assertEquals("0001-12-31 23:59:59 BC", new DateTime(millis).toString());
 
 	}
@@ -244,34 +243,98 @@ public class DateTimeTester extends TestCase {
 		assertEquals("2008-02-29 00:00:00", new DateTime("2008-01-30").add(
 				CalendarUnit.MONTH, 1).toString());
 	}
-	
-	
+
+	public void testDow() {
+		long timer = System.currentTimeMillis();
+		Tm tm = new Tm(timer);
+		Calendar cal = Calendar.getInstance();
+		int dow = cal.get(Calendar.DAY_OF_WEEK);
+		assertEquals(dow, tm.getWeekday());
+		cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+		assertEquals(Calendar.SUNDAY, new DateTime(cal.getTimeInMillis())
+				.getWeekday());
+		TimeZone tz = TimeZone.getTimeZone("PST");
+		assertEquals(Calendar.WEDNESDAY, new DateTime(0, tz).getWeekday());
+		assertEquals(Calendar.THURSDAY, new DateTime(-40 * Duration.WEEK
+				+ Duration.DAY, tz).getWeekday());
+	}
+
 	public void testSpeed() {
-		long timer=System.currentTimeMillis();
-		int iterations=100000;
-		for (int i=0; i<iterations; i++) {
-			Tm tm=new Tm(1234567890+i*100000000);
-			int year=tm.getYear();
-			int month=tm.getMonth();
-			int day=tm.getDay();
-			int hour=tm.getHour();
-			int minute=tm.getMinute();
-			int second=tm.getSecond();
+		long timer = System.currentTimeMillis();
+		int iterations = 100000;
+		for (int i = 0; i < iterations; i++) {
+			Tm tm = new Tm(1234567890 + i * 100000000);
+			int year = tm.getYear();
+			int month = tm.getMonth();
+			int day = tm.getDay();
+			int hour = tm.getHour();
+			int minute = tm.getMinute();
+			int second = tm.getSecond();
+			int nanosecond = tm.getNanosecond();
+			int dow = tm.getWeekday();
 		}
-		long time1=System.currentTimeMillis();
-		for (int i=0; i<iterations; i++) {
-			Calendar cal=new GregorianCalendar();
-			cal.setTimeInMillis(1234567890+i*100000000);
-			int year=cal.get(Calendar.YEAR);
-			int month=cal.get(Calendar.MONTH);
-			int day=cal.get(Calendar.DAY_OF_MONTH);
-			int hour=cal.get(Calendar.HOUR_OF_DAY);
-			int minute=cal.get(Calendar.MINUTE);
-			int second=cal.get(Calendar.SECOND);
+		long time1 = System.currentTimeMillis();
+		for (int i = 0; i < iterations; i++) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeInMillis(1234567890 + i * 100000000);
+			int year = cal.get(Calendar.YEAR);
+			int month = cal.get(Calendar.MONTH);
+			int day = cal.get(Calendar.DAY_OF_MONTH);
+			int hour = cal.get(Calendar.HOUR_OF_DAY);
+			int minute = cal.get(Calendar.MINUTE);
+			int second = cal.get(Calendar.SECOND);
+			int nanosecond = cal.get(Calendar.MILLISECOND) * 1000;
+			int dow = cal.get(Calendar.DAY_OF_WEEK);
 		}
-		long time2=System.currentTimeMillis();
-		// System.out.println(time1-timer);
-		// System.out.println(time2-time1);
+		long time2 = System.currentTimeMillis();
+		StringBuffer sb = new StringBuffer();
+		sb.append("Speed test: Pojava=");
+		sb.append(time1 - timer);
+		sb.append("ms, Calendar=");
+		sb.append(time2 - time1);
+		sb.append("ms.");
+		System.out.println(sb.toString());
+	}
+
+	public void testCompareTo() {
+		DateTime dt1 = new DateTime(12345);
+		DateTime dt2 = new DateTime(12346);
+		assertTrue(dt1.compareTo(dt2) < 0);
+		try {
+			dt1.compareTo(new Integer(5));
+		} catch (IllegalArgumentException ex) {
+			assertEquals("Cannot compare DateTime to java.lang.Integer.", ex
+					.getMessage());
+		}
+	}
+
+	public void testRelativeDateMinus() {
+		long start = System.currentTimeMillis();
+		DateTime dt1 = new DateTime();
+		DateTime dt2 = new DateTime("-1");
+		long dur = System.currentTimeMillis() - start;
+		long diff = dt2.add(Duration.DAY).getMillis() - dt1.getMillis();
+		// The relative date "-1" represents 24hrs in past.
+		// The values for dt1 and dt2 will be one day apart, plus some
+		// small bit of extra time that elapsed between the two calculations.
+		assertTrue(diff <= dur);
+	}
+
+	public void testRelativeDatePlusD() {
+		long start = System.currentTimeMillis();
+		DateTime dt1 = new DateTime();
+		DateTime dt2 = new DateTime("+1D");
+		long dur = System.currentTimeMillis() - start;
+		long diff = dt2.add(-Duration.DAY).getMillis() - dt1.getMillis();
+		// The relative date "-1" represents 24hrs in past.
+		// The values for dt1 and dt2 will be one day apart, plus some
+		// small bit of extra time that elapsed between the two calculations.
+		assertTrue(diff <= dur);
+	}
+	
+	public void testToLocalString() {
+		DateTime dt=new DateTime("Jan 26, 1969");
+		assertEquals("1969-01-26 00:00:00", dt.toLocalString());
 	}
 
 }
