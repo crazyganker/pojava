@@ -16,7 +16,6 @@ package org.pojava.datetime;
  limitations under the License.
  */
 import java.io.Serializable;
-import java.security.InvalidParameterException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -85,7 +84,7 @@ public class DateTime implements Serializable, Comparable {
 	protected Duration systemDur = null;
 
 	private static final Pattern partsPattern = Pattern.compile("[^A-Z0-9]+");
-	
+
 	/**
 	 * Default constructor gives current time to millisecond.
 	 */
@@ -170,49 +169,51 @@ public class DateTime implements Serializable, Comparable {
 	}
 
 	/**
-	 * Derive a time zone descriptor from the right side of the date/time string.
+	 * Derive a time zone descriptor from the right side of the date/time
+	 * string.
+	 * 
 	 * @param str
 	 * @return
 	 */
 	private static final String tzParse(String str) {
-		char[] chars=str.toCharArray();
-		int min=7;
-		int max=str.length()-1;
-		int idx=max;
+		char[] chars = str.toCharArray();
+		int min = 7;
+		int max = str.length() - 1;
+		int idx = max;
 		char c;
-		while (idx>min) {
-			c=chars[idx];
-			if (c>='0' && c<='9' || c==':' || c=='+' || c=='-') {
+		while (idx > min) {
+			c = chars[idx];
+			if (c >= '0' && c <= '9' || c == ':' || c == '+' || c == '-') {
 				idx--;
 			} else {
 				break;
 			}
 		}
-		while (idx>=min) {
-			c=chars[idx];
-			if (c>='A' && c<='Z' || c=='/' || c>='0' && c<='9') {
+		while (idx >= min) {
+			c = chars[idx];
+			if (c >= 'A' && c <= 'Z' || c == '/' || c >= '0' && c <= '9') {
 				idx--;
 			} else {
 				++idx;
-				while (idx<max && chars[idx]>='0' && chars[idx]<='9') {
-					if (++idx==max) {
+				while (idx < max && chars[idx] >= '0' && chars[idx] <= '9') {
+					if (++idx == max) {
 						break;
 					}
 				}
 				break;
 			}
 		}
-		if (idx<min) {
+		if (idx < min) {
 			return null;
 		}
-		c=chars[idx];
-		if ((c=='-' || c=='+') && idx>0) {
-			if (chars[idx]==' ' || chars[idx]=='\t') {
+		c = chars[idx];
+		if ((c == '-' || c == '+') && idx > 0) {
+			if (chars[idx] == ' ' || chars[idx] == '\t') {
 				return str.substring(idx);
 			}
 			return null;
 		}
-		if (c>='A' && c<='Z') {
+		if (c >= 'A' && c <= 'Z') {
 			return str.substring(idx);
 		}
 		return null;
@@ -241,8 +242,8 @@ public class DateTime implements Serializable, Comparable {
 		if (Date.class.isAssignableFrom(other.getClass())) {
 			return this.compareTo(new DateTime(((Date) other).getTime()));
 		}
-		throw new InvalidParameterException("Cannot compare DateTime type to "
-				+ other.getClass().getName());
+		throw new IllegalArgumentException("Cannot compare DateTime to "
+				+ other.getClass().getName() + ".");
 	}
 
 	/**
@@ -281,10 +282,7 @@ public class DateTime implements Serializable, Comparable {
 	 * second in the same timezone as the system.
 	 */
 	public String toString() {
-		if (config == null) {
-			config = DateTimeConfig.getGlobalDefault();
-		}
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(config
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(getConfig()
 				.getDefaultDateFormat());
 		if (this.systemDur.millis < DateTime.CE) {
 			return simpleDateFormat
@@ -408,9 +406,18 @@ public class DateTime implements Serializable, Comparable {
 	 * @return
 	 */
 	public int getWeekday() {
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(this.getMillis());
-		return cal.get(Calendar.DAY_OF_WEEK);
+		long leftover = 0;
+		// Adding 2000 years in weeks makes all calculations positive.
+		// Adding epoch DOW shifts us into phase with start of week.
+		long offset = getConfig().getEpochDOW() * Duration.DAY + 52
+				* Duration.WEEK * 2000;
+		leftover = offset + this.getMillis()
+				+ timeZone.getOffset(this.getMillis());
+		leftover %= Duration.WEEK;
+		leftover /= Duration.DAY;
+		// Convert from zero to one based
+		leftover++;
+		return (int) leftover;
 	}
 
 	/**
@@ -442,37 +449,30 @@ public class DateTime implements Serializable, Comparable {
 			}
 		}
 		if ((lastChar == 'D' || lastChar == 'Y' || lastChar == 'M')) {
+			CalendarUnit unit = null;
+			if (lastChar == 'D') {
+				unit = CalendarUnit.DAY;
+			} else if (lastChar == 'Y') {
+				unit = CalendarUnit.YEAR;
+			} else if (lastChar == 'M') {
+				unit = CalendarUnit.MONTH;
+			}
+			String inner = str.substring((firstChar>='0' && firstChar<='9') ? 0 : 1, str.length() - 1);
 			// ^[+-][0-9]+$
 			if (firstChar == '+') {
-				if (StringTool.onlyDigits(str.substring(1))) {
-					int offset = (new Integer(str.substring(1))).intValue();
-					return dt.add(CalendarUnit.DAY, offset);
+				if (StringTool.onlyDigits(inner)) {
+					int offset = (new Integer(inner)).intValue();
+					return dt.add(unit, offset);
 				}
 			}
 			if (firstChar == '-' || firstChar >= '0' && firstChar <= '9') {
-				String inner = str.substring(0, str.length() - 1);
 				if (StringTool.isInteger(inner)) {
 					int innerVal = (new Integer(inner)).intValue();
-					if (lastChar == 'D') {
-						// Today + days
-						return dt.add(CalendarUnit.DAY, innerVal);
-					}
-					if (lastChar == 'M') {
-						// Today + months
-						Calendar cal = Calendar.getInstance();
-						cal.add(Calendar.MONTH, innerVal);
-						return new DateTime(cal.getTimeInMillis());
-					}
-					if (lastChar == 'Y') {
-						// Today + years
-						Calendar cal = Calendar.getInstance();
-						cal.add(Calendar.YEAR, innerVal);
-						return new DateTime(cal.getTimeInMillis());
-					}
+					return dt.add(unit, innerVal);
 				}
 			}
 		}
-		throw new InvalidParameterException("Could not parse date from '" + str
+		throw new IllegalArgumentException("Could not parse date from '" + str
 				+ "'");
 	}
 
@@ -504,10 +504,13 @@ public class DateTime implements Serializable, Comparable {
 					"Cannot parse time from empty string.");
 		}
 		Calendar cal = Calendar.getInstance();
-		String[] parts = partsPattern.split(str);
-		if (parts.length == 1) {
+		if (str.charAt(0) == '+' || str.charAt(0) == '-') {
 			return parseRelativeDate(str, config);
 		}
+		String[] parts = partsPattern.split(str);
+		/*
+		 * if (parts.length == 1) { return parseRelativeDate(str, config); }
+		 */
 		boolean isYearFirst = false;
 		boolean hasYear = false, hasMonth = false, hasDay = false;
 		boolean hasHour = false, hasMinute = false, hasSecond = false;
@@ -565,6 +568,12 @@ public class DateTime implements Serializable, Comparable {
 					usedint[i] = true;
 				}
 			}
+		}
+		// One more scan for Date.toString() style
+		if (!hasYear && str.endsWith("T " + parts[parts.length - 1])) {
+			year = Integer.parseInt(parts[parts.length - 1]);
+			hasYear = true;
+			usedint[usedint.length - 1] = true;
 		}
 		// Assign integers to remaining slots in order
 		for (int i = 0; i < parts.length; i++) {
@@ -645,10 +654,11 @@ public class DateTime implements Serializable, Comparable {
 					}
 				}
 			}
-			// Typical formats are "Region/City, PST, Z, GMT+8, PST8PDT, GMT-0800, GMT-08:00"
+			// Typical formats are "Region/City, PST, Z, GMT+8, PST8PDT,
+			// GMT-0800, GMT-08:00"
 			if (!hasTimeZone) {
-				tzString=tzParse(str);
-				if (tzString==null) {
+				tzString = tzParse(str);
+				if (tzString == null) {
 					tz = TimeZone.getDefault();
 				} else {
 					String ref = (String) config.getTzMap().get(tzString);
@@ -664,23 +674,23 @@ public class DateTime implements Serializable, Comparable {
 		 * Validate
 		 */
 		if (!hasYear || !hasMonth || !hasDay) {
-			throw new InvalidParameterException(
+			throw new IllegalArgumentException(
 					"Could not determine Year, Month, and Day from '" + str
 							+ "'");
 		}
 		if (month == FEB) {
 			if (day > 28 + (year % 4 == 0 ? 1 : 0)) {
-				throw new InvalidParameterException("February " + day
+				throw new IllegalArgumentException("February " + day
 						+ " does not exist in " + year);
 			}
 		} else if (month == SEP || month == APR || month == JUN || month == NOV) {
 			if (day > 30) {
-				throw new InvalidParameterException(
+				throw new IllegalArgumentException(
 						"30 days hath Sep, Apr, Jun, and Nov... not " + day);
 			}
 		} else {
 			if (day > 31) {
-				throw new InvalidParameterException("No month has " + day
+				throw new IllegalArgumentException("No month has " + day
 						+ " days in it.");
 			}
 		}
@@ -840,7 +850,7 @@ public class DateTime implements Serializable, Comparable {
 			cal.set(Calendar.YEAR, calYear - calYear % 100);
 			return new DateTime(cal.getTimeInMillis(), this.timeZone);
 		}
-		throw new InvalidParameterException(
+		throw new IllegalArgumentException(
 				"That precision is still unsupported.  Sorry, my bad.");
 	}
 
@@ -869,6 +879,31 @@ public class DateTime implements Serializable, Comparable {
 	 */
 	public int getNanos() {
 		return systemDur.getNanos();
+	}
+
+	/**
+	 * @param dateTime
+	 * @return
+	 */
+	public boolean equals(Object dateTime) {
+		DateTime dt = null;
+		if (dateTime == null) {
+			return false;
+		}
+		if (dateTime instanceof DateTime) {
+			dt = (DateTime) dateTime;
+		} else if (dateTime instanceof java.util.Date) {
+			dt = new DateTime(((java.util.Date) dateTime).getTime());
+		}
+		return systemDur.getMillis() == dt.getMillis()
+				&& systemDur.getNanos() == dt.getNanos();
+	}
+
+	public DateTimeConfig getConfig() {
+		if (config == null) {
+			config = DateTimeConfig.getGlobalDefault();
+		}
+		return config;
 	}
 
 }
