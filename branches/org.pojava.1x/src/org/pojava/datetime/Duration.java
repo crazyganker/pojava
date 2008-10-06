@@ -1,7 +1,5 @@
 package org.pojava.datetime;
 
-import java.security.InvalidParameterException;
-
 /*
  Copyright 2008 John Pile
 
@@ -37,6 +35,8 @@ public class Duration implements Comparable {
 	public static final long DAY = 24L * HOUR;
 
 	public static final long WEEK = 7L * DAY;
+	
+	private static final int NANOS_PER_MILLI=1000000;
 
 	/** Non-leap Milliseconds since an epoch */
 	protected long millis = 0;
@@ -53,6 +53,7 @@ public class Duration implements Comparable {
 
 	public Duration(long millis) {
 		this.millis = millis;
+		this.nanos=(int) (millis%SECOND) * NANOS_PER_MILLI;
 	}
 
 	/**
@@ -70,34 +71,8 @@ public class Duration implements Comparable {
 			seconds--;
 			nanos += 1000000000;
 		}
-		this.millis = seconds * 1000 + nanos / 1000000;
+		this.millis = seconds * SECOND + nanos / NANOS_PER_MILLI;
 		this.nanos = nanos;
-	}
-
-	/**
-	 * Constructs a duration in milliseconds;
-	 * 
-	 * @param millis
-	 * @return
-	 */
-	public static Duration newInstance(long millis) {
-		return new Duration(millis);
-	}
-
-	/**
-	 * Constructs a duration in seconds and fractional seconds expressed in
-	 * nanos. It is possible to input the same values two different ways. For
-	 * example, 1.75 seconds could be (1,750000000) or (2,-250000000). The
-	 * result will be recalculated to always use positive values for nanos.
-	 * 
-	 * @param seconds
-	 *            Integral seconds.
-	 * @param nanos
-	 *            Fractional seconds expressed in nanosecond offset of seconds.
-	 * @return
-	 */
-	public static Duration newInstance(long seconds, int nanos) {
-		return new Duration(seconds, nanos);
 	}
 
 	/**
@@ -143,11 +118,11 @@ public class Duration implements Comparable {
 	 */
 	public int compareTo(Object other) {
 		if (other == null) {
-			throw new NullPointerException("Cannot compare DateTime to null.");
+			throw new NullPointerException("Cannot compare Duration to null.");
 		}
-		if (other.getClass() != DateTime.class) {
-			throw new InvalidParameterException(
-					"Cannot compare DateTime type to "
+		if (!Duration.class.isAssignableFrom(other.getClass())) {
+			throw new IllegalArgumentException(
+					"Cannot compare Duration type to "
 							+ other.getClass().getName());
 		}
 		Duration otherDur = (Duration) other;
@@ -156,6 +131,19 @@ public class Duration implements Comparable {
 					: 1;
 		}
 		return this.millis < otherDur.millis ? -1 : 1;
+	}
+	
+	/**
+	 * Two durations are equal if internal values are identical.
+	 * @param dur
+	 * @return
+	 */
+	public boolean equals(Object other) {
+		if (other.getClass().isAssignableFrom(Duration.class)) {
+			Duration dur=(Duration)other;
+			return (this.millis==dur.getMillis() && this.nanos==dur.getNanos());
+		}
+		return false;
 	}
 
 	/**
