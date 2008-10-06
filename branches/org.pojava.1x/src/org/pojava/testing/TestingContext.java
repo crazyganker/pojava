@@ -134,7 +134,6 @@ public class TestingContext implements Context {
 		throw new UnsupportedOperationException(
 				"destroySubcontext(String name) Not implemented.");
 	}
-
 	public Hashtable getEnvironment() throws NamingException {
 		throw new UnsupportedOperationException(
 				"getEnvironment() Not implemented.");
