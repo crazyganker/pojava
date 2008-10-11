@@ -20,7 +20,7 @@ import java.util.GregorianCalendar;
 
 /**
  * This class is similar in ways to the C language tm struct.
- * It converts a DateTime into year, month, day, hour, minute, second, nano.
+ * It converts a DateTime into year, month, day, hour, minute, second, millisecond, nanosecond.
  * @author John Pile
  *
  */
@@ -174,6 +174,10 @@ public class Tm {
 
 	public int getSecond() {
 		return second;
+	}
+	
+	public int getMillisecond() {
+		return nanosecond/1000000;
 	}
 
 	public int getNanosecond() {
