@@ -878,7 +878,8 @@ public class DateTime implements Serializable, Comparable {
 	 * @return
 	 */
 	public int getNanos() {
-		return systemDur.getNanos();
+		int nanos=systemDur.getNanos();
+		return nanos >= 0 ? nanos : 1000000000 + nanos;
 	}
 
 	/**
