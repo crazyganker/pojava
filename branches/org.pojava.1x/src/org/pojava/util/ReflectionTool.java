@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.pojava.exception.ReflectionException;
@@ -472,4 +473,34 @@ public class ReflectionTool {
 		return innerObject;
 	}
 
+	public static Map getterChains(Class pojoClass) {
+		Map getterChains=new HashMap();
+		Method[] methods=pojoClass.getMethods();
+		for (int i = 0; i < methods.length; i++) {
+			String name = methods[i].getName();
+			if (name.startsWith("get")
+					&& methods[i].getParameterTypes().length == 0) {
+				Method[] getterChain = { methods[i] };
+				getterChains.put(name, getterChain);
+			}
+		}
+		return getterChains;
+	}
+	
+	public static Map setterChains(Map getterChains) {
+		Map setterChains=new HashMap();
+		for (Iterator it=getterChains.keySet().iterator(); it.hasNext(); ) {
+			Method[] getters=(Method[]) it.next();
+			Method[] setters=new Method[getters.length];
+			try {
+				for (int i=0; i<getters.length; i++) {
+					String name="set" + getters[i].getName().substring(3);
+					setters[i]=getters[i].getReturnType().getMethod(name, null);
+				}
+			} catch (NoSuchMethodException ex) {
+				// ignore
+			}
+		}
+		return setterChains;
+	}
 }
