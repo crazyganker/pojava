@@ -46,11 +46,11 @@ public class Encryption {
 			decryptCipher = Cipher.getInstance(key.getAlgorithm());
 			decryptCipher.init(Cipher.DECRYPT_MODE, skeySpec);
 		} catch (NoSuchPaddingException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		} catch (NoSuchAlgorithmException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		} catch (InvalidKeyException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		}		
 	}
 	
@@ -128,15 +128,15 @@ public class Encryption {
 			cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
 			encrypted = cipher.doFinal(message);
 		} catch (BadPaddingException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		} catch (NoSuchPaddingException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		} catch (NoSuchAlgorithmException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		} catch (InvalidKeyException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		} catch (IllegalBlockSizeException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		}
 		return encrypted;
 	}
@@ -159,15 +159,15 @@ public class Encryption {
 			decrypted = cipher.doFinal(encrypted);
 			return decrypted;
 		} catch (BadPaddingException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		} catch (NoSuchPaddingException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		} catch (NoSuchAlgorithmException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		} catch (InvalidKeyException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		} catch (IllegalBlockSizeException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		}
 	}
 
@@ -183,9 +183,9 @@ public class Encryption {
 		try {
 			return encryptCipher.doFinal(message);
 		} catch (BadPaddingException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		} catch (IllegalBlockSizeException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		}
 	}
 
@@ -202,9 +202,9 @@ public class Encryption {
 		try {
 		return decryptCipher.doFinal(encrypted);
 		} catch (BadPaddingException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		} catch (IllegalBlockSizeException ex) {
-			throw new IllegalArgumentException(ex.getMessage(), ex);
+			throw new IllegalArgumentException(ex.getMessage());
 		}
 		
 	}
