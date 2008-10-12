@@ -2,6 +2,11 @@ package org.pojava.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.util.Iterator;
+import java.util.Set;
+
+import org.pojava.exception.InconceivableException;
 
 /**
  * Hashes are numbers, byte arrays or strings that non-uniquely identify data by
@@ -14,17 +19,6 @@ import java.security.NoSuchAlgorithmException;
  */
 public class HashingTool {
 
-	public static byte[] md5Hash(final byte[] hashMe) {
-		MessageDigest md5 = null;
-		try {
-			md5 = MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException ex) {
-			// throw new SwallowedException("Programmer unable to spell 'MD5'.");
-		}
-		md5.update(hashMe);
-		return md5.digest();
-	}
-
 	/**
 	 * Returns an md5 hash as text.
 	 * 
@@ -33,42 +27,75 @@ public class HashingTool {
 	 * @return md5 hash of string.
 	 */
 	public static String md5Hash(final String hashMe) {
-		StringBuffer sb = new StringBuffer();
-		final int byteMask = 0xFF;
-		final int twoDigit = 0x10;
-		try {
-			MessageDigest md5 = MessageDigest.getInstance("MD5");
-			md5.update(hashMe.getBytes());
-			/* A pure md5 hash is a binary array of 128 bits */
-			byte[] array = md5.digest();
-			/* Format the byte array into a human-readable string of 32 hex chars */
-			for (int i = 0; i < array.length; ++i) {
-				int b = array[i] & byteMask;
-				if (b < twoDigit) {
-					sb.append('0');
-				}
-				sb.append(Integer.toHexString(b));
-			}
-		} catch (NoSuchAlgorithmException e) {
-			// Programmer misspelled MD5?
-			e.printStackTrace();
-		}
-		return sb.toString().toLowerCase();
+		return EncodingTool.hexEncode(hash(hashMe.getBytes(),
+				HashingAlgorithm.MD5));
 	}
 
 	/**
-	 * An implementation of Jenkin's One-at-a-Time Hash which
-	 * returns a well-distributed 32-bit hash of any string.
-	 * @author John Pile 
+	 * List of supported algorithms used for Exception message.
+	 * @return
+	 */
+	private static String supportedHashingAlgorithms() {
+		Set algorithms = Security.getAlgorithms("MessageDigest");
+		StringBuffer sb = new StringBuffer();
+		for (Iterator it = algorithms.iterator(); it.hasNext();) {
+			sb.append(it.next().toString());
+			sb.append(", ");
+		}
+		sb.setLength(Math.max(0, sb.length() - 2));
+		return sb.toString();
+	}
+
+	/**
+	 * Hash based on a relatively safe list of supported hashing algorithms.
+	 * 
+	 * @param hashMe
+	 * @param alg
+	 * @return
+	 */
+	public static byte[] hash(final byte[] hashMe, HashingAlgorithm alg) {
+		try {
+			return hash(hashMe, alg.toString());
+		} catch (NoSuchAlgorithmException ex) {
+			throw new InconceivableException("Unsupported algorithm ["
+					+ alg.toString() + "].  Must be one of "
+					+ supportedHashingAlgorithms(), ex);
+		}
+	}
+
+	/**
+	 * Hash based on any algorithm named in
+	 * Security.getAlgorithms("MessageDigest")
+	 * 
+	 * @param hashMe
+	 * @param algorithm
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 */
+	public static byte[] hash(final byte[] hashMe, String algorithm)
+			throws NoSuchAlgorithmException {
+		MessageDigest digest = null;
+		digest = MessageDigest.getInstance(algorithm);
+		digest.update(hashMe);
+		return digest.digest();
+	}
+
+	/**
+	 * An implementation of Jenkin's One-at-a-Time Hash which returns a
+	 * well-distributed 32-bit hash of any string.
+	 * 
+	 * @author John Pile
 	 */
 	public static int oatHash(final String hashMe) {
 		return oatHash(hashMe.getBytes());
 	}
 
 	/**
-	 *  An implementation of Jenkin's One-at-a-Time Hash Returns a
-	 *  well-distributed 32-bit hash of any byte array.
-	 *  @author John Pile
+	 * An implementation of Jenkin's One-at-a-Time Hash
+	 * 
+	 * @return A well-distributed 32-bit hash of any byte array.
+	 * 
+	 * @author John Pile
 	 */
 	public static int oatHash(byte[] hashMe) {
 		int hash = 0;
