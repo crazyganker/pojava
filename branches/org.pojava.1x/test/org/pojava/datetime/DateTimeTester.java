@@ -1,6 +1,5 @@
 package org.pojava.datetime;
 
-import java.security.InvalidParameterException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -257,43 +256,6 @@ public class DateTimeTester extends TestCase {
 		assertEquals(Calendar.WEDNESDAY, new DateTime(0, tz).getWeekday());
 		assertEquals(Calendar.THURSDAY, new DateTime(-40 * Duration.WEEK
 				+ Duration.DAY, tz).getWeekday());
-	}
-
-	public void testSpeed() {
-		long timer = System.currentTimeMillis();
-		int iterations = 100000;
-		for (int i = 0; i < iterations; i++) {
-			Tm tm = new Tm(1234567890 + i * 100000000);
-			int year = tm.getYear();
-			int month = tm.getMonth();
-			int day = tm.getDay();
-			int hour = tm.getHour();
-			int minute = tm.getMinute();
-			int second = tm.getSecond();
-			int nanosecond = tm.getNanosecond();
-			int dow = tm.getWeekday();
-		}
-		long time1 = System.currentTimeMillis();
-		for (int i = 0; i < iterations; i++) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTimeInMillis(1234567890 + i * 100000000);
-			int year = cal.get(Calendar.YEAR);
-			int month = cal.get(Calendar.MONTH);
-			int day = cal.get(Calendar.DAY_OF_MONTH);
-			int hour = cal.get(Calendar.HOUR_OF_DAY);
-			int minute = cal.get(Calendar.MINUTE);
-			int second = cal.get(Calendar.SECOND);
-			int nanosecond = cal.get(Calendar.MILLISECOND) * 1000;
-			int dow = cal.get(Calendar.DAY_OF_WEEK);
-		}
-		long time2 = System.currentTimeMillis();
-		StringBuffer sb = new StringBuffer();
-		sb.append("Speed test: Pojava=");
-		sb.append(time1 - timer);
-		sb.append("ms, Calendar=");
-		sb.append(time2 - time1);
-		sb.append("ms.");
-		System.out.println(sb.toString());
 	}
 
 	public void testCompareTo() {
