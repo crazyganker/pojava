@@ -34,11 +34,13 @@ public class HashingAlgorithm extends Ordinal {
 	public static final HashingAlgorithm MD5 = new HashingAlgorithm("MD5");
 	public static final HashingAlgorithm SHA = new HashingAlgorithm("SHA");
 	public static final HashingAlgorithm SHA_256 = new HashingAlgorithm("SHA-256");
+	/*
 	public static final HashingAlgorithm SHA_384 = new HashingAlgorithm("SHA-384");
 	public static final HashingAlgorithm SHA_512 = new HashingAlgorithm("SHA-512");
+	*/
 
 	private HashingAlgorithm(String name) {
-		register(ordinals, name.replace('-', '_'), this);
+		register(ordinals, name, this);
 	}
 
 	public Iterator iterator() {
