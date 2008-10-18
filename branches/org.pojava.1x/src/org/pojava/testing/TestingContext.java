@@ -28,8 +28,8 @@ import javax.naming.NamingException;
 /**
  * An implementation of a Context for the purpose of unit testing. Useful for
  * constructing a basic InitialContext that is similar enough to the one
- * provided by Tomcat to test code that depends upon the existence of an
- * InitialContext.
+ * provided by Tomcat (for example) to test code that depends upon the existence
+ * of an InitialContext.
  * 
  * This Context supports binding and the creation and use of subcontexts. For
  * basic stuff like registering a DataSource or Environment variable similar to
@@ -134,6 +134,7 @@ public class TestingContext implements Context {
 		throw new UnsupportedOperationException(
 				"destroySubcontext(String name) Not implemented.");
 	}
+
 	public Hashtable getEnvironment() throws NamingException {
 		throw new UnsupportedOperationException(
 				"getEnvironment() Not implemented.");

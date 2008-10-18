@@ -39,7 +39,7 @@ public class StringTool {
 	 * True if a string matches /^[-]?[0-9]+$/
 	 * 
 	 * @param s
-	 * @return
+	 * @return true if string is numeric
 	 */
 	public static boolean isInteger(String s) {
 		if (s == null || s.length() == 0)
@@ -54,7 +54,7 @@ public class StringTool {
 	 * True if a string has only digits in it.
 	 * 
 	 * @param s
-	 * @return
+	 * @return true if string is composed of only digits.
 	 */
 	public static boolean onlyDigits(String s) {
 		if (s == null || s.length() == 0)
@@ -71,7 +71,7 @@ public class StringTool {
 	 * True if a string starts with a digit.
 	 * 
 	 * @param s
-	 * @return
+	 * @return true if string starts with a digit.
 	 */
 	public static boolean startsWithDigit(String s) {
 		if (s == null || s.length() == 0)
@@ -84,7 +84,7 @@ public class StringTool {
 	 * Parse an integer from left-to-right until non-digit reached
 	 * 
 	 * @param str
-	 * @return
+	 * @return first integer greedily matched from a string
 	 */
 	public static int parseIntFragment(String str) {
 		if (str == null) {
@@ -115,7 +115,7 @@ public class StringTool {
 	/**
 	 * Capitalize the first character of a String.
 	 * @param str
-	 * @return
+	 * @return Capitalize the first character.
 	 */
 	public static String capitalize(String str) {
 		char[] chars=str.toCharArray();
@@ -124,9 +124,9 @@ public class StringTool {
 	}
 	
 	/**
-	 * Convert this_style to thisStyle.
+	 * Convert strings of this_style to thisStyle.
 	 * @param str
-	 * @return
+	 * @return camelCase from underscored_words
 	 */
 	public static String camelFromUnderscore(String str) {
 		if (str==null) return null;

@@ -33,7 +33,7 @@ public class HashingTool {
 
 	/**
 	 * List of supported algorithms used for Exception message.
-	 * @return
+	 * @return Comma separated list of supported hashing algorithms.
 	 */
 	private static String supportedHashingAlgorithms() {
 		Set algorithms = Security.getAlgorithms("MessageDigest");
@@ -49,9 +49,9 @@ public class HashingTool {
 	/**
 	 * Hash based on a relatively safe list of supported hashing algorithms.
 	 * 
-	 * @param hashMe
-	 * @param alg
-	 * @return
+	 * @param hashMe bytes from which to calculate a hash
+	 * @param alg algorithm used to calculate the hash
+	 * @return byte array containing binary version of hash
 	 */
 	public static byte[] hash(final byte[] hashMe, HashingAlgorithm alg) {
 		try {
@@ -69,7 +69,7 @@ public class HashingTool {
 	 * 
 	 * @param hashMe
 	 * @param algorithm
-	 * @return
+	 * @return binary hash of a byte array
 	 * @throws NoSuchAlgorithmException
 	 */
 	public static byte[] hash(final byte[] hashMe, String algorithm)
@@ -83,8 +83,6 @@ public class HashingTool {
 	/**
 	 * An implementation of Jenkin's One-at-a-Time Hash which returns a
 	 * well-distributed 32-bit hash of any string.
-	 * 
-	 * @author John Pile
 	 */
 	public static int oatHash(final String hashMe) {
 		return oatHash(hashMe.getBytes());
@@ -94,8 +92,6 @@ public class HashingTool {
 	 * An implementation of Jenkin's One-at-a-Time Hash
 	 * 
 	 * @return A well-distributed 32-bit hash of any byte array.
-	 * 
-	 * @author John Pile
 	 */
 	public static int oatHash(byte[] hashMe) {
 		int hash = 0;

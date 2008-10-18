@@ -39,14 +39,25 @@ public class HashingAlgorithm extends Ordinal {
 	public static final HashingAlgorithm SHA_512 = new HashingAlgorithm("SHA-512");
 	*/
 
+	/**
+	 * Private constructor used internally
+	 */
 	private HashingAlgorithm(String name) {
 		register(ordinals, name, this);
 	}
 
+	/**
+	 * Iterate over list of supported HashingAlgorithms
+	 */
 	public Iterator iterator() {
 		return ordinals.iterator();
 	}
 
+	/**
+	 * Access a HashingAlgorithm reference by its name
+	 * @param name
+	 * @return Named HashingAlgorithm
+	 */
 	public static HashingAlgorithm valueOf(String name) {
 		Ordinal located = ordinals.get(name);
 		if (located == null) {

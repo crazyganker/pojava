@@ -71,7 +71,7 @@ public class BoundString {
 
 	/**
 	 * Return the bindings bound to the string.
-	 * @return
+	 * @return List of Binding objects.
 	 */
 	public List getBindings() {
 		return this.bindings;
@@ -79,7 +79,7 @@ public class BoundString {
 	
 	/**
 	 * Return the string being bound
-	 * @return
+	 * @return String into which Binding objects are bound.
 	 */
 	public String getString() {
 		return this.sb.toString();
@@ -94,6 +94,10 @@ public class BoundString {
 		this.bindings.add(new Binding(type, obj));
 	}
 	
+	/**
+	 * Add a collection of bindings.
+	 * @param bindings
+	 */
 	public void addBindings(Collection bindings) {
 		this.bindings.addAll(bindings);
 	}
@@ -108,7 +112,7 @@ public class BoundString {
 
 	/**
 	 * Verify placeholder count against bindings count.
-	 * @return
+	 * @return True if placehold count mismatches binding count.
 	 */
 	public boolean isImbalanced() {
 		int placeholders=0;

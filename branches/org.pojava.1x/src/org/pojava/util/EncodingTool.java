@@ -1,11 +1,16 @@
 package org.pojava.util;
 
 
+/**
+ * A class for reversible encodings. Typical encodings are designed to
+ * represent binary data in a more portable format.  Currently supported
+ * encodings include Base64, Hexadecimal.
+ * 
+ * @author John Pile
+ */
 public class EncodingTool {
-	/**
-	 * A class for reversible encodings. Typical encodings are designed to
-	 * represent complex or abstract data in a more portable format. Common
-	 * encodings include Base64, Hexadecimal, MIME, and BER.
+	/* 
+	 * TODO: Reconfigure the decoders to ignore whitespace.
 	 */
 
 	// Mapping table for converting a 4-bit nybble to hex characters.
@@ -28,8 +33,6 @@ public class EncodingTool {
 	 * Encode binary data into a Base-64 array of printable characters.
 	 * @param src
 	 * @return Base-64 encoded string
-	 * 
-	 * @author John Pile
 	 */
 	public static char[] base64Encode(byte[] src) {
 		int unpadded = (src.length * 8 + 5) / 6;
@@ -81,8 +84,6 @@ public class EncodingTool {
 	 * @param encoded
 	 *            a character array containing the Base64 encoded data.
 	 * @return A byte array containing the decoded data.
-	 * 
-	 * @author John Pile
 	 */
 	public static byte[] base64Decode(char[] encoded) {
 		int length = encoded.length * 6 / 8;
@@ -97,24 +98,22 @@ public class EncodingTool {
 		}
 		byte[] decoded = new byte[length];
 		long buffer = 0x00000000;
-		char c64;
 		int e = 0;
 		int d = 0;
 		while (e < encoded.length) {
-			for (int loop = 0; loop < 4; loop++) {
-				c64 = encoded[e++];
-				buffer <<= 6;
-				buffer |= d64[c64];
+			// Enqueue 24 bits into a buffer
+			buffer = d64[encoded[e++]] << 18;
+			buffer |= (d64[encoded[e++]] << 12);
+			buffer |= (d64[encoded[e++]] << 6);
+			buffer |= (d64[encoded[e++]]);
+			// Dequeue 24 bits off of the buffer
+			decoded[d++] = (byte)((buffer & 0x00FF0000) >>> 16);
+			if (d<length) {
+				decoded[d++] = (byte)((buffer & 0x0000FF00) >>> 8);
 			}
-			d += 2;
-			for (int loop = 0; loop < 3; loop++) {
-				if (d < length) {
-					decoded[d] = (byte) (buffer & 0xff);
-				}
-				d--;
-				buffer >>>= 8;
+			if (d<length) {
+				decoded[d++] = (byte)(buffer & 0x000000FF);
 			}
-			d += 4;
 		}
 		return decoded;
 	}
@@ -122,9 +121,8 @@ public class EncodingTool {
 	/**
 	 * Interpret a hex character as a nybble.
 	 * 
-	 * @param c
-	 * @return
-	 * @author John Pile
+	 * @param c hexadecimal character to encode
+	 * @return integer between 0 and 15.
 	 */
 	private static int hex2int(char c) {
 		int nybble = 0;
@@ -145,8 +143,7 @@ public class EncodingTool {
 	 * Convert a hex-encoded string back to a byte array.
 	 * 
 	 * @param hex
-	 * @return
-	 * @author John Pile
+	 * @return decoded array of bytes
 	 */
 	public static byte[] hexDecode(String hex) {
 		if (hex == null) {
@@ -158,9 +155,8 @@ public class EncodingTool {
 	/**
 	 * Convert a hex-encoded character array back to a byte array.
 	 * 
-	 * @param hex
-	 * @return
-	 * @author John Pile
+	 * @param hexChars array of hex-encoded characters
+	 * @return original byte array
 	 */
 	public static byte[] hexDecode(char[] hexChars) {
 		int byteCt = hexChars.length / 2;
@@ -178,9 +174,8 @@ public class EncodingTool {
 	/**
 	 * Output a hex-encoded representation of a byte array
 	 * 
-	 * @param bytes
-	 * @return
-	 * @author John Pile
+	 * @param bytes of binary data to encode
+	 * @return Hex encoded representation of binary data
 	 */
 	public static String hexEncode(byte[] bytes) {
 		StringBuffer sb = new StringBuffer();

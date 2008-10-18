@@ -21,9 +21,9 @@ public class ProcessTool {
 	 * @param workDir Work folder.  Null is current directory.
 	 * @param stdout StringBuffer to hold stdout.
 	 * @param stderr StringBuffer to hold stderr.
-	 * @return
 	 * @throws IOException
 	 * @throws InterruptedException
+	 * @return integer return value of process executed
 	 */
 	public static int exec(String[] cmdarray, String[] envp, File workDir,
 			StringBuffer stdout, StringBuffer stderr) throws IOException,
@@ -43,7 +43,7 @@ public class ProcessTool {
 	 * @param command Command to execute
 	 * @param stdout Your StringBuffer for holding stdout
 	 * @param stderr Your StringBuffer for holding stderr
-	 * @return
+	 * @return integer return value of process executed
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */

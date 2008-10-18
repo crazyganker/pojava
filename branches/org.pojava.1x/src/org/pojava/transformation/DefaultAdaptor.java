@@ -21,6 +21,13 @@ import java.util.Date;
 import org.pojava.datetime.DateTime;
 import org.pojava.lang.Binding;
 
+/**
+ * The DefaultAdaptor passes most data through directly, but performs
+ * some specialized transformations on date types.
+ * 
+ * @author John Pile
+ *
+ */
 public class DefaultAdaptor implements BindingAdaptor {
 
 	public Binding inbound(Binding inBinding) {

@@ -24,9 +24,21 @@ limitations under the License.
  */
 public class Binding {
 
+	/**
+	 * The type describes the intended type of the object, even if null.
+	 */
 	private Class type;
+	
+	/**
+	 * The obj holds an object or null described by the type.
+	 */
 	private Object obj;
 	
+	/**
+	 * Construct a Binding from its two only fields.
+	 * @param type
+	 * @param obj
+	 */
 	public Binding(Class type, Object obj) {
 		this.type=type;
 		this.obj=obj;

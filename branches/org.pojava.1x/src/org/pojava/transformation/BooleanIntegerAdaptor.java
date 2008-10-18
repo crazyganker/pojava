@@ -17,6 +17,13 @@ limitations under the License.
 
 import org.pojava.lang.Binding;
 
+/**
+ * The BooleanIntegerAdaptor transforms a Boolean true/false value to
+ * an Integer 1/0 value.
+ * 
+ * @author John Pile
+ *
+ */
 public class BooleanIntegerAdaptor implements BindingAdaptor {
 	
 	private static final Class INBOUND_TYPE=Boolean.class;

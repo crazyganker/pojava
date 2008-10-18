@@ -17,23 +17,41 @@ package org.pojava.datetime;
  */
 
 /**
- * Duration is the foundation for measurements of time within Current Era.
+ * Duration is a fixed measurement of time.
  * 
  * @author John Pile
  * 
  */
 public class Duration implements Comparable {
 
+	/**
+	 * A MILLISECOND = one thousandth of a second
+	 */
 	public static final long MILLISECOND = 1L;
 
+	/**
+	 * A SECOND = One second is the time that elapses during 9,192,631,770 cycles of the radiation produced by the transition between two levels of the cesium 133 atom... rounded to some margin of error by your less accurate system clock.
+	 */
 	public static final long SECOND = 1000L * MILLISECOND;
 
+	/**
+	 * A MINUTE = 60 seconds
+	 */
 	public static final long MINUTE = 60L * SECOND;
 
+	/**
+	 * An HOUR = 60 minutes
+	 */
 	public static final long HOUR = 60L * MINUTE;
 
+	/**
+	 * A DAY = 24 hours (for a variable day, see CalendarUnit)
+	 */
 	public static final long DAY = 24L * HOUR;
 
+	/**
+	 * A WEEK = a fixed set of seven 24-hour days
+	 */
 	public static final long WEEK = 7L * DAY;
 	
 	private static final int NANOS_PER_MILLI=1000000;
@@ -45,12 +63,16 @@ public class Duration implements Comparable {
 	protected int nanos = 0;
 
 	/**
-	 * 
+	 * Constructor for a duration of zero.
 	 */
 	public Duration() {
 		// Default is zero duration
 	}
 
+	/**
+	 * Duration specified in milliseconds.
+	 * @param millis
+	 */
 	public Duration(long millis) {
 		this.millis = millis;
 		this.nanos=(int) (millis%SECOND) * NANOS_PER_MILLI;
@@ -79,7 +101,7 @@ public class Duration implements Comparable {
 	 * Add a duration, producing a new duration.
 	 * 
 	 * @param dur
-	 * @return
+	 * @return A newly calculated Duration.
 	 */
 	public Duration add(Duration dur) {
 		return new Duration(this.getSeconds() + dur.getSeconds(), this.nanos
@@ -91,7 +113,7 @@ public class Duration implements Comparable {
 	 * Duration.
 	 * 
 	 * @param milliseconds
-	 * @return
+	 * @return A newly calculated Duration.
 	 */
 	public Duration add(long milliseconds) {
 		return new Duration(this.getSeconds() + milliseconds / 1000, this.nanos
@@ -99,10 +121,11 @@ public class Duration implements Comparable {
 	}
 
 	/**
-	 * Add to a Duration, producing a new Duration.
+	 * Add seconds and nanoseconds to a Duration, producing a new Duration.
 	 * 
 	 * @param seconds
 	 * @param nanos
+	 * @return A newly calculated Duration.
 	 */
 	public Duration add(long seconds, int nanos) {
 		// Adjust to safe range to prevent overflow.
@@ -115,6 +138,7 @@ public class Duration implements Comparable {
 
 	/**
 	 * Return relative comparison between two Durations.
+	 * @return -1, 0, or 1 of left compared to right.
 	 */
 	public int compareTo(Object other) {
 		if (other == null) {
@@ -135,8 +159,8 @@ public class Duration implements Comparable {
 	
 	/**
 	 * Two durations are equal if internal values are identical.
-	 * @param dur
-	 * @return
+	 * @param other is a Duration or derived object
+	 * @return True if durations match.
 	 */
 	public boolean equals(Object other) {
 		if (other.getClass().isAssignableFrom(Duration.class)) {
@@ -150,7 +174,7 @@ public class Duration implements Comparable {
 	 * Return fractional seconds in nanoseconds<br/> Sign of value will match
 	 * whole time value.
 	 * 
-	 * @return
+	 * @return Sub-second portion of Duration specified in nanoseconds.
 	 */
 	public int getNanos() {
 		return nanos;
@@ -159,7 +183,7 @@ public class Duration implements Comparable {
 	/**
 	 * Return time truncated to milliseconds
 	 * 
-	 * @return
+	 * @return Number of whole milliseconds in Duration.
 	 */
 	public long getMillis() {
 		return millis;
@@ -168,7 +192,7 @@ public class Duration implements Comparable {
 	/**
 	 * Return duration truncated seconds.
 	 * 
-	 * @return
+	 * @return Number of whole seconds in Duration.
 	 */
 	public long getSeconds() {
 		if (millis < 0 && (millis % 1000 != 0)) {

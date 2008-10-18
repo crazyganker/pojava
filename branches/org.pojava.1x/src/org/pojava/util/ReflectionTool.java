@@ -25,6 +25,13 @@ import java.util.Map;
 
 import org.pojava.exception.ReflectionException;
 
+/**
+ * The ReflectionTool class provides static methods for accessing
+ * an object's properties.
+ * 
+ * @author John Pile
+ *
+ */
 public class ReflectionTool {
 
 	/**
@@ -33,7 +40,6 @@ public class ReflectionTool {
 	 * @param type
 	 *            Class to test.
 	 * @return True if class is a type of Collection, else false.
-	 * @author John Pile
 	 */
 	public static boolean isCollection(Class type) {
 		return java.util.Collection.class.isAssignableFrom(type);
@@ -45,7 +51,6 @@ public class ReflectionTool {
 	 * @param type
 	 *            Class to test.
 	 * @return True if object is Map, else false.
-	 * @author John Pile
 	 */
 	public static boolean isMap(Class type) {
 		return java.util.AbstractMap.class.isAssignableFrom(type)
@@ -58,7 +63,6 @@ public class ReflectionTool {
 	 * @param obj
 	 *            Object being encoded
 	 * @return A non-null string.
-	 * @author John Pile
 	 */
 	public static String clean(Object obj) {
 		if (obj == null) {
@@ -74,7 +78,6 @@ public class ReflectionTool {
 	 * @param baseClass
 	 *            Class of properties to harvest.
 	 * @return Map of names to classes.
-	 * @author John Pile
 	 */
 	public static Map propertyMap(Class baseClass) {
 		Map map = new HashMap();
@@ -95,9 +98,6 @@ public class ReflectionTool {
 
 	/**
 	 * Drill down to a nested property and set its value
-	 * 
-	 * @return Method represented by the field's name
-	 * @author John Pile
 	 */
 	public static void setNestedValue(String path, Object parent, Object child)
 			throws NoSuchMethodException, IllegalAccessException,
@@ -204,9 +204,6 @@ public class ReflectionTool {
 
 	/**
 	 * Drill down to a nested property and set its value
-	 * 
-	 * @return Method represented by the field's name
-	 * @author John Pile
 	 */
 	public static void setNestedValue(Method[] getters, Method[] setters, Object parent, Object value)
 			throws NoSuchMethodException, IllegalAccessException,
@@ -240,43 +237,28 @@ public class ReflectionTool {
 	 * Determine get accessor name from property name
 	 * 
 	 * @param name
-	 * @return
+	 * @return name of get accessor derived from property name.
 	 */
 	private static String getter(String name) {
-		return "get" + capitalize(name);
+		return "get" + StringTool.capitalize(name);
 	}
 
 	/**
 	 * Determine set accessor name from property name
 	 * 
 	 * @param name
-	 * @return
+	 * @return name of set accessor derived from property name
 	 */
 	private static String setter(String name) {
-		return "set" + capitalize(name);
-	}
-
-	/**
-	 * Capitalize the first character of a string.
-	 * 
-	 * @param str
-	 * @return
-	 */
-	private static String capitalize(String str) {
-		if (str == null || str.length() == 0) {
-			return str;
-		}
-		char[] chars = str.toCharArray();
-		chars[0] = Character.toUpperCase(chars[0]);
-		return new String(chars);
+		return "set" + StringTool.capitalize(name);
 	}
 
 	/**
 	 * Determine the class of a property
 	 * 
-	 * @param c
-	 * @param property
-	 * @return
+	 * @param baseClass of object serving as root of property reference
+	 * @param property reference to an object's property
+	 * @return Class of the specified property.
 	 */
 	public static Class propertyType(Class baseClass, String property) throws NoSuchMethodException {
 		Class innerClass = baseClass;
@@ -285,27 +267,23 @@ public class ReflectionTool {
 			property = property.substring(2);
 		}
 		String[] path = property.split("[./]");
-// 		try {
-			for (int p = 0; p < path.length; p++) {
-				try {
-					method = innerClass.getMethod(getter(path[p]), null);
-				} catch (NoSuchMethodException ex) {
-					method = innerClass.getMethod(path[p], null);
-				}
-				innerClass = method.getReturnType();
+		for (int p = 0; p < path.length; p++) {
+			try {
+				method = innerClass.getMethod(getter(path[p]), null);
+			} catch (NoSuchMethodException ex) {
+				method = innerClass.getMethod(path[p], null);
 			}
-		/*
-		} catch (NoSuchMethodException ex) {
-			StringBuffer sb = new StringBuffer();
-			sb.append("Failed to invoke getter ");
-			sb.append(baseClass.getName());
-			sb.append(".");
-			throw new ReflectionException(sb.toString(), ex);
+			innerClass = method.getReturnType();
 		}
-		*/
 		return innerClass;
 	}
-	
+
+	/**
+	 * Array of setter methods that drill down to a property.
+	 * @param getterMethods
+	 * @return array of setter methods that drill down to a property.
+	 * @throws NoSuchMethodException
+	 */
 	public static Method[] setterMethods(Method[] getterMethods) throws NoSuchMethodException {
 		Method[] setters=new Method[getterMethods.length];
 		for (int i=0; i<setters.length; i++) {
@@ -320,16 +298,11 @@ public class ReflectionTool {
 	}
 
 	/**
-	 * Drill down to a nested bean property
-	 * 
-	 * @param relativePath
-	 *            Property specifier for relative path starting at bean as the
-	 *            root node. Both property.property and ./xpath/to/property are
-	 *            interpreted.
-	 * @param bean
-	 *            Root bean
-	 * @return Result from getter method represented by dottedShortName
-	 * @author John Pile
+	 * Array of getter methods that drill down to a nested bean property
+	 *
+	 * @param type hold class of object containing the get accessors
+	 * @param property hold a reference to a bean property
+	 * @return array of getter methods drilling down to a property
 	 */
 	public static Method[] getterMethods(Class type, String property) throws NoSuchMethodException {
 		Class innerClass = type;
@@ -363,8 +336,6 @@ public class ReflectionTool {
 	 *            Root bean
 	 * @return Result from getter method represented by the inner-most nested
 	 *         property.
-	 * 
-	 * @author John Pile
 	 */
 	public static Object getNestedValue(Method[] getters, Object bean) {
 		Object innerObject = bean;
@@ -399,7 +370,6 @@ public class ReflectionTool {
 	 * @param bean
 	 *            Root bean
 	 * @return Result from getter method represented by dottedShortName
-	 * @author John Pile
 	 */
 	public static Object getNestedValue(String relativePath, Object bean) {
 		Object innerObject = bean;
@@ -473,6 +443,11 @@ public class ReflectionTool {
 		return innerObject;
 	}
 
+	/**
+	 * Return a map of all get accessors for a class
+	 * @param pojoClass
+	 * @return Map of all getters for a class
+	 */
 	public static Map getterChains(Class pojoClass) {
 		Map getterChains=new HashMap();
 		Method[] methods=pojoClass.getMethods();
@@ -487,6 +462,12 @@ public class ReflectionTool {
 		return getterChains;
 	}
 	
+	/**
+	 * Return a map of all set accessors for a class determined from
+	 * the name and type of a list of get accessors.
+	 * @param getterChains
+	 * @return Map of all setters for a class matching the getters
+	 */
 	public static Map setterChains(Map getterChains) {
 		Map setterChains=new HashMap();
 		for (Iterator it=getterChains.keySet().iterator(); it.hasNext(); ) {

@@ -95,7 +95,7 @@ public class DateTime implements Serializable, Comparable {
 	/**
 	 * DateTime constructed from time in milliseconds since epoch.
 	 * 
-	 * @param time
+	 * @param millis time
 	 */
 	public DateTime(long millis) {
 		this.systemDur = new Duration(millis);
@@ -221,6 +221,7 @@ public class DateTime implements Serializable, Comparable {
 
 	/**
 	 * Compare two DateTime objects to determine ordering.
+	 * @return -1, 0, or 1 based on comparison to another DateTime.
 	 */
 	public int compareTo(DateTime other) {
 		if (other == null) {
@@ -231,6 +232,7 @@ public class DateTime implements Serializable, Comparable {
 
 	/**
 	 * Compare to another Date + Time object to determine ordering
+	 * @return -1, 0, or 1 based on comparison to another DateTime, Date, or Timestamp object.
 	 */
 	public int compareTo(Object other) {
 		if (other.getClass() == DateTime.class) {
@@ -249,7 +251,7 @@ public class DateTime implements Serializable, Comparable {
 	/**
 	 * Get a timestamp useful for JDBC
 	 * 
-	 * @return
+	 * @return This DateTime as a Timestamp object.
 	 */
 	public Timestamp getTimestamp() {
 		Timestamp ts = new Timestamp(this.systemDur.getMillis());
@@ -262,7 +264,7 @@ public class DateTime implements Serializable, Comparable {
 	/**
 	 * Get Date/Time as a Java Date object.
 	 * 
-	 * @return
+	 * @return this DateTime truncated and converted to a java.util.Date object.
 	 */
 	public Date getDate() {
 		return new Date(this.systemDur.getMillis());
@@ -271,7 +273,7 @@ public class DateTime implements Serializable, Comparable {
 	/**
 	 * Get the TimeZone
 	 * 
-	 * @return
+	 * @return this TimeZone.
 	 */
 	public TimeZone getTimeZone() {
 		return timeZone;
@@ -298,7 +300,7 @@ public class DateTime implements Serializable, Comparable {
 	 * sub-millisecond support does cry out for a custom Formatter, though.
 	 * 
 	 * @param format
-	 * @return
+	 * @return A formatted string version of the current DateTime.
 	 */
 	public String toString(String format) {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
@@ -310,7 +312,7 @@ public class DateTime implements Serializable, Comparable {
 	 * the nearest second, but is rendered from the perspective of the time zone
 	 * ascribed to the DateTime object, regardless of the system's time zone.
 	 * 
-	 * @return
+	 * @return A string version of the this DateTime specified in local time.
 	 */
 	public String toLocalString() {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
@@ -323,7 +325,7 @@ public class DateTime implements Serializable, Comparable {
 	 * Add a fixed duration of time
 	 * 
 	 * @param dur
-	 * @return
+	 * @return Newly calculated DateTime object.
 	 */
 	public DateTime add(Duration dur) {
 		Duration calcDur = dur.add(this.getSeconds(), this.getNanos());
@@ -336,7 +338,7 @@ public class DateTime implements Serializable, Comparable {
 	 * multipliers such as SECOND or HOUR.
 	 * 
 	 * @param milliseconds
-	 * @return
+	 * @return Newly calculated DateTime object.
 	 */
 	public DateTime add(long milliseconds) {
 		Duration dur = this.systemDur.add(milliseconds);
@@ -349,8 +351,9 @@ public class DateTime implements Serializable, Comparable {
 	 * preserve non-linear values such as daylight saving or day-of-month
 	 * offsets.
 	 * 
-	 * @param unit
-	 * @param value
+	 * @param calUnit
+	 * @param qty May be positive or negative.
+	 * @return Newly calculated DateTime object.
 	 */
 	public DateTime add(CalendarUnit calUnit, int qty) {
 		/* Fixed durations */
@@ -403,7 +406,7 @@ public class DateTime implements Serializable, Comparable {
 	/**
 	 * Return numeric day of week, usually Sun=1, Mon=2, ... , Sat=7;
 	 * 
-	 * @return
+	 * @return Numeric day of week, usually Sun=1, Mon=2, ... , Sat=7.  See DateTimeConfig.
 	 */
 	public int getWeekday() {
 		long leftover = 0;
@@ -425,7 +428,7 @@ public class DateTime implements Serializable, Comparable {
 	 * [+-]D, [0-9]+Y
 	 * 
 	 * @param str
-	 * @return
+	 * @return New DateTime interpreted from string.
 	 */
 	private static DateTime parseRelativeDate(String str, IDateTimeConfig config) {
 		char firstChar = str.charAt(0);
@@ -480,7 +483,7 @@ public class DateTime implements Serializable, Comparable {
 	 * Interpret a DateTime from a String using global defaults.
 	 * 
 	 * @param str
-	 * @return
+	 * @return New DateTime interpreted from string.
 	 */
 	public static DateTime parse(String str) {
 		DateTimeConfig config = DateTimeConfig.getGlobalDefault();
@@ -492,7 +495,7 @@ public class DateTime implements Serializable, Comparable {
 	 * 
 	 * @param str
 	 * @param config
-	 * @return
+	 * @return New DateTime interpreted from string according to alternate rules.
 	 */
 	public static DateTime parse(String str, IDateTimeConfig config) {
 		if (str == null) {
@@ -774,10 +777,10 @@ public class DateTime implements Serializable, Comparable {
 
 	/**
 	 * Truncate DateTime down to its nearest time unit as a time.
-	 * DateTime.(WEEK|DAY|HOUR|MINUTE|SECOND|MILLISECOND)
+	 * CalendarUnit.(WEEK|DAY|HOUR|MINUTE|SECOND|MILLISECOND)
 	 * 
 	 * @param unit
-	 * @return
+	 * @return A newly calculated DateTime.
 	 */
 	public DateTime truncate(CalendarUnit unit) {
 		// Simple optimization.
@@ -857,7 +860,7 @@ public class DateTime implements Serializable, Comparable {
 	/**
 	 * Whole seconds offset from epoch.
 	 * 
-	 * @return
+	 * @return Whole seconds offset from epoch (1970-01-01 00:00:00).
 	 */
 	public long getSeconds() {
 		return systemDur.getSeconds();
@@ -866,7 +869,7 @@ public class DateTime implements Serializable, Comparable {
 	/**
 	 * Whole milliseconds offset from epoch.
 	 * 
-	 * @return
+	 * @return Milliseconds offset from epoch (1970-01-01 00:00:00).
 	 */
 	public long getMillis() {
 		return systemDur.getMillis();
@@ -875,7 +878,7 @@ public class DateTime implements Serializable, Comparable {
 	/**
 	 * Positive nanosecond offset from Seconds.
 	 * 
-	 * @return
+	 * @return Fractional second in nanoseconds for the given time.
 	 */
 	public int getNanos() {
 		int nanos=systemDur.getNanos();
@@ -883,8 +886,11 @@ public class DateTime implements Serializable, Comparable {
 	}
 
 	/**
+	 * This compares a DateTime with either another DateTime or any
+	 * of Java's standard dates extending from java.util.Date.
+	 * 
 	 * @param dateTime
-	 * @return
+	 * @return True if DateTime values represent the same point in time.
 	 */
 	public boolean equals(Object dateTime) {
 		DateTime dt = null;
@@ -900,6 +906,10 @@ public class DateTime implements Serializable, Comparable {
 				&& systemDur.getNanos() == dt.getNanos();
 	}
 
+	/**
+	 * Return the global configuration used by DateTime.
+	 * @return the global DateTimeConfig object used by DateTime.
+	 */
 	public DateTimeConfig getConfig() {
 		if (config == null) {
 			config = DateTimeConfig.getGlobalDefault();

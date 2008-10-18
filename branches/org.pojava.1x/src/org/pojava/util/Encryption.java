@@ -17,13 +17,35 @@ import org.pojava.exception.InconceivableException;
  * This utility provides a simple interface for encrypting and decrypting data
  * using high-quality encryption algorithms such as AES-128.
  * 
+ * It also provides a means of importing and exporting the cipher keys in a
+ * portable format, a Base64 encoded string that can be stored anywhere you
+ * like.
+ * 
+ * Example usage:
+ * <code>
+ * String doc="This is the document to be encrypted.";
+ * String key=Encryption.exportKey(Encryption.generateAES128Key());
+ * (This key could be retrieved from JNDI, for example)
+ * Encryption encryptor=new Encryption(key);
+ * byte[] encrypted=encryptor.encrypt(doc.getBytes());
+ * ...
+ * byte[] decrypted=encryptor.decrypt(doc.getBytes());
+ * String originalDoc=new String(decrypted);
+ * </code>
+ * 
  * @author John Pile
  * 
  */
 public class Encryption {
 
+	/**
+	 * Cipher used for encrypting the payload.
+	 */
 	private Cipher encryptCipher;
 
+	/**
+	 * Cipher used for decrypting the payload
+	 */
 	private Cipher decryptCipher;
 
 	/**
@@ -31,12 +53,16 @@ public class Encryption {
 	 * generateAES128Key, importKey and exportKey.
 	 * 
 	 * @param key
-	 * @author John Pile
 	 */
 	public Encryption(SecretKey key) {
 		createCiphers(key);
 	}
-	
+
+	/**
+	 * Create the Cipher pair from a SecretKey
+	 * 
+	 * @param key
+	 */
 	private void createCiphers(SecretKey key) {
 		SecretKeySpec skeySpec = new SecretKeySpec(key.getEncoded(), key
 				.getAlgorithm());
@@ -51,19 +77,25 @@ public class Encryption {
 			throw new IllegalArgumentException(ex.getMessage());
 		} catch (InvalidKeyException ex) {
 			throw new IllegalArgumentException(ex.getMessage());
-		}		
+		}
 	}
-	
+
+	/**
+	 * Create a cipher pair from an exported key.
+	 * 
+	 * @param strKey
+	 *            A key exported from a SecretKey object.
+	 * @throws InvalidKeyException
+	 */
 	public Encryption(String strKey) throws InvalidKeyException {
-		SecretKey key=importKey(strKey);
+		SecretKey key = importKey(strKey);
 		createCiphers(key);
 	}
 
 	/**
 	 * This will generate a unique 128bit AES key each time it is called.
 	 * 
-	 * @return
-	 * @author John Pile
+	 * @return a newly generated 128 bit AES key
 	 */
 	public static SecretKey generateAES128Key() {
 		SecretKey skey;
@@ -82,8 +114,7 @@ public class Encryption {
 	 * Export a key as a string (useful in a properties file)
 	 * 
 	 * @param key
-	 * @return
-	 * @author John Pile
+	 * @return a portable text version of a SecretKey.
 	 */
 	public static String exportKey(SecretKey key) {
 		StringBuffer export = new StringBuffer(key.getAlgorithm());
@@ -96,9 +127,8 @@ public class Encryption {
 	 * Import a secret key from an exported key
 	 * 
 	 * @param base64key
-	 * @return
+	 * @return A SecretKey from an exported key.
 	 * @throws InvalidKeyException
-	 * @author John Pile
 	 */
 	public static SecretKey importKey(String base64key)
 			throws InvalidKeyException {
@@ -116,8 +146,7 @@ public class Encryption {
 	 * 
 	 * @param message
 	 * @param key
-	 * @return
-	 * @author John Pile
+	 * @return An encrypted byte array from the source.
 	 */
 	public static byte[] encrypt(byte[] message, SecretKey key) {
 		byte[] encrypted;
@@ -146,8 +175,7 @@ public class Encryption {
 	 * 
 	 * @param encrypted
 	 * @param key
-	 * @return
-	 * @author John Pile
+	 * @return A decrypted byte array from an encrypted source.
 	 */
 	public static byte[] decrypt(byte[] encrypted, SecretKey key) {
 		byte[] decrypted;
@@ -176,8 +204,7 @@ public class Encryption {
 	 * may vary by encryption algorithm.
 	 * 
 	 * @param message
-	 * @return
-	 * @author John Pile
+	 * @return An encrypted byte array from the given source.
 	 */
 	public byte[] encrypt(byte[] message) {
 		try {
@@ -195,18 +222,17 @@ public class Encryption {
 	 * per thread.
 	 * 
 	 * @param encrypted
-	 * @return
-	 * @author John Pile
+	 * @return A decrypted byte array rebuilt from the encrypted source.
 	 */
 	public byte[] decrypt(byte[] encrypted) {
 		try {
-		return decryptCipher.doFinal(encrypted);
+			return decryptCipher.doFinal(encrypted);
 		} catch (BadPaddingException ex) {
 			throw new IllegalArgumentException(ex.getMessage());
 		} catch (IllegalBlockSizeException ex) {
 			throw new IllegalArgumentException(ex.getMessage());
 		}
-		
+
 	}
 
 }

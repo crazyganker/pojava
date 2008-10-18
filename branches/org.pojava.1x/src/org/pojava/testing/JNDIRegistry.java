@@ -26,6 +26,9 @@ import javax.sql.DataSource;
 /**
  * A helper class for stubbing out an InitialContext for unit tests.
  * 
+ * As a concrete example, this can be used to place DataSource objects
+ * into JNDI without running inside an application context.
+ * 
  * @author John Pile
  * 
  */
@@ -39,6 +42,7 @@ public class JNDIRegistry {
 
 	/**
 	 * Get an initial context, making one if it doesn't exist.
+	 * @return Context either newly created or retrieved.
 	 */
 	public static Context getInitialContext() throws NamingException {
 		String initialContextFactory = "org.pojava.testing.TestingContextFactory";
@@ -51,6 +55,7 @@ public class JNDIRegistry {
 
 	/**
 	 * Get an initial context, making one if it doesn't exist.
+	 * @return Context either newly created or retrieved.
 	 */
 	public static Context getInitialContext(String initialContextFactory)
 			throws NamingException {
@@ -65,7 +70,7 @@ public class JNDIRegistry {
 	 * Look up an Environment variable from JNDI.
 	 * 
 	 * @param name
-	 * @return
+	 * @return Environment variable retrieved from JNDI.
 	 * @throws NamingException
 	 */
 	public static Object lookupEnv(String name) throws NamingException {
@@ -77,7 +82,7 @@ public class JNDIRegistry {
 	 * Look up a DataSource from JNDI.
 	 * 
 	 * @param key
-	 * @return
+	 * @return a DataSource object retrieved from JNDI registry.
 	 * @throws NamingException
 	 */
 	public static DataSource lookupDataSource(String key)
@@ -90,7 +95,7 @@ public class JNDIRegistry {
 	 * Lookup an object from JNDI by its fully qualified name.
 	 * 
 	 * @param name
-	 * @return
+	 * @return an object retrieved from the JNDI registry.
 	 * @throws NamingException
 	 */
 	public static Object lookupFullyQualified(String name)

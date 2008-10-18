@@ -29,8 +29,18 @@ import org.pojava.lang.Binding;
  */
 public interface BindingAdaptor {
 
+	/**
+	 * Inbound example might be from the persistence layer to the business layer.
+	 * @param obj
+	 * @return a new binding translated from the old
+	 */
 	Binding inbound(Binding obj);
 
+	/**
+	 * Outbound is typically originating from the business layer to the persistence layer.
+	 * @param obj
+	 * @return a new binding translated from the old
+	 */
 	Binding outbound(Binding obj);
 
 }

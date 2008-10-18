@@ -15,6 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+/**
+ * The InitializationException is a general hint that a class ran
+ * afoul during a constructor's initialization.
+ */
 public class InitializationException extends RuntimeException {
 
 	private static final long serialVersionUID=1;

@@ -1,28 +1,30 @@
 package org.pojava.datetime;
+
 /*
-Copyright 2008 John Pile
+ Copyright 2008 John Pile
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 /**
- * This class is similar in ways to the C language tm struct.
- * It converts a DateTime into year, month, day, hour, minute, second, millisecond, nanosecond.
+ * This class converts a DateTime into year, month, day, hour, minute, second,
+ * millisecond, nanosecond. It is similar to the tm struct in C.
+ * 
  * @author John Pile
- *
+ * 
  */
 public class Tm {
 
@@ -37,11 +39,11 @@ public class Tm {
 	private static final long QUADCENT = 4 * CENT + DAY;
 	// Our year starts March 1
 	private static final long[] MONTH = { 0, 31 * DAY, 61 * DAY, 92 * DAY,
-		122 * DAY, 153 * DAY, 184 * DAY, 214 * DAY, 245 * DAY, 275 * DAY,
-		306 * DAY, 337 * DAY, 365 * DAY };
+			122 * DAY, 153 * DAY, 184 * DAY, 214 * DAY, 245 * DAY, 275 * DAY,
+			306 * DAY, 337 * DAY, 365 * DAY };
 	/**
 	 * The true Gregorian Calendar was initiated in October 1582, but this start
-	 * date is easier for calculations, so I use it as an epoch.  The year starts
+	 * date is easier for calculations, so I use it as an epoch. The year starts
 	 * on March 1 so that a leap day is always at the end of a year.
 	 */
 	private static final long GREG_EPOCH = new DateTime("1600-03-01")
@@ -59,9 +61,10 @@ public class Tm {
 	private int weekday;
 
 	/**
-	 * Populate year, month, day, hour, min, sec, nano
-	 * @param seconds Date/Time in UTC of the default time zone.
-	 * @param nanos
+	 * Populate year, month, day, hour, min, sec, nano from a DateTime
+	 * 
+	 * @param dt
+	 *            DateTime object
 	 */
 	public Tm(DateTime dt) {
 		init(dt);
@@ -69,16 +72,18 @@ public class Tm {
 
 	/**
 	 * Populate year, month, day, hour, min, sec, nano
-	 * @param millis Date/Time in UTC assuming the default time zone.
-	 * @param nanos
+	 * 
+	 * @param millis
+	 *            Date/Time in UTC assuming the default time zone.
 	 */
 	public Tm(long millis) {
 		init(new DateTime(millis));
 	}
 
 	/**
-	 * We'll direct the pre-GREG_EPOCH times here for now.
-	 * Most folks don't use them, so optimizing is not my highest priority.
+	 * We'll direct the pre-GREG_EPOCH times here for now. Most folks don't use
+	 * them, so optimizing is not my highest priority.
+	 * 
 	 * @param millis
 	 */
 	private void initYeOlde(long millis) {
@@ -96,15 +101,17 @@ public class Tm {
 
 	/**
 	 * Calculate date parts.
-	 * @param millis
+	 * 
+	 * @param dt
+	 *            DateTime
 	 */
 	private void init(DateTime dt) {
-		long millis=dt.getMillis();
+		long millis = dt.getMillis();
 		long duration = millis - GREG_EPOCH;
-		this.nanosecond=dt.getNanos();
-		this.weekday=dt.getWeekday();
+		this.nanosecond = dt.getNanos();
+		this.weekday = dt.getWeekday();
 		if (dt.getTimeZone().inDaylightTime(dt.getDate())) {
-			duration+=HOUR;
+			duration += HOUR;
 		}
 		if (millis < GREG_EPOCH) {
 			initYeOlde(millis);
@@ -117,7 +124,7 @@ public class Tm {
 		duration -= cents * CENT;
 		long quadYears = duration / QUADYEAR;
 		duration -= quadYears * QUADYEAR;
-		boolean canLeap=(duration >= YEAR);
+		boolean canLeap = (duration >= YEAR);
 		year = (int) (duration / YEAR);
 		duration -= year * YEAR;
 		// Calculate year based on those blocks
@@ -152,40 +159,84 @@ public class Tm {
 		}
 	}
 
+	/**
+	 * @return Year as YYYY
+	 */
 	public int getYear() {
 		return year;
 	}
 
+	/**
+	 * Returns month between 1 and 12. Differs from C version of tm, but you can
+	 * always subtract 1 if you want zero-based.
+	 * 
+	 * @return Month as Jan=1, Feb=2, ..., Dec=12
+	 */
 	public int getMonth() {
 		return month;
 	}
 
+	/**
+	 * Returns day of month between 1 and 31.
+	 * 
+	 * @return Day of month.
+	 */
 	public int getDay() {
 		return day;
 	}
 
+	/**
+	 * Returns hour of day between 0 and 23.
+	 * 
+	 * @return Hour of day.
+	 */
 	public int getHour() {
 		return hour;
 	}
 
+	/**
+	 * Returns minute of hour between 0 and 59.
+	 * 
+	 * @return Minute of hour.
+	 */
 	public int getMinute() {
 		return minute;
 	}
 
+	/**
+	 * Returns second of minute between 0 and 59.
+	 * 
+	 * @return Second of minute.
+	 */
 	public int getSecond() {
 		return second;
 	}
-	
+
+	/**
+	 * Returns millisecond fraction of second between 0 and 999999.
+	 * 
+	 * @return Millisecond fractino of second.
+	 */
 	public int getMillisecond() {
-		return nanosecond/1000000;
+		return nanosecond / 1000000;
 	}
 
+	/**
+	 * Returns nanosecond fraction of second between 0 and 999999999.
+	 * 
+	 * @return Nanosecond fraction of second.
+	 */
 	public int getNanosecond() {
 		return nanosecond;
 	}
 
+	/**
+	 * Returns weekday between 1 and 7
+	 * 
+	 * @return Typically (although configurable) Sun=1 .. Sat=7
+	 */
 	public int getWeekday() {
 		return weekday;
 	}
-	
+
 }

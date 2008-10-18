@@ -51,7 +51,7 @@ import java.util.Iterator;
  *  INFO, WARNING, ERROR
  * }
  * 
- * &#064;author John Pile
+ * @author John Pile
  * 
  */
 public abstract class Ordinal implements Comparable {
