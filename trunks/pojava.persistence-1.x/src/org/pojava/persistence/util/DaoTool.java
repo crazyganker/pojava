@@ -7,11 +7,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.pojava.lang.Processor;
+import org.pojava.persistence.processor.ResultSetToInt;
+import org.pojava.persistence.processor.ResultSetToList;
+import org.pojava.persistence.processor.ResultSetToProcessor;
 import org.pojava.persistence.query.PreparedSql;
 import org.pojava.persistence.sql.TableMap;
-import org.projava.persistence.processor.ResultSetToInt;
-import org.projava.persistence.processor.ResultSetToList;
-import org.projava.persistence.processor.ResultSetToProcessor;
 
 /**
  * DaoTool provides a consistent assortment of database operations for your DAO

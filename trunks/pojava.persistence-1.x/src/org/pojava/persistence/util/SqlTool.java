@@ -13,10 +13,10 @@ import java.util.Iterator;
 import org.pojava.exception.InitializationException;
 import org.pojava.lang.Binding;
 import org.pojava.lang.BoundString;
+import org.pojava.persistence.processor.ResultSetProcessor;
 import org.pojava.persistence.query.PreparedSql;
 import org.pojava.persistence.sql.DatabaseCache;
 import org.pojava.persistence.sql.TableMap;
-import org.projava.persistence.processor.ResultSetProcessor;
 
 public class SqlTool {
 	
