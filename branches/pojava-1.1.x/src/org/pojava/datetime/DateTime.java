@@ -358,23 +358,23 @@ public class DateTime implements Serializable, Comparable {
 	public DateTime add(CalendarUnit calUnit, int qty) {
 		/* Fixed durations */
 		if (calUnit.compareTo(CalendarUnit.DAY) < 0) {
-			if (calUnit == CalendarUnit.NANOSECOND) {
-				return this.add(new Duration(0, qty));
-			}
-			if (calUnit == CalendarUnit.MICROSECOND) {
-				return this.add(new Duration(0, qty * 1000));
-			}
-			if (calUnit == CalendarUnit.MILLISECOND) {
-				return this.add(qty);
-			}
-			if (calUnit == CalendarUnit.SECOND) {
-				return this.add(qty * 1000);
+			if (calUnit == CalendarUnit.HOUR) {
+				return this.add(qty * 3600000);
 			}
 			if (calUnit == CalendarUnit.MINUTE) {
 				return this.add(qty * 60000);
 			}
-			if (calUnit == CalendarUnit.HOUR) {
-				return this.add(qty * 3600000);
+			if (calUnit == CalendarUnit.SECOND) {
+				return this.add(qty * 1000);
+			}
+			if (calUnit == CalendarUnit.MILLISECOND) {
+				return this.add(qty);
+			}
+			if (calUnit == CalendarUnit.MICROSECOND) {
+				return this.add(new Duration(0, qty * 1000));
+			}
+			if (calUnit == CalendarUnit.NANOSECOND) {
+				return this.add(new Duration(0, qty));
 			}
 		}
 		/* Calendar periods (same time, different day) */
@@ -382,25 +382,18 @@ public class DateTime implements Serializable, Comparable {
 		cal.setTimeInMillis(this.systemDur.millis);
 		if (calUnit == CalendarUnit.DAY) {
 			cal.add(Calendar.DATE, qty);
-		}
-		if (calUnit == CalendarUnit.WEEK) {
+		} else if (calUnit == CalendarUnit.WEEK) {
 			cal.add(Calendar.DATE, qty * 7);
-		}
-		if (calUnit == CalendarUnit.MONTH) {
+		} else if (calUnit == CalendarUnit.MONTH) {
 			cal.add(Calendar.MONTH, qty);
-		}
-		if (calUnit == CalendarUnit.QUARTER) {
+		} else if (calUnit == CalendarUnit.QUARTER) {
 			cal.add(Calendar.MONTH, qty * 3);
-		}
-		if (calUnit == CalendarUnit.YEAR) {
+		} else if (calUnit == CalendarUnit.YEAR) {
 			cal.add(Calendar.YEAR, qty);
-		}
-		if (calUnit == CalendarUnit.CENTURY) {
+		} else if (calUnit == CalendarUnit.CENTURY) {
 			cal.add(Calendar.YEAR, 100 * qty);
 		}
-		return new DateTime(cal.getTimeInMillis() / 1000, (int) (cal
-				.getTimeInMillis() % 1000)
-				* 1000000 + systemDur.getNanos() % 1000000, this.timeZone);
+		return new DateTime(cal.getTimeInMillis() / 1000, systemDur.getNanos(), this.timeZone);
 	}
 
 	/**
@@ -506,14 +499,12 @@ public class DateTime implements Serializable, Comparable {
 			throw new NullPointerException(
 					"Cannot parse time from empty string.");
 		}
-		Calendar cal = Calendar.getInstance();
+		Tm tm=new Tm(System.currentTimeMillis());
+		// Calendar cal = Calendar.getInstance();
 		if (str.charAt(0) == '+' || str.charAt(0) == '-') {
 			return parseRelativeDate(str, config);
 		}
 		String[] parts = partsPattern.split(str);
-		/*
-		 * if (parts.length == 1) { return parseRelativeDate(str, config); }
-		 */
 		boolean isYearFirst = false;
 		boolean hasYear = false, hasMonth = false, hasDay = false;
 		boolean hasHour = false, hasMinute = false, hasSecond = false;
@@ -522,7 +513,7 @@ public class DateTime implements Serializable, Comparable {
 		int hour = 0, minute = 0, second = 0, nanosecond = 0;
 		String tzString = null;
 		TimeZone tz = TimeZone.getDefault();
-		int thisYear = cal.get(Calendar.YEAR);
+		int thisYear = tm.getYear();
 		int centuryTurn = thisYear - (thisYear % 100);
 		// Build a table describing which fields are integers.
 		boolean[] integers = new boolean[parts.length];
@@ -698,6 +689,7 @@ public class DateTime implements Serializable, Comparable {
 			}
 		}
 		DateTime returnDt;
+		Calendar cal=null;
 		if (hasTimeZone) {
 			cal = Calendar.getInstance(tz);
 			cal.set(Calendar.YEAR, year);
@@ -783,24 +775,29 @@ public class DateTime implements Serializable, Comparable {
 	 * @return A newly calculated DateTime.
 	 */
 	public DateTime truncate(CalendarUnit unit) {
+		long trim = 0;
 		// Simple optimization.
 		if (unit.compareTo(CalendarUnit.HOUR) < 0) {
 			if (unit == CalendarUnit.MINUTE) {
-				return new DateTime(this.systemDur.millis
-						- this.systemDur.millis % Duration.MINUTE,
+				trim = this.systemDur.millis % Duration.MINUTE;
+				if (trim < 0) trim += Duration.MINUTE;
+				return new DateTime(this.systemDur.millis - trim,
 						this.timeZone);
 			}
 			if (unit == CalendarUnit.SECOND) {
-				return new DateTime(this.systemDur.millis
-						- this.systemDur.millis % Duration.SECOND,
+				trim = this.systemDur.millis % Duration.SECOND;
+				if (trim < 0) trim += Duration.SECOND;
+				return new DateTime(this.systemDur.millis - trim,
 						this.timeZone);
 			}
 			if (unit == CalendarUnit.MILLISECOND) {
 				return new DateTime(this.systemDur.millis, this.timeZone);
 			}
 			if (unit == CalendarUnit.MICROSECOND) {
+				int nanotrim = this.systemDur.nanos % 1000000;
+				if (nanotrim < 0) nanotrim += 1000000;
 				return new DateTime(this.getSeconds(), this.systemDur.nanos
-						- this.systemDur.nanos % 1000, this.timeZone);
+						- nanotrim, this.timeZone);
 			}
 			return new DateTime(this.systemDur.millis, this.timeZone);
 		}
@@ -809,12 +806,16 @@ public class DateTime implements Serializable, Comparable {
 				+ timeZone.getOffset(this.systemDur.millis);
 		// Truncate and shift back to local time
 		if (unit == CalendarUnit.HOUR) {
-			calcTime -= (calcTime % Duration.HOUR);
+			trim = calcTime % Duration.HOUR;
+			if (trim < 0) trim += Duration.HOUR;
+			calcTime -= trim;
 			calcTime -= timeZone.getOffset(calcTime);
 			return new DateTime(calcTime, this.timeZone);
 		}
 		if (unit == CalendarUnit.DAY) {
-			calcTime -= (calcTime % Duration.DAY);
+			trim = calcTime % Duration.DAY;
+			if (trim < 0) trim += Duration.DAY;
+			calcTime -= trim;
 			calcTime -= timeZone.getOffset(calcTime);
 			return new DateTime(calcTime, this.timeZone);
 		}
