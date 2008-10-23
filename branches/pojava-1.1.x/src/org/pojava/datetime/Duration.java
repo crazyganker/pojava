@@ -75,7 +75,10 @@ public class Duration implements Comparable {
 	 */
 	public Duration(long millis) {
 		this.millis = millis;
-		this.nanos=(int) (millis%SECOND) * NANOS_PER_MILLI;
+		if (millis<0)
+			this.nanos=1000000000 + (int) (millis%SECOND) * NANOS_PER_MILLI;
+		else
+			this.nanos=(int) (millis%SECOND) * NANOS_PER_MILLI;
 	}
 
 	/**
@@ -95,6 +98,7 @@ public class Duration implements Comparable {
 		}
 		this.millis = seconds * SECOND + nanos / NANOS_PER_MILLI;
 		this.nanos = nanos;
+		if (this.millis<0 && this.nanos>0) this.millis-=1000;
 	}
 
 	/**
@@ -116,8 +120,16 @@ public class Duration implements Comparable {
 	 * @return A newly calculated Duration.
 	 */
 	public Duration add(long milliseconds) {
-		return new Duration(this.getSeconds() + milliseconds / 1000, this.nanos
-				+ (int) ((milliseconds % 1000) * 1000000));
+		Duration d=new Duration(this.getMillis()+milliseconds);
+		d.nanos+=this.nanos%1000000;
+		if (d.nanos>1000000000) {
+			d.nanos-=1000000000;
+			d.millis+=1000;
+		} else if (d.nanos<0) {
+			d.nanos+=1000000000;
+			d.millis-=1000;
+		}
+		return d;
 	}
 
 	/**
@@ -195,10 +207,7 @@ public class Duration implements Comparable {
 	 * @return Number of whole seconds in Duration.
 	 */
 	public long getSeconds() {
-		if (millis < 0 && (millis % 1000 != 0)) {
-			return millis / 1000 - 1;
-		}
-		return millis / 1000;
+		return millis / 1000 - (nanos < 0 ? 1 : 0);
 	}
 
 }
