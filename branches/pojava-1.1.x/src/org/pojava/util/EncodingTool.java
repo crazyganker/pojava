@@ -1,17 +1,13 @@
 package org.pojava.util;
 
-
 /**
- * A class for reversible encodings. Typical encodings are designed to
- * represent binary data in a more portable format.  Currently supported
+ * A class for reversible encodings. Typical encodings are designed to represent
+ * binary data in a more portable or printable format. Currently supported
  * encodings include Base64, Hexadecimal.
  * 
  * @author John Pile
  */
 public class EncodingTool {
-	/* 
-	 * TODO: Reconfigure the decoders to ignore whitespace.
-	 */
 
 	// Mapping table for converting a 4-bit nybble to hex characters.
 	private static final char[] hexmap = "0123456789abcdef".toCharArray();
@@ -31,6 +27,7 @@ public class EncodingTool {
 
 	/**
 	 * Encode binary data into a Base-64 array of printable characters.
+	 * 
 	 * @param src
 	 * @return Base-64 encoded string
 	 */
@@ -40,7 +37,8 @@ public class EncodingTool {
 		int d = 0;
 		int e = 3;
 		long buffer = 0;
-		if (padding==4) padding=0;
+		if (padding == 4)
+			padding = 0;
 		char[] encoded = new char[unpadded + padding];
 
 		while (d < src.length) {
@@ -51,19 +49,19 @@ public class EncodingTool {
 			}
 			// Pop from buffer in 6-bit chunks
 			for (int i = 0; i < 4; i++) {
-				encoded[e--] = e64[(int)(buffer & 0x3f)];
+				encoded[e--] = e64[(int) (buffer & 0x3f)];
 				buffer >>>= 6;
 			}
 			e += 8;
 		}
-		while (padding>0) {
-			encoded[unpadded+--padding]='=';
+		while (padding > 0) {
+			encoded[unpadded + --padding] = '=';
 		}
 		return encoded;
 	}
 
 	/**
-	 * Decode a String from Base64 format.
+	 * Decode a String from Base64 format. It strips whitespace before decoding.
 	 * 
 	 * @param s
 	 *            a Base64 String to be decoded.
@@ -75,7 +73,7 @@ public class EncodingTool {
 		if (s == null) {
 			return new byte[0];
 		}
-		return base64Decode(s.toCharArray());
+		return base64Decode(StringTool.stripWhitespace(s).toCharArray());
 	}
 
 	/**
@@ -107,12 +105,12 @@ public class EncodingTool {
 			buffer |= (d64[encoded[e++]] << 6);
 			buffer |= (d64[encoded[e++]]);
 			// Dequeue 24 bits off of the buffer
-			decoded[d++] = (byte)((buffer & 0x00FF0000) >>> 16);
-			if (d<length) {
-				decoded[d++] = (byte)((buffer & 0x0000FF00) >>> 8);
+			decoded[d++] = (byte) ((buffer & 0x00FF0000) >>> 16);
+			if (d < length) {
+				decoded[d++] = (byte) ((buffer & 0x0000FF00) >>> 8);
 			}
-			if (d<length) {
-				decoded[d++] = (byte)(buffer & 0x000000FF);
+			if (d < length) {
+				decoded[d++] = (byte) (buffer & 0x000000FF);
 			}
 		}
 		return decoded;
@@ -121,7 +119,8 @@ public class EncodingTool {
 	/**
 	 * Interpret a hex character as a nybble.
 	 * 
-	 * @param c hexadecimal character to encode
+	 * @param c
+	 *            hexadecimal character to encode
 	 * @return integer between 0 and 15.
 	 */
 	private static int hex2int(char c) {
@@ -140,7 +139,8 @@ public class EncodingTool {
 	}
 
 	/**
-	 * Convert a hex-encoded string back to a byte array.
+	 * Convert a hex-encoded string back to a byte array. This String version
+	 * strips whitespace before decoding.
 	 * 
 	 * @param hex
 	 * @return decoded array of bytes
@@ -149,13 +149,14 @@ public class EncodingTool {
 		if (hex == null) {
 			return new byte[0];
 		}
-		return hexDecode(hex.toCharArray());
+		return hexDecode(StringTool.stripWhitespace(hex).toCharArray());
 	}
-	
+
 	/**
 	 * Convert a hex-encoded character array back to a byte array.
 	 * 
-	 * @param hexChars array of hex-encoded characters
+	 * @param hexChars
+	 *            array of hex-encoded characters
 	 * @return original byte array
 	 */
 	public static byte[] hexDecode(char[] hexChars) {
@@ -165,8 +166,8 @@ public class EncodingTool {
 					"Hex value MUST be two digits per byte.");
 		}
 		byte[] bytes = new byte[byteCt];
-		for (int i=0; i < byteCt; i++) {
-			bytes[i] = (byte) (hex2int(hexChars[2*i]) << 4 | hex2int(hexChars[2*i+1]));
+		for (int i = 0; i < byteCt; i++) {
+			bytes[i] = (byte) (hex2int(hexChars[2 * i]) << 4 | hex2int(hexChars[2 * i + 1]));
 		}
 		return bytes;
 	}
@@ -174,7 +175,8 @@ public class EncodingTool {
 	/**
 	 * Output a hex-encoded representation of a byte array
 	 * 
-	 * @param bytes of binary data to encode
+	 * @param bytes
+	 *            of binary data to encode
 	 * @return Hex encoded representation of binary data
 	 */
 	public static String hexEncode(byte[] bytes) {
