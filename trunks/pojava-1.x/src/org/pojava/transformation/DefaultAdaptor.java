@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -36,6 +37,9 @@ public class DefaultAdaptor implements BindingAdaptor {
 		if (inBinding.getObj()==null) {
 			return outBinding;
 		}
+		if (Time.class.equals(inBinding.getType())) {
+			return outBinding;
+		}
 		if (Date.class.isAssignableFrom(inBinding.getObj().getClass())) {
 			outBinding=new Binding(DateTime.class, new DateTime(((Date)inBinding.getObj()).getTime()));
 		}
@@ -45,6 +49,12 @@ public class DefaultAdaptor implements BindingAdaptor {
 	public Binding outbound(Binding outBinding) {
 		Binding inBinding=outBinding;
 		if (outBinding==null) return null;
+		if (outBinding.getObj()==null) {
+			inBinding=new Binding(Timestamp.class, null);
+		}
+		if (Time.class==outBinding.getType()) {
+			return inBinding;
+		}
 		if (outBinding.getType().equals(DateTime.class)) {
 			inBinding=new Binding(Timestamp.class, ((DateTime)outBinding.getObj()).getTimestamp());
 		}
