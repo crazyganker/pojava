@@ -32,7 +32,17 @@ public class BoundString {
 	private final StringBuffer sb=new StringBuffer();
 	private final List bindings=new ArrayList();
 	
+	/**
+	 * Construct an empty BoundString.
+	 */
 	public BoundString() {
+	}
+	
+	/**
+	 * Construct a BoundString from a String.
+	 */
+	public BoundString(String str) {
+		this.sb.append(str);
 	}
 	
 	/**
