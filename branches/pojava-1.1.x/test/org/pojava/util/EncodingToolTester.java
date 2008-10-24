@@ -9,17 +9,25 @@ public class EncodingToolTester extends TestCase {
 	/**
 	 * This reference message was taken from http://en.wikipedia.org/wiki/Base64 
 	 */
-	String encoded = "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz"
-			+ "IHNpbmd1bGFyIHBhc3Npb24gZnJvbSBvdGhlciBhbmltYWxzLCB3aGljaCBpcyBhIGx1c3Qgb2Yg"
-			+ "dGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY29udGlu"
-			+ "dWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZWRzIHRo"
-			+ "ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
+	String pasted = "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBie\n"
+			+ "\tSB0aGlzIHNpbmd1bGFyIHBhc3Npb24gZnJvbSBvdGhlciBhbmltYWxzLCB3aGljaCBpcyBhIGx1c\n"
+			+ "\t3Qgb2YgdGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY\n"
+			+ "\t29udGludWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZ\n"
+			+ "\tWRzIHRoZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
+	String encoded = StringTool.stripWhitespace(pasted);
 	
-	String decoded = "Man is distinguished, not only by his reason, but by this singular passion from other animals, which is a lust of the mind, that by a perseverance of delight in the continued and indefatigable generation of knowledge, exceeds the short vehemence of any carnal pleasure.";
+	String decoded = "Man is distinguished, not only by his reason, but by this singular"
+		+ " passion from other animals, which is a lust of the mind, that by a perseverance"
+		+ " of delight in the continued and indefatigable generation of knowledge, exceeds"
+		+ " the short vehemence of any carnal pleasure.";
 	
 	public void testBase64Decode() {
 		String test=new String(EncodingTool.base64Decode(encoded.toCharArray()));
 		assertEquals(decoded, test);
+	}
+	
+	public void testBase64DecodeString() {
+		assertEquals(decoded, new String(EncodingTool.base64Decode(pasted)));
 	}
 	
 	public void testBase64Encode() {
@@ -59,7 +67,7 @@ public class EncodingToolTester extends TestCase {
 	}
 
 	public void testHexDecode() {
-		String example="00a1B2c3ff";
+		String example="00 a1 B2 c3 ff";
 		byte[] decoded=EncodingTool.hexDecode(example);
 		assertEquals((byte)0x00, decoded[0]);
 		assertEquals((byte)0xa1, decoded[1]);
