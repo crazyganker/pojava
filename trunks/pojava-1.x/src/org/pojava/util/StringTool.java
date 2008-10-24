@@ -1,19 +1,20 @@
 package org.pojava.util;
+
 /*
-Copyright 2008 John Pile
+ Copyright 2008 John Pile
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 public class StringTool {
 
@@ -111,36 +112,39 @@ public class StringTool {
 		}
 		return isNeg ? -parsed : parsed;
 	}
-	
+
 	/**
 	 * Capitalize the first character of a String.
+	 * 
 	 * @param str
 	 * @return Capitalize the first character.
 	 */
 	public static String capitalize(String str) {
-		char[] chars=str.toCharArray();
-		chars[0]=Character.toUpperCase(chars[0]);
+		char[] chars = str.toCharArray();
+		chars[0] = Character.toUpperCase(chars[0]);
 		return new String(chars);
 	}
-	
+
 	/**
 	 * Convert strings of this_style to thisStyle.
+	 * 
 	 * @param str
 	 * @return camelCase from underscored_words
 	 */
 	public static String camelFromUnderscore(String str) {
-		if (str==null) return null;
-		StringBuffer sb=new StringBuffer();
-		char[] a=str.toCharArray();
-		boolean up=false;
-		for (int i=0; i<a.length; i++) {
-			char c=a[i];
-			if (c=='_') {
-				up=true;
+		if (str == null)
+			return null;
+		StringBuffer sb = new StringBuffer();
+		char[] a = str.toCharArray();
+		boolean up = false;
+		for (int i = 0; i < a.length; i++) {
+			char c = a[i];
+			if (c == '_') {
+				up = true;
 			} else {
 				if (up) {
-					up=false;
-					if (c>='0' && c<='9') {
+					up = false;
+					if (c >= '0' && c <= '9') {
 						sb.append('_');
 						sb.append(c);
 					} else {
@@ -154,4 +158,43 @@ public class StringTool {
 		return sb.toString();
 	}
 
+	/**
+	 * Collapses a string with whitespace characters, including carriage
+	 * returns, into a one-line string with no spaces or tabs.
+	 * 
+	 * @param str
+	 * @return A string with all whitespace removed.
+	 */
+	public static String stripWhitespace(String str) {
+		char[] from = str.toCharArray();
+		char[] to = new char[from.length];
+		int f = 0;
+		int t = 0;
+		int last = from.length;
+		for (f = 0; f < last; f++) {
+			char c = from[f];
+			if (!(c == ' ' || c == '\t' || c == '\n' || c == '\r')) {
+				to[t++] = c;
+			}
+		}
+		return new String(to, 0, t);
+	}
+
+	/**
+	 * Right-pad a string to a fixed width with spaces.
+	 * @param str
+	 * @param width
+	 * @return Padded string of minimal width.
+	 */
+	public static String pad(String str, int width) {
+		if (width<str.length()) {
+			return str;
+		}
+		StringBuffer sb=new StringBuffer(width);
+		sb.append(str);
+		for (int i=0; i<width-str.length(); i++) {
+			sb.append(' ');
+		}
+		return sb.toString();
+	}
 }
