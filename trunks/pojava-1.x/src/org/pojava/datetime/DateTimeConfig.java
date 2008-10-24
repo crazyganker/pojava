@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * Establish global defaults for shaping DateTime behavior. This version
  * supports English, German, French and Spanish month names in the date parser,
- * can can be customized by your applications to interpret other languages.
+ * and can be customized by your applications to interpret other languages.
  * 
  * @author John Pile
  * 
