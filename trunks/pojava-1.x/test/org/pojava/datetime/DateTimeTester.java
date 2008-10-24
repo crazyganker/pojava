@@ -55,6 +55,31 @@ public class DateTimeTester extends TestCase {
 				.toString(format));
 		assertEquals("2000-01-01 00:00:00.000", dt.truncate(
 				CalendarUnit.CENTURY).toString(format));
+		dt=new DateTime(-22222222);  // Eight twos, Brutus? 1969-12-31 09:49:37.778
+		assertEquals("1969-12-31 09:49:37.778", dt.truncate(
+				CalendarUnit.NANOSECOND).toString(format));
+		assertEquals("1969-12-31 09:49:37.778", dt.truncate(
+				CalendarUnit.MICROSECOND).toString(format));
+		assertEquals("1969-12-31 09:49:37.778", dt.truncate(
+				CalendarUnit.MILLISECOND).toString(format));
+		assertEquals("1969-12-31 09:49:37.000", dt
+				.truncate(CalendarUnit.SECOND).toString(format));
+		assertEquals("1969-12-31 09:49:00.000", dt
+				.truncate(CalendarUnit.MINUTE).toString(format));
+		assertEquals("1969-12-31 09:00:00.000", dt.truncate(CalendarUnit.HOUR)
+				.toString(format));
+		assertEquals("1969-12-31 00:00:00.000", dt.truncate(
+				CalendarUnit.DAY).toString(format));
+		assertEquals("1969-12-28 00:00:00.000", dt.truncate(CalendarUnit.WEEK)
+				.toString(format));
+		assertEquals("1969-12-01 00:00:00.000", dt.truncate(CalendarUnit.MONTH)
+				.toString(format));
+		assertEquals("1969-10-01 00:00:00.000", dt.truncate(
+				CalendarUnit.QUARTER).toString(format));
+		assertEquals("1969-01-01 00:00:00.000", dt.truncate(CalendarUnit.YEAR)
+				.toString(format));
+		assertEquals("1900-01-01 00:00:00.000", dt.truncate(
+				CalendarUnit.CENTURY).toString(format));
 	}
 
 	public void testToString() {
