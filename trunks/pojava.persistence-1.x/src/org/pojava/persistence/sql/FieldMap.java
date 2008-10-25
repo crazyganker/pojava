@@ -3,9 +3,15 @@ package org.pojava.persistence.sql;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
 
+import org.pojava.datetime.DateTime;
 import org.pojava.exception.ReflectionException;
 import org.pojava.lang.Binding;
+import org.pojava.persistence.processor.ByteAdaptor;
+import org.pojava.persistence.processor.CharAdaptor;
+import org.pojava.persistence.processor.DoubleAdaptor;
+import org.pojava.persistence.processor.TimeAdaptor;
 import org.pojava.transformation.BindingAdaptor;
 import org.pojava.transformation.DefaultAdaptor;
 import org.pojava.util.ReflectionTool;
@@ -32,6 +38,10 @@ public class FieldMap {
 	private Method[] setters;
 	private TableMap tableMap;
 	private static final DefaultAdaptor ADAPTOR = new DefaultAdaptor();
+	private static final CharAdaptor CHAR_ADAPTOR = new CharAdaptor();
+	private static final DoubleAdaptor DOUBLE_ADAPTOR = new DoubleAdaptor();
+	private static final ByteAdaptor BYTE_ADAPTOR = new ByteAdaptor();
+	private static final TimeAdaptor TIME_ADAPTOR = new TimeAdaptor();
 
 	/**
 	 * Construct an empty FieldMap.
@@ -67,11 +77,40 @@ public class FieldMap {
 	}
 
 	/**
-	 * The "property" is a reference to a field in a Java bean (POJO), where you
-	 * delete the word "get" or "set" and lower-case the first letter.
-	 * Dot-separate any nested references. For example, if your object contains
-	 * a billing zip code as <code>obj.getBillingAddress().getZip()</code>
-	 * then the property would be specified as <code>billingAddress.zip</code>.
+	 * Construct a FieldMap, specifying whether this is a key field.
+	 * 
+	 * @param property
+	 * @param fieldName
+	 * @param isKeyField
+	 */
+	public FieldMap(String property, String fieldName, boolean isKeyField,
+			Class parentType) throws NoSuchMethodException {
+		this.property = property;
+		this.fieldName = fieldName;
+		this.keyField = isKeyField;
+		this.getters = ReflectionTool.getterMethods(parentType, property);
+		this.setters = ReflectionTool.setterMethods(this.getters);
+		Class returnType=this.getters[this.getters.length-1].getReturnType();
+		if (returnType.equals(char.class) || returnType.equals(Character.class)) {
+			this.adaptor = CHAR_ADAPTOR;
+		} else if (returnType.equals(double.class)) {
+			this.adaptor = DOUBLE_ADAPTOR;
+		} else if (returnType.equals(byte.class)) {
+			this.adaptor = BYTE_ADAPTOR;
+		} else if (returnType.equals(Time.class)) {
+			this.adaptor = TIME_ADAPTOR;
+		} else {
+			this.adaptor = ADAPTOR;
+		}
+	}
+
+	/**
+	 * The "property" is a reference to a private or even virtual field in a
+	 * Java bean (POJO), derived from removing the "get" or "set" from the
+	 * accessor and lower-casing the first character. Dot-separate any nested
+	 * references. For example, if your object contains a billing zip code as
+	 * <code>obj.getBillingAddress().getZip()</code> then the property would
+	 * be specified as <code>billingAddress.zip</code>.
 	 * 
 	 * @return Property reference.
 	 */
@@ -180,8 +219,23 @@ public class FieldMap {
 			throws SQLException {
 		Object value = rs.getObject(column);
 		if (this.adaptor != null) {
-			value = this.adaptor
-					.inbound(new Binding(this.getFieldClass(), obj));
+			value = this.adaptor.inbound(
+					new Binding(this.getFieldClass(), value)).getObj();
+			if (value != null) {
+				Class returnType = this.getters[this.getters.length - 1]
+						.getReturnType();
+				if (DateTime.class.equals(value.getClass())
+						&& !DateTime.class.equals(returnType)) {
+					long time = ((DateTime) value).getMillis();
+					if (java.sql.Timestamp.class.equals(returnType)) {
+						value = ((DateTime) value).getTimestamp();
+					} else if (java.sql.Date.class.equals(returnType)) {
+						value = new java.sql.Date(time);
+					} else if (java.util.Date.class.equals(returnType)) {
+						value = new java.util.Date(time);
+					}
+				}
+			}
 		}
 		try {
 			ReflectionTool.setNestedValue(this.getters, this.setters, obj,
@@ -218,7 +272,17 @@ public class FieldMap {
 	}
 
 	/**
+	 * Get the array of setters that drill down to the property.
+	 * 
+	 * @return Array of (often only one) setters drilling down to a property.
+	 */
+	public Method[] getSetters() {
+		return setters;
+	}
+
+	/**
 	 * Set the array of setters drilling down to the specified class
+	 * 
 	 * @param setters
 	 */
 	public void setSetters(Method[] setters) {
@@ -226,8 +290,9 @@ public class FieldMap {
 	}
 
 	/**
-	 * Get the adaptor responsible for transforming the data between the database field
-	 * and the bean property.
+	 * Get the adaptor responsible for transforming the data between the
+	 * database field and the bean property.
+	 * 
 	 * @return BindingAdaptor
 	 */
 	public BindingAdaptor getAdaptor() {
@@ -235,15 +300,16 @@ public class FieldMap {
 	}
 
 	/**
-	 * Set the adaptor responsible for transforming the data between the database field
-	 * and the bean property.
+	 * Set the adaptor responsible for transforming the data between the
+	 * database field and the bean property.
 	 */
 	public void setAdaptor(BindingAdaptor adaptor) {
 		this.adaptor = adaptor;
 	}
 
 	/**
-	 * Specify the TableMap that contains this FieldMap. 
+	 * Specify the TableMap that contains this FieldMap.
+	 * 
 	 * @param map
 	 */
 	public void setTableMap(TableMap map) {
@@ -251,7 +317,8 @@ public class FieldMap {
 	}
 
 	/**
-	 * Get the TableMap that contains this FieldMap. 
+	 * Get the TableMap that contains this FieldMap.
+	 * 
 	 * @param map
 	 */
 	public TableMap getTableMap() {
