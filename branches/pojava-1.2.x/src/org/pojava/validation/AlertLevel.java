@@ -21,6 +21,12 @@ import java.util.Iterator;
 import org.pojava.ordinals.Ordinal;
 import org.pojava.ordinals.OrdinalSet;
 
+/**
+ * An ordinal for {DEBUG, INFO, ERROR, WARNING}
+ * 
+ * @author John Pile
+ *
+ */
 public class AlertLevel extends Ordinal {
 
 	private static final OrdinalSet ordinals = new OrdinalSet();
@@ -30,14 +36,26 @@ public class AlertLevel extends Ordinal {
 	public static final AlertLevel ERROR = new AlertLevel("ERROR");
 	public static final AlertLevel WARNING = new AlertLevel("WARNING");
 
+	/**
+	 * Construct an alert by name (DEBUG, INFO, ERROR, WARNING)
+	 * @param name
+	 */
 	private AlertLevel(String name) {
 		register(ordinals, name, this);
 	}
 
+	/**
+	 * Iterate the list of available AlertLevel options.
+	 */
 	public Iterator iterator() {
 		return ordinals.iterator();
 	}
 
+	/**
+	 * Lookup ordinal by name.
+	 * @param name
+	 * @return
+	 */
 	public static AlertLevel valueOf(String name) {
 		Ordinal located = ordinals.get(name);
 		if (located == null) {
