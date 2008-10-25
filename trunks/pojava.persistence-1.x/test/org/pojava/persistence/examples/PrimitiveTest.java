@@ -9,7 +9,6 @@ public class PrimitiveTest {
 
 		private int testId;
 		private long testBigint;
-		private boolean testBit;
 		private boolean testBoolean;
 		private char testCharacter1;
 		private String testCharacter5;
@@ -36,12 +35,6 @@ public class PrimitiveTest {
 		}
 		public void setTestBigint(long testBigint) {
 			this.testBigint = testBigint;
-		}
-		public boolean isTestBit() {
-			return testBit;
-		}
-		public void setTestBit(boolean testBit) {
-			this.testBit = testBit;
 		}
 		public boolean isTestBoolean() {
 			return testBoolean;
