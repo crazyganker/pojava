@@ -12,14 +12,15 @@ public class Mock {
 		TypeTest obj=new TypeTest();
 		String str=new Integer(seed).toString();
 		obj.setTestBigint(new Long(seed*Integer.MAX_VALUE));
-		obj.setTestBit(new Boolean(seed%2==0));
 		obj.setTestBoolean(new Boolean(seed%2==0));
-		obj.setTestCharacter1(Character.valueOf((char)('A' + seed%26)));
+		obj.setTestCharacter1(new Character((char)('A' + seed%26)));
 		obj.setTestCharacter5(str.substring(0, Math.min(5, str.length())));
 		obj.setTestDate(new DateTime(seed*7777777));
-		obj.setTestDouble(new Double((1.0*seed)/7));
+		obj.setTestDouble(new Double((1.0*seed%13)/7));
 		obj.setTestId(new Integer(seed));
-		obj.setTestNumeric_10x4(BigDecimal.valueOf(obj.getTestDouble().doubleValue()));
+		BigDecimal bigD=new BigDecimal(new Double(obj.getTestDouble().doubleValue()).toString().substring(0,6));
+		obj.setTestNumeric_10x4(bigD);
+		
 		obj.setTestReal(new Float(seed+0.111));
 		obj.setTestSmallint(new Integer(seed));
 		obj.setTestTimestampWithoutTz(obj.getTestDate());
@@ -34,7 +35,6 @@ public class Mock {
 		PrimitiveTest obj=new PrimitiveTest();
 		String str=new Integer(seed).toString();
 		obj.setTestBigint(seed*Integer.MAX_VALUE);
-		obj.setTestBit(seed%2==0);
 		obj.setTestBoolean(seed%2==0);
 		obj.setTestCharacter1((char)('A' + seed%26));
 		obj.setTestCharacter5(str.substring(0, Math.min(5, str.length())));
