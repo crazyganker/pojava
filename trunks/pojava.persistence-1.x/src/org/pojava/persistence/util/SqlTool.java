@@ -28,8 +28,7 @@ public class SqlTool {
 	 * @throws SQLException
 	 */
 	public static int executeUpdate(PreparedSql query, Connection conn) throws SQLException {
-		PreparedStatement pstmt=generatePreparedStatement(query.getSql(), conn);
-		pstmt.setMaxRows(query.getMaxRows());
+		PreparedStatement pstmt=generatePreparedStatement(query, conn);
 		int result=pstmt.executeUpdate();
 		pstmt.close();
 		return result;
@@ -43,9 +42,8 @@ public class SqlTool {
 	 * @throws SQLException
 	 */
 	public static int executeQuery(PreparedSql query, Connection conn, ResultSetProcessor processor) throws SQLException {
-		PreparedStatement pstmt=generatePreparedStatement(query.getSql(), conn);
-		pstmt.setMaxRows(query.getMaxRows());
-		ResultSet rs=pstmt.executeQuery(query.getSql().getString());
+		PreparedStatement pstmt=generatePreparedStatement(query, conn);
+		ResultSet rs=pstmt.executeQuery();
 		int result=processor.process(rs);
 		if (rs!=null) {
 			rs.close();
@@ -59,15 +57,16 @@ public class SqlTool {
 	
 	/**
 	 * Generate a prepared statement using bindings.
-	 * @param boundSql
+	 * @param preparedSql
 	 * @param conn
 	 * @return
 	 * @throws SQLException
 	 */
-	private static PreparedStatement generatePreparedStatement(BoundString boundSql, Connection conn) throws SQLException {
-		PreparedStatement pstmt=conn.prepareStatement(boundSql.getString());
+	private static PreparedStatement generatePreparedStatement(PreparedSql preparedSql, Connection conn) throws SQLException {
+		BoundString bs=preparedSql.getSql();
+		PreparedStatement pstmt=conn.prepareStatement(bs.getString());
 		int i=0;
-		for (Iterator it=boundSql.getBindings().iterator(); it.hasNext();) {
+		for (Iterator it=bs.getBindings().iterator(); it.hasNext();) {
 			i++;
 			Binding binding=(Binding)it.next();
 			int sqlType=sqlTypeFromClass(binding.getType());
@@ -78,6 +77,7 @@ public class SqlTool {
 				pstmt.setObject(i, o, sqlType);
 			}
 		}
+		pstmt.setMaxRows(preparedSql.getMaxRows());
 		return pstmt;
 	}
 
@@ -110,6 +110,14 @@ public class SqlTool {
 		return type;
 	}
 	
+	/**
+	 * Blow up if we can't initialize properly.
+	 * @param ex
+	 * @param javaClass
+	 * @param tableName
+	 * @param dsName
+	 * @return InitializationException
+	 */
 	private static InitializationException initializationException(SQLException ex, Class javaClass, String tableName, String dsName) {
 		StringBuffer msg = new StringBuffer();
 		msg.append("Cannot auto-initialize TableMap(");
@@ -123,6 +131,13 @@ public class SqlTool {
 		return new InitializationException(msg.toString(), ex);
 	}
 	
+	/**
+	 * Generate TableMap from database.
+	 * @param javaClass
+	 * @param tableName
+	 * @param dsName
+	 * @return TableMap retrieved from database MetaData
+	 */
 	private static TableMap autoGenerateTableMap(Class javaClass, String tableName, String dsName) {
 		try {
 			TableMap tableMap = new TableMap(javaClass, tableName, dsName);
