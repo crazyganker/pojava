@@ -11,6 +11,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.pojava.exception.PersistenceException;
 import org.pojava.persistence.util.MetaDataRegistryRunner;
 
 /**
@@ -142,7 +143,7 @@ public class DatabaseCache {
 			try {
 				registerMetaData(name, ds.getConnection().getMetaData());
 			} catch (SQLException ex) {
-				throw new IllegalStateException(
+				throw new PersistenceException(
 						"Attempt to registerMetaData failed: "
 								+ ex.getMessage(), ex);
 			}
