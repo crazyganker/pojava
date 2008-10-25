@@ -4,6 +4,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.pojava.exception.PersistenceException;
 import org.pojava.persistence.sql.DatabaseCache;
 
 
@@ -21,7 +22,7 @@ public class MetaDataRegistryRunner implements Runnable {
 		try {
 			DatabaseCache.registerMetaData(name, ds.getConnection().getMetaData());
 		} catch (SQLException ex) {
-			throw new IllegalStateException(ex.getMessage(), ex);
+			throw new PersistenceException(ex.getMessage(), ex);
 		}
 	}
 
