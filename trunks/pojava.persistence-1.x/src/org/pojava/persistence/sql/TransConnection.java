@@ -1,22 +1,14 @@
 package org.pojava.persistence.sql;
 
-import java.sql.Array;
-import java.sql.Blob;
 import java.sql.CallableStatement;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.NClob;
 import java.sql.PreparedStatement;
-import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.SQLXML;
 import java.sql.Savepoint;
 import java.sql.Statement;
-import java.sql.Struct;
 import java.util.Map;
-import java.util.Properties;
 
 public class TransConnection implements Connection {
 
@@ -42,26 +34,6 @@ public class TransConnection implements Connection {
 		conn.commit();
 	}
 
-	public Array createArrayOf(String typeName, Object[] elements)
-			throws SQLException {
-		return conn.createArrayOf(typeName, elements);
-	}
-
-	public Blob createBlob() throws SQLException {
-		return conn.createBlob();
-	}
-
-	public Clob createClob() throws SQLException {
-		return conn.createClob();
-	}
-
-	public NClob createNClob() throws SQLException {
-		return conn.createNClob();
-	}
-
-	public SQLXML createSQLXML() throws SQLException {
-		return conn.createSQLXML();
-	}
 
 	public Statement createStatement() throws SQLException {
 		return conn.createStatement();
@@ -79,25 +51,12 @@ public class TransConnection implements Connection {
 				resultSetHoldability);
 	}
 
-	public Struct createStruct(String typeName, Object[] attributes)
-			throws SQLException {
-		return conn.createStruct(typeName, attributes);
-	}
-
 	public boolean getAutoCommit() throws SQLException {
 		return conn.getAutoCommit();
 	}
 
 	public String getCatalog() throws SQLException {
 		return conn.getCatalog();
-	}
-
-	public Properties getClientInfo() throws SQLException {
-		return conn.getClientInfo();
-	}
-
-	public String getClientInfo(String name) throws SQLException {
-		return conn.getClientInfo(name);
 	}
 
 	public int getHoldability() throws SQLException {
@@ -126,14 +85,6 @@ public class TransConnection implements Connection {
 
 	public boolean isReadOnly() throws SQLException {
 		return conn.isReadOnly();
-	}
-
-	public boolean isValid(int timeout) throws SQLException {
-		return conn.isValid(timeout);
-	}
-
-	public boolean isWrapperFor(Class arg0) throws SQLException {
-		return conn.isWrapperFor(arg0);
 	}
 
 	public String nativeSQL(String sql) throws SQLException {
@@ -207,16 +158,6 @@ public class TransConnection implements Connection {
 		conn.setCatalog(catalog);
 	}
 
-	public void setClientInfo(Properties properties)
-			throws SQLClientInfoException {
-		conn.setClientInfo(properties);
-	}
-
-	public void setClientInfo(String name, String value)
-			throws SQLClientInfoException {
-		conn.setClientInfo(name, value);
-	}
-
 	public void setHoldability(int holdability) throws SQLException {
 		conn.setHoldability(holdability);
 	}
@@ -239,10 +180,6 @@ public class TransConnection implements Connection {
 
 	public void setTypeMap(Map arg0) throws SQLException {
 		conn.setTypeMap(arg0);
-	}
-
-	public Object unwrap(Class arg0) throws SQLException {
-		return conn.unwrap(arg0);
 	}
 
 	public boolean equals(Object obj) {
