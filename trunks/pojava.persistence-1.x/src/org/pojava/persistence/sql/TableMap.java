@@ -66,6 +66,7 @@ public class TableMap {
 
 	/**
 	 * Asks the database for the primary keys for the table.
+	 * 
 	 * @param conn
 	 * @return
 	 * @throws SQLException
@@ -84,6 +85,7 @@ public class TableMap {
 
 	/**
 	 * Populate the field mappings by asking the database for MetaData.
+	 * 
 	 * @throws SQLException
 	 */
 	public void autoBind() throws SQLException {
@@ -126,15 +128,21 @@ public class TableMap {
 			int column = i + 1;
 			String fieldName = rsMeta.getColumnName(column);
 			String property = StringTool.camelFromUnderscore(fieldName);
-			FieldMap fm = new FieldMap(property, fieldName, primaryKeys
-					.contains(fieldName));
+			FieldMap fm = null;
+			try {
+				fm = new FieldMap(property, fieldName, primaryKeys
+						.contains(fieldName), this.javaClass);
+			} catch (NoSuchMethodException ex) {
+				throw new InconceivableException(
+						"Did reflection find something that doesn't exist?", ex);
+			}
 			fm.setTableMap(this);
 			try {
 				fm.setFieldClass(Class.forName(rsMeta
 						.getColumnClassName(column)));
 			} catch (ClassNotFoundException ex) {
 				throw new InconceivableException(
-						"ClassNotFoundException can't happen here.  Something is dreadfully wrong.",
+						"This smells lika a classpath issue.  I was looking for " + rsMeta.getColumnClassName(column) + ".",
 						ex);
 			}
 			try {
@@ -183,6 +191,9 @@ public class TableMap {
 			field
 					.setPropertyClass(field.getGetters()[field.getGetters().length - 1]
 							.getReturnType());
+		}
+		if (field.getSetters() == null && field.getGetters() != null) {
+			field.setSetters(ReflectionTool.setterMethods(field.getGetters()));
 		}
 		field.setTableMap(this);
 		this.allFields.put(field.getProperty(), field);
@@ -240,7 +251,8 @@ public class TableMap {
 	 * 
 	 * @param field
 	 * @param bean
-	 * @return retrieved field data.  Primitives are converted to equivalent object.
+	 * @return retrieved field data. Primitives are converted to equivalent
+	 *         object.
 	 */
 	private Object getFieldValue(FieldMap field, Object bean)
 			throws NoSuchMethodException {
@@ -415,10 +427,10 @@ public class TableMap {
 						bean);
 			}
 			if (propertyObj == null) {
+				bs.append(" IS NULL AND ");
+			} else {
 				bs.append("=? AND ");
 				bs.addBinding(field.getPropertyClass(), propertyObj);
-			} else {
-				bs.append(" IS NULL AND ");
 			}
 		}
 		bs.chop(5);
@@ -428,7 +440,8 @@ public class TableMap {
 	/**
 	 * Extract an Object specific to this TableMap
 	 * 
-	 * @param rs ResultSet already advanced to next row.
+	 * @param rs
+	 *            ResultSet already advanced to next row.
 	 * @return bean extracted from a ResultSet row.
 	 */
 	public Object extractObject(ResultSet rs) {
@@ -447,21 +460,21 @@ public class TableMap {
 			sb.append(this.javaClass.getName());
 			sb.append(": ");
 			sb.append(ex.getMessage());
-			throw new IllegalStateException(sb.toString(), ex);
+			throw new PersistenceException(sb.toString(), ex);
 		} catch (IllegalAccessException ex) {
 			StringBuffer sb = new StringBuffer();
 			sb.append("Cannot construct ");
 			sb.append(this.javaClass.getName());
 			sb.append(": ");
 			sb.append(ex.getMessage());
-			throw new IllegalStateException(sb.toString(), ex);
+			throw new PersistenceException(sb.toString(), ex);
 		} catch (SQLException ex) {
 			StringBuffer sb = new StringBuffer();
 			sb.append("SQL error while constructing ");
 			sb.append(this.javaClass.getName());
 			sb.append(": ");
 			sb.append(ex.getMessage());
-			throw new IllegalStateException(sb.toString(), ex);
+			throw new PersistenceException(sb.toString(), ex);
 		}
 		return obj;
 	}
