@@ -295,7 +295,7 @@ public class DaoTool {
 			msg.append("Cannot perform deleteQuery using a null query.");
 			throw new IllegalArgumentException(msg.toString());
 		}
-		if (!query.getSql().getString().toUpperCase().replace("\t", " ").trim().startsWith("DELETE ")) {
+		if (!query.getSql().getString().toUpperCase().replace('\t', ' ').trim().startsWith("DELETE ")) {
 			throw new IllegalArgumentException("The deleteQuery query should start with the word 'DELETE'.");
 		}
 		return SqlTool.executeUpdate(query, conn);
