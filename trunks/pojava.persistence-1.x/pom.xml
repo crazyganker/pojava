@@ -4,14 +4,73 @@
   <groupId>pojava</groupId>
   <artifactId>persistence</artifactId>
   <name>POJava Persistence Utility</name>
-  <version>1.1.0</version>
+  <version>1.0.0</version>
   <build>
     <outputDirectory>target/classes</outputDirectory>
     <finalName>${artifactId}-${project.version}</finalName>
     <testOutputDirectory>target/test-classes</testOutputDirectory>
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>
-  </build>
+        <directory>${basedir}/target</directory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/test</directory>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <inherited>true</inherited>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${source-compiler-version}</source>
+                    <target>${source-compiler-version}</target>
+                    <debug>true</debug>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.0</version>
+                <configuration>
+                    <warName>${war-name}</warName>
+                    <webResources>
+                        <resource>
+                            <directory>${basedir}/web</directory>
+                        </resource>
+                    </webResources>
+                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tester.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>  
   <reporting>
     <plugins>
       <plugin>
