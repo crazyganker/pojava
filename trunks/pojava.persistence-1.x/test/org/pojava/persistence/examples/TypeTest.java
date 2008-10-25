@@ -9,7 +9,6 @@ public class TypeTest {
 
 	private Integer testId;
 	private Long testBigint;
-	private Boolean testBit;
 	private Boolean testBoolean;
 	private Character testCharacter1;
 	private String testCharacter5;
@@ -36,12 +35,6 @@ public class TypeTest {
 	}
 	public void setTestBigint(Long testBigint) {
 		this.testBigint = testBigint;
-	}
-	public Boolean getTestBit() {
-		return testBit;
-	}
-	public void setTestBit(Boolean testBit) {
-		this.testBit = testBit;
 	}
 	public Boolean getTestBoolean() {
 		return testBoolean;
