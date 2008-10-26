@@ -26,7 +26,7 @@ public class StringToolTester extends TestCase {
 		assertFalse(StringTool.onlyDigits("1A"));
 	}
 
-	public void testParsIntFragment() {
+	public void testParseIntFragment() {
 		assertEquals(123, StringTool.parseIntFragment("123"));
 		assertEquals(123, StringTool.parseIntFragment("123.45"));
 		assertEquals(321, StringTool.parseIntFragment("321Penguins"));
@@ -35,16 +35,30 @@ public class StringToolTester extends TestCase {
 		assertEquals(0, StringTool.parseIntFragment(null));
 	}
 
-	public void startsWithDigit() {
-		assertTrue(StringTool.onlyDigits("-123"));
-		assertTrue(StringTool.onlyDigits("123412341234"));
-		assertFalse(StringTool.onlyDigits(null));
-		assertFalse(StringTool.onlyDigits("A1B2"));
-		assertFalse(StringTool.onlyDigits("1A"));
-	}
-	
 	public void testCapitalize() {
 		assertEquals("Hey, Mo", StringTool.capitalize("hey, Mo"));
+		assertEquals("Hey, mo", StringTool.capitalize("hey, mo"));
+	}
+	
+	public void testCamelFromUnderscore() {
+		assertEquals("iAmACamel", StringTool.camelFromUnderscore("i_am_a_camel"));
+		assertEquals("iAmACamel", StringTool.camelFromUnderscore("I_am_a_Camel"));
 	}
 
+	public void testUnderscoreFromCamel() {
+		assertEquals("under_dog", StringTool.underscoreFromCamel("underDog"));
+		assertEquals("a1_and_a2", StringTool.underscoreFromCamel("a1AndA2"));
+	}
+
+	public void testStripWhitespace() {
+		assertEquals("Vapidfoxpawszipquicklyundermybrightjar.",
+				StringTool.stripWhitespace("   \tVapid fox paws\tzip quickly \t \tunder my bright jar .\n\n "));
+	}
+	
+	public void testPad() {
+		assertEquals("Ten       ", StringTool.pad("Ten", 10));
+		assertEquals(" eleven    ", StringTool.pad(" eleven ", 11));
+		// Pad does not truncate or trim.
+		assertEquals("three ", StringTool.pad("three ", 3));
+	}
 }
