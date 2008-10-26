@@ -16,6 +16,10 @@ package org.pojava.util;
  limitations under the License.
  */
 
+/**
+ * A set of methods for performing string manipulation, mostly to support
+ * internal needs without requiring external libraries.
+ */
 public class StringTool {
 
 	/**
@@ -151,9 +155,34 @@ public class StringTool {
 						sb.append(Character.toUpperCase(c));
 					}
 				} else {
+					if (c>='A' && c<='Z') {
+						c+='a'-'A';
+					}
 					sb.append(c);
 				}
 			}
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Convert strings of thisStyle to this_style.
+	 * 
+	 * @param str
+	 * @return underscored_words from camelCase 
+	 */
+	public static String underscoreFromCamel(String str) {
+		if (str == null)
+			return null;
+		StringBuffer sb = new StringBuffer();
+		char[] a = str.toCharArray();
+		for (int i = 0; i < a.length; i++) {
+			char c = a[i];
+			if (c>='A' && c<='Z') {
+				sb.append('_');
+				c+=('a'-'A');
+			}
+			sb.append(c);
 		}
 		return sb.toString();
 	}
