@@ -6,11 +6,22 @@ import java.sql.SQLException;
 import org.pojava.lang.Processor;
 import org.pojava.persistence.sql.TableMap;
 
+/**
+ * Process a ResultSet into a method implementing the Processor interface.
+ * 
+ * @author John Pile
+ * 
+ */
 public class ResultSetToProcessor implements ResultSetProcessor {
 
 	private TableMap map = null;
 	private Processor processor = null;
 
+	/**
+	 * Constructor mapping a TableMap to a Processor.
+	 * @param map
+	 * @param processor
+	 */
 	public ResultSetToProcessor(TableMap map, Processor processor) {
 		if (map == null) {
 			throw new IllegalArgumentException(
@@ -21,7 +32,7 @@ public class ResultSetToProcessor implements ResultSetProcessor {
 					"Cannot construct a ResultSetToList with a null processor.");
 		}
 		this.map = map;
-		this.processor=processor;
+		this.processor = processor;
 	}
 
 	/**

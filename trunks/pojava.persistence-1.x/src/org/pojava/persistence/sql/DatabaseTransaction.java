@@ -4,6 +4,12 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * This interface describes expected functionality from a Transaction object
+ * specific to JDBC.
+ * 
+ * @author John Pile
+ */
 public interface DatabaseTransaction {
 
 	/**

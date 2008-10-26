@@ -7,7 +7,7 @@ import java.util.List;
 import org.pojava.persistence.sql.TableMap;
 
 /**
- * This class processes a data set into a list of objects.
+ * Process a data set into a list of objects.
  * 
  * @author John Pile
  *

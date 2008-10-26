@@ -24,19 +24,36 @@ public class PreparedSql {
 	 */
 	int maxRows = 0;	
 
+	/**
+	 * Create PreparedSql from SQL stored in a BoundString with unlimited maxRows.
+	 * @param sql
+	 */
 	public PreparedSql(BoundString sql) {
 		this.sql = sql;
 	}
 
+	/**
+	 * Create PreparedSql from SQL stored in a BoundString with specified maxRows.
+	 * @param sql
+	 * @param maxRows
+	 */
 	public PreparedSql(BoundString sql, int maxRows) {
 		this.sql = sql;
 		this.maxRows = maxRows;
 	}
 
+	/**
+	 * Get SQL.
+	 * @return
+	 */
 	public BoundString getSql() {
 		return sql;
 	}
 
+	/**
+	 * Get Max number of rows returnable by query.
+	 * @return
+	 */
 	public int getMaxRows() {
 		return maxRows;
 	}

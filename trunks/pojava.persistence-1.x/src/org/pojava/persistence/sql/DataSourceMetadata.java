@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 /**
  * This class keeps some useful information about a DataSource without
- * holding a Connection hostage.
+ * holding open a Connection.
  *  
  * @author John Pile
  *

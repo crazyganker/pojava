@@ -6,8 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.pojava.persistence.examples.PrimitiveTest;
-
 public class TestHelper {
 
 	/**

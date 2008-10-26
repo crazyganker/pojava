@@ -5,10 +5,17 @@ import java.sql.SQLException;
 
 /**
  * Process a result set.
+ * 
  * @author John Pile
  */
 public interface ResultSetProcessor {
 
-	int process(ResultSet rs) throws SQLException ;
-	
+	/**
+	 * Used as a callback to perform an action on a ResultSet.
+	 * @param rs
+	 * @return
+	 * @throws SQLException
+	 */
+	int process(ResultSet rs) throws SQLException;
+
 }
