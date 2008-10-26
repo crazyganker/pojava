@@ -22,7 +22,7 @@ import org.pojava.ordinals.Ordinal;
 import org.pojava.ordinals.OrdinalSet;
 
 /**
- * A HashingAlgorithm represents a hashing algorithm supported by HashingTool.
+ * A HashingAlgorithm ordinal represents a hashing algorithm supported by HashingTool.
  * 
  * @author John Pile
  * 
