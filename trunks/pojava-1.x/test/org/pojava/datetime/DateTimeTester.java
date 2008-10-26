@@ -323,5 +323,20 @@ public class DateTimeTester extends TestCase {
 		DateTime dt=new DateTime("Jan 26, 1969");
 		assertEquals("1969-01-26 00:00:00", dt.toLocalString());
 	}
+	
+	/**
+	 * It is always prudent to verify that your examples actually work :)
+	 */
+	public void testJavaDocClaims() {
+		DateTime dt1=new DateTime("3:21pm on January 26, 1969");
+		DateTime dt2=new DateTime("26-Jan-1969 03:21 PM");
+		DateTime dt3=new DateTime("1/26/69 15:21");
+		DateTime dt4=new DateTime("1969.01.26 15.21");
+		DateTime dt5=new DateTime("el 26 de enero de 1969 15.21");
+		assertEquals(dt1,dt2);
+		assertEquals(dt1,dt3);
+		assertEquals(dt1,dt4);
+		assertEquals(dt1,dt5);		
+	}
 
 }
