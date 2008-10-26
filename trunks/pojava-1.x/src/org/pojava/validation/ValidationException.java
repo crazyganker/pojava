@@ -19,17 +19,40 @@ package org.pojava.validation;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * An exception that may contain multiple validation messages.
+ * 
+ * @author John Pile
+ * 
+ */
 public class ValidationException extends RuntimeException {
+	/**
+	 * Serializable requirement
+	 */
 	private static final long serialVersionUID = 1L;
+	/**
+	 * List of Alert objects. 
+	 */
 	private List alerts = new ArrayList();
 
+	/**
+	 * Default Constructor
+	 */
 	public ValidationException() {
 	}
 
+	/**
+	 * Construct with a single Alert
+	 * @param alert
+	 */
 	public ValidationException(Alert alert) {
 		alerts.add(alert);
 	}
 
+	/**
+	 * Add an additional alert
+	 * @param alert
+	 */
 	public void add(Alert alert) {
 		alerts.add(alert);
 	}
