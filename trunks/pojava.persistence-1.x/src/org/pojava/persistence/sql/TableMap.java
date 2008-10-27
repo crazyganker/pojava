@@ -42,7 +42,7 @@ import org.pojava.util.StringTool;
 /**
  * TableMap manages a collection of mappings between a Java bean and a database
  * table. It allows for either a manual or automated mapping of each property.
- * Each property is defined by a get or set accessor.
+ * Each property is defined by its get/set accessors.
  * 
  * @author John Pile
  */
@@ -214,6 +214,22 @@ public class TableMap {
 	}
 
 	/**
+	 * Add a FieldMap to this TableMap.
+	 * @param property
+	 * @param fieldName
+	 * @param isKeyField
+	 * @param tableMap
+	 * @param columnClassName
+	 * @throws NoSuchMethodException
+	 */
+	public void addFieldMap(String property, String fieldName,
+			boolean isKeyField, TableMap tableMap, String columnClassName)
+			throws NoSuchMethodException {
+		addFieldMap(new FieldMap(property, fieldName, isKeyField, tableMap,
+				columnClassName));
+	}
+
+	/**
 	 * Return comma-separated list of all fields.
 	 * 
 	 * @return
@@ -222,7 +238,7 @@ public class TableMap {
 		StringBuffer sb = new StringBuffer();
 		for (Iterator it = this.allFields.values().iterator(); it.hasNext();) {
 			FieldMap fieldMap = (FieldMap) it.next();
-			sb.append(fieldMap.getFieldName());
+			sb.append(fieldMap.getColumnName());
 			sb.append(", ");
 		}
 		sb.setLength(Math.max(0, sb.length() - 2));
@@ -346,7 +362,7 @@ public class TableMap {
 			FieldMap field = (FieldMap) it.next();
 			Method[] getters = field.getGetters();
 			Object propertyObj = null;
-			bs.append(field.getFieldName());
+			bs.append(field.getColumnName());
 			bs.append("=?, ");
 			if (getters == null) {
 				if (field.getProperty().indexOf('[') >= 0) {
@@ -403,7 +419,7 @@ public class TableMap {
 		bs.append(" WHERE ");
 		for (Iterator it = this.keyFields.iterator(); it.hasNext();) {
 			FieldMap field = (FieldMap) it.next();
-			bs.append(field.getFieldName());
+			bs.append(field.getColumnName());
 			Object propertyObj = null;
 			if (field.getGetters() == null) {
 				propertyObj = ReflectionTool.getNestedValue(
