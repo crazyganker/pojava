@@ -15,15 +15,18 @@ public class CharAdaptor implements BindingAdaptor {
 	 * Translate the binding from the data source towards Java bean.
 	 */
 	public Binding inbound(Binding inBinding) {
-		Binding outBinding = inBinding;
+		// Prevent constructing a new object when you can.
 		if (inBinding == null)
 			return null;
-		if (inBinding.getObj() == null) {
-			return outBinding;
+		if (inBinding.getObj() == null
+				|| Character.class.equals(inBinding.getType())) {
+			return inBinding;
 		}
+		Binding outBinding = new Binding(Character.class, inBinding.getObj());
+		// A single character array must be translated to a character.
 		if (String.class.equals(inBinding.getType())) {
-			outBinding.setObj(new Character(((String) inBinding.getObj())
-					.charAt(0)));
+			String chars=(String)inBinding.getObj();
+			outBinding.setObj(new Character(chars.length() == 0 ? ' ' : chars.charAt(0)));
 		}
 		return outBinding;
 	}
