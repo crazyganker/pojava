@@ -1,19 +1,29 @@
 package org.pojava.persistence.sql;
 
+/*
+ Copyright 2008 John Pile
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
 
-import org.pojava.datetime.DateTime;
+import org.pojava.exception.InconceivableException;
 import org.pojava.exception.ReflectionException;
 import org.pojava.lang.Binding;
-import org.pojava.persistence.processor.ByteAdaptor;
-import org.pojava.persistence.processor.CharAdaptor;
-import org.pojava.persistence.processor.DoubleAdaptor;
-import org.pojava.persistence.processor.TimeAdaptor;
 import org.pojava.transformation.BindingAdaptor;
-import org.pojava.transformation.DefaultAdaptor;
 import org.pojava.util.ReflectionTool;
 
 /**
@@ -37,43 +47,12 @@ public class FieldMap {
 	private Method[] getters;
 	private Method[] setters;
 	private TableMap tableMap;
-	private static final DefaultAdaptor ADAPTOR = new DefaultAdaptor();
-	private static final CharAdaptor CHAR_ADAPTOR = new CharAdaptor();
-	private static final DoubleAdaptor DOUBLE_ADAPTOR = new DoubleAdaptor();
-	private static final ByteAdaptor BYTE_ADAPTOR = new ByteAdaptor();
-	private static final TimeAdaptor TIME_ADAPTOR = new TimeAdaptor();
 
 	/**
 	 * Construct an empty FieldMap.
 	 */
 	public FieldMap() {
-		this.adaptor = ADAPTOR;
-	}
-
-	/**
-	 * Construct a FieldMap for the specified property and database field name.
-	 * 
-	 * @param property
-	 * @param fieldName
-	 */
-	public FieldMap(String property, String fieldName) {
-		this.property = property;
-		this.fieldName = fieldName;
-		this.adaptor = ADAPTOR;
-	}
-
-	/**
-	 * Construct a FieldMap, specifying whether this is a key field.
-	 * 
-	 * @param property
-	 * @param fieldName
-	 * @param isKeyField
-	 */
-	public FieldMap(String property, String fieldName, boolean isKeyField) {
-		this.property = property;
-		this.fieldName = fieldName;
-		this.keyField = isKeyField;
-		this.adaptor = ADAPTOR;
+		this.adaptor = null;
 	}
 
 	/**
@@ -84,46 +63,49 @@ public class FieldMap {
 	 * @param isKeyField
 	 */
 	public FieldMap(String property, String fieldName, boolean isKeyField,
-			Class parentType) throws NoSuchMethodException {
+			TableMap tableMap, String columnClassName)
+			throws NoSuchMethodException {
+		Class parentType = tableMap.getJavaClass();
 		this.property = property;
 		this.fieldName = fieldName;
 		this.keyField = isKeyField;
 		this.getters = ReflectionTool.getterMethods(parentType, property);
 		this.setters = ReflectionTool.setterMethods(this.getters);
-		Class returnType=this.getters[this.getters.length-1].getReturnType();
-		if (returnType.equals(char.class) || returnType.equals(Character.class)) {
-			this.adaptor = CHAR_ADAPTOR;
-		} else if (returnType.equals(double.class)) {
-			this.adaptor = DOUBLE_ADAPTOR;
-		} else if (returnType.equals(byte.class)) {
-			this.adaptor = BYTE_ADAPTOR;
-		} else if (returnType.equals(Time.class)) {
-			this.adaptor = TIME_ADAPTOR;
-		} else {
-			this.adaptor = ADAPTOR;
+		this.propertyClass = this.getters[this.getters.length - 1]
+				.getReturnType();
+		this.tableMap = tableMap;
+		try {
+			this.fieldClass = Class.forName(columnClassName);
+		} catch (ClassNotFoundException ex) {
+			throw new InconceivableException("Unsupported JDBC type.", ex);
 		}
+		this.adaptor = AdaptorMap.chooseAdaptor(parentType, this.getters,
+				columnClassName);
 	}
 
 	/**
-	 * The "property" is a reference to a private or even virtual field in a
-	 * Java bean (POJO), derived from removing the "get" or "set" from the
-	 * accessor and lower-casing the first character. Dot-separate any nested
-	 * references. For example, if your object contains a billing zip code as
-	 * <code>obj.getBillingAddress().getZip()</code> then the property would
-	 * be specified as <code>billingAddress.zip</code>.
+	 * The "property" is a reference to a field in a Java bean (POJO), that will
+	 * typically match your private property name. It is derived from the getter
+	 * by deleting the word "get" (or "is") and lower-casing the first letter.
 	 * 
-	 * @return Property reference.
+	 * Nested references are supported. For example, if your object contains a
+	 * billing zip code as <code>obj.getBillingAddress().getZip()</code> then
+	 * the property would be specified as <code>billingAddress.zip</code>.
+	 * 
+	 * @param property
 	 */
 	public String getProperty() {
 		return property;
 	}
 
 	/**
-	 * The "property" is a reference to a field in a Java bean (POJO), where you
-	 * delete the word "get" or "set" and lower-case the first letter.
-	 * Dot-separate any nested references. For example, if your object contains
-	 * a billing zip code as <code>obj.getBillingAddress().getZip()</code>
-	 * then the property would be specified as <code>billingAddress.zip</code>.
+	 * The "property" is a reference to a field in a Java bean (POJO), that will
+	 * typically match your private property name. It is derived from the getter
+	 * by deleting the word "get" (or "is") and lower-casing the first letter.
+	 * 
+	 * Nested references are supported. For example, if your object contains a
+	 * billing zip code as <code>obj.getBillingAddress().getZip()</code> then
+	 * the property would be specified as <code>billingAddress.zip</code>.
 	 * 
 	 * @param property
 	 */
@@ -221,21 +203,6 @@ public class FieldMap {
 		if (this.adaptor != null) {
 			value = this.adaptor.inbound(
 					new Binding(this.getFieldClass(), value)).getObj();
-			if (value != null) {
-				Class returnType = this.getters[this.getters.length - 1]
-						.getReturnType();
-				if (DateTime.class.equals(value.getClass())
-						&& !DateTime.class.equals(returnType)) {
-					long time = ((DateTime) value).getMillis();
-					if (java.sql.Timestamp.class.equals(returnType)) {
-						value = ((DateTime) value).getTimestamp();
-					} else if (java.sql.Date.class.equals(returnType)) {
-						value = new java.sql.Date(time);
-					} else if (java.util.Date.class.equals(returnType)) {
-						value = new java.util.Date(time);
-					}
-				}
-			}
 		}
 		try {
 			ReflectionTool.setNestedValue(this.getters, this.setters, obj,
