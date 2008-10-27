@@ -1,5 +1,21 @@
 package org.pojava.persistence.util;
 
+/*
+ Copyright 2008 John Pile
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -99,8 +115,8 @@ public class DaoTool {
 	 * @return number of rows inserted (should always be 1)
 	 * @throws SQLException
 	 */
-	public static final int insert(Connection conn, TableMap map,
-			Object obj) throws SQLException {
+	public static final int insert(Connection conn, TableMap map, Object obj)
+			throws SQLException {
 		validateParams(map, obj, "insert");
 		PreparedSql query = new PreparedSql(map.sqlInsert(obj), DEFAULT_MAXROWS);
 		return SqlTool.executeUpdate(query, conn);
@@ -116,8 +132,8 @@ public class DaoTool {
 	 * @return number of rows updated or inserted (should always be 1)
 	 * @throws SQLException
 	 */
-	public static final int updateInsert(Connection conn,
-			TableMap map, Object obj) throws SQLException {
+	public static final int updateInsert(Connection conn, TableMap map,
+			Object obj) throws SQLException {
 		validateParams(map, obj, "updateInsert");
 		int ct = update(conn, map, obj);
 		if (ct == 0) {
@@ -136,8 +152,8 @@ public class DaoTool {
 	 * @return Number of records inserted (should be 1 or 0).
 	 * @throws SQLException
 	 */
-	public static final int passiveInsert(Connection conn,
-			TableMap map, Object obj) throws SQLException {
+	public static final int passiveInsert(Connection conn, TableMap map,
+			Object obj) throws SQLException {
 		validateParams(map, obj, "passiveInsert");
 		if (null == find(conn, map, obj)) {
 			return insert(conn, map, obj);
@@ -156,8 +172,8 @@ public class DaoTool {
 	 * @return Number of rows updated.
 	 * @throws SQLException
 	 */
-	public static final int update(Connection conn, TableMap map,
-			Object obj) throws SQLException {
+	public static final int update(Connection conn, TableMap map, Object obj)
+			throws SQLException {
 		validateParams(map, obj, "update");
 		PreparedSql query = new PreparedSql(map.sqlUpdate(obj), DEFAULT_MAXROWS);
 		return SqlTool.executeUpdate(query, conn);
@@ -172,8 +188,8 @@ public class DaoTool {
 	 * @return Number of rows deleted.
 	 * @throws SQLException
 	 */
-	public static final int delete(Connection conn, TableMap map,
-			Object obj) throws SQLException {
+	public static final int delete(Connection conn, TableMap map, Object obj)
+			throws SQLException {
 		validateParams(map, obj, "delete");
 		PreparedSql query = new PreparedSql(map.sqlDelete(obj), DEFAULT_MAXROWS);
 		return SqlTool.executeUpdate(query, conn);
@@ -188,8 +204,8 @@ public class DaoTool {
 	 * @return the result of the query packaged into a mapped bean.
 	 * @throws SQLException
 	 */
-	public static final Object find(Connection conn, TableMap map,
-			Object obj) throws SQLException {
+	public static final Object find(Connection conn, TableMap map, Object obj)
+			throws SQLException {
 		validateParams(map, obj, "find");
 		PreparedSql query = new PreparedSql(map.sqlSelect(obj), DEFAULT_MAXROWS);
 		List list = new ArrayList();
@@ -226,8 +242,8 @@ public class DaoTool {
 	 * @return a List of objects matching the query.
 	 * @throws SQLException
 	 */
-	public static final List listByQuery(Connection conn,
-			TableMap map, PreparedSql query) throws SQLException {
+	public static final List listByQuery(Connection conn, TableMap map,
+			PreparedSql query) throws SQLException {
 		validateParams(map, query, "listByQuery");
 		List list = new ArrayList();
 		ResultSetToList processor = new ResultSetToList(map, list);
@@ -250,9 +266,8 @@ public class DaoTool {
 	 * @return number of rows processed
 	 * @throws SQLException
 	 */
-	public static final int processByQuery(Connection conn,
-			TableMap map, PreparedSql query, Processor objProcessor)
-			throws SQLException {
+	public static final int processByQuery(Connection conn, TableMap map,
+			PreparedSql query, Processor objProcessor) throws SQLException {
 		validateParams(map, query, "processByQuery");
 		ResultSetToProcessor processor = new ResultSetToProcessor(map,
 				objProcessor);
@@ -260,17 +275,17 @@ public class DaoTool {
 	}
 
 	/**
-	 * Return an integer value (such as a count) from your query.
-	 * This assumes your query yields a single integer result and
-	 * returns the intValue of the first column of the ResultSet.
+	 * Return an integer value (such as a count) from your query. This assumes
+	 * your query yields a single integer result and returns the intValue of the
+	 * first column of the ResultSet.
 	 * 
 	 * @param conn
 	 * @param query
 	 * @return intValue of first column of first row of ResultSet
 	 * @throws SQLException
 	 */
-	public static final int intQuery(Connection conn,
-			PreparedSql query) throws SQLException {
+	public static final int intQuery(Connection conn, PreparedSql query)
+			throws SQLException {
 		if (query == null) {
 			StringBuffer msg = new StringBuffer();
 			msg.append("Cannot perform intQuery using a null query.");
@@ -288,15 +303,17 @@ public class DaoTool {
 	 * @return number of rows deleted
 	 * @throws SQLException
 	 */
-	public static final int deleteByQuery(Connection conn,
-			PreparedSql query) throws SQLException {
+	public static final int deleteByQuery(Connection conn, PreparedSql query)
+			throws SQLException {
 		if (query == null) {
 			StringBuffer msg = new StringBuffer();
 			msg.append("Cannot perform deleteQuery using a null query.");
 			throw new IllegalArgumentException(msg.toString());
 		}
-		if (!query.getSql().getString().toUpperCase().replace('\t', ' ').trim().startsWith("DELETE ")) {
-			throw new IllegalArgumentException("The deleteQuery query should start with the word 'DELETE'.");
+		if (!query.getSql().getString().toUpperCase().replace('\t', ' ').trim()
+				.startsWith("DELETE ")) {
+			throw new IllegalArgumentException(
+					"The deleteQuery query should start with the word 'DELETE'.");
 		}
 		return SqlTool.executeUpdate(query, conn);
 	}
