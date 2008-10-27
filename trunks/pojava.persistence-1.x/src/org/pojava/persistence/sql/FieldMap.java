@@ -39,10 +39,10 @@ import org.pojava.util.ReflectionTool;
 public class FieldMap {
 
 	private String property;
-	private String fieldName;
+	private String columnName;
 	private boolean keyField;
 	private Class propertyClass;
-	private Class fieldClass;
+	private Class columnClass;
 	private BindingAdaptor adaptor;
 	private Method[] getters;
 	private Method[] setters;
@@ -61,13 +61,15 @@ public class FieldMap {
 	 * @param property
 	 * @param fieldName
 	 * @param isKeyField
+	 * @param tableMap
+	 * @param columnClassName
 	 */
 	public FieldMap(String property, String fieldName, boolean isKeyField,
 			TableMap tableMap, String columnClassName)
 			throws NoSuchMethodException {
 		Class parentType = tableMap.getJavaClass();
 		this.property = property;
-		this.fieldName = fieldName;
+		this.columnName = fieldName;
 		this.keyField = isKeyField;
 		this.getters = ReflectionTool.getterMethods(parentType, property);
 		this.setters = ReflectionTool.setterMethods(this.getters);
@@ -75,7 +77,7 @@ public class FieldMap {
 				.getReturnType();
 		this.tableMap = tableMap;
 		try {
-			this.fieldClass = Class.forName(columnClassName);
+			this.columnClass = Class.forName(columnClassName);
 		} catch (ClassNotFoundException ex) {
 			throw new InconceivableException("Unsupported JDBC type.", ex);
 		}
@@ -114,41 +116,41 @@ public class FieldMap {
 	}
 
 	/**
-	 * The fieldName is a reference to the database field name.
+	 * The columnName is a reference to the database field name.
 	 * 
 	 * @return Database field name.
 	 */
-	public String getFieldName() {
-		return fieldName;
+	public String getColumnName() {
+		return columnName;
 	}
 
 	/**
 	 * Specify the database field name.
 	 * 
-	 * @param fieldName
+	 * @param columnName
 	 */
-	public void setFieldName(String fieldName) {
-		this.fieldName = fieldName;
+	public void setColumnName(String columnName) {
+		this.columnName = columnName;
 	}
 
 	/**
-	 * The field class specifies the class of the JDBC field representing the
+	 * The columnClass specifies the class of the JDBC field representing the
 	 * database field value.
 	 * 
 	 * @return Java class of property.
 	 */
-	public Class getFieldClass() {
-		return fieldClass;
+	public Class getColumnClass() {
+		return this.columnClass;
 	}
 
 	/**
-	 * The field class specifies the class of the JDBC field representing the
+	 * The columnClass specifies the class of the JDBC field representing the
 	 * database field value.
 	 * 
 	 * @param fieldClass
 	 */
-	public void setFieldClass(Class fieldClass) {
-		this.fieldClass = fieldClass;
+	public void setColumnClass(Class columnClass) {
+		this.columnClass = columnClass;
 	}
 
 	/**
@@ -202,7 +204,7 @@ public class FieldMap {
 		Object value = rs.getObject(column);
 		if (this.adaptor != null) {
 			value = this.adaptor.inbound(
-					new Binding(this.getFieldClass(), value)).getObj();
+					new Binding(this.getColumnClass(), value)).getObj();
 		}
 		try {
 			ReflectionTool.setNestedValue(this.getters, this.setters, obj,
