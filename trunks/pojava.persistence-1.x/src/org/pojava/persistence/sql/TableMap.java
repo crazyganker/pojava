@@ -1,5 +1,21 @@
 package org.pojava.persistence.sql;
 
+/*
+ Copyright 2008 John Pile
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -115,6 +131,7 @@ public class TableMap {
 	}
 
 	/**
+	 * Build the bindings between the Java object and the database table.
 	 * 
 	 * @param conn
 	 * @param rsMeta
@@ -131,19 +148,11 @@ public class TableMap {
 			FieldMap fm = null;
 			try {
 				fm = new FieldMap(property, fieldName, primaryKeys
-						.contains(fieldName), this.javaClass);
+						.contains(fieldName), this, rsMeta
+						.getColumnClassName(column));
 			} catch (NoSuchMethodException ex) {
 				throw new InconceivableException(
 						"Did reflection find something that doesn't exist?", ex);
-			}
-			fm.setTableMap(this);
-			try {
-				fm.setFieldClass(Class.forName(rsMeta
-						.getColumnClassName(column)));
-			} catch (ClassNotFoundException ex) {
-				throw new InconceivableException(
-						"This smells lika a classpath issue.  I was looking for " + rsMeta.getColumnClassName(column) + ".",
-						ex);
 			}
 			try {
 				addFieldMap(fm);
@@ -202,31 +211,6 @@ public class TableMap {
 		} else {
 			this.nonKeyFields.add(field);
 		}
-	}
-
-	/**
-	 * Generate a field map and add to this table map.
-	 * 
-	 * @param property
-	 * @param fieldName
-	 */
-	public void addField(String property, String fieldName)
-			throws NoSuchMethodException {
-		FieldMap field = new FieldMap(property, fieldName);
-		field.setTableMap(this);
-		addFieldMap(field);
-	}
-
-	/**
-	 * Generate a field map and add to this table map.
-	 * 
-	 * @param property
-	 * @param fieldName
-	 */
-	public void addField(String property, String fieldName, boolean isKey)
-			throws NoSuchMethodException {
-		FieldMap field = new FieldMap(property, fieldName, isKey);
-		addFieldMap(field);
 	}
 
 	/**
@@ -385,7 +369,9 @@ public class TableMap {
 				propertyObj = ReflectionTool.getNestedValue(field.getGetters(),
 						bean);
 			}
-			bs.addBinding(field.getPropertyClass(), propertyObj);
+			Binding b = field.getAdaptor().outbound(
+					new Binding(field.getPropertyClass(), propertyObj));
+			bs.addBinding(b.getType(), b.getObj());
 		}
 		bs.chop(2);
 		bs.append(whereKeyFieldsMatch(bean));
