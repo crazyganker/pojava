@@ -41,7 +41,6 @@ public class DaoTester extends TestCase {
 		TypeTest obj = Mock.newTypeTest(1);
 		int ct = TypeTestDao.insert(trans, obj);
 		assertEquals(1, ct);
-		trans.commit();
 		TypeTest dbo = TypeTestDao.find(trans, obj);
 		assertEquals(obj.getTestBoolean(), dbo.getTestBoolean());
 		assertEquals(obj.getTestBigint(), dbo.getTestBigint());
@@ -61,4 +60,34 @@ public class DaoTester extends TestCase {
 		assertEquals(obj.getTestVarchar5(), dbo.getTestVarchar5());
 	}
 
+	public void testUpdate() throws Exception {
+		TypeTest initial = Mock.newTypeTest(1);
+		int ct = TypeTestDao.insert(trans, initial);
+		assertEquals(1, ct);
+		// Fetch a different object
+		TypeTest obj = Mock.newTypeTest(2);
+		// Set the key fields the same as the first.
+		obj.setTestId(initial.getTestId());
+		// Perform the update.
+		ct = TypeTestDao.update(trans, obj);
+		// Retrieve the results.
+		TypeTest dbo = TypeTestDao.find(trans, obj);
+		assertEquals(obj.getTestBoolean(), dbo.getTestBoolean());
+		assertEquals(obj.getTestBigint(), dbo.getTestBigint());
+		assertEquals(obj.getTestDouble(), dbo.getTestDouble());
+		assertEquals(obj.getTestNumeric_10x4(), dbo.getTestNumeric_10x4());
+		assertEquals(obj.getTestCharacter1(), dbo.getTestCharacter1());
+		assertEquals(StringTool.pad(obj.getTestCharacter5(),5), dbo.getTestCharacter5());
+		assertEquals(new org.pojava.datetime.DateTime(obj.getTestDate().getMillis()).truncate(CalendarUnit.DAY), dbo.getTestDate());
+		assertEquals(obj.getTestId(), dbo.getTestId());
+		assertEquals(obj.getTestReal(), dbo.getTestReal());
+		assertEquals(obj.getTestSmallint(), dbo.getTestSmallint());
+		assertEquals(obj.getTestTimestampWithoutTz(), dbo.getTestTimestampWithoutTz());
+		assertEquals(obj.getTestTimestampWithTz(), dbo.getTestTimestampWithTz());
+		assertEquals(obj.getTestTimeWithoutTz(), dbo.getTestTimeWithoutTz());
+		assertEquals(obj.getTestTimeWithTz(), dbo.getTestTimeWithTz());
+		assertEquals(obj.getTestVarchar1(), dbo.getTestVarchar1());
+		assertEquals(obj.getTestVarchar5(), dbo.getTestVarchar5());
+	}
+	
 }
