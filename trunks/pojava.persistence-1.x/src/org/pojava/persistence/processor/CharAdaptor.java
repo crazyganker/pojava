@@ -25,8 +25,9 @@ public class CharAdaptor implements BindingAdaptor {
 		Binding outBinding = new Binding(Character.class, inBinding.getObj());
 		// A single character array must be translated to a character.
 		if (String.class.equals(inBinding.getType())) {
-			String chars=(String)inBinding.getObj();
-			outBinding.setObj(new Character(chars.length() == 0 ? ' ' : chars.charAt(0)));
+			String chars = (String) inBinding.getObj();
+			outBinding.setObj(new Character(chars.length() == 0 ? ' ' : chars
+					.charAt(0)));
 		}
 		return outBinding;
 	}

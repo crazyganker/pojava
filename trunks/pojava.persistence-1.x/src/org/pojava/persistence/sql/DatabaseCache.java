@@ -15,8 +15,8 @@ import org.pojava.exception.PersistenceException;
 import org.pojava.persistence.util.MetaDataRegistryRunner;
 
 /**
- * This singleton caches object properties that facilitate interchange
- * between Java and external data stores.
+ * This singleton caches object properties that facilitate interchange between
+ * Java and external data stores.
  * 
  * @author John Pile
  */
@@ -31,14 +31,15 @@ public class DatabaseCache {
 	 * Holds DataSource objects by DataSource name.
 	 */
 	private static Map dataSourceCache = new HashMap();
-	
+
 	/**
 	 * Holds TableMap objects by Java class + table name.
 	 */
 	private static Map tableMapCache = new HashMap();
 
 	/**
-	 * Return 
+	 * Return
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -107,16 +108,19 @@ public class DatabaseCache {
 
 	/**
 	 * 
-	 * @param name Simple short name for DataSource
-	 * @param ds DataSource
+	 * @param name
+	 *            Simple short name for DataSource
+	 * @param ds
+	 *            DataSource
 	 */
 	public static void registerDataSource(String name, DataSource ds) {
 		Context ctx;
 		try {
 			ctx = new InitialContext();
 		} catch (NamingException ex) {
-			throw new IllegalStateException(ex.getMessage()
-					+ "See org.pojava.testing for an InitialContext suitable for testing.");
+			throw new IllegalStateException(
+					ex.getMessage()
+							+ "See org.pojava.testing for an InitialContext suitable for testing.");
 		}
 		try {
 			ctx.rebind("java:comp/env/jdbc/" + name.trim(), ds);
@@ -154,39 +158,45 @@ public class DatabaseCache {
 
 	/**
 	 * Build a key combining a java class with a table name.
+	 * 
 	 * @param javaClass
 	 * @param tableName
 	 * @param dataSourceName
 	 * @return
 	 */
-	private static String tableMapKey(Class javaClass, String tableName, String dataSourceName) {
-		StringBuffer key=new StringBuffer();
+	private static String tableMapKey(Class javaClass, String tableName,
+			String dataSourceName) {
+		StringBuffer key = new StringBuffer();
 		key.append(javaClass.getName());
 		key.append(":");
 		key.append(tableName);
 		key.append(":");
-		key.append(dataSourceName);		
+		key.append(dataSourceName);
 		return key.toString();
 	}
-	
+
 	/**
 	 * Register a tableMap
+	 * 
 	 * @param tableMap
 	 */
 	public static void registerTableMap(TableMap tableMap) {
-		tableMapCache.put(tableMapKey(tableMap.getClass(), tableMap.getTableName(), tableMap.getDataSourceName()), tableMap);
+		tableMapCache.put(tableMapKey(tableMap.getClass(), tableMap
+				.getTableName(), tableMap.getDataSourceName()), tableMap);
 	}
-	
+
 	/**
 	 * Retrieve a tableMap
+	 * 
 	 * @param javaClass
 	 * @param tableName
 	 * @param dataSourceName
 	 * @return TableMap or null if not found.
 	 */
-	public static TableMap getTableMap(Class javaClass, String tableName, String dataSourceName) {
-		return (TableMap) tableMapCache.get(tableMapKey(javaClass, tableName, dataSourceName));
+	public static TableMap getTableMap(Class javaClass, String tableName,
+			String dataSourceName) {
+		return (TableMap) tableMapCache.get(tableMapKey(javaClass, tableName,
+				dataSourceName));
 	}
-
 
 }

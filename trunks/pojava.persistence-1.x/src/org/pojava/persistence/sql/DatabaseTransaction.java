@@ -38,8 +38,8 @@ public interface DatabaseTransaction {
 	Connection getConnection(String dataSourceName) throws SQLException;
 
 	/**
-	 * Close connection (usually does nothing).  We keep the connection open
-	 * for reuse until the Transaction is either committed or rolled back.
+	 * Close connection (usually does nothing). We keep the connection open for
+	 * reuse until the Transaction is either committed or rolled back.
 	 * 
 	 * @param conn
 	 *            Connection to "close"

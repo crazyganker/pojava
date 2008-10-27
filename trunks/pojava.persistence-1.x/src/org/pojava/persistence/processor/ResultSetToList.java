@@ -10,7 +10,7 @@ import org.pojava.persistence.sql.TableMap;
  * Process a data set into a list of objects.
  * 
  * @author John Pile
- *
+ * 
  */
 public class ResultSetToList implements ResultSetProcessor {
 
@@ -20,6 +20,7 @@ public class ResultSetToList implements ResultSetProcessor {
 
 	/**
 	 * This processor populates a list from the result set.
+	 * 
 	 * @param map
 	 * @param list
 	 */

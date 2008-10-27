@@ -16,14 +16,14 @@ import org.pojava.transformation.BindingAdaptor;
 import org.pojava.transformation.DefaultAdaptor;
 
 /**
- * AdaptorMap serves as a rules engine for determining which BindingAdaptor
- * to use to translate data between a database field and a bean property.
- *   
+ * AdaptorMap serves as a rules engine for determining which BindingAdaptor to
+ * use to translate data between a database field and a bean property.
+ * 
  * @author John Pile
- *
+ * 
  */
 public class AdaptorMap {
-	
+
 	private static final DefaultAdaptor ADAPTOR = new DefaultAdaptor();
 	private static final CharAdaptor CHAR_ADAPTOR = new CharAdaptor();
 	private static final DoubleAdaptor DOUBLE_ADAPTOR = new DoubleAdaptor();
@@ -31,14 +31,15 @@ public class AdaptorMap {
 	private static final TimeAdaptor TIME_ADAPTOR = new TimeAdaptor();
 	private static final UtilDateSqlAdaptor UTILDATESQL_ADAPTOR = new UtilDateSqlAdaptor();
 	private static final DateTimeSqlAdaptor DATETIMESQL_ADAPTOR = new DateTimeSqlAdaptor();
-	
-	private static final Map beanClassMethodMaps=new HashMap();
 
-	public static BindingAdaptor chooseAdaptor(Class beanClass, Method[] getters, String columnClassName) {
+	private static final Map beanClassMethodMaps = new HashMap();
+
+	public static BindingAdaptor chooseAdaptor(Class beanClass,
+			Method[] getters, String columnClassName) {
 		BindingAdaptor adaptor;
-		Method method=getters[getters.length-1];
+		Method method = getters[getters.length - 1];
 		// Default behavior is based solely on the property type
-		Class returnType=method.getReturnType();
+		Class returnType = method.getReturnType();
 		if (returnType.equals(char.class) || returnType.equals(Character.class)) {
 			adaptor = CHAR_ADAPTOR;
 		} else if (returnType.equals(double.class)) {
@@ -49,15 +50,16 @@ public class AdaptorMap {
 			adaptor = TIME_ADAPTOR;
 		} else if (java.util.Date.class.isAssignableFrom(returnType)) {
 			adaptor = UTILDATESQL_ADAPTOR;
-		} else if ("java.sql.Date".equals(columnClassName) && returnType.equals(DateTime.class)) {
+		} else if ("java.sql.Date".equals(columnClassName)
+				&& returnType.equals(DateTime.class)) {
 			adaptor = DATETIMESQL_ADAPTOR;
 		} else {
 			adaptor = ADAPTOR;
 		}
 		// User-defined overrides provide access to custom adaptors
 		if (beanClassMethodMaps.containsKey(beanClass)) {
-			Map methodMap=(Map)beanClassMethodMaps.get(beanClass);
-			if (methodMap!=null) {
+			Map methodMap = (Map) beanClassMethodMaps.get(beanClass);
+			if (methodMap != null) {
 				if (methodMap.containsKey(method)) {
 					adaptor = (BindingAdaptor) methodMap.get(method);
 				}

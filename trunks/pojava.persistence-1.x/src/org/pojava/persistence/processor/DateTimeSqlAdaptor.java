@@ -24,8 +24,8 @@ public class DateTimeSqlAdaptor implements BindingAdaptor {
 			return inBinding;
 		}
 		Binding outBinding;
-		outBinding = new Binding(DateTime.class,
-				new DateTime(((java.util.Date) inBinding.getObj()).getTime()));
+		outBinding = new Binding(DateTime.class, new DateTime(
+				((java.util.Date) inBinding.getObj()).getTime()));
 		return outBinding;
 	}
 
@@ -39,8 +39,8 @@ public class DateTimeSqlAdaptor implements BindingAdaptor {
 		if (outBinding.getObj() == null) {
 			return outBinding;
 		}
-		Binding inBinding = new Binding(java.sql.Date.class,
-				new java.sql.Date(((DateTime) outBinding.getObj()).getMillis()));
+		Binding inBinding = new Binding(java.sql.Date.class, new java.sql.Date(
+				((DateTime) outBinding.getObj()).getMillis()));
 		return inBinding;
 	}
 }

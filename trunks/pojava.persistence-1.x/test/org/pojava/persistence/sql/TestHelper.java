@@ -34,7 +34,7 @@ public class TestHelper {
 		sb.append("name = pojava_pg\n");
 		return sb.toString();
 	}
-	
+
 	public static Properties fetchDataSourceProperties() {
 		// default properties
 		Properties defaultProps = new Properties();

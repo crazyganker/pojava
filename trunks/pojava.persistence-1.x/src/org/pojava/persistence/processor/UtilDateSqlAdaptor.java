@@ -40,8 +40,8 @@ public class UtilDateSqlAdaptor implements BindingAdaptor {
 				|| java.sql.Date.class.equals(outBinding.getType())) {
 			return outBinding;
 		}
-		Binding inBinding = new Binding(java.sql.Date.class,
-				new java.sql.Date(((java.util.Date) outBinding.getObj()).getTime()));
+		Binding inBinding = new Binding(java.sql.Date.class, new java.sql.Date(
+				((java.util.Date) outBinding.getObj()).getTime()));
 		return inBinding;
 	}
 }

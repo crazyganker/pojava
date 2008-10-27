@@ -5,11 +5,11 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
 /**
- * This class keeps some useful information about a DataSource without
- * holding open a Connection.
- *  
+ * This class keeps some useful information about a DataSource without holding
+ * open a Connection.
+ * 
  * @author John Pile
- *
+ * 
  */
 public class DataSourceMetadata {
 
@@ -39,18 +39,19 @@ public class DataSourceMetadata {
 	private int minorVersion;
 
 	/**
-	 * Mock up a new connection 
+	 * Mock up a new connection
+	 * 
 	 * @param conn
 	 * @throws SQLException
 	 */
 	public void populateFrom(Connection conn) throws SQLException {
-		DatabaseMetaData meta=conn.getMetaData();
-		platform=meta.getDatabaseProductName();
-		majorVersion=meta.getDatabaseMajorVersion();
-		minorVersion=meta.getDatabaseMinorVersion();
-		driverName=meta.getDriverName();
-		sqlKeywords=meta.getSQLKeywords();
-		userName=meta.getUserName();
+		DatabaseMetaData meta = conn.getMetaData();
+		platform = meta.getDatabaseProductName();
+		majorVersion = meta.getDatabaseMajorVersion();
+		minorVersion = meta.getDatabaseMinorVersion();
+		driverName = meta.getDriverName();
+		sqlKeywords = meta.getSQLKeywords();
+		userName = meta.getUserName();
 	}
 
 	/**
@@ -62,6 +63,7 @@ public class DataSourceMetadata {
 
 	/**
 	 * Platform retrieved from MetaData
+	 * 
 	 * @param platform
 	 */
 	public void setPlatform(String platform) {
@@ -107,6 +109,5 @@ public class DataSourceMetadata {
 	public void setMinorVersion(int minorVersion) {
 		this.minorVersion = minorVersion;
 	}
-	
-	
+
 }

@@ -1,19 +1,19 @@
 package org.pojava.persistence.query;
 
-
 /**
  * An AbstractQuery represents the row selection (and not the column selection)
  * aspects of a search criteria. It is used by Dao methods to perform some
  * operation upon a definable set of rows, such as deleting, listing, or
  * processing.
- *
- * The primary goal of this approach is to abstract the persistence implementation
- * details away from your business layer, so your code behaves the same way when
- * you switch implementations, say from one database to another, or from a local
- * database to a web service or to an API for an Enterprise Service Bus.
- *
+ * 
+ * The primary goal of this approach is to abstract the persistence
+ * implementation details away from your business layer, so your code behaves
+ * the same way when you switch implementations, say from one database to
+ * another, or from a local database to a web service or to an API for an
+ * Enterprise Service Bus.
+ * 
  * A typical SQL-only Query could just extend SqlQuery (which already extends
- * AbstractQuery).  A very basic query could look like the following: <code>
+ * AbstractQuery). A very basic query could look like the following: <code>
  * public class AnimalQuery extends SqlQuery {
  *   public AnimalQuery forNumberOfLegs(int legs) {
  *     String legStr=new Integer(legs).toString();
@@ -40,9 +40,9 @@ package org.pojava.persistence.query;
  *   }
  * }
  * </code>
- *
- * For either implementation, your business layer would typically make a
- * call similar to this: <code>
+ * 
+ * For either implementation, your business layer would typically make a call
+ * similar to this: <code>
  * ...
  * AnimalQuery legQuery=new AnimalQuery().forNumberOfLegs(4);
  * List animals=AnimalDao.listByQuery(transaction, legQuery);
@@ -68,6 +68,7 @@ public abstract class AbstractQuery {
 
 	/**
 	 * Show the maximum of rows returnable by the driver.
+	 * 
 	 * @return maximum allowed rows in dataset.
 	 */
 	public int getMaxRows() {
@@ -76,6 +77,7 @@ public abstract class AbstractQuery {
 
 	/**
 	 * Limit the number of rows returnable by the driver.
+	 * 
 	 * @param maxRows
 	 */
 	public void setMaxRows(int maxRows) {

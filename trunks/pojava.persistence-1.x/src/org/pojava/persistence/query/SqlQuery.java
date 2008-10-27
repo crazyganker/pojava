@@ -3,9 +3,9 @@ package org.pojava.persistence.query;
 import org.pojava.lang.BoundString;
 
 /**
- * A SqlQuery object is used to build query criteria with a contract to
- * produce a PreparedSql object matching those criteria.
- *  
+ * A SqlQuery object is used to build query criteria with a contract to produce
+ * a PreparedSql object matching those criteria.
+ * 
  * @author John Pile
  */
 public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
@@ -31,6 +31,7 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 
 	/**
 	 * Construct a new Sql query from a BoundString.
+	 * 
 	 * @param boundSql
 	 */
 	public SqlQuery(BoundString boundSql) {
@@ -42,6 +43,7 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 
 	/**
 	 * Construct a new SQL query from a BoundString specifing a row limit.
+	 * 
 	 * @param boundSql
 	 * @param maxRows
 	 */
@@ -55,6 +57,7 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 
 	/**
 	 * Append some SQL
+	 * 
 	 * @param newSql
 	 */
 	protected void appendSql(BoundString newSql) {
@@ -63,6 +66,7 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 
 	/**
 	 * Append some SQL
+	 * 
 	 * @param newSql
 	 */
 	protected void appendSql(String newSql) {
@@ -71,6 +75,7 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 
 	/**
 	 * Insert some SQL
+	 * 
 	 * @param newSql
 	 */
 	protected void insertSql(BoundString newSql) {
@@ -79,6 +84,7 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 
 	/**
 	 * Insert some SQL
+	 * 
 	 * @param newSql
 	 */
 	protected void insertSql(String newSql) {
@@ -86,15 +92,36 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 	}
 
 	/**
-	 * Generate a PreparedSql statement from your prefix (such as
-	 * "SELECT * from table") and this query.
+	 * Append some SQL with a "WHERE" or "AND" prefix.
+	 * 
+	 * @param newSql
+	 */
+	protected void whereAnd(String newSql) {
+		sql.append(sql.getString().length() == 0 ? "WHERE " : " AND ");
+		sql.append(newSql);
+	}
+
+	/**
+	 * Append some SQL with a "WHERE" or "AND" prefix.
+	 * 
+	 * @param newSql
+	 */
+	protected void whereAnd(BoundString predicate) {
+		sql.append(sql.getString().length() == 0 ? "WHERE " : " AND ");
+		sql.append(predicate);
+	}
+
+	/**
+	 * Generate a PreparedSql statement from your prefix (such as "SELECT * from
+	 * table") and this query.
+	 * 
 	 * @param prefix
 	 * @return
 	 */
 	public PreparedSql generatePreparedSql(String prefix) {
 		return generatePreparedSql(new BoundString(prefix));
 	}
-	
+
 	/**
 	 * Generate Prepared SQL ready for execution.
 	 */
@@ -113,15 +140,6 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 			bs.append(sqlOrderBy.trim());
 		}
 		return new PreparedSql(bs, super.getMaxRows());
-	}
-
-	/**
-	 * Default query for all rows.
-	 * @return
-	 */
-	public SqlQuery forAll() {
-		sql.clear();
-		return this;
 	}
 
 }

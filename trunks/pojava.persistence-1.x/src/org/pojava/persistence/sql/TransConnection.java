@@ -11,12 +11,12 @@ import java.sql.Statement;
 import java.util.Map;
 
 /**
- * This connection object provides a layer allowing a Transaction visibility
- * to intervene (interfere?) when a user of the connection performs transaction
+ * This connection object provides a layer allowing a Transaction visibility to
+ * intervene (interfere?) when a user of the connection performs transaction
  * actions outside of those managed by the Transaction object itself.
- *  
+ * 
  * @author John Pile
- *
+ * 
  */
 public class TransConnection implements Connection {
 
@@ -41,7 +41,6 @@ public class TransConnection implements Connection {
 	public void commit() throws SQLException {
 		conn.commit();
 	}
-
 
 	public Statement createStatement() throws SQLException {
 		return conn.createStatement();

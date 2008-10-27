@@ -19,6 +19,7 @@ public class ResultSetToProcessor implements ResultSetProcessor {
 
 	/**
 	 * Constructor mapping a TableMap to a Processor.
+	 * 
 	 * @param map
 	 * @param processor
 	 */
