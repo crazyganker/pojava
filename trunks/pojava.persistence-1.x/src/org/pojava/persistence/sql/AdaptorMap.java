@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.pojava.datetime.DateTime;
-import org.pojava.persistence.processor.ByteAdaptor;
-import org.pojava.persistence.processor.CharAdaptor;
-import org.pojava.persistence.processor.DateTimeSqlAdaptor;
-import org.pojava.persistence.processor.DoubleAdaptor;
-import org.pojava.persistence.processor.TimeAdaptor;
-import org.pojava.persistence.processor.UtilDateSqlAdaptor;
+import org.pojava.persistence.adaptor.ByteAdaptor;
+import org.pojava.persistence.adaptor.CharAdaptor;
+import org.pojava.persistence.adaptor.DateTimeSqlAdaptor;
+import org.pojava.persistence.adaptor.DoubleAdaptor;
+import org.pojava.persistence.adaptor.TimeAdaptor;
+import org.pojava.persistence.adaptor.UtilDateSqlAdaptor;
 import org.pojava.transformation.BindingAdaptor;
 import org.pojava.transformation.DefaultAdaptor;
 

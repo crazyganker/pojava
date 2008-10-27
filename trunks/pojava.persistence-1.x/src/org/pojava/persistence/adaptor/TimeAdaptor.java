@@ -1,15 +1,19 @@
-package org.pojava.persistence.processor;
+package org.pojava.persistence.adaptor;
+
+import java.sql.Time;
+import java.util.Date;
 
 import org.pojava.lang.Binding;
 import org.pojava.transformation.BindingAdaptor;
 
 /**
- * Adaptor for managing Java to JDBC for a Byte value.
+ * Process a Time value from a ResultSet. This ensures that the hidden date
+ * portion of the Time value is set to 1/1/1970.
  * 
  * @author John Pile
  * 
  */
-public class ByteAdaptor implements BindingAdaptor {
+public class TimeAdaptor implements BindingAdaptor {
 
 	/**
 	 * Translate the binding from the data source towards Java bean.
@@ -21,7 +25,8 @@ public class ByteAdaptor implements BindingAdaptor {
 		if (inBinding.getObj() == null) {
 			return outBinding;
 		}
-		outBinding.setObj(new Byte(inBinding.getObj().toString()));
+		outBinding.setObj(new Time(
+				((Date) inBinding.getObj()).getTime() % 86400000));
 		return outBinding;
 	}
 

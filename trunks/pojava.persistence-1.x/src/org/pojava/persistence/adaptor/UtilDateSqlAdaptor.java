@@ -1,17 +1,16 @@
-package org.pojava.persistence.processor;
+package org.pojava.persistence.adaptor;
 
-import org.pojava.datetime.DateTime;
 import org.pojava.lang.Binding;
 import org.pojava.transformation.BindingAdaptor;
 
 /**
  * Adaptor for managing Java to JDBC for a java.sql.Date value mapped to a
- * DateTime value.
+ * java.util.Date value or one of its derivatives.
  * 
  * @author John Pile
  * 
  */
-public class DateTimeSqlAdaptor implements BindingAdaptor {
+public class UtilDateSqlAdaptor implements BindingAdaptor {
 
 	/**
 	 * Translate the binding from the data source towards Java bean.
@@ -20,12 +19,13 @@ public class DateTimeSqlAdaptor implements BindingAdaptor {
 		// Prevent constructing a new object when you can.
 		if (inBinding == null)
 			return null;
-		if (inBinding.getObj() == null) {
+		if (inBinding.getObj() == null
+				|| java.sql.Date.class.equals(inBinding.getType())) {
 			return inBinding;
 		}
 		Binding outBinding;
-		outBinding = new Binding(DateTime.class, new DateTime(
-				((java.util.Date) inBinding.getObj()).getTime()));
+		outBinding = new Binding(java.util.Date.class,
+				(java.util.Date) inBinding.getObj());
 		return outBinding;
 	}
 
@@ -36,11 +36,12 @@ public class DateTimeSqlAdaptor implements BindingAdaptor {
 		// Prevent constructing a new object when you can.
 		if (outBinding == null)
 			return null;
-		if (outBinding.getObj() == null) {
+		if (outBinding.getObj() == null
+				|| java.sql.Date.class.equals(outBinding.getType())) {
 			return outBinding;
 		}
 		Binding inBinding = new Binding(java.sql.Date.class, new java.sql.Date(
-				((DateTime) outBinding.getObj()).getMillis()));
+				((java.util.Date) outBinding.getObj()).getTime()));
 		return inBinding;
 	}
 }

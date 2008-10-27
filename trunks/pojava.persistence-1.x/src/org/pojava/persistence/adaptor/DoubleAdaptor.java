@@ -1,4 +1,4 @@
-package org.pojava.persistence.processor;
+package org.pojava.persistence.adaptor;
 
 import org.pojava.lang.Binding;
 import org.pojava.transformation.BindingAdaptor;
