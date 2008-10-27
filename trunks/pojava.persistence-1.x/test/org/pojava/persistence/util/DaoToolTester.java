@@ -1,6 +1,7 @@
 package org.pojava.persistence.util;
 
 import java.sql.SQLException;
+import java.util.Properties;
 
 import javax.sql.DataSource;
 
@@ -14,6 +15,7 @@ import org.pojava.persistence.sql.DatabaseCache;
 import org.pojava.persistence.sql.DatabaseTransaction;
 import org.pojava.persistence.sql.DistributedTransaction;
 import org.pojava.persistence.sql.TableMap;
+import org.pojava.persistence.sql.TestHelper;
 import org.pojava.testing.DriverManagerDataSource;
 import org.pojava.testing.JNDIRegistry;
 
@@ -27,18 +29,19 @@ public class DaoToolTester extends TestCase {
 
 	protected void setUp() throws Exception {
 		JNDIRegistry.getInitialContext();
-		Class.forName("org.postgresql.Driver");
-		DataSource ds = new DriverManagerDataSource(
-				"jdbc:postgresql://localhost:5432/postgres", "pojava",
-				"popojava");
-		DatabaseCache.registerDataSource(DS_NAME, ds);
+		Properties dsp = TestHelper.fetchDataSourceProperties();
+		if (dsp != null) {
+			Class.forName(dsp.getProperty("driver"));
+			DataSource ds = new DriverManagerDataSource(dsp.getProperty("url"),
+					dsp.getProperty("user"), dsp.getProperty("password"));
+			DatabaseCache.registerDataSource(dsp.getProperty("name"), ds);
+			trans = new DistributedTransaction();
+			TypeTestDao.deleteByQuery(trans, new TypeTestQuery().forAll());
+		}		
 		MAP = SqlTool.fetchTableMap(JAVA_CLASS, TABLE_NAME, DS_NAME);
-		trans = new DistributedTransaction();
-		TypeTestDao.deleteByQuery(trans, new TypeTestQuery().forAll());
 	}
 
 	protected void tearDown() throws Exception {
-		// TODO Auto-generated method stub
 		trans.rollback();
 		super.tearDown();
 	}
