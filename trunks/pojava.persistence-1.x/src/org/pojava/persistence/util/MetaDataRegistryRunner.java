@@ -24,7 +24,7 @@ import org.pojava.exception.PersistenceException;
 import org.pojava.persistence.sql.DatabaseCache;
 
 /**
- * Perform MetaData gathering uusing a background thread. The MetaData is used
+ * Perform MetaData gathering using a background thread. The MetaData is used
  * to cache mappings between tables and POJOs.
  * 
  * @author John Pile
@@ -57,6 +57,8 @@ public class MetaDataRegistryRunner implements Runnable {
 	 * @param name
 	 */
 	public static void register(String name) {
-		(new Thread(new MetaDataRegistryRunner(name))).start();
+		Thread runner=new Thread(new MetaDataRegistryRunner(name));
+		runner.setPriority(java.lang.Thread.MIN_PRIORITY);
+		runner.start();
 	}
 }
