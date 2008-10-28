@@ -17,6 +17,8 @@ package org.pojava.persistence.util;
  */
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -24,8 +26,8 @@ import org.pojava.exception.PersistenceException;
 import org.pojava.persistence.sql.DatabaseCache;
 
 /**
- * Perform MetaData gathering using a background thread. The MetaData is used
- * to cache mappings between tables and POJOs.
+ * Perform MetaData gathering using a background thread. The MetaData is used to
+ * cache mappings between tables and POJOs.
  * 
  * @author John Pile
  * 
@@ -33,6 +35,8 @@ import org.pojava.persistence.sql.DatabaseCache;
 public class MetaDataRegistryRunner implements Runnable {
 
 	private String name;
+	private static Map dsNames=new HashMap();
+	private static final Object lock=new Object();
 
 	public MetaDataRegistryRunner(String name) {
 		this.name = name;
@@ -57,6 +61,13 @@ public class MetaDataRegistryRunner implements Runnable {
 	 * @param name
 	 */
 	public static void register(String name) {
+		synchronized(lock) {
+			if (dsNames.containsKey(name)) {
+				return;
+			} else {
+				dsNames.put(name, name);
+			}
+		}
 		Thread runner=new Thread(new MetaDataRegistryRunner(name));
 		runner.setPriority(java.lang.Thread.MIN_PRIORITY);
 		runner.start();
