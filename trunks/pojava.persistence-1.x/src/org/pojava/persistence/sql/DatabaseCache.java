@@ -89,9 +89,9 @@ public class DatabaseCache {
 	 * @param name
 	 * @throws SQLException
 	 */
-	public static void registerMetaData(String name) throws SQLException {
+	public static void registerMetaData(String dsName) throws SQLException {
 		// This task runs in the background, filling MetaData values.
-		MetaDataRegistryRunner.register(name);
+		MetaDataRegistryRunner.register(dsName);
 	}
 
 	/**
