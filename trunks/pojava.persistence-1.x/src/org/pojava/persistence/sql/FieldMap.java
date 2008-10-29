@@ -94,7 +94,7 @@ public class FieldMap {
 	 * billing zip code as <code>obj.getBillingAddress().getZip()</code> then
 	 * the property would be specified as <code>billingAddress.zip</code>.
 	 * 
-	 * @param property
+	 * @return Property associated with this FieldMap
 	 */
 	public String getProperty() {
 		return property;
@@ -147,7 +147,7 @@ public class FieldMap {
 	 * The columnClass specifies the class of the JDBC field representing the
 	 * database field value.
 	 * 
-	 * @param fieldClass
+	 * @param columnClass data type returned by JDBC for this field
 	 */
 	public void setColumnClass(Class columnClass) {
 		this.columnClass = columnClass;
@@ -288,7 +288,7 @@ public class FieldMap {
 	/**
 	 * Get the TableMap that contains this FieldMap.
 	 * 
-	 * @param map
+	 * @return containing TableMap
 	 */
 	public TableMap getTableMap() {
 		return this.tableMap;

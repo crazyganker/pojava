@@ -64,7 +64,7 @@ public class PreparedSql {
 	/**
 	 * Get SQL.
 	 * 
-	 * @return
+	 * @return SQL and bindings
 	 */
 	public BoundString getSql() {
 		return sql;
@@ -73,7 +73,7 @@ public class PreparedSql {
 	/**
 	 * Get Max number of rows returnable by query.
 	 * 
-	 * @return
+	 * @return row limit for JDBC driver to return
 	 */
 	public int getMaxRows() {
 		return maxRows;

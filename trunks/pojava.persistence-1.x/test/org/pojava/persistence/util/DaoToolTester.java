@@ -38,7 +38,7 @@ public class DaoToolTester extends TestCase {
 			trans = new DistributedTransaction();
 			TypeTestDao.deleteByQuery(trans, new TypeTestQuery().forAll());
 		}		
-		MAP = SqlTool.fetchTableMap(JAVA_CLASS, TABLE_NAME, DS_NAME);
+		MAP = DatabaseCache.getTableMap(JAVA_CLASS, TABLE_NAME, DS_NAME);
 	}
 
 	protected void tearDown() throws Exception {

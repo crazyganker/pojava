@@ -104,7 +104,7 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 	/**
 	 * Append some SQL with a "WHERE" or "AND" prefix.
 	 * 
-	 * @param newSql
+	 * @param predicate A freeform expression evaluating to true or false
 	 */
 	protected void whereAnd(BoundString predicate) {
 		sql.append(sql.getString().length() == 0 ? "WHERE " : " AND ");
@@ -116,7 +116,7 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 	 * table") and this query.
 	 * 
 	 * @param prefix
-	 * @return
+	 * @return SQL statement ready for execution
 	 */
 	public PreparedSql generatePreparedSql(String prefix) {
 		return generatePreparedSql(new BoundString(prefix));

@@ -236,7 +236,7 @@ public class DaoTool {
 	/**
 	 * Return a packaged list of objects matching the query.
 	 * 
-	 * @param trans
+	 * @param conn
 	 * @param map
 	 * @param query
 	 * @return a List of objects matching the query.

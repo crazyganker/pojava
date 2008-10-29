@@ -84,7 +84,7 @@ public class TableMap {
 	 * Asks the database for the primary keys for the table.
 	 * 
 	 * @param conn
-	 * @return
+	 * @return keys as a set of the most probable keys for each table
 	 * @throws SQLException
 	 */
 	private Set primaryKeys(Connection conn) throws SQLException {
@@ -276,7 +276,7 @@ public class TableMap {
 	/**
 	 * Form a SELECT statement for this map.
 	 * 
-	 * @return
+	 * @return SQL select statement
 	 */
 	public BoundString sqlSelect() {
 		BoundString bs = new BoundString();
@@ -296,7 +296,7 @@ public class TableMap {
 	 * Form a SELECT statement for this map filtered by key fields to a single
 	 * object.
 	 * 
-	 * @return
+	 * @return SQL select statement
 	 */
 	public BoundString sqlSelect(Object bean) {
 		BoundString bs = new BoundString();
@@ -317,7 +317,7 @@ public class TableMap {
 	 * Form an INSERT statement for this map.
 	 * 
 	 * @param bean
-	 * @return
+	 * @return SQL insert statement
 	 */
 	public BoundString sqlInsert(Object bean) {
 		BoundString bs = new BoundString();
@@ -351,7 +351,7 @@ public class TableMap {
 	 * Form an UPDATE statement for this map.
 	 * 
 	 * @param bean
-	 * @return
+	 * @return SQL update statement
 	 */
 	public BoundString sqlUpdate(Object bean) {
 		BoundString bs = new BoundString();
@@ -398,7 +398,7 @@ public class TableMap {
 	 * Form a DELETE statement for this map.
 	 * 
 	 * @param bean
-	 * @return
+	 * @return SQL delete statement
 	 */
 	public BoundString sqlDelete(Object bean) {
 		BoundString bs = new BoundString();
@@ -412,7 +412,7 @@ public class TableMap {
 	 * Form a WHERE clause for the key fields of this map.
 	 * 
 	 * @param bean
-	 * @return
+	 * @return SQL where clause
 	 */
 	public BoundString whereKeyFieldsMatch(Object bean) {
 		BoundString bs = new BoundString();

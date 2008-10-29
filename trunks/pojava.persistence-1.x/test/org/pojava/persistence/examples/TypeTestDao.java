@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.pojava.lang.Processor;
 import org.pojava.persistence.query.SqlQuery;
+import org.pojava.persistence.sql.DatabaseCache;
 import org.pojava.persistence.sql.DatabaseTransaction;
 import org.pojava.persistence.sql.TableMap;
 import org.pojava.persistence.util.DaoTool;
-import org.pojava.persistence.util.SqlTool;
 
 public class TypeTestDao {
 
@@ -19,7 +19,7 @@ public class TypeTestDao {
 	private static final TableMap MAP = newTableMap();
 
 	public static TableMap newTableMap() {
-		TableMap tableMap = SqlTool.fetchTableMap(JAVA_CLASS, TABLE_NAME,
+		TableMap tableMap = DatabaseCache.getTableMap(JAVA_CLASS, TABLE_NAME,
 				DS_NAME);
 		return tableMap;
 	}

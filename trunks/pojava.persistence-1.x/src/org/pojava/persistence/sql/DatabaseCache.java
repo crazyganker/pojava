@@ -11,6 +11,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.pojava.persistence.util.SqlTool;
+
 /**
  * This singleton caches object properties that facilitate interchange between
  * Java and external data stores.
@@ -78,8 +80,8 @@ public class DatabaseCache {
 	/**
 	 * Fetch a DataSource from the registry.
 	 * 
-	 * @param name
-	 * @return
+	 * @param dsName
+	 * @return DataSource retrieved from cache or JNDI registry.
 	 */
 	public static DataSource getDataSource(String dsName) {
 		// Try the fastest option first
@@ -118,7 +120,7 @@ public class DatabaseCache {
 	 * @param javaClass
 	 * @param tableName
 	 * @param dataSourceName
-	 * @return
+	 * @return String combining name, table, dataSource for use as a key
 	 */
 	private static String tableMapKey(Class javaClass, String tableName,
 			String dataSourceName) {
@@ -160,8 +162,31 @@ public class DatabaseCache {
 	 */
 	public static TableMap getTableMap(Class javaClass, String tableName,
 			String dataSourceName) {
-		return (TableMap) tableMapCache.get(tableMapKey(javaClass, tableName,
-				dataSourceName));
+		String key=tableMapKey(javaClass, tableName, dataSourceName);
+		// Use cached version if it exists
+		if (tableMapCache.containsKey(key)) {
+			return (TableMap) tableMapCache.get(key);
+		}
+		Object lock;
+		// Acquire a lock unique to the key
+		synchronized (dataSourceLocks) {
+			lock = dataSourceLocks.get(key);
+			if (lock == null) {
+				lock = new Object();
+				dataSourceLocks.put(key, lock);
+			}
+		}
+		// The lock allows one thread per unique key
+		TableMap tableMap;
+		synchronized (lock) {
+			tableMap=(TableMap) tableMapCache.get(key);
+			if (tableMap==null) {
+				tableMap = SqlTool.autoGenerateTableMap(javaClass, tableName,
+						dataSourceName);
+				tableMapCache.put(key, tableMap);
+			}
+		}
+		return tableMap;
 	}
 
 }

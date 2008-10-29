@@ -32,7 +32,6 @@ import org.pojava.lang.Binding;
 import org.pojava.lang.BoundString;
 import org.pojava.persistence.processor.ResultSetProcessor;
 import org.pojava.persistence.query.PreparedSql;
-import org.pojava.persistence.sql.DatabaseCache;
 import org.pojava.persistence.sql.TableMap;
 
 /**
@@ -180,7 +179,7 @@ public class SqlTool {
 	 * @param dsName
 	 * @return TableMap retrieved from database MetaData
 	 */
-	private static TableMap autoGenerateTableMap(Class javaClass,
+	public static TableMap autoGenerateTableMap(Class javaClass,
 			String tableName, String dsName) {
 		try {
 			TableMap tableMap = new TableMap(javaClass, tableName, dsName);
@@ -189,27 +188,6 @@ public class SqlTool {
 		} catch (SQLException ex) {
 			throw initializationException(ex, javaClass, tableName, dsName);
 		}
-	}
-
-	/**
-	 * Fetch a TableMap specific to a javaClass:tableName:dataSourceName
-	 * combination. Auto-generate a new map if necessary.
-	 * 
-	 * @param javaClass
-	 * @param tableName
-	 * @param dataSourceName
-	 * @return
-	 */
-	public static TableMap fetchTableMap(Class javaClass, String tableName,
-			String dataSourceName) {
-		TableMap tableMap = DatabaseCache.getTableMap(javaClass, tableName,
-				dataSourceName);
-		if (tableMap == null) {
-			tableMap = autoGenerateTableMap(javaClass, tableName,
-					dataSourceName);
-			DatabaseCache.registerTableMap(tableMap);
-		}
-		return tableMap;
 	}
 
 }
