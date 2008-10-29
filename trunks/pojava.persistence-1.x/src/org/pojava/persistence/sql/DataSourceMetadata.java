@@ -37,6 +37,21 @@ public class DataSourceMetadata {
 	 * Minor version.
 	 */
 	private int minorVersion;
+	
+	/**
+	 * Default constructor.
+	 */
+	public DataSourceMetadata() {
+	}
+
+	/**
+	 * Construct a 
+	 * @param conn
+	 * @throws SQLException
+	 */
+	public DataSourceMetadata(Connection conn) throws SQLException {
+		populateFrom(conn);
+	}
 
 	/**
 	 * Mock up a new connection

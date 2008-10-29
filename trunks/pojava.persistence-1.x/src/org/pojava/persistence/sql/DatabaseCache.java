@@ -1,7 +1,7 @@
 package org.pojava.persistence.sql;
 
 import java.security.InvalidParameterException;
-import java.sql.DatabaseMetaData;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,9 +10,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-
-import org.pojava.exception.PersistenceException;
-import org.pojava.persistence.util.MetaDataRegistryRunner;
 
 /**
  * This singleton caches object properties that facilitate interchange between
@@ -25,7 +22,7 @@ public class DatabaseCache {
 	/**
 	 * Holds DataSourceMetadata objects by DataSource name.
 	 */
-	private static Map dataSourceMetaDataCache = new HashMap();
+	private static Map dataSourceMetadataCache = new HashMap();
 
 	/**
 	 * Holds DataSource objects by DataSource name.
@@ -38,13 +35,44 @@ public class DatabaseCache {
 	private static Map tableMapCache = new HashMap();
 
 	/**
-	 * Return
+	 * Holds the names of DataSource objects used for locks.
+	 */
+	private static Map dataSourceLocks = new HashMap();
+
+	/**
+	 * Return the metadata for the named DataSource
 	 * 
-	 * @param name
+	 * @param dsName
+	 *            Name of DataSource
 	 * @return
 	 */
-	public static DataSourceMetadata metaData(String name) {
-		return (DataSourceMetadata) dataSourceMetaDataCache.get(name);
+	public static DataSourceMetadata getDataSourceMetaData(String dsName)
+			throws SQLException {
+		// Try the fastest option first
+		if (dataSourceMetadataCache.containsKey(dsName)) {
+			return (DataSourceMetadata) dataSourceMetadataCache.get(dsName);
+		}
+		DataSourceMetadata metadata;
+		Object lock;
+		// Acquire a lock unique to the dsName
+		synchronized (dataSourceLocks) {
+			lock = dataSourceLocks.get(dsName);
+			if (lock == null) {
+				lock = new Object();
+				dataSourceLocks.put(dsName, lock);
+			}
+		}
+		// The lock allows one thread per DataSource name
+		synchronized (lock) {
+			metadata = (DataSourceMetadata) dataSourceMetadataCache.get(dsName);
+			if (metadata == null) {
+				DataSource dataSource = getDataSource(dsName);
+				Connection conn = dataSource.getConnection();
+				metadata = new DataSourceMetadata(conn);
+				dataSourceMetadataCache.put(dsName, metadata);
+			}
+		}
+		return metadata;
 	}
 
 	/**
@@ -53,107 +81,35 @@ public class DatabaseCache {
 	 * @param name
 	 * @return
 	 */
-	public static DataSource getDataSource(String name) {
+	public static DataSource getDataSource(String dsName) {
+		// Try the fastest option first
+		if (dataSourceCache.containsKey(dsName)) {
+			return (DataSource) dataSourceCache.get(dsName);
+		}
+		// Retrieve from JNDI Registry
 		Context ctx;
 		DataSource ds;
 		try {
 			ctx = new InitialContext();
 		} catch (NamingException ex) {
-			throw new IllegalStateException(ex.getMessage()
-					+ "See org.pojava.testing.");
+			throw new IllegalStateException(
+					ex.getMessage()
+							+ "  See org.pojava.testing.JNDIRegistry if you need to create an InitialContext for unit testing.");
 		}
 		try {
-			ds = (DataSource) ctx.lookup("java:comp/env/jdbc/" + name.trim());
+			ds = (DataSource) ctx.lookup("java:comp/env/jdbc/" + dsName.trim());
 		} catch (NamingException ex) {
-			throw new InvalidParameterException(name.trim()
+			throw new InvalidParameterException(dsName.trim()
 					+ " triggered NamingException " + ex.getMessage());
 		}
 		if (ds == null) {
 			throw new IllegalStateException(
-					"Could not find java:comp/env/jdbc/" + name.trim()
+					"Could not find java:comp/env/jdbc/" + dsName.trim()
 							+ " in registry.");
-		}
-		try {
-			if (dataSourceMetaDataCache.get(name) == null) {
-				registerMetaData(name);
-			}
-		} catch (SQLException ex) {
-			// Since the caller didn't really ask for this, we'll mute it.
+		} else {
+			dataSourceCache.put(dsName, ds);
 		}
 		return ds;
-	}
-
-	/**
-	 * Spawn a background thread to capture some info about the database
-	 * 
-	 * @param name
-	 * @throws SQLException
-	 */
-	public static void registerMetaData(String dsName) throws SQLException {
-		// This task runs in the background, filling MetaData values.
-		MetaDataRegistryRunner.register(dsName);
-	}
-
-	/**
-	 * This is protected to encourage the use of registerMetaData(String name)
-	 * 
-	 * @param name
-	 * @param dbmeta
-	 * @throws SQLException
-	 */
-	public static void registerMetaData(String name, DatabaseMetaData dbmeta)
-			throws SQLException {
-		dataSourceMetaDataCache.put(name, dbmeta);
-	}
-
-	/**
-	 * 
-	 * @param name
-	 *            Simple short name for DataSource
-	 * @param ds
-	 *            DataSource
-	 */
-	public static void registerDataSource(String name, DataSource ds) {
-		Context ctx;
-		try {
-			ctx = new InitialContext();
-		} catch (NamingException ex) {
-			throw new IllegalStateException(
-					ex.getMessage()
-							+ "See org.pojava.testing for an InitialContext suitable for testing.");
-		}
-		try {
-			ctx.rebind("java:comp/env/jdbc/" + name.trim(), ds);
-		} catch (NamingException ex) {
-			throw new InvalidParameterException(name.trim()
-					+ " triggered NamingException " + ex.getMessage());
-		}
-		dataSourceCache.put(name, ds);
-	}
-
-	/**
-	 * If the metadata is not yet registered, then you have to wait for it. This
-	 * sidesteps a potential race condition between this request and the
-	 * registerMetaData(name) background process.
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public static DataSourceMetadata getDataSourceMetadata(String name) {
-		DataSourceMetadata meta = (DataSourceMetadata) dataSourceMetaDataCache
-				.get(name);
-		if (meta == null) {
-			DataSource ds = getDataSource(name);
-			try {
-				registerMetaData(name, ds.getConnection().getMetaData());
-			} catch (SQLException ex) {
-				throw new PersistenceException(
-						"Attempt to registerMetaData failed: "
-								+ ex.getMessage(), ex);
-			}
-			meta = (DataSourceMetadata) dataSourceMetaDataCache.get(name);
-		}
-		return meta;
 	}
 
 	/**
@@ -183,6 +139,15 @@ public class DatabaseCache {
 	public static void registerTableMap(TableMap tableMap) {
 		tableMapCache.put(tableMapKey(tableMap.getClass(), tableMap
 				.getTableName(), tableMap.getDataSourceName()), tableMap);
+	}
+	
+	/**
+	 * Register a DataSource.
+	 * @param dataSourceName
+	 * @param dataSource
+	 */
+	public static void registerDataSource(String dataSourceName, DataSource dataSource) {
+		dataSourceCache.put(dataSourceName, dataSource);
 	}
 
 	/**
