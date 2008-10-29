@@ -46,9 +46,9 @@ public class DatabaseCache {
 	 * 
 	 * @param dsName
 	 *            Name of DataSource
-	 * @return
+	 * @return Metadata gathered from a connection from this dataSource
 	 */
-	public static DataSourceMetadata getDataSourceMetaData(String dsName)
+	public static DataSourceMetadata getDataSourceMetadata(String dsName)
 			throws SQLException {
 		// Try the fastest option first
 		if (dataSourceMetadataCache.containsKey(dsName)) {

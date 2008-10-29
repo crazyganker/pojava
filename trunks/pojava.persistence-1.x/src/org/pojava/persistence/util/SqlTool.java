@@ -50,7 +50,7 @@ public class SqlTool {
 	 * 
 	 * @param query
 	 * @param conn
-	 * @return
+	 * @return row count applicable to statement executed 
 	 * @throws SQLException
 	 */
 	public static int executeUpdate(PreparedSql query, Connection conn)
@@ -66,7 +66,7 @@ public class SqlTool {
 	 * 
 	 * @param query
 	 * @param conn
-	 * @return
+	 * @return ResultSetProcessor return value, typically number of rows processed
 	 * @throws SQLException
 	 */
 	public static int executeQuery(PreparedSql query, Connection conn,
