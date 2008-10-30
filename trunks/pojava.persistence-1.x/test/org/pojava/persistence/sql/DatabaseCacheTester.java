@@ -28,7 +28,6 @@ public class DatabaseCacheTester extends TestCase {
 			DataSource ds = new DriverManagerDataSource(dsp.getProperty("url"),
 					dsp.getProperty("user"), dsp.getProperty("password"));
 			DatabaseCache.registerDataSource(dsp.getProperty("name"), ds);
-			
 		}
 	}
 
