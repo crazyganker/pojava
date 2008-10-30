@@ -72,6 +72,10 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 	protected void appendSql(String newSql) {
 		sql.append(newSql);
 	}
+	
+	protected void addBinding(Class type, Object value) {
+		sql.addBinding(type, value);
+	}
 
 	/**
 	 * Insert some SQL
