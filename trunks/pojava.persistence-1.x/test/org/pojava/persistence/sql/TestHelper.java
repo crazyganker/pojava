@@ -31,7 +31,7 @@ public class TestHelper {
 		sb.append("url = jdbc:postgresql://localhost:5432/postgres\n");
 		sb.append("user = pojava\n");
 		sb.append("password = popojava\n");
-		sb.append("name = pojava_pg\n");
+		sb.append("name = pojava_test\n");
 		return sb.toString();
 	}
 

@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import javax.sql.DataSource;
 
@@ -21,20 +22,23 @@ public class DatabaseCacheTester extends TestCase {
 
 	protected void setUp() throws Exception {
 		JNDIRegistry.getInitialContext();
-		Class.forName("org.postgresql.Driver");
-		DataSource ds = new DriverManagerDataSource(
-				"jdbc:postgresql://localhost:5432/postgres", "pojava",
-				"popojava");
-		DatabaseCache.registerDataSource("pojava_pg", ds);
+		Properties dsp = TestHelper.fetchDataSourceProperties();
+		if (dsp != null) {
+			Class.forName(dsp.getProperty("driver"));
+			DataSource ds = new DriverManagerDataSource(dsp.getProperty("url"),
+					dsp.getProperty("user"), dsp.getProperty("password"));
+			DatabaseCache.registerDataSource(dsp.getProperty("name"), ds);
+			
+		}
 	}
 
 	public void testGetDataSource() {
-		DataSource ds = DatabaseCache.getDataSource("pojava_pg");
+		DataSource ds = DatabaseCache.getDataSource("pojava_test");
 		assertTrue(ds != null);
 	}
 
 	public void testMetaData() throws Exception {
-		DataSource ds = DatabaseCache.getDataSource("pojava_pg");
+		DataSource ds = DatabaseCache.getDataSource("pojava_test");
 		assertTrue(ds != null);
 		TransConnection internalConn = null;
 		Connection conn = null;
@@ -63,7 +67,7 @@ public class DatabaseCacheTester extends TestCase {
 	}
 
 	public void testTable() throws Exception {
-		DataSource ds = DatabaseCache.getDataSource("pojava_pg");
+		DataSource ds = DatabaseCache.getDataSource("pojava_test");
 		assertTrue(ds != null);
 		Connection conn = null;
 		try {

@@ -14,7 +14,7 @@ public class TypeTestDao {
 
 	private static final Class JAVA_CLASS = TypeTest.class;
 	private static final String TABLE_NAME = "type_test";
-	private static final String DS_NAME = "pojava_pg";
+	private static final String DS_NAME = "pojava_test";
 
 	private static final TableMap MAP = newTableMap();
 

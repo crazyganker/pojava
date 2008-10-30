@@ -23,7 +23,7 @@ public class DaoToolTester extends TestCase {
 
 	private static final Class JAVA_CLASS = TypeTest.class;
 	private static final String TABLE_NAME = "dao_test";
-	private static final String DS_NAME = "pojava_pg";
+	private static final String DS_NAME = "pojava_test";
 	private DatabaseTransaction trans = null;
 	private TableMap MAP = null;
 
