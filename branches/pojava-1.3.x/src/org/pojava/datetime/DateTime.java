@@ -547,8 +547,7 @@ public class DateTime implements Serializable, Comparable {
 			throw new NullPointerException(
 					"Cannot parse time from empty string.");
 		}
-		Tm tm = new Tm(System.currentTimeMillis());
-		// Calendar cal = Calendar.getInstance();
+		Calendar cal = Calendar.getInstance();
 		if (str.charAt(0) == '+' || str.charAt(0) == '-') {
 			return parseRelativeDate(str, config);
 		}
@@ -561,7 +560,7 @@ public class DateTime implements Serializable, Comparable {
 		int hour = 0, minute = 0, second = 0, nanosecond = 0;
 		String tzString = null;
 		TimeZone tz = TimeZone.getDefault();
-		int thisYear = tm.getYear();
+		int thisYear = cal.get(Calendar.YEAR);
 		int centuryTurn = thisYear - (thisYear % 100);
 		// Build a table describing which fields are integers.
 		boolean[] integers = new boolean[parts.length];
@@ -763,7 +762,6 @@ public class DateTime implements Serializable, Comparable {
 			}
 		}
 		DateTime returnDt;
-		Calendar cal = null;
 		if (hasTimeZone) {
 			cal = Calendar.getInstance(tz);
 			cal.set(Calendar.YEAR, year);
