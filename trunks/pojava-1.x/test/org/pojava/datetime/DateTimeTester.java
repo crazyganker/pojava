@@ -338,5 +338,21 @@ public class DateTimeTester extends TestCase {
 		assertEquals(dt1,dt4);
 		assertEquals(dt1,dt5);		
 	}
+	
+	/**
+	 * This looks for a broad spectrum of issues, spanning different
+	 * times of day, days of the month, leap and non-leap years.
+	 */
+	public void testFourYearsDaily() {
+		DateTime dt=new DateTime("2008-01-01");
+		Calendar cal=Calendar.getInstance();
+		cal.setTimeInMillis(dt.getMillis());
+		for (int i=0; i<365*4; i++) {
+			assertEquals(cal.getTimeInMillis(), dt.getMillis());
+			cal.add(Calendar.DATE, 1);
+			cal.add(Calendar.SECOND, 61);
+			dt=dt.add(CalendarUnit.DAY, 1).add(CalendarUnit.SECOND,61);
+		}
+	}
 
 }

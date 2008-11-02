@@ -86,4 +86,24 @@ public class TmTester extends TestCase {
 		}
 	}
 
+	/**
+	 * This should cover a broad spectrum of potential issues.
+	 */
+	public void testFourYearsDaily() {
+		DateTime dt=new DateTime("2008-01-01");
+		Calendar cal=Calendar.getInstance();
+		cal.setTimeInMillis(dt.getMillis());
+		for (int i=0; i<365*4+1; i++) {
+			Tm tm=new Tm(cal.getTimeInMillis());
+			assertEquals(cal.get(Calendar.DATE), tm.getDay());
+			assertEquals(1+cal.get(Calendar.MONTH), tm.getMonth());
+			assertEquals(cal.get(Calendar.YEAR), tm.getYear());
+			assertEquals(cal.get(Calendar.HOUR), tm.getHour());
+			assertEquals(cal.get(Calendar.MINUTE), tm.getMinute());
+			assertEquals(cal.get(Calendar.SECOND), tm.getSecond());
+			cal.add(Calendar.DATE, 1);
+			cal.add(Calendar.SECOND, 1);
+		}
+	}
+
 }
