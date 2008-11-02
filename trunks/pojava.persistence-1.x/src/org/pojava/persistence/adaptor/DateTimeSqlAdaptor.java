@@ -2,7 +2,6 @@ package org.pojava.persistence.adaptor;
 
 import org.pojava.datetime.DateTime;
 import org.pojava.lang.Binding;
-import org.pojava.transformation.BindingAdaptor;
 
 /**
  * Adaptor for managing Java to JDBC for a java.sql.Date value mapped to a
@@ -11,7 +10,21 @@ import org.pojava.transformation.BindingAdaptor;
  * @author John Pile
  * 
  */
-public class DateTimeSqlAdaptor implements BindingAdaptor {
+public class DateTimeSqlAdaptor implements TypedAdaptor {
+
+	/**
+	 * The type the translator will produce for the bean.
+	 */
+	public Class inboundType() {
+		return java.sql.Date.class;
+	}
+
+	/**
+	 * The type the translator will produce for the JDBC driver.
+	 */
+	public Class outboundType() {
+		return DateTime.class;
+	}
 
 	/**
 	 * Translate the binding from the data source towards Java bean.
@@ -39,8 +52,8 @@ public class DateTimeSqlAdaptor implements BindingAdaptor {
 		if (outBinding.getObj() == null) {
 			return outBinding;
 		}
-		Binding inBinding = new Binding(java.sql.Date.class, new java.sql.Date(
-				((DateTime) outBinding.getObj()).getMillis()));
+		Binding inBinding = new Binding(java.sql.Timestamp.class,
+				new java.sql.Date(((DateTime) outBinding.getObj()).getMillis()));
 		return inBinding;
 	}
 }

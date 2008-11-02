@@ -14,7 +14,7 @@ public interface ResultSetProcessor {
 	 * Used as a callback to perform an action on a ResultSet.
 	 * 
 	 * @param rs
-	 * @return
+	 * @return number of rows processed
 	 * @throws SQLException
 	 */
 	int process(ResultSet rs) throws SQLException;

@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
@@ -36,6 +37,7 @@ import org.pojava.exception.InconceivableException;
 import org.pojava.exception.PersistenceException;
 import org.pojava.lang.Binding;
 import org.pojava.lang.BoundString;
+import org.pojava.persistence.adaptor.TypedAdaptor;
 import org.pojava.util.ReflectionTool;
 import org.pojava.util.StringTool;
 
@@ -53,6 +55,8 @@ public class TableMap {
 	Class javaClass = null;
 	String tableName = null;
 	String dataSourceName = null;
+
+	Logger logger = Logger.getLogger("persistence.TableMap");
 
 	/**
 	 * Construct a table map defining the Java class, Table name and DataSource
@@ -148,16 +152,25 @@ public class TableMap {
 			FieldMap fm = null;
 			try {
 				fm = new FieldMap(property, fieldName, primaryKeys
-						.contains(fieldName), this, rsMeta
-						.getColumnClassName(column));
+						.contains(fieldName), Class.forName(rsMeta
+						.getColumnClassName(column)), this);
 			} catch (NoSuchMethodException ex) {
 				throw new InconceivableException(
 						"Did reflection find something that doesn't exist?", ex);
+			} catch (ClassNotFoundException ex) {
+				throw new InconceivableException(
+						"Weird.  A class returned by MetaData is not in classpath: "
+								+ rsMeta.getColumnClassName(column), ex);
 			}
 			try {
 				addFieldMap(fm);
 			} catch (NoSuchMethodException ex) {
-				// Quietly ignore to allow an automated partial mapping.
+				logger
+						.info("TableMap.autoBind cannot find property to match fieldName="
+								+ fieldName);
+				/*
+				 * Quietly ignored to allow an automated partial mapping.
+				 */
 			}
 		}
 	}
@@ -215,18 +228,32 @@ public class TableMap {
 
 	/**
 	 * Add a FieldMap to this TableMap.
+	 * 
 	 * @param property
 	 * @param fieldName
 	 * @param isKeyField
-	 * @param tableMap
-	 * @param columnClassName
+	 * @param columnClass
 	 * @throws NoSuchMethodException
 	 */
 	public void addFieldMap(String property, String fieldName,
-			boolean isKeyField, TableMap tableMap, String columnClassName)
+			boolean isKeyField, Class columnClass) throws NoSuchMethodException {
+		addFieldMap(new FieldMap(property, fieldName, isKeyField, columnClass,
+				this));
+	}
+
+	/**
+	 * Add a FieldMap to this TableMap.
+	 * 
+	 * @param property
+	 * @param fieldName
+	 * @param isKeyField
+	 * @param adaptor
+	 * @throws NoSuchMethodException
+	 */
+	public void FieldMap(String property, String fieldName, boolean isKeyField,
+			TypedAdaptor adaptor)
 			throws NoSuchMethodException {
-		addFieldMap(new FieldMap(property, fieldName, isKeyField, tableMap,
-				columnClassName));
+		addFieldMap(new FieldMap(property, fieldName, isKeyField, adaptor, this));
 	}
 
 	/**

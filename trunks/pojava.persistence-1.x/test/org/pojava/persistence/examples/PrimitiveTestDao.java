@@ -6,7 +6,7 @@ import java.util.List;
 import org.pojava.lang.Processor;
 import org.pojava.persistence.query.SqlQuery;
 import org.pojava.persistence.sql.DatabaseCache;
-import org.pojava.persistence.sql.DatabaseTransaction;
+import org.pojava.persistence.sql.ConnectionSource;
 import org.pojava.persistence.sql.TableMap;
 import org.pojava.persistence.util.DaoTool;
 
@@ -24,60 +24,60 @@ public class PrimitiveTestDao {
 		return tableMap;
 	}
 
-	public static int insert(DatabaseTransaction trans, PrimitiveTest obj)
+	public static int insert(ConnectionSource connector, PrimitiveTest obj)
 			throws SQLException {
-		return DaoTool.insert(trans.getConnection(DS_NAME), MAP, obj);
+		return DaoTool.insert(connector.getConnection(DS_NAME), MAP, obj);
 	}
 
-	public static int update(DatabaseTransaction trans, PrimitiveTest obj)
+	public static int update(ConnectionSource connector, PrimitiveTest obj)
 			throws SQLException {
-		return DaoTool.update(trans.getConnection(DS_NAME), MAP, obj);
+		return DaoTool.update(connector.getConnection(DS_NAME), MAP, obj);
 	}
 
-	public static int updateInsert(DatabaseTransaction trans, PrimitiveTest obj)
+	public static int updateInsert(ConnectionSource connector, PrimitiveTest obj)
 			throws SQLException {
-		return DaoTool.updateInsert(trans.getConnection(DS_NAME), MAP, obj);
+		return DaoTool.updateInsert(connector.getConnection(DS_NAME), MAP, obj);
 	}
 
-	public static int passiveInsert(DatabaseTransaction trans, PrimitiveTest obj)
-			throws SQLException {
-		return DaoTool.passiveInsert(trans.getConnection(DS_NAME), MAP, obj);
-	}
-
-	public static int delete(DatabaseTransaction trans, PrimitiveTest obj)
-			throws SQLException {
-		return DaoTool.delete(trans.getConnection(DS_NAME), MAP, obj);
-	}
-
-	public static PrimitiveTest find(DatabaseTransaction trans,
+	public static int passiveInsert(ConnectionSource connector,
 			PrimitiveTest obj) throws SQLException {
-		return (PrimitiveTest) DaoTool.find(trans.getConnection(DS_NAME), MAP,
-				obj);
+		return DaoTool
+				.passiveInsert(connector.getConnection(DS_NAME), MAP, obj);
 	}
 
-	public static List listByQuery(DatabaseTransaction trans, SqlQuery query)
+	public static int delete(ConnectionSource connector, PrimitiveTest obj)
 			throws SQLException {
-		return DaoTool.listByQuery(trans.getConnection(DS_NAME), MAP, query
-				.generatePreparedSql(MAP.sqlSelect()));
+		return DaoTool.delete(connector.getConnection(DS_NAME), MAP, obj);
 	}
 
-	public static int deleteByQuery(DatabaseTransaction trans, SqlQuery query)
+	public static PrimitiveTest find(ConnectionSource connector,
+			PrimitiveTest obj) throws SQLException {
+		return (PrimitiveTest) DaoTool.find(connector.getConnection(DS_NAME),
+				MAP, obj);
+	}
+
+	public static List listByQuery(ConnectionSource connector, SqlQuery query)
 			throws SQLException {
-		return DaoTool.deleteByQuery(trans.getConnection(DS_NAME), query
-				.generatePreparedSql("DELETE FROM " + MAP.getTableName()));
+		return DaoTool
+				.listByQuery(connector.getConnection(DS_NAME), MAP, query);
 	}
 
-	public static int countByQuery(DatabaseTransaction trans, SqlQuery query)
+	public static int deleteByQuery(ConnectionSource connector, SqlQuery query)
 			throws SQLException {
-		return DaoTool.intQuery(trans.getConnection(DS_NAME), query
-				.generatePreparedSql("SELECT COUNT(*) FROM "
-						+ MAP.getTableName()));
+		return DaoTool.deleteByQuery(connector.getConnection(DS_NAME), MAP,
+				query);
 	}
 
-	public static int processByQuery(DatabaseTransaction trans, SqlQuery query,
-			Processor objProcessor) throws SQLException {
-		return DaoTool.processByQuery(trans.getConnection(DS_NAME), MAP, query
-				.generatePreparedSql(MAP.sqlSelect()), objProcessor);
+	public static int countByQuery(ConnectionSource connector, SqlQuery query)
+			throws SQLException {
+		return DaoTool.countByQuery(connector.getConnection(DS_NAME), MAP,
+				query);
+	}
+
+	public static int processByQuery(ConnectionSource connector,
+			SqlQuery query, Processor objProcessor) throws SQLException {
+		return DaoTool.processByQuery(connector.getConnection(DS_NAME), MAP,
+				query, objProcessor);
 	}
 
 }

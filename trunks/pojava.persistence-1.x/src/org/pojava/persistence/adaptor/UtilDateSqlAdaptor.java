@@ -13,6 +13,20 @@ import org.pojava.transformation.BindingAdaptor;
 public class UtilDateSqlAdaptor implements BindingAdaptor {
 
 	/**
+	 * The type the translator will produce for the bean.
+	 */
+	public Class inboundType() {
+		return java.util.Date.class;
+	}
+
+	/**
+	 * The type the translator will produce for the JDBC driver.
+	 */
+	public Class outboundType() {
+		return java.sql.Date.class;
+	}
+
+	/**
 	 * Translate the binding from the data source towards Java bean.
 	 */
 	public Binding inbound(Binding inBinding) {

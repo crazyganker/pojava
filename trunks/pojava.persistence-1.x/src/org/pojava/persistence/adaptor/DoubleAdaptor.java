@@ -1,7 +1,6 @@
 package org.pojava.persistence.adaptor;
 
 import org.pojava.lang.Binding;
-import org.pojava.transformation.BindingAdaptor;
 
 /**
  * Adaptor for managing translations for values of type double.
@@ -9,7 +8,21 @@ import org.pojava.transformation.BindingAdaptor;
  * @author John Pile
  * 
  */
-public class DoubleAdaptor implements BindingAdaptor {
+public class DoubleAdaptor implements TypedAdaptor {
+
+	/**
+	 * The type the translator will produce for the bean.
+	 */
+	public Class inboundType() {
+		return Double.class;
+	}
+
+	/**
+	 * The type the translator will produce for the JDBC driver.
+	 */
+	public Class outboundType() {
+		return Double.class;
+	}
 
 	/**
 	 * Translate the binding from the data source towards Java bean.

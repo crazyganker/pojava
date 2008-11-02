@@ -30,7 +30,7 @@ public class DaoTester extends TestCase {
 			DataSource ds = new DriverManagerDataSource(dsp.getProperty("url"),
 					dsp.getProperty("user"), dsp.getProperty("password"));
 			DatabaseCache.registerDataSource(dsp.getProperty("name"), ds);
-			trans = new DistributedTransaction();
+			trans = new DatabaseTransaction();
 			TypeTestDao.deleteByQuery(trans, new TypeTestQuery().forAll());
 		}
 	}

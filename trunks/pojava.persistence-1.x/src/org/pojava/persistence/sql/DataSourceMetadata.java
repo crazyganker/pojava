@@ -37,7 +37,7 @@ public class DataSourceMetadata {
 	 * Minor version.
 	 */
 	private int minorVersion;
-	
+
 	/**
 	 * Default constructor.
 	 */
@@ -45,7 +45,8 @@ public class DataSourceMetadata {
 	}
 
 	/**
-	 * Construct a 
+	 * Construct a
+	 * 
 	 * @param conn
 	 * @throws SQLException
 	 */

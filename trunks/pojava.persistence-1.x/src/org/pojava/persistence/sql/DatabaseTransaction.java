@@ -1,67 +1,113 @@
 package org.pojava.persistence.sql;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.logging.Logger;
+
+import javax.sql.DataSource;
+
+import org.pojava.exception.PersistenceException;
 
 /**
- * This interface describes expected functionality from a Transaction object
- * specific to JDBC.
+ * A DatabaseTransaction object coordinates the transactions of multiple
+ * connections so that all of them commit or roll back as a collective.
  * 
  * @author John Pile
+ * 
  */
-public interface DatabaseTransaction {
+public class DatabaseTransaction implements Transaction, ConnectionSource {
 
 	/**
-	 * Commit all managed connections
+	 * Connections mapped by DataSource name.
 	 */
-	void commit();
+	Map connections = new HashMap();
+
+	Logger log = Logger.getLogger("org.pojava.database");
 
 	/**
-	 * Roll back all managed connections.
+	 * Obtain a connection, reusing an existing transaction if possible. This is
+	 * done to reduce the risk of deadlock between two connections within the
+	 * same transaction.
 	 */
-	void rollback();
+	public Connection getConnection(String dataSourceName)
+			throws PersistenceException {
+		Connection conn;
+		DataSource ds = DatabaseCache.getDataSource(dataSourceName);
+		if (ds == null) {
+			throw new IllegalStateException("DataSource " + dataSourceName
+					+ " not found.");
+		}
+		if (connections.containsKey(dataSourceName)) {
+			conn = (Connection) connections.get(dataSourceName);
+		} else {
+			try {
+				conn = new TransConnection(ds.getConnection());
+				connections.put(dataSourceName, conn);
+				setDefaults(conn);
+			} catch (SQLException ex) {
+				throw new PersistenceException(ex.getMessage(), ex);
+			}
+		}
+		return conn;
+	}
 
 	/**
-	 * Same as rollback.
-	 */
-	void clear();
-
-	/**
-	 * Retrieve connection (will return an existing connection for the same
-	 * dataSourceName if one is available).
-	 * 
-	 * @param dataSourceName
-	 * @return Connection
-	 * @throws SQLException
-	 */
-	Connection getConnection(String dataSourceName) throws SQLException;
-
-	/**
-	 * Close connection (usually does nothing). We keep the connection open for
-	 * reuse until the Transaction is either committed or rolled back.
-	 * 
-	 * @param conn
-	 *            Connection to "close"
-	 * @throws SQLException
-	 */
-	void close(Connection conn) throws SQLException;
-
-	/**
-	 * Close ResultSet
-	 * 
-	 * @param rs
-	 * @throws SQLException
-	 */
-	void close(ResultSet rs) throws SQLException;
-
-	/**
-	 * Close both the Connection and ResultSet.
+	 * Defines the applied defaults for all new connections.
 	 * 
 	 * @param conn
-	 * @param rs
 	 * @throws SQLException
 	 */
-	void close(Connection conn, ResultSet rs) throws SQLException;
+	private void setDefaults(Connection conn) throws SQLException {
+		conn.setAutoCommit(false);
+	}
+
+	/**
+	 * Rollback all transactions on all managed connections.
+	 */
+	public void rollback() {
+		for (Iterator it = connections.values().iterator(); it.hasNext();) {
+			Connection conn = (Connection) it.next();
+			try {
+				conn.rollback();
+			} catch (SQLException ex) {
+				log.severe("Partial rollback failure: " + ex.getMessage());
+			}
+		}
+		closeConnections();
+	}
+
+	/**
+	 * Commit all transactions on all managed connections.
+	 */
+	public void commit() {
+		for (Iterator it = connections.values().iterator(); it.hasNext();) {
+			Connection conn = (Connection) it.next();
+			try {
+				conn.commit();
+			} catch (SQLException ex) {
+				log.severe("Partial commit failure: " + ex.getMessage());
+			}
+		}
+		closeConnections();
+	}
+
+	/**
+	 * This actually does close the connections (or returns them to a pool).
+	 */
+	private void closeConnections() {
+		for (Iterator it = connections.values().iterator(); it.hasNext();) {
+			TransConnection conn = (TransConnection) it.next();
+			try {
+				conn.setCloseAllowed(true);
+				conn.close();
+			} catch (SQLException ex) {
+				log.severe("Connection close failure: " + ex.getMessage());
+			}
+		}
+		connections.clear();
+	}
 
 }

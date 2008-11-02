@@ -7,13 +7,12 @@ import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 
+import org.pojava.persistence.examples.Mock;
 import org.pojava.persistence.examples.TypeTest;
 import org.pojava.persistence.examples.TypeTestDao;
 import org.pojava.persistence.examples.TypeTestQuery;
-import org.pojava.persistence.examples.Mock;
 import org.pojava.persistence.sql.DatabaseCache;
 import org.pojava.persistence.sql.DatabaseTransaction;
-import org.pojava.persistence.sql.DistributedTransaction;
 import org.pojava.persistence.sql.TableMap;
 import org.pojava.persistence.sql.TestHelper;
 import org.pojava.testing.DriverManagerDataSource;
@@ -35,9 +34,9 @@ public class DaoToolTester extends TestCase {
 			DataSource ds = new DriverManagerDataSource(dsp.getProperty("url"),
 					dsp.getProperty("user"), dsp.getProperty("password"));
 			DatabaseCache.registerDataSource(dsp.getProperty("name"), ds);
-			trans = new DistributedTransaction();
+			trans = new DatabaseTransaction();
 			TypeTestDao.deleteByQuery(trans, new TypeTestQuery().forAll());
-		}		
+		}
 		MAP = DatabaseCache.getTableMap(JAVA_CLASS, TABLE_NAME, DS_NAME);
 	}
 

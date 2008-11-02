@@ -142,13 +142,15 @@ public class DatabaseCache {
 		tableMapCache.put(tableMapKey(tableMap.getClass(), tableMap
 				.getTableName(), tableMap.getDataSourceName()), tableMap);
 	}
-	
+
 	/**
 	 * Register a DataSource.
+	 * 
 	 * @param dataSourceName
 	 * @param dataSource
 	 */
-	public static void registerDataSource(String dataSourceName, DataSource dataSource) {
+	public static void registerDataSource(String dataSourceName,
+			DataSource dataSource) {
 		dataSourceCache.put(dataSourceName, dataSource);
 	}
 
@@ -162,7 +164,7 @@ public class DatabaseCache {
 	 */
 	public static TableMap getTableMap(Class javaClass, String tableName,
 			String dataSourceName) {
-		String key=tableMapKey(javaClass, tableName, dataSourceName);
+		String key = tableMapKey(javaClass, tableName, dataSourceName);
 		// Use cached version if it exists
 		if (tableMapCache.containsKey(key)) {
 			return (TableMap) tableMapCache.get(key);
@@ -179,8 +181,8 @@ public class DatabaseCache {
 		// The lock allows one thread per unique key
 		TableMap tableMap;
 		synchronized (lock) {
-			tableMap=(TableMap) tableMapCache.get(key);
-			if (tableMap==null) {
+			tableMap = (TableMap) tableMapCache.get(key);
+			if (tableMap == null) {
 				tableMap = SqlTool.autoGenerateTableMap(javaClass, tableName,
 						dataSourceName);
 				tableMapCache.put(key, tableMap);

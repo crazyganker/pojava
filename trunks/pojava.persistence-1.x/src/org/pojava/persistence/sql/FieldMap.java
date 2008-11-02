@@ -20,9 +20,9 @@ import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.pojava.exception.InconceivableException;
 import org.pojava.exception.ReflectionException;
 import org.pojava.lang.Binding;
+import org.pojava.persistence.adaptor.TypedAdaptor;
 import org.pojava.transformation.BindingAdaptor;
 import org.pojava.util.ReflectionTool;
 
@@ -61,11 +61,38 @@ public class FieldMap {
 	 * @param property
 	 * @param fieldName
 	 * @param isKeyField
+	 * @param columnClass
 	 * @param tableMap
-	 * @param columnClassName
 	 */
 	public FieldMap(String property, String fieldName, boolean isKeyField,
-			TableMap tableMap, String columnClassName)
+			Class columnClass, TableMap tableMap) throws NoSuchMethodException {
+		Class parentType = tableMap.getJavaClass();
+		this.property = property;
+		this.columnName = fieldName;
+		this.keyField = isKeyField;
+		this.getters = ReflectionTool.getterMethods(parentType, property);
+		this.setters = ReflectionTool.setterMethods(this.getters);
+		this.propertyClass = this.getters[this.getters.length - 1]
+				.getReturnType();
+		this.tableMap = tableMap;
+		this.columnClass = columnClass;
+		this.adaptor = DefaultAdaptorMap.getInstance().chooseAdaptor(
+				parentType, this.getters, columnClass);
+	}
+
+	/**
+	 * Construct a FieldMap, specifying whether this is a key field.
+	 * 
+	 * @param property
+	 * @param fieldName
+	 * @param isKeyField
+	 * @param tableMap
+	 * @param columnClass
+	 * @param adaptorMap
+	 *            custom rules engine for determining a BindingAdaptor
+	 */
+	public FieldMap(String property, String fieldName, boolean isKeyField,
+			TableMap tableMap, Class columnClass, AdaptorMap adaptorMap)
 			throws NoSuchMethodException {
 		Class parentType = tableMap.getJavaClass();
 		this.property = property;
@@ -76,13 +103,33 @@ public class FieldMap {
 		this.propertyClass = this.getters[this.getters.length - 1]
 				.getReturnType();
 		this.tableMap = tableMap;
-		try {
-			this.columnClass = Class.forName(columnClassName);
-		} catch (ClassNotFoundException ex) {
-			throw new InconceivableException("Unsupported JDBC type.", ex);
-		}
-		this.adaptor = AdaptorMap.chooseAdaptor(parentType, this.getters,
-				columnClassName);
+		this.columnClass = columnClass;
+		this.adaptor = adaptorMap.chooseAdaptor(parentType, this.getters,
+				columnClass);
+	}
+
+	/**
+	 * Construct a FieldMap, specifying whether this is a key field.
+	 * 
+	 * @param property
+	 * @param fieldName
+	 * @param isKeyField
+	 * @param adaptor
+	 * @param tableMap
+	 */
+	public FieldMap(String property, String fieldName, boolean isKeyField,
+			TypedAdaptor adaptor, TableMap tableMap)
+			throws NoSuchMethodException {
+		Class parentType = tableMap.getJavaClass();
+		this.property = property;
+		this.columnName = fieldName;
+		this.keyField = isKeyField;
+		this.getters = ReflectionTool.getterMethods(parentType, property);
+		this.setters = ReflectionTool.setterMethods(this.getters);
+		this.propertyClass = adaptor.inboundType();
+		this.tableMap = tableMap;
+		this.columnClass = adaptor.outboundType();
+		this.adaptor = adaptor;
 	}
 
 	/**
@@ -147,7 +194,8 @@ public class FieldMap {
 	 * The columnClass specifies the class of the JDBC field representing the
 	 * database field value.
 	 * 
-	 * @param columnClass data type returned by JDBC for this field
+	 * @param columnClass
+	 *            data type returned by JDBC for this field
 	 */
 	public void setColumnClass(Class columnClass) {
 		this.columnClass = columnClass;

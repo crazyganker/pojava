@@ -28,9 +28,11 @@ import java.util.Iterator;
 
 import org.pojava.datetime.DateTime;
 import org.pojava.exception.InitializationException;
+import org.pojava.exception.PersistenceException;
 import org.pojava.lang.Binding;
 import org.pojava.lang.BoundString;
 import org.pojava.persistence.processor.ResultSetProcessor;
+import org.pojava.persistence.processor.ResultSetToInt;
 import org.pojava.persistence.query.PreparedSql;
 import org.pojava.persistence.sql.TableMap;
 
@@ -50,7 +52,7 @@ public class SqlTool {
 	 * 
 	 * @param query
 	 * @param conn
-	 * @return row count applicable to statement executed 
+	 * @return row count applicable to statement executed
 	 * @throws SQLException
 	 */
 	public static int executeUpdate(PreparedSql query, Connection conn)
@@ -66,7 +68,8 @@ public class SqlTool {
 	 * 
 	 * @param query
 	 * @param conn
-	 * @return ResultSetProcessor return value, typically number of rows processed
+	 * @return ResultSetProcessor return value, typically number of rows
+	 *         processed
 	 * @throws SQLException
 	 */
 	public static int executeQuery(PreparedSql query, Connection conn,
@@ -81,7 +84,29 @@ public class SqlTool {
 			pstmt.close();
 		}
 		return result;
+	}
 
+	/**
+	 * Return an integer value (such as a count) from your query. This assumes
+	 * your query yields a single integer result and returns the intValue of the
+	 * first column of the ResultSet.
+	 * 
+	 * @param conn
+	 * @param query
+	 * @return intValue of first column of first row of ResultSet
+	 */
+	public static final int intQuery(Connection conn, PreparedSql query) {
+		try {
+			if (query == null) {
+				StringBuffer msg = new StringBuffer();
+				msg.append("Cannot perform intQuery using a null query.");
+				throw new IllegalArgumentException(msg.toString());
+			}
+			ResultSetToInt processor = new ResultSetToInt();
+			return SqlTool.executeQuery(query, conn, processor);
+		} catch (SQLException ex) {
+			throw new PersistenceException(ex.getMessage(), ex);
+		}
 	}
 
 	/**

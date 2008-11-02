@@ -72,7 +72,7 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 	protected void appendSql(String newSql) {
 		sql.append(newSql);
 	}
-	
+
 	protected void addBinding(Class type, Object value) {
 		sql.addBinding(type, value);
 	}
@@ -108,7 +108,8 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 	/**
 	 * Append some SQL with a "WHERE" or "AND" prefix.
 	 * 
-	 * @param predicate A freeform expression evaluating to true or false
+	 * @param predicate
+	 *            A freeform expression evaluating to true or false
 	 */
 	protected void whereAnd(BoundString predicate) {
 		sql.append(sql.getString().length() == 0 ? "WHERE " : " AND ");
