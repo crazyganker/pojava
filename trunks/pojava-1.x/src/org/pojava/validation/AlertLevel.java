@@ -54,7 +54,7 @@ public class AlertLevel extends Ordinal {
 	/**
 	 * Lookup ordinal by name.
 	 * @param name
-	 * @return
+	 * @return AlertLevel matching name
 	 */
 	public static AlertLevel valueOf(String name) {
 		Ordinal located = ordinals.get(name);
