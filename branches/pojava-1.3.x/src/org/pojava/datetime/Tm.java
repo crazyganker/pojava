@@ -132,7 +132,7 @@ public class Tm {
 		// This rough calculation gets close to the month, but not over
 		month = (int) (duration / (30 * DAY));
 		// This will get you the rest of the way there if needed.
-		if (MONTH[month] < duration) {
+		if (MONTH[month] <= duration) {
 			month++;
 		}
 		// Same strategy as above, removing largest chunks first.
