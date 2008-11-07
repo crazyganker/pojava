@@ -25,6 +25,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Iterator;
+import java.util.List;
 
 import org.pojava.datetime.DateTime;
 import org.pojava.exception.InitializationException;
@@ -40,7 +41,8 @@ import org.pojava.persistence.sql.TableMap;
  * Utilities for performing SQL tasks. POJava keeps things simple by using
  * prepared statements. This reduces your application's footprint on the cache
  * your database uses to store unique SQL statements. It bypasses issues arising
- * from variations in supported date formats between different databases.
+ * from variations in supported date formats between different databases.  It also
+ * reduces your exposure to SQL injection vulnerabilities.
  * 
  * @author John Pile
  * 
@@ -121,8 +123,24 @@ public class SqlTool {
 			PreparedSql preparedSql, Connection conn) throws SQLException {
 		BoundString bs = preparedSql.getSql();
 		PreparedStatement pstmt = conn.prepareStatement(bs.getString());
+		prepareBindings(pstmt, bs.getBindings());
+		pstmt.setMaxRows(preparedSql.getMaxRows());
+		return pstmt;
+	}
+
+	/**
+	 * Bind bindings to a prepared statement
+	 * 
+	 * @param pstmt
+	 *            PreparedStatement needing bindings
+	 * @param bindings
+	 *            Bindings to bind to the prepared statement
+	 * @throws SQLException
+	 */
+	public static void prepareBindings(PreparedStatement pstmt, List bindings)
+			throws SQLException {
 		int i = 0;
-		for (Iterator it = bs.getBindings().iterator(); it.hasNext();) {
+		for (Iterator it = bindings.iterator(); it.hasNext();) {
 			i++;
 			Binding binding = (Binding) it.next();
 			int sqlType = sqlTypeFromClass(binding.getType());
@@ -133,8 +151,6 @@ public class SqlTool {
 				pstmt.setObject(i, o, sqlType);
 			}
 		}
-		pstmt.setMaxRows(preparedSql.getMaxRows());
-		return pstmt;
 	}
 
 	/**
@@ -212,6 +228,20 @@ public class SqlTool {
 			return tableMap;
 		} catch (SQLException ex) {
 			throw initializationException(ex, javaClass, tableName, dsName);
+		}
+	}
+
+	/**
+	 * Close a prepared statement.
+	 * @param pstmt Prepared statement ready to be closed
+	 */
+	public static void close(PreparedStatement pstmt) {
+		try {
+			if (pstmt != null) {
+				pstmt.close();
+			}
+		} catch (SQLException ex) {
+			throw new PersistenceException(ex.getMessage(), ex);
 		}
 	}
 
