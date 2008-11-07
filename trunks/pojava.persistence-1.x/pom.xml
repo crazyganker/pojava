@@ -4,7 +4,7 @@
   <groupId>pojava</groupId>
   <artifactId>pojava-persistence</artifactId>
   <name>POJava Persistence Utility</name>
-  <version>1.3.0</version>
+  <version>1.4.0</version>
   <build>
     <outputDirectory>target/classes</outputDirectory>
     <finalName>${artifactId}-${project.version}</finalName>
