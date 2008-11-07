@@ -1,6 +1,7 @@
 package org.pojava.persistence.sql;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -89,6 +90,21 @@ public class DaoTesterPrimitives extends TestCase {
 		PrimitiveTest obj = Mock.newPrimitiveTest(1);
 		int ct = PrimitiveTestDao.insert(trans, obj);
 		assertEquals(1, ct);
+		PrimitiveTest dbo = PrimitiveTestDao.find(trans, obj);
+		compare(obj, dbo);
+	}
+
+	public void testBatchInsert() throws Exception {
+		List list=new ArrayList();
+		list.add(Mock.newPrimitiveTest(1));
+		list.add(Mock.newPrimitiveTest(2));
+		list.add(Mock.newPrimitiveTest(3));
+		int[] result = PrimitiveTestDao.batchInsert(trans, list);
+		assertEquals(3, result.length);
+		for (int i=0; i<result.length; i++) {
+			assertEquals(1, result[i]);
+		}
+		PrimitiveTest obj=Mock.newPrimitiveTest(2);
 		PrimitiveTest dbo = PrimitiveTestDao.find(trans, obj);
 		compare(obj, dbo);
 	}
