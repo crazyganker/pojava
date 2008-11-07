@@ -17,12 +17,14 @@ package org.pojava.persistence.util;
  */
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.pojava.exception.PersistenceException;
+import org.pojava.lang.BoundString;
 import org.pojava.lang.Processor;
 import org.pojava.persistence.processor.ResultSetToInt;
 import org.pojava.persistence.processor.ResultSetToList;
@@ -94,7 +96,7 @@ public class DaoTool {
 			msg.append(" because TableMap is null.");
 			throw new IllegalArgumentException(msg.toString());
 		}
-		if (!obj.getClass().isAssignableFrom(map.getJavaClass())) {
+		if (!(obj instanceof List) && !obj.getClass().isAssignableFrom(map.getJavaClass())) {
 			StringBuffer msg = new StringBuffer();
 			msg.append("Cannot perform ");
 			msg.append(action);
@@ -107,9 +109,9 @@ public class DaoTool {
 	}
 
 	/**
-	 * Perform an insert, throwing an exception if the attempted insert fails.
-	 * This will throw an SQLException if an existing record matches the primary
-	 * key defined in the TableMap.
+	 * Perform a single insert, throwing an exception if the attempted insert
+	 * fails. This will throw an SQLException if an existing record matches the
+	 * primary key defined in the TableMap.
 	 * 
 	 * @param conn
 	 * @param map
@@ -124,6 +126,48 @@ public class DaoTool {
 			return SqlTool.executeUpdate(query, conn);
 		} catch (SQLException ex) {
 			throw new PersistenceException(ex.getMessage(), ex);
+		}
+	}
+
+	/**
+	 * Perform a batch insert, throwing an exception if the attempted insert
+	 * fails.  Pair this with processByQuery for fast high-volume transfers.
+	 * 
+	 * @param conn Open connection to a databases
+	 * @param map
+	 *            TableMap describing bean to table mappings
+	 * @param list
+	 *            List of objects of the class specified in map
+	 * @return array of success values in same order as list
+	 */
+	public static final int[] batchInsert(Connection conn, TableMap map,
+			List list) {
+		PreparedStatement pstmt = null;
+		validateParams(map, list, "batchInsert");
+		if (list == null || list.size() == 0) {
+			return new int[0];
+		}
+		Object obj = list.get(0);
+		try {
+			BoundString sql = map.sqlInsert(obj);
+			pstmt = conn.prepareStatement(sql.getString());
+			for (Iterator it = list.iterator(); it.hasNext();) {
+				obj = it.next();
+				sql = map.sqlInsert(obj);
+				SqlTool.prepareBindings(pstmt, sql.getBindings());
+				pstmt.addBatch();
+			}
+			int[] statuses=pstmt.executeBatch();
+			for (int i=0; i<statuses.length; i++) {
+				if (statuses[i]==-2) {
+					statuses[i]=1;
+				}
+			}
+			return statuses;
+		} catch (SQLException ex) {
+			throw new PersistenceException(ex.getMessage(), ex);
+		} finally {
+			SqlTool.close(pstmt);
 		}
 	}
 
