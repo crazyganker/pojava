@@ -187,4 +187,76 @@ public class EncodingTool {
 		}
 		return sb.toString();
 	}
+	
+	/**
+	 * Convert a sequence of binary data into '0' and '1' characters.
+	 * 
+	 * @param bytes binary data to encode
+	 * @return sequence of ones and zeros representing binary values.
+	 */
+	public static String base2Encode(byte[] bytes) {
+		StringBuffer sb = new StringBuffer(bytes.length);
+		for (int i = 0; i < bytes.length; i++) {
+			byte b=bytes[i];
+			sb.append((b & 0x80) == 0 ? '0' : '1');
+			sb.append((b & 0x40) == 0 ? '0' : '1');
+			sb.append((b & 0x20) == 0 ? '0' : '1');
+			sb.append((b & 0x10) == 0 ? '0' : '1');
+			sb.append((b & 0x08) == 0 ? '0' : '1');
+			sb.append((b & 0x04) == 0 ? '0' : '1');
+			sb.append((b & 0x02) == 0 ? '0' : '1');
+			sb.append((b & 0x01) == 0 ? '0' : '1');			
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Convert a sequence of '1' and '0' characters back into byte values.
+	 * @param chars array of packed characters in the set [01].
+	 * @return
+	 */
+	public static byte[] base2Decode(char[] chars) {
+		if (chars.length % 8 != 0) {
+			throw new IllegalArgumentException(
+			"Encoded value MUST be eight digits per byte.");
+		}
+		byte[] bytes = new byte[chars.length/8];
+		int inIdx=0;
+		int outIdx=0;
+		while (inIdx<chars.length) {
+			int decoded=0;
+			for (int i=0; i<8; i++) {
+				char b=chars[inIdx++];
+				byte bit=0;
+				if (b=='1') { 
+					bit++;
+				} else if (b!='0') {
+					throw new IllegalArgumentException("Encoded value must consist of only '0' or '1' characters.");
+				}
+				decoded=(decoded << 1) | bit;
+			}
+			bytes[outIdx++] = (byte) (decoded);
+		}
+		return bytes;
+	}
+	
+	/**
+	 * Convert a sequence of '0' and '1' characters into a byte array, ignoring whitespace.
+	 * @param onesAndZeros a string of [01] and whitespace characters.
+	 * @return binary encoded version of ones and zeros packed into bytes.
+	 */
+	public static byte[] base2Decode(String onesAndZeros) {
+		StringBuffer sb=new StringBuffer();
+		char[] chars=onesAndZeros.toCharArray();
+		for (int i=0; i<chars.length; i++) {
+			char c=chars[i];
+			if (c=='1' || c=='0') {
+				sb.append(c);
+			} else if (!(c==' ' || c=='\t' || c=='\n' || c=='\r')) {
+				throw new IllegalArgumentException("Invalid character '" + c + "' in onesAndZeros.");
+			}
+		}
+		return base2Decode(sb.toString().toCharArray());
+	}
+
 }
