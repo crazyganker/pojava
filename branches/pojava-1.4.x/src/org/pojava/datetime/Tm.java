@@ -143,7 +143,7 @@ public class Tm {
 		}
 		// Same strategy as above, removing largest chunks first.
 		if (month > 0) {
-			duration -= MONTH[month - 1]; // - 1];
+			duration -= MONTH[month - 1];
 		}
 		day = (int) (duration / DAY);
 		duration -= day * DAY;
