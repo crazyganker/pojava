@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * Establish global defaults for shaping DateTime behavior. This version
@@ -78,6 +79,12 @@ public class DateTimeConfig implements IDateTimeConfig {
 		tzMap.put("Z", "UTC");
 	}
 
+	private static final Map tzCache = new HashMap();
+	static {
+		TimeZone tz=TimeZone.getDefault();
+		tzCache.put(tz.getID(), tz);
+	}
+	
 	private static final String[] MONTHS_EN_ENG = { "JAN", "FEB", "MAR", "APR",
 			"MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
 	private static final String[] MONTHS_DE_GER = { "JAN", "FEB", "MAR", "APR",
@@ -228,5 +235,20 @@ public class DateTimeConfig implements IDateTimeConfig {
 	 */
 	public Object[] getSupportedLanguages() {
 		return SUPPORTED_LANGUAGES.toArray();
+	}
+	
+	public static void addTimeZone(String id, TimeZone tz) {
+		tzCache.put(id, tz);
+	}
+
+	public static TimeZone getTimeZone(String id) {
+		TimeZone tz;
+		if (!tzCache.containsKey(id)) {
+			tz=TimeZone.getTimeZone(id);
+			tzCache.put(id, tz);
+		} else {
+			tz=(TimeZone) tzCache.get(id);
+		}
+		return tz;
 	}
 }
