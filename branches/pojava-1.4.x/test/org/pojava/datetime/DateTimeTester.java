@@ -55,7 +55,8 @@ public class DateTimeTester extends TestCase {
 				.toString(format));
 		assertEquals("2000-01-01 00:00:00.000", dt.truncate(
 				CalendarUnit.CENTURY).toString(format));
-		dt=new DateTime(-22222222);  // Eight twos, Brutus? 1969-12-31 09:49:37.778
+		dt = new DateTime(-22222222); // Eight twos, Brutus? 1969-12-31
+										// 09:49:37.778
 		assertEquals("1969-12-31 09:49:37.778", dt.truncate(
 				CalendarUnit.NANOSECOND).toString(format));
 		assertEquals("1969-12-31 09:49:37.778", dt.truncate(
@@ -68,8 +69,8 @@ public class DateTimeTester extends TestCase {
 				.truncate(CalendarUnit.MINUTE).toString(format));
 		assertEquals("1969-12-31 09:00:00.000", dt.truncate(CalendarUnit.HOUR)
 				.toString(format));
-		assertEquals("1969-12-31 00:00:00.000", dt.truncate(
-				CalendarUnit.DAY).toString(format));
+		assertEquals("1969-12-31 00:00:00.000", dt.truncate(CalendarUnit.DAY)
+				.toString(format));
 		assertEquals("1969-12-28 00:00:00.000", dt.truncate(CalendarUnit.WEEK)
 				.toString(format));
 		assertEquals("1969-12-01 00:00:00.000", dt.truncate(CalendarUnit.MONTH)
@@ -210,6 +211,11 @@ public class DateTimeTester extends TestCase {
 				"el 29 de febrero de 2000").toString());
 	}
 
+	public void testLeap() {
+		assertEquals("2000-02-29 00:00:00", new DateTime("2000-02-29 00:00:00")
+				.toString());
+	}
+
 	/**
 	 * These tests show the consistency of the interpretation of millisecond
 	 * values between the native Date object and the DateTime object.
@@ -254,9 +260,15 @@ public class DateTimeTester extends TestCase {
 		// Regular year
 		assertEquals("1902-02-28 23:59:59", new DateTime("1902-03-01").add(-1)
 				.toString());
+	}
+
+	public void testRegularYearLeap() {
 		// Regular leap year
 		assertEquals("1904-02-29 23:59:59", new DateTime("1904-03-01").add(-1)
 				.toString());
+	}
+
+	public void testThousandYearLeap() {
 		// 1000 year leap year inclusion
 		assertEquals("1000-02-29 23:59:59", new DateTime("1000-03-01").add(-1)
 				.toString());
@@ -318,40 +330,70 @@ public class DateTimeTester extends TestCase {
 		// small bit of extra time that elapsed between the two calculations.
 		assertTrue(diff <= dur);
 	}
-	
+
 	public void testToLocalString() {
-		DateTime dt=new DateTime("Jan 26, 1969");
+		DateTime dt = new DateTime("Jan 26, 1969");
 		assertEquals("1969-01-26 00:00:00", dt.toLocalString());
 	}
-	
+
 	/**
 	 * It is always prudent to verify that your examples actually work :)
 	 */
 	public void testJavaDocClaims() {
-		DateTime dt1=new DateTime("3:21pm on January 26, 1969");
-		DateTime dt2=new DateTime("26-Jan-1969 03:21 PM");
-		DateTime dt3=new DateTime("1/26/69 15:21");
-		DateTime dt4=new DateTime("1969.01.26 15.21");
-		DateTime dt5=new DateTime("el 26 de enero de 1969 15.21");
-		assertEquals(dt1,dt2);
-		assertEquals(dt1,dt3);
-		assertEquals(dt1,dt4);
-		assertEquals(dt1,dt5);		
+		DateTime dt1 = new DateTime("3:21pm on January 26, 1969");
+		DateTime dt2 = new DateTime("26-Jan-1969 03:21 PM");
+		DateTime dt3 = new DateTime("1/26/69 15:21");
+		DateTime dt4 = new DateTime("1969.01.26 15.21");
+		DateTime dt5 = new DateTime("el 26 de enero de 1969 15.21");
+		assertEquals(dt1, dt2);
+		assertEquals(dt1, dt3);
+		assertEquals(dt1, dt4);
+		assertEquals(dt1, dt5);
 	}
-	
+
 	/**
-	 * This looks for a broad spectrum of issues, spanning different
-	 * times of day, days of the month, leap and non-leap years.
+	 * This looks for a broad spectrum of issues, spanning different times of
+	 * day, days of the month, leap and non-leap years.
 	 */
 	public void testFourYearsDaily() {
-		DateTime dt=new DateTime("2008-01-01");
-		Calendar cal=Calendar.getInstance();
+		DateTime dt = new DateTime("2008-01-01");
+		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(dt.getMillis());
-		for (int i=0; i<365*4; i++) {
+		for (int i = 0; i < 365 * 4; i++) {
 			assertEquals(cal.getTimeInMillis(), dt.getMillis());
 			cal.add(Calendar.DATE, 1);
 			cal.add(Calendar.SECOND, 61);
-			dt=dt.add(CalendarUnit.DAY, 1).add(CalendarUnit.SECOND,61);
+			dt = dt.add(CalendarUnit.DAY, 1).add(CalendarUnit.SECOND, 61);
+		}
+	}
+
+	public void test1600() {
+		DateTime leap = new DateTime("1200-03-01");
+		assertEquals("1200-03-01 00:00:00", leap.toString());
+		leap = new DateTime("1604-03-01");
+		assertEquals("1604-03-01 00:00:00", leap.toString());
+		leap = new DateTime("1600-03-01");
+		assertEquals("1600-03-01 00:00:00", leap.toString());
+	}
+
+	public void testThousandEdges() {
+		Calendar calFeb = Calendar.getInstance();
+		StringBuffer sb = new StringBuffer();
+		for (int year = 1000; year <= 2000; year++) {
+			DateTime dtMar = new DateTime(Integer.toString(year) + "-03-01");
+			DateTime dtFeb = dtMar.add(-1);
+			assertEquals("-03-01", dtMar.toString().substring(4, 10));
+			calFeb.setTimeInMillis(dtFeb.getMillis());
+			int dom = calFeb.get(Calendar.DAY_OF_MONTH);
+			int month = calFeb.get(Calendar.MONTH) + 1;
+			sb.setLength(0);
+			sb.append(year);
+			sb.append("-0");
+			sb.append(month);
+			sb.append("-");
+			sb.append(dom);
+			sb.append(" 23:59:59");
+			assertEquals(sb.toString(), dtFeb.toString());
 		}
 	}
 
