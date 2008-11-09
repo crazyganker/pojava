@@ -105,5 +105,29 @@ public class TmTester extends TestCase {
 			cal.add(Calendar.SECOND, 1);
 		}
 	}
+	
+	public void testOldLeapDate() {
+		Calendar cal=Calendar.getInstance();
+		cal.setTimeInMillis(1204272059000L); // Feb 29
+		// System.out.println(cal.toString());
+		Tm tm=new Tm(cal.getTimeInMillis());
+		assertEquals(cal.get(Calendar.DATE), tm.getDay());
+		assertEquals(1+cal.get(Calendar.MONTH), tm.getMonth());
+		assertEquals(cal.get(Calendar.YEAR), tm.getYear());
+		assertEquals(cal.get(Calendar.HOUR), tm.getHour());
+		assertEquals(cal.get(Calendar.MINUTE), tm.getMinute());
+		assertEquals(cal.get(Calendar.SECOND), tm.getSecond());
+		
+		cal.setTimeInMillis(1204358460000L); // Mar 1
+		// System.out.println(cal.getTime().toString());
+		tm=new Tm(cal.getTimeInMillis());
+		assertEquals(cal.get(Calendar.DATE), tm.getDay());
+		assertEquals(1+cal.get(Calendar.MONTH), tm.getMonth());
+		assertEquals(cal.get(Calendar.YEAR), tm.getYear());
+		assertEquals(cal.get(Calendar.HOUR), tm.getHour());
+		assertEquals(cal.get(Calendar.MINUTE), tm.getMinute());
+		assertEquals(cal.get(Calendar.SECOND), tm.getSecond());
+
+	}
 
 }
