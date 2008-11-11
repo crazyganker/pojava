@@ -571,7 +571,7 @@ public class DateTime implements Serializable, Comparable {
 			throw new NullPointerException(
 					"Cannot parse time from empty string.");
 		}
-		Calendar cal = Calendar.getInstance();
+		Tm tm=new Tm(System.currentTimeMillis());
 		if (str.charAt(0) == '+' || str.charAt(0) == '-') {
 			return parseRelativeDate(str, config);
 		}
@@ -584,7 +584,7 @@ public class DateTime implements Serializable, Comparable {
 		int hour = 0, minute = 0, second = 0, nanosecond = 0;
 		String tzString = null;
 		TimeZone tz = TimeZone.getDefault();
-		int thisYear = cal.get(Calendar.YEAR);
+		int thisYear=tm.getYear();
 		int centuryTurn = thisYear - (thisYear % 100);
 		// Build a table describing which fields are integers.
 		boolean[] integers = new boolean[parts.length];
@@ -787,28 +787,13 @@ public class DateTime implements Serializable, Comparable {
 		}
 		DateTime returnDt;
 		if (hasTimeZone) {
-			cal = Calendar.getInstance(tz);
-			cal.set(Calendar.YEAR, year);
-			cal.set(Calendar.MONTH, month);
-			cal.set(Calendar.DAY_OF_MONTH, day);
-			cal.set(Calendar.HOUR_OF_DAY, hour);
-			cal.set(Calendar.MINUTE, minute);
-			cal.set(Calendar.SECOND, second);
-			cal.set(Calendar.MILLISECOND, nanosecond / 1000000);
-			returnDt = new DateTime(cal.getTimeInMillis(), tz);
+			returnDt=new DateTime(Tm.calcTime(year, 1+month, day, hour, minute, second, nanosecond / 1000000, tz));
 		} else {
 			// Start with Pacific Standard Time (which observes DST)
 			tz = TimeZone.getTimeZone("America/Los_Angeles");
-			cal = Calendar.getInstance(tz);
-			cal.set(Calendar.YEAR, year);
-			cal.set(Calendar.MONTH, month);
-			cal.set(Calendar.DAY_OF_MONTH, day);
-			cal.set(Calendar.HOUR_OF_DAY, hour);
-			cal.set(Calendar.MINUTE, minute);
-			cal.set(Calendar.SECOND, second);
-			cal.set(Calendar.MILLISECOND, nanosecond / 1000000);
+			returnDt=new DateTime(Tm.calcTime(year, 1+month, day, hour, minute, second, nanosecond / 1000000, tz));
 			// Determine if date is in DST
-			if (tz.inDaylightTime(new Date(cal.getTimeInMillis()))) {
+			if (tz.inDaylightTime(new Date(returnDt.getMillis()))) {
 				inDST = true;
 			}
 			StringBuffer sb = new StringBuffer(8);
@@ -850,17 +835,10 @@ public class DateTime implements Serializable, Comparable {
 							new Integer(offsetHours).toString()).toString());
 				}
 			}
-			cal = Calendar.getInstance(tz);
-			cal.set(Calendar.YEAR, year);
-			cal.set(Calendar.MONTH, month);
-			cal.set(Calendar.DAY_OF_MONTH, day);
-			cal.set(Calendar.HOUR_OF_DAY, hour);
-			cal.set(Calendar.MINUTE, minute);
-			cal.set(Calendar.SECOND, second);
-			cal.set(Calendar.MILLISECOND, nanosecond / 1000000);
-			returnDt = new DateTime(cal.getTimeInMillis(), tz);
+			returnDt=new DateTime(Tm.calcTime(year, 1+month, day, hour, minute, second, nanosecond / 1000000, tz));
 		}
-		return new DateTime(returnDt.getSeconds(), nanosecond, tz);
+		returnDt.systemDur.nanos=nanosecond;
+		return returnDt;
 	}
 
 	/**
@@ -927,31 +905,19 @@ public class DateTime implements Serializable, Comparable {
 			calcTime -= DateTimeConfig.getTimeZone(this.timeZoneId).getOffset(calcTime);
 			return new DateTime(calcTime, this.timeZoneId);
 		}
-		// TODO: Wean off of Calendar object
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(this.systemDur.millis);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		cal.set(Calendar.DAY_OF_MONTH, 1);
+		Tm tm=new Tm(this.systemDur.millis);
 		if (unit == CalendarUnit.MONTH) {
-			return new DateTime(cal.getTimeInMillis(), this.timeZoneId);
+			return new DateTime(Tm.calcTime(tm.getYear(), tm.getMonth(), 1));
 		}
 		if (unit == CalendarUnit.QUARTER) {
-			int monthOffset = cal.get(Calendar.MONTH) % 3;
-			cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) - monthOffset);
-			return new DateTime(cal.getTimeInMillis(), this.timeZoneId);
+			int monthOffset = (tm.getMonth()-1) %3;
+			return new DateTime(Tm.calcTime(tm.getYear(), tm.getMonth()-monthOffset, 1));
 		}
 		if (unit == CalendarUnit.YEAR) {
-			cal.set(Calendar.MONTH, 0);
-			return new DateTime(cal.getTimeInMillis(), this.timeZoneId);
+			return new DateTime(Tm.calcTime(tm.getYear(), 1, 1));
 		}
 		if (unit == CalendarUnit.CENTURY) {
-			int calYear = cal.get(Calendar.YEAR);
-			cal.set(Calendar.MONTH, 0);
-			cal.set(Calendar.YEAR, calYear - calYear % 100);
-			return new DateTime(cal.getTimeInMillis(), this.timeZoneId);
+			return new DateTime(Tm.calcTime(tm.getYear()-tm.getYear()%100, 1, 1));
 		}
 		throw new IllegalArgumentException(
 				"That precision is still unsupported.  Sorry, my bad.");
