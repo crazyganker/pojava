@@ -47,6 +47,7 @@ public class Tm {
 	 * date is easier for calculations, so I use it as an epoch. The year starts
 	 * on March 1 so that a leap day is always at the end of a year.
 	 */
+	private static final long GREG_EPOCH_UTC = -11670912000000L;
 	private static final long GREG_EPOCH = new DateTime("1600-03-01")
 			.getMillis();
 	/**
@@ -172,7 +173,7 @@ public class Tm {
 	 * @return Numeric day of week, usually Sun=1, Mon=2, ... , Sat=7. See
 	 *         DateTimeConfig.
 	 */
-	public int calcWeekday(long millis, TimeZone timeZone) {
+	public static int calcWeekday(long millis, TimeZone timeZone) {
 		long leftover = 0;
 		// Adding 2000 years in weeks makes all calculations positive.
 		// Adding epoch DOW shifts us into phase with start of week.
@@ -184,6 +185,66 @@ public class Tm {
 		// Convert from zero to one based
 		leftover++;
 		return (int) leftover;
+	}
+
+	public static long calcTime(int year, int month, int day) {
+		return calcTime(year, month, day, 0, 0, 0, 0, TimeZone.getDefault());
+	}
+	
+	public static long calcTime(int year, int month, int day, int hour,
+			int min, int sec, int milli) {
+		return calcTime(year, month, day, hour, min, sec, milli, TimeZone.getDefault());
+	}
+	
+	public static long calcTime(int year, int month, int day, int hour,
+			int min, int sec, int milli, TimeZone tz) {
+		long millis = GREG_EPOCH_UTC;
+		int yyyy=year;
+		if (year < 1600) {
+			Calendar cal = Calendar.getInstance(tz);
+			cal.set(Calendar.YEAR, year);
+			cal.set(Calendar.MONTH, month-1);
+			cal.set(Calendar.DAY_OF_MONTH, day);
+			cal.set(Calendar.HOUR_OF_DAY, hour);
+			cal.set(Calendar.MINUTE, min);
+			cal.set(Calendar.SECOND, sec);
+			cal.set(Calendar.MILLISECOND, milli);
+			return cal.getTimeInMillis();
+		}
+		year -= 1600;
+		int ct = year / 400;
+		millis += QUADCENT * ct;
+		year -= 400 * ct;
+		ct = year / 100;
+		millis += CENT * ct;
+		year -= 100 * ct;
+		ct = year / 4;
+		millis += QUADYEAR * ct;
+		year -= 4 * ct;
+		millis += YEAR * year;
+		// Years, Months, Days
+		if (month < 3) {
+			millis -= (yyyy % 4 == 0 && (yyyy % 100 != 0 || yyyy % 400 == 0)) ? DAY * 60
+					: DAY * 59;
+			if (month == 2) {
+				millis += DAY * 31;
+			}
+		} else {
+			if (month > 8) {
+				millis += DAY * ((month > 10) ? (month == 11 ? 245 : 275)
+						: (month == 9 ? 184 : 214));
+			} else if (month > 4) {
+				millis += DAY * ((month > 6) ? (month == 7 ? 122 : 153)
+						: (month == 5 ? 61 : 92));
+			} else if (month == 4) {
+				millis += DAY * 31;
+			}
+		}
+		millis += DAY * (day-1);
+		// Hours, Minutes, Seconds, Milliseconds
+		millis += Duration.HOUR * hour + Duration.MINUTE * min + Duration.SECOND * sec + milli;
+		millis -= tz.getOffset(millis);
+		return millis;
 	}
 
 	/**
