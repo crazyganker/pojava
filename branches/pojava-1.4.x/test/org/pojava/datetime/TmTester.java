@@ -1,6 +1,7 @@
 package org.pojava.datetime;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import junit.framework.TestCase;
 
@@ -90,13 +91,13 @@ public class TmTester extends TestCase {
 	 * This should cover a broad spectrum of potential issues.
 	 */
 	public void testFourYearsDaily() {
-		DateTime dt=new DateTime("2008-01-01");
-		Calendar cal=Calendar.getInstance();
+		DateTime dt = new DateTime("2008-01-01");
+		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(dt.getMillis());
-		for (int i=0; i<365*4+1; i++) {
-			Tm tm=new Tm(cal.getTimeInMillis());
+		for (int i = 0; i < 365 * 4 + 1; i++) {
+			Tm tm = new Tm(cal.getTimeInMillis());
 			assertEquals(cal.get(Calendar.DATE), tm.getDay());
-			assertEquals(1+cal.get(Calendar.MONTH), tm.getMonth());
+			assertEquals(1 + cal.get(Calendar.MONTH), tm.getMonth());
 			assertEquals(cal.get(Calendar.YEAR), tm.getYear());
 			assertEquals(cal.get(Calendar.HOUR), tm.getHour());
 			assertEquals(cal.get(Calendar.MINUTE), tm.getMinute());
@@ -105,29 +106,46 @@ public class TmTester extends TestCase {
 			cal.add(Calendar.SECOND, 1);
 		}
 	}
-	
+
 	public void testOldLeapDate() {
-		Calendar cal=Calendar.getInstance();
+		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(1204272059000L); // Feb 29
-		// System.out.println(cal.toString());
-		Tm tm=new Tm(cal.getTimeInMillis());
+		System.out.println(new Date(cal.getTimeInMillis()));
+		Tm tm = new Tm(cal.getTimeInMillis());
 		assertEquals(cal.get(Calendar.DATE), tm.getDay());
-		assertEquals(1+cal.get(Calendar.MONTH), tm.getMonth());
-		assertEquals(cal.get(Calendar.YEAR), tm.getYear());
-		assertEquals(cal.get(Calendar.HOUR), tm.getHour());
-		assertEquals(cal.get(Calendar.MINUTE), tm.getMinute());
-		assertEquals(cal.get(Calendar.SECOND), tm.getSecond());
-		
-		cal.setTimeInMillis(1204358460000L); // Mar 1
-		// System.out.println(cal.getTime().toString());
-		tm=new Tm(cal.getTimeInMillis());
-		assertEquals(cal.get(Calendar.DATE), tm.getDay());
-		assertEquals(1+cal.get(Calendar.MONTH), tm.getMonth());
+		assertEquals(1 + cal.get(Calendar.MONTH), tm.getMonth());
 		assertEquals(cal.get(Calendar.YEAR), tm.getYear());
 		assertEquals(cal.get(Calendar.HOUR), tm.getHour());
 		assertEquals(cal.get(Calendar.MINUTE), tm.getMinute());
 		assertEquals(cal.get(Calendar.SECOND), tm.getSecond());
 
+		cal.setTimeInMillis(1204358460000L); // Mar 1
+		// System.out.println(cal.getTime().toString());
+		tm = new Tm(cal.getTimeInMillis());
+		assertEquals(cal.get(Calendar.DATE), tm.getDay());
+		assertEquals(1 + cal.get(Calendar.MONTH), tm.getMonth());
+		assertEquals(cal.get(Calendar.YEAR), tm.getYear());
+		assertEquals(cal.get(Calendar.HOUR), tm.getHour());
+		assertEquals(cal.get(Calendar.MINUTE), tm.getMinute());
+		assertEquals(cal.get(Calendar.SECOND), tm.getSecond());
+
+	}
+
+	public void testCalcTime() {
+		int yr=0;
+		StringBuffer sb = new StringBuffer();
+		for (yr = 1000; yr <= 2110; yr++) {
+			sb.setLength(0);
+			sb.append(yr);
+			sb.append("-01-01");
+			long dtMillis = new DateTime(sb.toString()).getMillis();
+			long tmMillis = Tm.calcTime(yr, 1, 1);
+			if (dtMillis!=tmMillis) {
+				System.out.println(new Date(dtMillis).toString());
+				System.out.println(new Date(tmMillis).toString());
+			}
+			assertEquals(dtMillis, tmMillis);
+		}
 	}
 
 }

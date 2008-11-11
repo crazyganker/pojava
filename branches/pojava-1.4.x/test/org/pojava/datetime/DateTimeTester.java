@@ -379,7 +379,7 @@ public class DateTimeTester extends TestCase {
 	public void testThousandEdges() {
 		Calendar calFeb = Calendar.getInstance();
 		StringBuffer sb = new StringBuffer();
-		for (int year = 1000; year <= 2000; year++) {
+		for (int year = 1000; year <= 2110; year++) {
 			DateTime dtMar = new DateTime(Integer.toString(year) + "-03-01");
 			DateTime dtFeb = dtMar.add(-1);
 			assertEquals("-03-01", dtMar.toString().substring(4, 10));
