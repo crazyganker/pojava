@@ -124,7 +124,7 @@ public class XmlSerializerTester extends TestCase {
 		pojo.setConfused(pojo);
 		XmlSerializer serializer = new XmlSerializer();
 		String xml = serializer.toXml(pojo);
-		System.out.println(xml);
+		// System.out.println(xml);
 		assertTrue(xml.startsWith("<obj class=\"org.pojava.persistence.examples.Potpourri\" mem=\"1\">\n"));
 		assertTrue(xml.indexOf("  <d>86400000</d>\n")>=0);
 		assertTrue(xml.indexOf("  <d>86400000</d>\n")>=0);
