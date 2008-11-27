@@ -8,11 +8,12 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Savepoint;
 import java.sql.Statement;
+import java.sql.Struct;
 import java.util.Map;
 
 /**
  * This connection object provides a layer allowing a Transaction visibility to
- * intervene (interfere?) when a user of the connection performs transaction
+ * intervene (or interfere :) when a user of the connection performs transaction
  * actions outside of those managed by the Transaction object itself.
  * 
  * @author John Pile
@@ -57,7 +58,11 @@ public class TransConnection implements Connection {
 		return conn.createStatement(resultSetType, resultSetConcurrency,
 				resultSetHoldability);
 	}
-
+	
+	public Struct createStruct(String str, Object[] objArray) {
+		throw new UnsupportedOperationException();
+	}
+	
 	public boolean getAutoCommit() throws SQLException {
 		return conn.getAutoCommit();
 	}

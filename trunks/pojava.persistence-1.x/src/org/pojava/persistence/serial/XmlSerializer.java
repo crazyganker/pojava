@@ -8,26 +8,61 @@ import java.util.Map;
 import org.pojava.persistence.factories.SerialFactory;
 import org.pojava.util.ReflectionTool;
 
+/**
+ * The XmlSerializer class converts a Java Object to XML.
+ * 
+ * @author John Pile
+ *
+ */
 public class XmlSerializer {
 
+	/**
+	 * Depth keeps track of nested depth in the XML.
+	 */
 	private int depth = 0;
+	/**
+	 * The current class being operated upon by this XmlSerializer.
+	 */
 	private Class baseClass = null;
+	/**
+	 * A reference to the configuration object.
+	 */
 	private XmlDefs config;
 
+	/**
+	 * Construct a new serializer
+	 */
 	public XmlSerializer() {
 		config = new XmlDefs();
 	}
 
-	public XmlSerializer(Class baseClass) {
-		this.baseClass = baseClass;
+	/**
+	 * Construct a new serializer for a particular type.
+	 * @param type
+	 */
+	public XmlSerializer(Class type) {
+		this.baseClass = type;
 		config = new XmlDefs();
 	}
 
+	/**
+	 * Construct an XmlSerializer using a custom configuration object.
+	 * 
+	 * Be careful not to use the same configuration object concurrently.
+	 * @param type
+	 * @param config
+	 */
 	public XmlSerializer(Class type, XmlDefs config) {
 		this.baseClass = type;
 		this.config = config;
 	}
 
+	/**
+	 * You can use this method to create a serializer with a different indentation.
+	 * @param keyClass
+	 * @param depth
+	 * @return
+	 */
 	public XmlSerializer newXmlSerializer(Class keyClass, int depth) {
 		XmlSerializer xmlSerializer = new XmlSerializer(keyClass);
 		xmlSerializer.depth = depth;
@@ -37,7 +72,7 @@ public class XmlSerializer {
 
 	/**
 	 * Walk the tree of objects, gathering types and checking for circular
-	 * references.
+	 * references.  Circular references are supported, but must be handled correctly.
 	 * 
 	 * @param pojo
 	 */
@@ -83,12 +118,24 @@ public class XmlSerializer {
 		}
 	}
 
+	/**
+	 * Convert an Object tree to XML.
+	 * @param obj
+	 * @return
+	 */
 	public String toXml(Object obj) {
 		walk(obj);
 		config.resetRegistry();
 		return toXml(obj, null, null);
 	}
 
+	/**
+	 * This performs the actual work assuming preparation has been done.
+	 * @param pojo
+	 * @param name
+	 * @param attribs
+	 * @return XML document as a String.
+	 */
 	private String toXml(Object pojo, String name, String attribs) {
 		if (pojo==null) {
 			return "";
@@ -145,7 +192,7 @@ public class XmlSerializer {
 			}
 		}
 		// Simple objects can be overridden with a factory
-		SerialFactory override=config.override(type);
+		SerialFactory override=config.factory(type);
 		if (override!=null) {
 			openTag(sb, name, attribSb.toString());
 			sb.append(override.serialize(pojo));
@@ -172,81 +219,26 @@ public class XmlSerializer {
 		return sb.toString();
 	}
 
-	public String toXml2(Object pojo, String name, String attribs) {
-		StringBuffer sb = new StringBuffer();
-		StringBuffer attribSb = new StringBuffer();
-		if (attribs != null) {
-			attribSb.append(attribs);
-		}
-		if (pojo == null) {
-			sb.append(config.indent(depth));
-			sb.append('<');
-			sb.append(name);
-			sb.append("><null/></");
-			sb.append(name);
-			sb.append(">\n");
-			return sb.toString();
-		}
-		Class childClass = pojo.getClass();
-		if (attribs == null) {
-			attribs = "";
-		}
-
-		// An unnamed object must specify its type
-		if (name == null || name.length() == 0) {
-			name = "obj";
-			attribs += " class=\"" + className(pojo) + "\"";
-			if (!(this.baseClass == childClass) && !isBasic(childClass)) {
-				XmlSerializer serializer = config.getXmlSerializer(childClass);
-				return serializer.toXml(pojo, "obj", attribs);
-			}
-		}
-		// Repeated objects are output as references
-		Integer reference = config.getReferenceId(pojo);
-		if (reference == null) {
-			reference = config.register(pojo);
-			attribSb.append(" type=\"mem\" id=\"");
-			attribSb.append(reference);
-			attribSb.append("\"");
-		} else {
-			sb.append(config.indent(depth));
-			sb.append("<");
-			sb.append(name);
-			sb.append(" type=\"ref\" id=\"");
-			sb.append(reference);
-			sb.append("\"/>\n");
-			return sb.toString();
-		}
-		String rename = config.renamedJava(pojo.getClass(), name);
-		if (rename != null) {
-			name = rename;
-		}
-		if (isBasic(childClass)) {
-			sb.append(config.indent(depth));
-			sb.append(simpleElement(pojo, name, attribs));
-		} else if (childClass.equals(Object.class)) {
-			sb.append(snippetFromUntyped(pojo, name, attribs));
-		} else if (baseClass.equals(Object.class)
-				&& java.util.Collection.class.isAssignableFrom(childClass)) {
-			sb.append(snippetFromUntyped(pojo, name, attribs));
-		} else if (java.util.Collection.class.isAssignableFrom(childClass)) {
-			sb.append(snippetFromCollection(pojo, name, attribs));
-		} else if (java.util.AbstractMap.class.isAssignableFrom(childClass)
-				|| childClass == Map.class) {
-			sb.append(snippetFromMap(pojo, name, attribs));
-		} else if (childClass.isArray()) {
-			sb.append(snippetFromArray(pojo, name, attribs));
-		} else {
-			sb.append(snippetFromPojo(pojo, name, attribs));
-		}
-		return sb.toString();
-	}
-
+	/**
+	 * Return class type, abbreviating for common classes.
+	 * @param obj
+	 * @return
+	 */
 	private String className(Object obj) {
 		String name = obj.getClass().getName();
-		return name.startsWith("java.lang.") ? name.substring(10) : name;
+		if (name.startsWith("java.lang."))
+			return name.substring(10);
+		if (name.equals("org.pojava.datetime.DateTime")) {
+			return "DateTime";
+		}
+		return name;
 	}
 
+	/**
+	 * Return true if object is equivalent to a primitive type.
+	 * @param propClass
+	 * @return
+	 */
 	private static boolean isBasic(Class propClass) {
 		return propClass.isPrimitive() || propClass == String.class
 				|| propClass == Integer.class || propClass == Double.class
@@ -281,6 +273,11 @@ public class XmlSerializer {
 		return sb.toString();
 	}
 
+	/**
+	 * Make an attribute safe by converting illegal characters.
+	 * @param attrib
+	 * @return
+	 */
 	private String cleanAttribute(String attrib) {
 		if (attrib == null) {
 			return "";
@@ -514,7 +511,6 @@ public class XmlSerializer {
 				Object innerPojo = ReflectionTool.getNestedValue(key, pojo);
 				String renamed = config.renamedJava(fieldClass, key);
 				if (renamed != null) {
-					// if (java2xml.containsKey(key)) {
 					key = renamed;
 				}
 				if (fieldClass == Object.class) {
@@ -529,6 +525,12 @@ public class XmlSerializer {
 		return sb.toString();
 	}
 
+	/**
+	 * Append indentation and an open tag to StringBuffer.
+	 * @param sb
+	 * @param name
+	 * @param attribs
+	 */
 	private void openTag(StringBuffer sb, String name, String attribs) {
 		sb.append(config.indent(depth));
 		sb.append('<');
@@ -539,6 +541,11 @@ public class XmlSerializer {
 		sb.append(">");
 	}
 
+	/**
+	 * Append a closing tag to StringBuffer.
+	 * @param sb
+	 * @param name
+	 */
 	private void closeTag(StringBuffer sb, String name) {
 		sb.append("</");
 		sb.append(name);

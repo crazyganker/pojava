@@ -17,6 +17,15 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+/**
+ * Parse an XML document into an Object.
+ * 
+ * This class is reusable, but was not designed for concurrency. You should
+ * construct a new XmlParser instance for each thread.
+ * 
+ * @author John Pile
+ * 
+ */
 public class XmlParser implements ContentHandler {
 
 	private static final String SAX_DRIVER = "org.xml.sax.driver";
@@ -26,7 +35,7 @@ public class XmlParser implements ContentHandler {
 	private static final String PICCOLO_PARSER = "com.bluecast.xml.Piccolo";
 
 	private int depth = 0;
-	private int size = 2;
+	private int size = 8;
 	Map[] objs = new Map[size];
 	StringBuffer[] buffers = new StringBuffer[size];
 	Class[] types = new Class[size];
@@ -167,8 +176,12 @@ public class XmlParser implements ContentHandler {
 				String attribName = atts.getLocalName(i);
 				if ("class".equals(attribName) || "type".equals(attribName)) {
 					if (!(atts.getValue(i).indexOf('.') > 0)) {
-						sb.append("java.lang.");
-						sb.append(atts.getValue(i));
+						if (atts.getValue(i).equals("DateTime")) {
+							sb.append("org.pojava.datetime.DateTime");
+						} else {
+							sb.append("java.lang.");
+							sb.append(atts.getValue(i));
+						}
 						types[depth] = Class.forName(sb.toString());
 						sb.setLength(0);
 					} else {
@@ -209,20 +222,18 @@ public class XmlParser implements ContentHandler {
 		} else {
 			key = localName;
 		}
-		/*
-		 * if (types[depth]==Object.class) { if (!objs[depth].containsKey(key)) {
-		 * objs[depth].put(key, new Object()); } }
-		 */
 		if (defs.isValue(types[depth])) {
-			objs[depth - 1].put(key, defs.construct(types[depth],
-					buffers[depth]));
+			Object[] params = new Object[1];
+			params[0] = buffers[depth].toString();
+			objs[depth - 1].put(key, defs.construct(types[depth], params));
 		} else if (types[depth].isArray()) {
 			if (depth > 0
 					&& java.util.AbstractMap.class
 							.isAssignableFrom(types[depth - 1])) {
-				Map map=(Map)objs[depth-1];
-				for (Iterator it=objs[depth].values().iterator(); it.hasNext();) {
-					Object mapKey=it.next();
+				Map map = (Map) objs[depth - 1];
+				for (Iterator it = objs[depth].values().iterator(); it
+						.hasNext();) {
+					Object mapKey = it.next();
 					map.put(mapKey, it.next());
 				}
 			} else {
@@ -242,8 +253,8 @@ public class XmlParser implements ContentHandler {
 						objs[depth - 1].put(key, new Object());
 					}
 				} else if (java.util.AbstractMap.class
-				.isAssignableFrom(types[depth])) {
-					objs[depth -1].put(key, objs[depth]);
+						.isAssignableFrom(types[depth])) {
+					objs[depth - 1].put(key, objs[depth]);
 				} else {
 					objs[depth - 1].put(key, defs.construct(types[depth],
 							objs[depth]));

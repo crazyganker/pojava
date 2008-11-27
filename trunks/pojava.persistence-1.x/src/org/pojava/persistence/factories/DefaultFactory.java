@@ -5,8 +5,20 @@ import java.util.Map;
 import org.pojava.exception.PersistenceException;
 import org.pojava.util.EncodingTool;
 
+/**
+ * The DefaultFactory is a multi-purpose factory for handling
+ * objects with single-value constructors, such as primitives.
+ * 
+ * @author John Pile
+ *
+ */
 public class DefaultFactory implements SerialFactory {
 
+	/**
+	 * Interpret a Boolean value from a String. 
+	 * @param var
+	 * @return Boolean.TRUE or (default) Boolean.FALSE
+	 */
 	private Boolean parseBoolean(String var) {
 		if (var == null) {
 			return Boolean.FALSE;
@@ -21,6 +33,9 @@ public class DefaultFactory implements SerialFactory {
 		return Boolean.FALSE;
 	}
 
+	/**
+	 * Construct an object.
+	 */
 	public Object construct(Class type, Object[] values) {
 		if (values==null || values.length!=1) {
 			throw new PersistenceException("The DefaultConstructor only accepts an array of one String.",null);
@@ -97,6 +112,9 @@ public class DefaultFactory implements SerialFactory {
 		return null;
 	}
 	
+	/**
+	 * Construct an object based on mapped parameters.
+	 */
 	public Object construct(Class type, Map params) {
 		if (params.containsKey("value")) {
 			Object[] values = { params.get("value") };
@@ -106,6 +124,9 @@ public class DefaultFactory implements SerialFactory {
 		}
 	}
 
+	/**
+	 * Serialize an Object to XML.
+	 */
 	public String serialize(Object obj) {
 		return obj.toString().trim().replaceAll("&", "&amp;")
 		.replaceAll("\"", "&quot;").replaceAll("<", "&lt;").replaceAll(

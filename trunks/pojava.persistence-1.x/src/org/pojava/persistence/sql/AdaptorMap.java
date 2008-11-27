@@ -13,6 +13,13 @@ import org.pojava.transformation.BindingAdaptor;
  */
 public interface AdaptorMap {
 
+	/**
+	 * Choose an adaptor specific to a type and set of methods.
+	 * @param beanClass
+	 * @param getters
+	 * @param columnClass
+	 * @return
+	 */
 	public BindingAdaptor chooseAdaptor(Class beanClass, Method[] getters,
 			Class columnClass);
 

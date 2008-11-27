@@ -4,8 +4,19 @@ import java.util.Map;
 
 import org.pojava.datetime.DateTime;
 
+/**
+ * The DateTimeFactory is a factory for handling objects compatible
+ * with the DateTime class.  It is compatible with a wide variety
+ * of Date formats.
+ * 
+ * @author John Pile
+ *
+ */
 public class DateTimeFactory implements SerialFactory {
 
+	/**
+	 * Construct a DateTime object from a parameter array.
+	 */
 	public Object construct(Class type, Object[] params) {
 		DateTime dt = null;
 		if (type == DateTime.class) {
@@ -26,7 +37,9 @@ public class DateTimeFactory implements SerialFactory {
 		return dt;
 	}
 	
-	
+	/**
+	 * Costruct an object from mapped parameters.
+	 */
 	public Object construct(Class type, Map params) {
 		if (type == DateTime.class) {
 			if (params.containsKey("seconds")) {
@@ -51,6 +64,9 @@ public class DateTimeFactory implements SerialFactory {
 	}
 
 
+	/**
+	 * Serialize a DateTime class to xml.
+	 */
 	public String serialize(Object obj) {
 		StringBuffer sb=new StringBuffer();
 		if (DateTime.class==obj.getClass()) {
