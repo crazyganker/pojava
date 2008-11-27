@@ -49,7 +49,7 @@ public class Tm {
 	 */
 	private static final long GREG_EPOCH_UTC = -11670912000000L;
 	private static final long GREG_EPOCH = new DateTime("1600-03-01")
-			.getMillis();
+			.toMillis();
 	/**
 	 * These are the results we're looking to populate.
 	 */
@@ -116,11 +116,11 @@ public class Tm {
 	 *            DateTime
 	 */
 	private void init(DateTime dt, TimeZone timeZone) {
-		long millis = dt.getMillis();
+		long millis = dt.toMillis();
 		long duration = millis - GREG_EPOCH;
 		this.nanosecond = dt.getNanos();
 		this.weekday = calcWeekday(millis, timeZone);
-		if (timeZone.inDaylightTime(dt.getDate())) {
+		if (timeZone.inDaylightTime(dt.toDate())) {
 			duration += HOUR;
 		}
 		if (millis < GREG_EPOCH) {
