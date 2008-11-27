@@ -313,7 +313,7 @@ public class DateTime implements Serializable, Comparable {
 			return compareTo((DateTime) other);
 		}
 		if (other.getClass() == Timestamp.class) {
-			return this.getTimestamp().compareTo((Timestamp) other);
+			return this.toTimestamp().compareTo((Timestamp) other);
 		}
 		if (Date.class.isAssignableFrom(other.getClass())) {
 			return this.compareTo(new DateTime(((Date) other).getTime()));
@@ -327,8 +327,8 @@ public class DateTime implements Serializable, Comparable {
 	 * 
 	 * @return This DateTime as a Timestamp object.
 	 */
-	public Timestamp getTimestamp() {
-		Timestamp ts = new Timestamp(this.systemDur.getMillis());
+	public Timestamp toTimestamp() {
+		Timestamp ts = new Timestamp(this.systemDur.toMillis());
 		if (this.systemDur.getNanos() > 0) {
 			ts.setNanos(this.systemDur.getNanos());
 		}
@@ -340,8 +340,8 @@ public class DateTime implements Serializable, Comparable {
 	 * 
 	 * @return this DateTime truncated and converted to a java.util.Date object.
 	 */
-	public Date getDate() {
-		return new Date(this.systemDur.getMillis());
+	public Date toDate() {
+		return new Date(this.systemDur.toMillis());
 	}
 
 	/**
@@ -349,7 +349,7 @@ public class DateTime implements Serializable, Comparable {
 	 * 
 	 * @return this TimeZone.
 	 */
-	public TimeZone getTimeZone() {
+	public TimeZone timeZone() {
 		return DateTimeConfig.getTimeZone(this.timeZoneId);
 	}
 
@@ -358,7 +358,7 @@ public class DateTime implements Serializable, Comparable {
 	 * second in the same timezone as the system.
 	 */
 	public String toString() {
-		String str=DateTimeFormat.format(getConfig().getDefaultDateFormat(), this);
+		String str=DateTimeFormat.format(config().getDefaultDateFormat(), this);
 		if (this.systemDur.millis < DateTime.CE) {
 			return str+" BC";
 		} else {
@@ -470,14 +470,14 @@ public class DateTime implements Serializable, Comparable {
 	 * @return Numeric day of week, usually Sun=1, Mon=2, ... , Sat=7. See
 	 *         DateTimeConfig.
 	 */
-	public int getWeekday() {
+	public int weekday() {
 		long leftover = 0;
 		// Adding 2000 years in weeks makes all calculations positive.
 		// Adding epoch DOW shifts us into phase with start of week.
-		long offset = getConfig().getEpochDOW() * Duration.DAY + 52
+		long offset = config().getEpochDOW() * Duration.DAY + 52
 				* Duration.WEEK * 2000;
-		leftover = offset + this.getMillis()
-				+ DateTimeConfig.getTimeZone(this.timeZoneId).getOffset(this.getMillis());
+		leftover = offset + this.toMillis()
+				+ DateTimeConfig.getTimeZone(this.timeZoneId).getOffset(this.toMillis());
 		leftover %= Duration.WEEK;
 		leftover /= Duration.DAY;
 		// Convert from zero to one based
@@ -793,7 +793,7 @@ public class DateTime implements Serializable, Comparable {
 			tz = TimeZone.getTimeZone("America/Los_Angeles");
 			returnDt=new DateTime(Tm.calcTime(year, 1+month, day, hour, minute, second, nanosecond / 1000000, tz));
 			// Determine if date is in DST
-			if (tz.inDaylightTime(new Date(returnDt.getMillis()))) {
+			if (tz.inDaylightTime(new Date(returnDt.toMillis()))) {
 				inDST = true;
 			}
 			StringBuffer sb = new StringBuffer(8);
@@ -937,8 +937,8 @@ public class DateTime implements Serializable, Comparable {
 	 * 
 	 * @return Milliseconds offset from epoch (1970-01-01 00:00:00).
 	 */
-	public long getMillis() {
-		return systemDur.getMillis();
+	public long toMillis() {
+		return systemDur.toMillis();
 	}
 
 	/**
@@ -968,7 +968,7 @@ public class DateTime implements Serializable, Comparable {
 		} else if (dateTime instanceof java.util.Date) {
 			dt = new DateTime(((java.util.Date) dateTime).getTime());
 		}
-		return systemDur.getMillis() == dt.getMillis()
+		return systemDur.toMillis() == dt.toMillis()
 				&& systemDur.getNanos() == dt.getNanos();
 	}
 
@@ -977,11 +977,15 @@ public class DateTime implements Serializable, Comparable {
 	 * 
 	 * @return the global DateTimeConfig object used by DateTime.
 	 */
-	public DateTimeConfig getConfig() {
+	public DateTimeConfig config() {
 		if (config == null) {
 			config = DateTimeConfig.getGlobalDefault();
 		}
 		return config;
+	}
+	
+	public String getTimeZoneId() {
+		return this.timeZoneId;
 	}
 
 }
