@@ -70,8 +70,8 @@ public class FieldMap {
 		this.property = property;
 		this.columnName = fieldName;
 		this.keyField = isKeyField;
-		this.getters = ReflectionTool.getterMethods(parentType, property);
-		this.setters = ReflectionTool.setterMethods(this.getters);
+		this.getters = ReflectionTool.getterMethodDrilldown(parentType, property);
+		this.setters = ReflectionTool.setterMethodDrilldown(this.getters);
 		this.propertyClass = this.getters[this.getters.length - 1]
 				.getReturnType();
 		this.tableMap = tableMap;
@@ -98,8 +98,8 @@ public class FieldMap {
 		this.property = property;
 		this.columnName = fieldName;
 		this.keyField = isKeyField;
-		this.getters = ReflectionTool.getterMethods(parentType, property);
-		this.setters = ReflectionTool.setterMethods(this.getters);
+		this.getters = ReflectionTool.getterMethodDrilldown(parentType, property);
+		this.setters = ReflectionTool.setterMethodDrilldown(this.getters);
 		this.propertyClass = this.getters[this.getters.length - 1]
 				.getReturnType();
 		this.tableMap = tableMap;
@@ -124,8 +124,8 @@ public class FieldMap {
 		this.property = property;
 		this.columnName = fieldName;
 		this.keyField = isKeyField;
-		this.getters = ReflectionTool.getterMethods(parentType, property);
-		this.setters = ReflectionTool.setterMethods(this.getters);
+		this.getters = ReflectionTool.getterMethodDrilldown(parentType, property);
+		this.setters = ReflectionTool.setterMethodDrilldown(this.getters);
 		this.propertyClass = adaptor.inboundType();
 		this.tableMap = tableMap;
 		this.columnClass = adaptor.outboundType();
