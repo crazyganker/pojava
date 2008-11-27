@@ -186,10 +186,10 @@ public class DateTimeFormat {
 			sb.append(zfill(tm.getNanosecond(), 9).substring(0, len));
 			break;
 		case 'z':
-			sb.append(dt.getTimeZone().getDisplayName());
+			sb.append(dt.timeZone().getDisplayName());
 			break;
 		case 'Z':
-			int minutes = dt.getTimeZone().getOffset(dt.getMillis()) / 60000;
+			int minutes = dt.timeZone().getOffset(dt.toMillis()) / 60000;
 			if (minutes < 0) {
 				sb.append('-');
 				minutes = -minutes;
