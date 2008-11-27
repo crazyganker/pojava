@@ -93,7 +93,7 @@ public class TmTester extends TestCase {
 	public void testFourYearsDaily() {
 		DateTime dt = new DateTime("2008-01-01");
 		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(dt.getMillis());
+		cal.setTimeInMillis(dt.toMillis());
 		for (int i = 0; i < 365 * 4 + 1; i++) {
 			Tm tm = new Tm(cal.getTimeInMillis());
 			assertEquals(cal.get(Calendar.DATE), tm.getDay());
@@ -138,7 +138,7 @@ public class TmTester extends TestCase {
 			sb.setLength(0);
 			sb.append(yr);
 			sb.append("-01-01");
-			long dtMillis = new DateTime(sb.toString()).getMillis();
+			long dtMillis = new DateTime(sb.toString()).toMillis();
 			long tmMillis = Tm.calcTime(yr, 1, 1);
 			if (dtMillis!=tmMillis) {
 				System.out.println(new Date(dtMillis).toString());

@@ -25,7 +25,7 @@ public class DefaultAdaptorTester extends TestCase {
 		Binding local=new Binding(Date.class, new Date(123));
 		Binding remote=new Binding(Timestamp.class, new Timestamp(123));
 		Binding adapted=adaptor.inbound(remote);
-		assertEquals(123, ((DateTime)adapted.getObj()).getMillis());
+		assertEquals(123, ((DateTime)adapted.getObj()).toMillis());
 		adapted=adaptor.outbound(local);
 		assertEquals(123, ((Timestamp)adapted.getObj()).getTime());
 	}

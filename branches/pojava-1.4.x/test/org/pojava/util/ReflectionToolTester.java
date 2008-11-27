@@ -87,7 +87,7 @@ public class ReflectionToolTester extends TestCase {
 	}
 
 	public void testGetterMethods() throws Exception {
-		Method[] methods = ReflectionTool.getterMethods(People.class,
+		Method[] methods = ReflectionTool.getterMethodDrilldown(People.class,
 				"leader.id");
 		assertEquals(methods[0], People.class.getMethod("getLeader", null));
 		assertEquals(methods[1], Person.class.getMethod("getId", null));
@@ -99,7 +99,7 @@ public class ReflectionToolTester extends TestCase {
 		People people = new People();
 		people.addPerson(person2);
 		people.setLeader(person1);
-		Method[] getters = ReflectionTool.getterMethods(People.class,
+		Method[] getters = ReflectionTool.getterMethodDrilldown(People.class,
 				"leader.id");
 		Object obj = ReflectionTool.getNestedValue(getters, people);
 		assertEquals(new Integer(1), obj);
@@ -107,7 +107,7 @@ public class ReflectionToolTester extends TestCase {
 
 	public void testNestedValueNotExisting() throws Exception {
 		try {
-			ReflectionTool.getterMethods(People.class, "leader.none");
+			ReflectionTool.getterMethodDrilldown(People.class, "leader.none");
 			fail("Expecting NoSuchMethodException.");
 		} catch (NoSuchMethodException ex) {
 			// expected
@@ -134,8 +134,8 @@ public class ReflectionToolTester extends TestCase {
 	public void testAccessors() throws Exception {
 		Method[] getters;
 		Method[] setters;
-		getters=ReflectionTool.getterMethods(People.class, "leader.name");
-		setters=ReflectionTool.setterMethods(getters);
+		getters=ReflectionTool.getterMethodDrilldown(People.class, "leader.name");
+		setters=ReflectionTool.setterMethodDrilldown(getters);
 		assertEquals(2, getters.length);
 		assertEquals(2, setters.length);
 		assertEquals("getLeader", getters[0].getName());
@@ -149,8 +149,8 @@ public class ReflectionToolTester extends TestCase {
 	
 	public void testSetNestedValueFromMethod() throws Exception {
 		People peeps=new People();
-		Method[] getters=ReflectionTool.getterMethods(People.class, "leader.name");
-		Method[] setters=ReflectionTool.setterMethods(getters);
+		Method[] getters=ReflectionTool.getterMethodDrilldown(People.class, "leader.name");
+		Method[] setters=ReflectionTool.setterMethodDrilldown(getters);
 		ReflectionTool.setNestedValue(getters, setters, peeps, "Alvin");
 		assertEquals("Alvin", peeps.getLeader().getName());
 
