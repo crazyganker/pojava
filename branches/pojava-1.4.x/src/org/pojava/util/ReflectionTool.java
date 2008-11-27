@@ -23,8 +23,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.pojava.exception.ReflectionException;
+import org.pojava.lang.Accessors;
 
 /**
  * The ReflectionTool class provides static methods for accessing an object's
@@ -291,7 +293,7 @@ public class ReflectionTool {
 	 * @return array of setter methods that drill down to a property.
 	 * @throws NoSuchMethodException
 	 */
-	public static Method[] setterMethods(Method[] getterMethods)
+	public static Method[] setterMethodDrilldown(Method[] getterMethods)
 			throws NoSuchMethodException {
 		Method[] setters = new Method[getterMethods.length];
 		for (int i = 0; i < setters.length; i++) {
@@ -311,11 +313,39 @@ public class ReflectionTool {
 	 * 
 	 * @param type
 	 *            hold class of object containing the get accessors
+	 * @return array of getter methods drilling down to a property
+	 */
+	public static Accessors accessors(Class type) throws NoSuchMethodException {
+		Method[] allMethods = type.getMethods();
+		Accessors accessors = new Accessors();
+		Set getters = accessors.getGetters();
+		Set setters = accessors.getSetters();
+		for (int i = 0; i < allMethods.length; i++) {
+			Method meth = allMethods[i];
+			char c = meth.getName().charAt(0);
+			if (c == 's') {
+				if (meth.getParameterTypes().length == 1) {
+					setters.add(meth);
+				}
+			} else if (c == 'g' || c == 'i' || c == 'h') {
+				if (meth.getParameterTypes().length == 0) {
+					getters.add(meth);
+				}
+			}
+		}
+		return accessors;
+	}
+
+	/**
+	 * Array of getter methods that drill down to a nested bean property
+	 * 
+	 * @param type
+	 *            hold class of object containing the get accessors
 	 * @param property
 	 *            hold a reference to a bean property
 	 * @return array of getter methods drilling down to a property
 	 */
-	public static Method[] getterMethods(Class type, String property)
+	public static Method[] getterMethodDrilldown(Class type, String property)
 			throws NoSuchMethodException {
 		Class innerClass = type;
 		Method method = null;
@@ -457,6 +487,49 @@ public class ReflectionTool {
 			throw new ReflectionException(sb.toString(), ex);
 		}
 		return innerObject;
+	}
+
+	public static String propertyFor(Method method) {
+		if (method == null) {
+			return null;
+		}
+		char[] chars = method.getName().toCharArray();
+		for (int i = 0; i < chars.length; i++) {
+			char c = chars[i];
+			if (c < 'a' || c > 'z') {
+				StringBuffer sb = new StringBuffer();
+				sb.append(Character.toLowerCase(c));
+				sb.append(method.getName().substring(1 + i));
+				return sb.toString();
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Invoke any setters of an object whose properties are reference in a map,
+	 * passing the values of that map into their respective setters.
+	 * 
+	 * @param obj
+	 * @param properties
+	 * @param setters
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public static void populateFromMap(Object obj, Map properties,
+			Set setters) throws IllegalAccessException,
+			InvocationTargetException {
+		if (obj == null || setters == null || setters.isEmpty()) {
+			return;
+		}
+		for (Iterator it=setters.iterator(); it.hasNext();) {
+			Method setter = (Method) it.next();
+			String prop = propertyFor(setter);
+			if (properties.containsKey(prop)) {
+				Object[] args = { properties.get(propertyFor(setter)) };
+				setter.invoke(obj, args);
+			}
+		}
 	}
 
 	/**
