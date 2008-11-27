@@ -56,7 +56,7 @@ public class DefaultAdaptor implements BindingAdaptor {
 			return inBinding;
 		}
 		if (outBinding.getType().equals(DateTime.class)) {
-			inBinding=new Binding(Timestamp.class, ((DateTime)outBinding.getObj()).getTimestamp());
+			inBinding=new Binding(Timestamp.class, ((DateTime)outBinding.getObj()).toTimestamp());
 		}
 		if (Date.class.isAssignableFrom(outBinding.getType())) {
 			inBinding=new Binding(Timestamp.class, new Timestamp(((Date)outBinding.getObj()).getTime()));
