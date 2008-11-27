@@ -21,7 +21,7 @@ public class DateTimeFormatTester extends TestCase {
 	}
 	
 	private void compareStatic(String fmt, DateTime dt) {
-		Date date=dt.getDate();
+		Date date=dt.toDate();
 		SimpleDateFormat sdf=new SimpleDateFormat(fmt);
 		assertEquals(sdf.format(date), DateTimeFormat.format(fmt, dt));
 	}
