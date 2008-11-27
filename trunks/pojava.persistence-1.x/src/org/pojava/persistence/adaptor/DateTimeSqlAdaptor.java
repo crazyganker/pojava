@@ -53,7 +53,7 @@ public class DateTimeSqlAdaptor implements TypedAdaptor {
 			return outBinding;
 		}
 		Binding inBinding = new Binding(java.sql.Timestamp.class,
-				new java.sql.Date(((DateTime) outBinding.getObj()).getMillis()));
+				new java.sql.Date(((DateTime) outBinding.getObj()).toMillis()));
 		return inBinding;
 	}
 }
