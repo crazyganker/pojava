@@ -49,7 +49,7 @@ public class DaoTester extends TestCase {
 		assertEquals(StringTool.pad(expected.getTestCharacter5(), 5), got
 				.getTestCharacter5());
 		assertEquals(new org.pojava.datetime.DateTime(expected.getTestDate()
-				.getMillis()).truncate(CalendarUnit.DAY), got.getTestDate());
+				.toMillis()).truncate(CalendarUnit.DAY), got.getTestDate());
 		assertEquals(expected.getTestId(), got.getTestId());
 		assertEquals(expected.getTestReal(), got.getTestReal());
 		assertEquals(expected.getTestSmallint(), got.getTestSmallint());
