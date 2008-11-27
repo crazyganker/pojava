@@ -20,9 +20,11 @@
         <resources>
             <resource>
                 <directory>${basedir}/src</directory>
+                <!--
 	        <excludes>
                     <exclude>**/*.java</exclude>
                 </excludes>
+                -->
             </resource>
         </resources>
         <testResources>
