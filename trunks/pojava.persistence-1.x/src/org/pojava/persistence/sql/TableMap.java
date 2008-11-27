@@ -206,7 +206,7 @@ public class TableMap {
 	 */
 	public void addFieldMap(FieldMap field) throws NoSuchMethodException {
 		if (field.getGetters() == null) {
-			field.setGetters(ReflectionTool.getterMethods(javaClass, field
+			field.setGetters(ReflectionTool.getterMethodDrilldown(javaClass, field
 					.getProperty()));
 		}
 		if (field.getPropertyClass() == null && field.getGetters() != null) {
@@ -215,7 +215,7 @@ public class TableMap {
 							.getReturnType());
 		}
 		if (field.getSetters() == null && field.getGetters() != null) {
-			field.setSetters(ReflectionTool.setterMethods(field.getGetters()));
+			field.setSetters(ReflectionTool.setterMethodDrilldown(field.getGetters()));
 		}
 		field.setTableMap(this);
 		this.allFields.put(field.getProperty(), field);
@@ -290,7 +290,7 @@ public class TableMap {
 		} else {
 			Method[] getters = field.getGetters();
 			if (getters == null) {
-				getters = ReflectionTool.getterMethods(bean.getClass(), field
+				getters = ReflectionTool.getterMethodDrilldown(bean.getClass(), field
 						.getProperty());
 				field.setGetters(getters);
 			}
@@ -397,7 +397,7 @@ public class TableMap {
 							.getProperty(), bean);
 				} else {
 					try {
-						getters = ReflectionTool.getterMethods(bean.getClass(),
+						getters = ReflectionTool.getterMethodDrilldown(bean.getClass(),
 								field.getProperty());
 					} catch (NoSuchMethodException ex) {
 						throw new PersistenceException(
