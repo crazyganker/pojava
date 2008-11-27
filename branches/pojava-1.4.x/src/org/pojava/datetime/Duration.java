@@ -120,7 +120,7 @@ public class Duration implements Comparable {
 	 * @return A newly calculated Duration.
 	 */
 	public Duration add(long milliseconds) {
-		Duration d=new Duration(this.getMillis()+milliseconds);
+		Duration d=new Duration(this.toMillis()+milliseconds);
 		d.nanos+=this.nanos%1000000;
 		if (d.nanos>1000000000) {
 			d.nanos-=1000000000;
@@ -177,7 +177,7 @@ public class Duration implements Comparable {
 	public boolean equals(Object other) {
 		if (other.getClass().isAssignableFrom(Duration.class)) {
 			Duration dur=(Duration)other;
-			return (this.millis==dur.getMillis() && this.nanos==dur.getNanos());
+			return (this.millis==dur.toMillis() && this.nanos==dur.getNanos());
 		}
 		return false;
 	}
@@ -197,7 +197,7 @@ public class Duration implements Comparable {
 	 * 
 	 * @return Number of whole milliseconds in Duration.
 	 */
-	public long getMillis() {
+	public long toMillis() {
 		return millis;
 	}
 
