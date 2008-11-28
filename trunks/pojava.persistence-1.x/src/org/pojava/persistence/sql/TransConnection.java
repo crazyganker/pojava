@@ -1,15 +1,22 @@
 package org.pojava.persistence.sql;
 
+import java.sql.Array;
+import java.sql.Blob;
 import java.sql.CallableStatement;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.NClob;
 import java.sql.PreparedStatement;
+import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.sql.SQLXML;
 import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * This connection object provides a layer allowing a Transaction visibility to
@@ -214,4 +221,49 @@ public class TransConnection implements Connection {
 		this.closeAllowed = closeAllowed;
 	}
 
+	/**
+	 * I'm including these just to appease the Java 1.6 requirements.
+	 */
+	public void setClientInfo(Properties properties)
+			throws SQLClientInfoException {
+		throw new UnsupportedOperationException();
+	}
+	public Clob createClob() throws SQLException {
+		throw new UnsupportedOperationException();
+	}
+
+	public NClob createNClob() throws SQLException {
+		throw new UnsupportedOperationException();
+	}
+	
+	public Properties getClientInfo() throws SQLException {
+		throw new UnsupportedOperationException();
+	}
+	
+	public String getClientInfo(String name) throws SQLException {
+		throw new UnsupportedOperationException();
+	}
+	public Array createArrayOf(String typeName, Object[] elements) {
+		throw new UnsupportedOperationException();
+	}
+	public Blob createBlob() throws SQLException {
+		throw new UnsupportedOperationException();
+	}
+	public SQLXML createSQLXML() throws SQLException {
+		throw new UnsupportedOperationException();
+	}
+	public Object unwrap(Class arg0) throws SQLException {
+		throw new UnsupportedOperationException();
+	}
+	public boolean isValid(int timeout) throws SQLException {
+		throw new UnsupportedOperationException();
+	}
+	public boolean isWrapperFor(Class arg0) throws SQLException {
+		throw new UnsupportedOperationException();
+	}
+	public void setClientInfo(String name, String value)
+			throws SQLClientInfoException {
+		throw new UnsupportedOperationException();
+	}
+	
 }
