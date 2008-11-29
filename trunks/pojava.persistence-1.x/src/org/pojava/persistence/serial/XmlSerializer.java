@@ -228,9 +228,8 @@ public class XmlSerializer {
 		String name = obj.getClass().getName();
 		if (name.startsWith("java.lang."))
 			return name.substring(10);
-		if (name.equals("org.pojava.datetime.DateTime")) {
+		if (name.equals("org.pojava.datetime.DateTime"))
 			return "DateTime";
-		}
 		return name;
 	}
 
@@ -465,7 +464,8 @@ public class XmlSerializer {
 					config.addXmlSerializer(memberClass, subSerializer);
 				}
 				sb.append(config.indent(depth+1));
-				sb.append(subSerializer.toXml(member, null, null));
+				// Output array element
+				sb.append(subSerializer.toXml(member, "e", null));
 			}
 			sb.append(config.indent(depth));
 			closeTag(sb, name);
