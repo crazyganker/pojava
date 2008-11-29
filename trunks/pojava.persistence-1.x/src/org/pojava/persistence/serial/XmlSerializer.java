@@ -17,14 +17,6 @@ import org.pojava.util.ReflectionTool;
 public class XmlSerializer {
 
 	/**
-	 * Depth keeps track of nested depth in the XML.
-	 */
-	private int depth = 0;
-	/**
-	 * The current class being operated upon by this XmlSerializer.
-	 */
-	private Class baseClass = null;
-	/**
 	 * A reference to the configuration object.
 	 */
 	private XmlDefs config;
@@ -37,37 +29,13 @@ public class XmlSerializer {
 	}
 
 	/**
-	 * Construct a new serializer for a particular type.
-	 * @param type
-	 */
-	public XmlSerializer(Class type) {
-		this.baseClass = type;
-		config = new XmlDefs();
-	}
-
-	/**
 	 * Construct an XmlSerializer using a custom configuration object.
 	 * 
 	 * Be careful not to use the same configuration object concurrently.
-	 * @param type
 	 * @param config
 	 */
-	public XmlSerializer(Class type, XmlDefs config) {
-		this.baseClass = type;
+	public XmlSerializer(XmlDefs config) {
 		this.config = config;
-	}
-
-	/**
-	 * You can use this method to create a serializer with a different indentation.
-	 * @param keyClass
-	 * @param depth
-	 * @return
-	 */
-	public XmlSerializer newXmlSerializer(Class keyClass, int depth) {
-		XmlSerializer xmlSerializer = new XmlSerializer(keyClass);
-		xmlSerializer.depth = depth;
-		xmlSerializer.config = config;
-		return xmlSerializer;
 	}
 
 	/**
@@ -126,17 +94,19 @@ public class XmlSerializer {
 	public String toXml(Object obj) {
 		walk(obj);
 		config.resetRegistry();
-		return toXml(obj, null, null);
+		return toXml(obj, null, null, 0, null);
 	}
 
 	/**
-	 * This performs the actual work assuming preparation has been done.
+	 * This performs the actual work of serializing to xml.
 	 * @param pojo
 	 * @param name
 	 * @param attribs
+	 * @param depth
+	 * @param baseClass
 	 * @return XML document as a String.
 	 */
-	private String toXml(Object pojo, String name, String attribs) {
+	private String toXml(Object pojo, String name, String attribs, int depth, Class baseClass) {
 		if (pojo==null) {
 			return "";
 		}
@@ -194,7 +164,7 @@ public class XmlSerializer {
 		// Simple objects can be overridden with a factory
 		SerialFactory override=config.factory(type);
 		if (override!=null) {
-			openTag(sb, name, attribSb.toString());
+			openTag(sb, name, attribSb.toString(), depth);
 			sb.append(override.serialize(pojo));
 			closeTag(sb, name);
 			return sb.toString();
@@ -203,18 +173,18 @@ public class XmlSerializer {
 			sb.append(config.indent(depth));
 			sb.append(simpleElement(pojo, name, attribSb.toString()));
 		} else if (type.equals(Object.class)) {
-			sb.append(snippetFromUntyped(pojo, name, attribSb.toString()));
+			sb.append(snippetFromUntyped(pojo, name, attribSb.toString(), depth, baseClass));
 		} else if (baseClass.equals(Object.class)
 				&& java.util.Collection.class.isAssignableFrom(type)) {
-			sb.append(snippetFromUntyped(pojo, name, attribSb.toString()));
+			sb.append(snippetFromUntyped(pojo, name, attribSb.toString(), depth, baseClass));
 		} else if (java.util.Collection.class.isAssignableFrom(type)) {
-			sb.append(snippetFromCollection(pojo, name, attribSb.toString()));
+			sb.append(snippetFromCollection(pojo, name, attribSb.toString(), depth));
 		} else if (java.util.AbstractMap.class.isAssignableFrom(type)) {
-			sb.append(snippetFromMap(pojo, name, attribSb.toString()));
+			sb.append(snippetFromMap(pojo, name, attribSb.toString(), depth));
 		} else if (type.isArray()) {
-			sb.append(snippetFromArray(pojo, name, attribSb.toString()));
+			sb.append(snippetFromArray(pojo, name, attribSb.toString(), depth, baseClass));
 		} else {
-			sb.append(snippetFromPojo(pojo, name, attribSb.toString()));
+			sb.append(snippetFromPojo(pojo, name, attribSb.toString(), depth, baseClass));
 		}
 		return sb.toString();
 	}
@@ -297,13 +267,13 @@ public class XmlSerializer {
 	 *            Attributes.
 	 * @return
 	 */
-	private String snippetFromUntyped(Object pojo, String name, String attribs) {
+	private String snippetFromUntyped(Object pojo, String name, String attribs, int depth, Class baseClass) {
 		StringBuffer sb = new StringBuffer();
 		boolean isColl = pojo != null
 				&& java.util.Collection.class.isAssignableFrom(pojo.getClass());
 		if (isColl) {
 			if (attribs == null || attribs.length() == 0) {
-				openTag(sb, name, null);
+				openTag(sb, name, null, depth);
 				sb.append('\n');
 			}
 		} else {
@@ -315,7 +285,7 @@ public class XmlSerializer {
 				sb.append("/>\n");
 				return sb.toString();
 			}
-			openTag(sb, name, attribs);
+			openTag(sb, name, attribs, depth);
 			sb.append('\n');
 		}
 		int saveDepth=depth++;
@@ -325,10 +295,7 @@ public class XmlSerializer {
 		} else {
 			Class memberClass = pojo.getClass();
 			if (memberClass != Object.class) {
-				XmlSerializer subSerializer = config
-						.getXmlSerializer(memberClass);
-				subSerializer.depth=depth;
-				sb.append(subSerializer.toXml(pojo, null, null));
+				sb.append(toXml(pojo, null, null, depth, baseClass));
 			}
 		}
 		depth=saveDepth;
@@ -351,9 +318,9 @@ public class XmlSerializer {
 	 * @return
 	 */
 	private String snippetFromCollection(Object pojo, String name,
-			String attribs) {
+			String attribs, int depth) {
 		StringBuffer sb = new StringBuffer();
-		openTag(sb, name, attribs);
+		openTag(sb, name, attribs, depth);
 		sb.append('\n');
 		Collection collection = (Collection) pojo;
 		int counter = 1;
@@ -362,15 +329,7 @@ public class XmlSerializer {
 			if (member == null) {
 				sb.append("<obj class=\"null\"/>\n");
 			} else {
-				Class memberClass = member.getClass();
-				XmlSerializer subSerializer = (XmlSerializer) config
-						.getXmlSerializer(memberClass);
-				if (subSerializer == null) {
-					subSerializer = newXmlSerializer(memberClass,depth);
-					config.addXmlSerializer(memberClass, subSerializer);
-				}
-				subSerializer.depth=depth+1;
-				sb.append(subSerializer.toXml(member, null, null));
+				sb.append(toXml(member, null, null, depth+1, member.getClass()));
 			}
 			counter++;
 		}
@@ -392,9 +351,9 @@ public class XmlSerializer {
 	 *            Optional type attribute.
 	 * @return
 	 */
-	private String snippetFromMap(Object pojo, String name, String attribs) {
+	private String snippetFromMap(Object pojo, String name, String attribs, int depth) {
 		StringBuffer sb = new StringBuffer();
-		openTag(sb, name, attribs);
+		openTag(sb, name, attribs, depth);
 		sb.append('\n');
 		Map map = (Map) pojo;
 		for (Iterator listIter = map.keySet().iterator(); listIter.hasNext();) {
@@ -402,30 +361,14 @@ public class XmlSerializer {
 			sb.append("<map>\n");
 			// Map the key
 			Object mapKey = listIter.next();
-			Class keyClass = mapKey.getClass();
-			XmlSerializer subSerializer = (XmlSerializer) config
-					.getXmlSerializer(keyClass);
-			if (subSerializer == null) {
-				subSerializer = newXmlSerializer(keyClass, depth+2);
-				config.addXmlSerializer(keyClass, subSerializer);
-			}
-			subSerializer.depth=depth+2;
-			sb.append(subSerializer.toXml(mapKey, null, null));
+			sb.append(toXml(mapKey, null, null, depth+2, mapKey.getClass()));
 			// Map the value
 			Object mapValue = map.get(mapKey);
 			if (mapValue == null) {
 				sb.append(config.indent(depth+2));
 				sb.append("<null/>\n");
 			} else {
-				Class valueClass = mapValue.getClass();
-				subSerializer = (XmlSerializer) config
-						.getXmlSerializer(valueClass);
-				if (subSerializer == null) {
-					subSerializer = newXmlSerializer(valueClass,depth+1);
-					config.addXmlSerializer(valueClass, subSerializer);
-				}
-				subSerializer.depth=depth+2;
-				sb.append(subSerializer.toXml(mapValue, null, null));
+				sb.append(toXml(mapValue, null, null, depth+2, mapValue.getClass()));
 			}
 			sb.append(config.indent(depth+1));
 			sb.append("</map>\n");
@@ -448,24 +391,16 @@ public class XmlSerializer {
 	 *            Optional type attribute.
 	 * @return
 	 */
-	private String snippetFromArray(Object pojo, String name, String attribs) {
+	private String snippetFromArray(Object pojo, String name, String attribs, int depth, Class baseClass) {
 		StringBuffer sb = new StringBuffer();
 		int length = Array.getLength(pojo);
 		if (length > 0) {
-			openTag(sb, name, attribs);
+			openTag(sb, name, attribs, depth);
 			sb.append('\n');
 			for (int i = 0; i < length; i++) {
 				Object member = Array.get(pojo, i);
-				Class memberClass = member.getClass();
-				XmlSerializer subSerializer = (XmlSerializer) config
-						.getXmlSerializer(memberClass);
-				if (subSerializer == null) {
-					subSerializer = newXmlSerializer(memberClass, depth+1);
-					config.addXmlSerializer(memberClass, subSerializer);
-				}
-				sb.append(config.indent(depth+1));
 				// Output array element
-				sb.append(subSerializer.toXml(member, "e", null));
+				sb.append(toXml(member, "e", null, depth+1, member.getClass()));
 			}
 			sb.append(config.indent(depth));
 			closeTag(sb, name);
@@ -486,27 +421,15 @@ public class XmlSerializer {
 	 *            Blank or " type=\"dot\""
 	 * @return
 	 */
-	private String snippetFromPojo(Object pojo, String name, String attribs) {
+	private String snippetFromPojo(Object pojo, String name, String attribs, int depth, Class baseClass) {
 		StringBuffer sb = new StringBuffer();
-		int saveDepth=depth;
-		openTag(sb, name, attribs);
+		openTag(sb, name, attribs, depth);
 		sb.append('\n');
-		depth++;
 		Map properties = config.getProperties(pojo.getClass());
 		for (Iterator it = properties.keySet().iterator(); it.hasNext();) {
 			String key = (String) it.next();
 			if (!config.isOmission(pojo.getClass(), key)) {
 				Class fieldClass = (Class) properties.get(key);
-				XmlSerializer childMapper; //  = this;
-				// if (!isBasic(fieldClass)) {
-					childMapper = (XmlSerializer) config
-							.getXmlSerializer(fieldClass);
-					childMapper.depth=depth;
-					if (childMapper == null) {
-						childMapper = newXmlSerializer(fieldClass,depth+1);
-						config.addXmlSerializer(fieldClass, childMapper);
-					}
-				// }
 				// renames might need to occur here.
 				Object innerPojo = ReflectionTool.getNestedValue(key, pojo);
 				String renamed = config.renamedJava(fieldClass, key);
@@ -514,14 +437,13 @@ public class XmlSerializer {
 					key = renamed;
 				}
 				if (fieldClass == Object.class) {
-					sb.append(snippetFromUntyped(innerPojo, key, ""));
+					sb.append(snippetFromUntyped(innerPojo, key, "", depth+1, fieldClass));
 				} else {
-					sb.append(childMapper.toXml(innerPojo, key, null));
+					sb.append(toXml(innerPojo, key, null, depth+1, fieldClass));
 				}
 			}
 		}
 		closeTag(sb, name);
-		depth=saveDepth;
 		return sb.toString();
 	}
 
@@ -531,7 +453,7 @@ public class XmlSerializer {
 	 * @param name
 	 * @param attribs
 	 */
-	private void openTag(StringBuffer sb, String name, String attribs) {
+	private void openTag(StringBuffer sb, String name, String attribs, int depth) {
 		sb.append(config.indent(depth));
 		sb.append('<');
 		sb.append(name);

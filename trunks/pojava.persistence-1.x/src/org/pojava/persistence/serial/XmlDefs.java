@@ -34,10 +34,6 @@ public class XmlDefs {
 	 */
 	private SerialFactory defaultFactory = new DefaultFactory();
 	/**
-	 * Each serializer is specific to a class.
-	 */
-	private Map xmlSerializers = new HashMap();
-	/**
 	 * The referenceId is a serial number for representing referenced objects.
 	 */
 	private int referenceId = 0;
@@ -157,30 +153,6 @@ public class XmlDefs {
 			return false;
 		}
 		return type.isPrimitive() || factories.containsKey(type);
-	}
-
-	/**
-	 * Add a serializer specific to a class.
-	 * @param type
-	 * @param serializer
-	 */
-	public void addXmlSerializer(Class type, XmlSerializer serializer) {
-		xmlSerializers.put(type, serializer);
-	}
-
-	/**
-	 * Fetch a serializer specific to a class.
-	 * @param type
-	 * @return the XmlSerializer for the type
-	 */
-	public XmlSerializer getXmlSerializer(Class type) {
-		XmlSerializer serializer = (XmlSerializer) xmlSerializers.get(type);
-		if (serializer == null) {
-			serializer = new XmlSerializer(type, this);
-			xmlSerializers.put(type, serializer);
-			return serializer;
-		}
-		return (XmlSerializer) xmlSerializers.get(type);
 	}
 
 	/**
