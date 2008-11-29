@@ -36,6 +36,9 @@ public class DefaultAdaptorMap implements AdaptorMap {
 
 	private static final DefaultAdaptorMap adaptorMap = new DefaultAdaptorMap();
 
+	/**
+	 * Select an adaptor based on a variety of possible criteria.
+	 */
 	public BindingAdaptor chooseAdaptor(Class beanClass, Method[] getters,
 			Class columnClass) {
 		BindingAdaptor adaptor;
@@ -70,6 +73,10 @@ public class DefaultAdaptorMap implements AdaptorMap {
 		return adaptor;
 	}
 
+	/**
+	 * Return a reference to this reentrant class. 
+	 * @return
+	 */
 	public static DefaultAdaptorMap getInstance() {
 		return adaptorMap;
 	}
