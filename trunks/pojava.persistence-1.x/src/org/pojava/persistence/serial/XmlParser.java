@@ -163,6 +163,8 @@ public class XmlParser implements ContentHandler {
 				if (java.util.AbstractMap.class
 						.isAssignableFrom(types[depth - 1])) {
 					types[depth] = Object[].class;
+				} else if (types[depth - 1].isArray()) {
+					types[depth] = types[depth - 1].getComponentType();
 				} else {
 					types[depth] = ReflectionTool.propertyType(
 							types[depth - 1], localName);
@@ -179,7 +181,9 @@ public class XmlParser implements ContentHandler {
 						if (atts.getValue(i).equals("DateTime")) {
 							sb.append("org.pojava.datetime.DateTime");
 						} else {
-							sb.append("java.lang.");
+							char c = atts.getValue(i).charAt(0);
+							if (c >= 'A' && c <= 'Z')
+								sb.append("java.lang.");
 							sb.append(atts.getValue(i));
 						}
 						types[depth] = Class.forName(sb.toString());
@@ -227,7 +231,7 @@ public class XmlParser implements ContentHandler {
 			params[0] = buffers[depth].toString();
 			objs[depth - 1].put(key, defs.construct(types[depth], params));
 		} else if (types[depth].isArray()) {
-			if (depth > 0
+			if (depth > 0 && types[depth-1]!=null
 					&& java.util.AbstractMap.class
 							.isAssignableFrom(types[depth - 1])) {
 				Map map = (Map) objs[depth - 1];
@@ -237,9 +241,8 @@ public class XmlParser implements ContentHandler {
 					map.put(mapKey, it.next());
 				}
 			} else {
-				Object array = Array.newInstance(types[depth]
-						.getComponentType(), objs[depth].values().size());
-				for (int i = 0; i < objs[depth].values().size(); i++) {
+				Object array = Array.newInstance(types[depth+1], objs[depth].size());
+				for (int i = 0; i < objs[depth].size(); i++) {
 					Array.set(array, i, objs[depth].get(new Integer(1 + i)));
 				}
 				objs[depth - 1].put(key, array);
