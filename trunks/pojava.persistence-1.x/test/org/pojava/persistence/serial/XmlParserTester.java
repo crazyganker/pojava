@@ -52,9 +52,9 @@ public class XmlParserTester extends TestCase {
 		String xml=				"<obj class=\"org.pojava.persistence.examples.Potpourri\" mem=\"1\">\n"
 			+ "  <d>86400000</d>\n"
 			+ "  <numbers>\n"
-			+ "    <obj class=\"Integer\">1</obj>\n"
-			+ "    <obj class=\"Integer\">2</obj>\n"
-			+ "    <obj class=\"Integer\">3</obj>\n"
+			+ "    <e>1</e>\n"
+			+ "    <e>2</e>\n"
+			+ "    <e>3</e>\n"
 			+ "  </numbers>\n"
 			+ "  <confused ref=\"1\"/>\n"
 			+ "  <five>5</five>\n" + "  <dt>86400.0</dt>\n"
@@ -87,4 +87,17 @@ public class XmlParserTester extends TestCase {
 		Map map=(Map) parser.parse(sb.toString());
 		assertEquals(2,map.size());
 	}
+
+	public void testArrayInt() {
+		StringBuffer sb=new StringBuffer();
+		sb.append("<obj class=\"[I\">\n");
+		sb.append("  <e>1</e>\n");
+		sb.append("  <e>2</e>\n");
+		sb.append("  <e>3</e>\n");
+		sb.append("</obj>\n");
+		XmlParser parser = new XmlParser();
+		int[] numbers=(int[]) parser.parse(sb.toString());
+		assertEquals(3,numbers.length);
+	}
+
 }

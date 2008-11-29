@@ -43,6 +43,38 @@ public class XmlSerializerTester extends TestCase {
 		String xml = serializer.toXml(c);
 		assertEquals("<obj class=\"Character\">A</obj>\n", xml);
 	}
+	
+	public void testArrayInt() throws Exception {
+		int[] numbers=new int[3];
+		numbers[0]=1;
+		numbers[1]=2;
+		numbers[2]=3;
+		XmlSerializer serializer = new XmlSerializer();
+		String xml = serializer.toXml(numbers);
+		StringBuffer sb=new StringBuffer();
+		sb.append("<obj class=\"[I\">\n");
+		sb.append("  <e>1</e>\n");
+		sb.append("  <e>2</e>\n");
+		sb.append("  <e>3</e>\n");
+		sb.append("</obj>\n");
+		assertEquals(sb.toString(), xml);
+	}
+	
+	public void testArrayInteger() {
+		Integer[] numbers=new Integer[3];
+		numbers[0]=new Integer(1);
+		numbers[1]=new Integer(2);
+		numbers[2]=new Integer(3);
+		XmlSerializer serializer = new XmlSerializer();
+		String xml = serializer.toXml(numbers);
+		StringBuffer sb=new StringBuffer();
+		sb.append("<obj class=\"[Ljava.lang.Integer;\">\n");
+		sb.append("  <e>1</e>\n");
+		sb.append("  <e>2</e>\n");
+		sb.append("  <e>3</e>\n");
+		sb.append("</obj>\n");
+		assertEquals(sb.toString(), xml);		
+	}
 
 	public void testSet() {
 		Set set = new HashSet();
@@ -129,9 +161,9 @@ public class XmlSerializerTester extends TestCase {
 		assertTrue(xml.indexOf("  <d>86400000</d>\n")>=0);
 		assertTrue(xml.indexOf("  <d>86400000</d>\n")>=0);
 		assertTrue(xml.indexOf("  <numbers>\n" 
-				+ "    <obj class=\"Integer\">1</obj>\n"
-				+ "    <obj class=\"Integer\">2</obj>\n"
-				+ "    <obj class=\"Integer\">3</obj>\n"
+				+ "    <e>1</e>\n"
+				+ "    <e>2</e>\n"
+				+ "    <e>3</e>\n"
 				+ "  </numbers>\n")>0);
 		assertTrue(xml.indexOf("  <confused ref=\"1\"/>\n")>0);
 		assertTrue(xml.indexOf("  <set mem=\"2\">\n")>0);
