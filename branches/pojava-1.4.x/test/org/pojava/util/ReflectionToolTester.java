@@ -24,7 +24,6 @@ public class ReflectionToolTester extends TestCase {
 		assertEquals(" 123 ", ReflectionTool.clean(" 123 "));
 		assertEquals("&lt;div class=&quot;custom&quot; /&gt;", ReflectionTool
 				.clean("<div class=\"custom\" />"));
-		assertEquals("123", ReflectionTool.clean(new Integer(123)));
 	}
 
 	public void testGetNestedValueSimple() {
