@@ -1,5 +1,6 @@
 package org.pojava.persistence.serial;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.pojava.datetime.DateTime;
+import org.pojava.exception.InconceivableException;
 import org.pojava.exception.PersistenceException;
 import org.pojava.lang.Accessors;
 import org.pojava.persistence.factories.DateFactory;
@@ -19,9 +21,9 @@ import org.pojava.util.ReflectionTool;
  * XmlDefs holds configuration settings for serialization.
  * 
  * Note that this is not reentrant.
- *  
+ * 
  * @author John Pile
- *
+ * 
  */
 public class XmlDefs {
 
@@ -30,21 +32,18 @@ public class XmlDefs {
 	 */
 	public Map factories = new HashMap();
 	/**
-	 * The defaultFactory constructs all the primitive equivalents. 
+	 * The defaultFactory constructs all the primitive equivalents.
 	 */
 	private SerialFactory defaultFactory = new DefaultFactory();
 	/**
-	 * The referenceId is a serial number for representing referenced objects.
-	 */
-	private int referenceId = 0;
-	/**
 	 * Objects are tracked in the reference map to ensure that the object is
-	 * referenced rather than duplicated when it is parsed from the XML produced.
+	 * referenced rather than duplicated when it is parsed from the XML
+	 * produced.
 	 */
 	private Map referenced = new HashMap();
 	/**
-	 * The serialized map show which objects have been serialized, and are candidates
-	 * for referencing.  
+	 * The serialized map show which objects have been serialized, and are
+	 * candidates for referencing.
 	 */
 	private Map serialized = new HashMap();
 	/**
@@ -56,49 +55,121 @@ public class XmlDefs {
 	 */
 	private Map renamedJava = new HashMap();
 	/**
-	 * Omissions is used to define objects to omit from the serialized document. 
+	 * Omissions is used to define objects to omit from the serialized document.
 	 */
 	private Set omissions = new HashSet();
 	/**
-	 * Properties holds the getters and setters of interest to the serialization process. 
+	 * Properties holds the getters and setters of interest to the serialization
+	 * process.
 	 */
 	private Map properties = new HashMap();
+	/**
+	 * Maps the getters and setters of a class.
+	 */
+	private Map accessors = new HashMap();
+	/**
+	 * The referenceId is a serial number for representing referenced objects.
+	 */	
+	private int referenceId = 1;
 	/**
 	 * Defines the number of pad characters used by each indent.
 	 */
 	private int padSize = 2;
 	/**
-	 * Indentation is defined by substring portions of pad. 
+	 * Indentation is defined by substring portions of pad.
 	 */
 	private String pad = "                                                               ";
-	
+
 	/**
 	 * Initialize XmlDefs with known factory mappings.
 	 */
 	public XmlDefs() {
-		add(Date.class, new DateFactory());
-		add(DateTime.class, new DateTimeFactory());
-		add(Integer.class, defaultFactory);
-		add(Character.class, defaultFactory);
-		add(Long.class, defaultFactory);
-		add(Byte.class, defaultFactory);
-		add(Boolean.class, defaultFactory);
-		add(Float.class, defaultFactory);
-		add(Short.class, defaultFactory);
-		add(String.class, defaultFactory);
+		registerFactories();
+		registerCustomAccessors();
+	}
+
+	/**
+	 * POJava does its best to guess at getters and setters based on whether a
+	 * method starts with the word "get", "set", or "is".
+	 * 
+	 * What of the exceptions to the general rule? You can predefine custom
+	 * accessors before serializing to either include nonstandard names or
+	 * exclude unwanted names.
+	 */
+	private void registerCustomAccessors() {
+		Accessors getterSetters;
+		Map getters, setters;
+		Class[] timeParams = { long.class };
+		Class[] nanosParams = { int.class };
+		Class type;
+		try {
+			// Timestamp ====================================
+			getterSetters = new Accessors();
+			getters = getterSetters.getGetters();
+			setters = getterSetters.getSetters();
+			type = java.sql.Timestamp.class;
+			getterSetters.setType(type);
+			getters.put("getTime", type.getMethod("getTime", null));
+			getters.put("getNanos", type.getMethod("getNanos", null));
+			setters.put("setTime", type.getMethod("setTime", timeParams));
+			setters.put("setNanos", type.getMethod("setNanos", nanosParams));
+			accessors.put(type, getterSetters);
+			// java.sql.Date ====================================
+			type = java.sql.Date.class;
+			getterSetters = new Accessors();
+			getters = getterSetters.getGetters();
+			setters = getterSetters.getSetters();
+			getterSetters.setType(type);
+			getters.put("getTime", type.getMethod("getTime", null));
+			setters.put("setTime", type.getMethod("setTime", timeParams));
+			accessors.put(type, getterSetters);
+			// java.util.Date ====================================
+			type = java.util.Date.class;
+			getterSetters = new Accessors();
+			getters = getterSetters.getGetters();
+			setters = getterSetters.getSetters();
+			getterSetters.setType(type);
+			getters.put("getTime", type.getMethod("getTime", null));
+			setters.put("setTime", type.getMethod("setTime", timeParams));
+			accessors.put(type, getterSetters);
+		} catch (NoSuchMethodException ex) {
+			throw new InconceivableException(
+					"Unless Java discontinued Timestamp, this should never occur.",
+					ex);
+		}
+	}
+
+	/**
+	 * Register factories by class.
+	 */
+	private void registerFactories() {
+		registerFactory(Date.class, new DateFactory());
+		registerFactory(java.sql.Date.class, new DateFactory());
+		registerFactory(Timestamp.class, new DateFactory());
+		registerFactory(DateTime.class, new DateTimeFactory());
+		registerFactory(Integer.class, defaultFactory);
+		registerFactory(Character.class, defaultFactory);
+		registerFactory(Long.class, defaultFactory);
+		registerFactory(Byte.class, defaultFactory);
+		registerFactory(Boolean.class, defaultFactory);
+		registerFactory(Float.class, defaultFactory);
+		registerFactory(Short.class, defaultFactory);
+		registerFactory(String.class, defaultFactory);
 	}
 
 	/**
 	 * You can add or override your own custom factory for each type.
+	 * 
 	 * @param type
 	 * @param factory
 	 */
-	public void add(Class type, SerialFactory factory) {
+	public void registerFactory(Class type, SerialFactory factory) {
 		factories.put(type, factory);
 	}
 
 	/**
 	 * Return a registered factory (or null if unregistered)
+	 * 
 	 * @param type
 	 * @return SerialFactory for given type
 	 */
@@ -108,6 +179,7 @@ public class XmlDefs {
 
 	/**
 	 * Construct an object matching the given params using a custom constructor
+	 * 
 	 * @param type
 	 * @param params
 	 * @return constructed Object
@@ -119,9 +191,10 @@ public class XmlDefs {
 		}
 		return factory.construct(type, params);
 	}
-	
+
 	/**
 	 * Construct an object using named parameters.
+	 * 
 	 * @param type
 	 * @param params
 	 * @return constructed Object
@@ -130,14 +203,15 @@ public class XmlDefs {
 		Object newObj;
 		SerialFactory factory = (SerialFactory) factories.get(type);
 		try {
-		if (factory == null) {
-			newObj=type.newInstance();
-			Accessors accessors=ReflectionTool.accessors(type);
-			ReflectionTool.populateFromMap(newObj, params, accessors.getSetters());
-			return newObj;
-		} else {
-			return factory.construct(type, params);
-		}
+			if (factory == null) {
+				newObj = type.newInstance();
+				Accessors accessors = ReflectionTool.accessors(type);
+				ReflectionTool.populateFromMap(newObj, params, accessors
+						.getSetters());
+				return newObj;
+			} else {
+				return factory.construct(type, params);
+			}
 		} catch (Exception ex) {
 			throw new PersistenceException(ex.getMessage(), ex);
 		}
@@ -145,11 +219,12 @@ public class XmlDefs {
 
 	/**
 	 * True if type is supported by a factory.
+	 * 
 	 * @param type
 	 * @return true if supported
 	 */
 	public boolean isValue(Class type) {
-		if (type==null) {
+		if (type == null) {
 			return false;
 		}
 		return type.isPrimitive() || factories.containsKey(type);
@@ -157,6 +232,7 @@ public class XmlDefs {
 
 	/**
 	 * Determine if object was reference by another object.
+	 * 
 	 * @param obj
 	 * @return true if object is referenced
 	 */
@@ -166,6 +242,7 @@ public class XmlDefs {
 
 	/**
 	 * Get the numeric serial ID of the reference object.
+	 * 
 	 * @param obj
 	 * @return
 	 */
@@ -175,6 +252,7 @@ public class XmlDefs {
 
 	/**
 	 * Determine if object has been serialized earlier in the stream.
+	 * 
 	 * @param obj
 	 * @return
 	 */
@@ -197,10 +275,12 @@ public class XmlDefs {
 		if (serialized.containsKey(obj)) {
 			refId = (Integer) serialized.get(obj);
 			if (refId.intValue() == 0) {
-				refId = new Integer(this.referenceId++);
+				refId = new Integer(referenceId++);
 				serialized.put(obj, refId);
 				referenced.put(obj, refId);
 			}
+		} else if (referenced.containsKey(obj)) {
+			serialized.put(obj, referenced.get(obj));
 		} else {
 			serialized.put(obj, new Integer(0));
 		}
@@ -212,7 +292,7 @@ public class XmlDefs {
 	 */
 	public void resetRegistry() {
 		serialized.clear();
-		referenceId=1;
+		referenceId = 1;
 	}
 
 	/**
@@ -231,6 +311,7 @@ public class XmlDefs {
 
 	/**
 	 * Keeps track of properties to rename in XML tags.
+	 * 
 	 * @param type
 	 * @param name
 	 * @return
@@ -241,6 +322,7 @@ public class XmlDefs {
 
 	/**
 	 * Keeps track of XML tags to rename when matching to properties.
+	 * 
 	 * @param type
 	 * @param name
 	 * @return tag equivalent of property
@@ -255,6 +337,7 @@ public class XmlDefs {
 
 	/**
 	 * Indent to the given depth.
+	 * 
 	 * @param depth
 	 * @return
 	 */
@@ -267,6 +350,7 @@ public class XmlDefs {
 
 	/**
 	 * Useful for omitting objects from the XML stream.
+	 * 
 	 * @param type
 	 * @param property
 	 */
@@ -276,6 +360,7 @@ public class XmlDefs {
 
 	/**
 	 * Determine if a given property should be omitted.
+	 * 
 	 * @param type
 	 * @param property
 	 * @return
@@ -286,6 +371,7 @@ public class XmlDefs {
 
 	/**
 	 * Generate (or retrieve from cache) properties for a given class.
+	 * 
 	 * @param type
 	 * @return
 	 */
@@ -296,5 +382,23 @@ public class XmlDefs {
 			properties.put(type, props);
 		}
 		return props;
+	}
+	
+	/**
+	 * Return true if Accessors have been cached for this class.
+	 * @param type
+	 * @return
+	 */
+	public boolean hasAccessors(Class type) {
+		return accessors.containsKey(type);
+	}
+
+	/**
+	 * Retrieve the cached accessors for this class.
+	 * @param type
+	 * @return
+	 */
+	public Accessors getAccessors(Class type) {
+		return (Accessors) accessors.get(type);
 	}
 }
