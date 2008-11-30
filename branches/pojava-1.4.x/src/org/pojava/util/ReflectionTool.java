@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.pojava.exception.ReflectionException;
 import org.pojava.lang.Accessors;
@@ -61,17 +60,31 @@ public class ReflectionTool {
 	}
 
 	/**
+	 * Return true if object is equivalent to a primitive type.
+	 * 
+	 * @param propClass
+	 * @return
+	 */
+	public static boolean isBasic(Class propClass) {
+		return propClass.isPrimitive() || propClass == String.class
+				|| propClass == Integer.class || propClass == Double.class
+				|| propClass == Boolean.class || propClass == Long.class
+				|| propClass == Float.class || propClass == Short.class
+				|| propClass == Byte.class || propClass == Character.class;
+	}
+
+	/**
 	 * Make content safe for XML or URI by encoding illegal characters.
 	 * 
 	 * @param obj
 	 *            Object being encoded
 	 * @return A non-null string.
 	 */
-	public static String clean(Object obj) {
+	public static String clean(String obj) {
 		if (obj == null) {
 			return "";
 		}
-		return obj.toString().replaceAll("&", "&amp;").replaceAll("\"",
+		return obj.replaceAll("&", "&amp;").replaceAll("\"",
 				"&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 	}
 
@@ -94,10 +107,15 @@ public class ReflectionTool {
 							+ name.substring(4);
 					map.put(shortName, method.getReturnType());
 				}
+			} else if (name.startsWith("is")) {
+				String shortName = name.substring(2, 3).toLowerCase()
+				+ name.substring(3);
+				map.put(shortName, method.getReturnType());
 			}
 		}
 		return map;
 	}
+
 
 	/**
 	 * Drill down to a nested property and set its value
@@ -309,28 +327,54 @@ public class ReflectionTool {
 	}
 
 	/**
-	 * Array of getter methods that drill down to a nested bean property
+	 * Extract the getters and setters for a class.
 	 * 
 	 * @param type
 	 *            hold class of object containing the get accessors
 	 * @return array of getter methods drilling down to a property
 	 */
-	public static Accessors accessors(Class type) throws NoSuchMethodException {
+	public static Accessors accessors(Class type) {
 		Method[] allMethods = type.getMethods();
 		Accessors accessors = new Accessors();
-		Set getters = accessors.getGetters();
-		Set setters = accessors.getSetters();
+		accessors.setType(type);
+		Map getters = accessors.getGetters();
+		Map setters = accessors.getSetters();
 		for (int i = 0; i < allMethods.length; i++) {
 			Method meth = allMethods[i];
-			char c = meth.getName().charAt(0);
+			String methName=meth.getName();
+			char c = methName.charAt(0);
 			if (c == 's') {
 				if (meth.getParameterTypes().length == 1) {
-					setters.add(meth);
+					setters.put(propertyFor(methName), meth);
 				}
 			} else if (c == 'g' || c == 'i' || c == 'h') {
 				if (meth.getParameterTypes().length == 0) {
-					getters.add(meth);
+					if (!"getClass".equals(methName) && !"hashCode".equals(methName)) {
+						getters.put(propertyFor(methName), meth);
+					}
 				}
+			}
+		}
+		return accessors;
+	}
+
+	/**
+	 * Specify the getters and setters for a class.
+	 * 
+	 * @param type
+	 *            class of object containing the accessors
+	 * @return referenced getters and setters for a class
+	 */
+	public static Accessors accessors(Class type, Map getterNames, Map setterNames) throws NoSuchMethodException {
+		Method[] allMethods = type.getMethods();
+		Accessors accessors = new Accessors();
+		for (int i = 0; i < allMethods.length; i++) {
+			Method meth = allMethods[i];
+			String name=meth.getName();
+			if (getterNames.containsKey(name) && meth.getParameterTypes().length == 0) {
+				getterNames.put(name, meth);
+			} else if (setterNames.containsKey(name) && meth.getParameterTypes().length == 1) {
+				setterNames.put(name, meth);
 			}
 		}
 		return accessors;
@@ -507,6 +551,25 @@ public class ReflectionTool {
 	}
 
 	/**
+	 * Return the property name for a getter or setter name.
+	 * @param accessorName
+	 * @return Property name derived from getter or setter name.
+	 */
+	public static String propertyFor(String accessorName) {
+		char[] chars = accessorName.toCharArray();
+		for (int i = 0; i < chars.length; i++) {
+			char c = chars[i];
+			if (c < 'a' || c > 'z') {
+				StringBuffer sb = new StringBuffer();
+				sb.append(Character.toLowerCase(c));
+				sb.append(accessorName.substring(1 + i));
+				return sb.toString();
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Invoke any setters of an object whose properties are reference in a map,
 	 * passing the values of that map into their respective setters.
 	 * 
@@ -517,13 +580,14 @@ public class ReflectionTool {
 	 * @throws InvocationTargetException
 	 */
 	public static void populateFromMap(Object obj, Map properties,
-			Set setters) throws IllegalAccessException,
+			Map setters) throws IllegalAccessException,
 			InvocationTargetException {
 		if (obj == null || setters == null || setters.isEmpty()) {
 			return;
 		}
-		for (Iterator it=setters.iterator(); it.hasNext();) {
-			Method setter = (Method) it.next();
+		for (Iterator it=setters.keySet().iterator(); it.hasNext();) {
+			String setterName=(String) it.next();
+			Method setter = (Method) setters.get(setterName);
 			String prop = propertyFor(setter);
 			if (properties.containsKey(prop)) {
 				Object[] args = { properties.get(propertyFor(setter)) };
