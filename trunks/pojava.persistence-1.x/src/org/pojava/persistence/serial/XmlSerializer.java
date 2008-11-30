@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.pojava.exception.PersistenceException;
+import org.pojava.lang.Accessors;
 import org.pojava.persistence.factories.SerialFactory;
 import org.pojava.util.ReflectionTool;
 
@@ -53,14 +54,14 @@ public class XmlSerializer {
 		if (pojo == null) {
 			return;
 		}
-		if (!isBasic(pojo.getClass())) {
+		if (!ReflectionTool.isBasic(pojo.getClass())) {
 			Integer ref = config.register(pojo);
 			if (ref != null) {
 				return;
 			}
 		}
 		Class type = pojo.getClass();
-		if (isBasic(type) || type.equals(Object.class)) {
+		if (ReflectionTool.isBasic(type) || type.equals(Object.class)) {
 			return;
 		} else if (config.hasAccessors(type)) {
 			Map getters = config.getAccessors(type).getGetters();
@@ -99,12 +100,20 @@ public class XmlSerializer {
 				walk(Array.get(pojo, i));
 			}
 		} else {
-			Map props = config.getProperties(type);
-			for (Iterator mapIter = props.keySet().iterator(); mapIter
+			Accessors accessors = ReflectionTool.accessors(type);
+			config.addAccessors(accessors);
+			Map getters=accessors.getGetters();
+			for (Iterator it = getters.keySet().iterator(); it
 					.hasNext();) {
-				String key = (String) mapIter.next();
-				if (!config.isOmission(pojo.getClass(), key)) {
-					walk(ReflectionTool.getNestedValue(key, pojo));
+				try {
+					Method meth=(Method) getters.get(it.next());
+					walk(meth.invoke(pojo, null));
+				} catch (InvocationTargetException ex1) {
+					throw new PersistenceException("Couldn't walk. "
+							+ ex1.toString(), ex1);
+				} catch (IllegalAccessException ex2) {
+					throw new PersistenceException("Couldn't walk. "
+							+ ex2.toString(), ex2);
 				}
 			}
 		}
@@ -165,7 +174,7 @@ public class XmlSerializer {
 		}
 		Integer refId = null;
 		// Objects referenced multiple times get special attention
-		if (!isBasic(type)) {
+		if (!ReflectionTool.isBasic(type)) {
 			refId = config.getReferenceId(pojo);
 			if (refId != null) {
 				if (refId != config.register(pojo)) {
@@ -193,7 +202,7 @@ public class XmlSerializer {
 			closeTag(sb, name);
 			return sb.toString();
 		}
-		if (isBasic(type)) {
+		if (ReflectionTool.isBasic(type)) {
 			sb.append(config.indent(depth));
 			sb.append(simpleElement(pojo, name, attribSb.toString()));
 		} else if (type.equals(Object.class)) {
@@ -234,20 +243,6 @@ public class XmlSerializer {
 	}
 
 	/**
-	 * Return true if object is equivalent to a primitive type.
-	 * 
-	 * @param propClass
-	 * @return
-	 */
-	private static boolean isBasic(Class propClass) {
-		return propClass.isPrimitive() || propClass == String.class
-				|| propClass == Integer.class || propClass == Double.class
-				|| propClass == Boolean.class || propClass == Long.class
-				|| propClass == Float.class || propClass == Short.class
-				|| propClass == Byte.class || propClass == Character.class;
-	}
-
-	/**
 	 * Return a simple one-line element.
 	 * 
 	 * @param name
@@ -258,7 +253,7 @@ public class XmlSerializer {
 	 * @author John Pile
 	 */
 	private String simpleElement(Object value, String name, String attribs) {
-		String inner = cleanAttribute(value.toString());
+		String inner = ReflectionTool.clean(value.toString());
 		StringBuffer sb = new StringBuffer();
 		sb.append('<');
 		sb.append(name);
@@ -267,25 +262,10 @@ public class XmlSerializer {
 			sb.append("/>\n");
 		} else {
 			sb.append('>');
-			sb.append(cleanAttribute(inner));
+			sb.append(ReflectionTool.clean(inner));
 			closeTag(sb, name);
 		}
 		return sb.toString();
-	}
-
-	/**
-	 * Make an attribute safe by converting illegal characters.
-	 * 
-	 * @param attrib
-	 * @return
-	 */
-	private String cleanAttribute(String attrib) {
-		if (attrib == null) {
-			return "";
-		}
-		return attrib.trim().replaceAll("&", "&amp;")
-				.replaceAll("\"", "&quot;").replaceAll("<", "&lt;").replaceAll(
-						">", "&gt;");
 	}
 
 	/**
@@ -465,26 +445,39 @@ public class XmlSerializer {
 		StringBuffer sb = new StringBuffer();
 		openTag(sb, name, attribs, depth);
 		sb.append('\n');
-		Map properties = config.getProperties(pojo.getClass());
-		for (Iterator it = properties.keySet().iterator(); it.hasNext();) {
-			String key = (String) it.next();
-			if (!config.isOmission(pojo.getClass(), key)) {
-				Class fieldClass = (Class) properties.get(key);
-				// renames might need to occur here.
-				Object innerPojo = ReflectionTool.getNestedValue(key, pojo);
-				String renamed = config.renamedJava(fieldClass, key);
-				if (renamed != null) {
-					key = renamed;
-				}
-				if (fieldClass == Object.class) {
-					sb.append(snippetFromUntyped(innerPojo, key, "", depth + 1,
-							fieldClass));
-				} else {
-					sb
-							.append(toXml(innerPojo, key, null, depth + 1,
-									fieldClass));
+		Class type = pojo.getClass();
+		try {
+			Accessors accessors = config.getAccessors(type);
+			Map getters = accessors.getGetters();
+			for (Iterator it = getters.keySet().iterator(); it.hasNext();) {
+				String property = (String) it.next();
+				Method getter=(Method) getters.get(property);
+				Class fieldClass = getter.getReturnType();
+				
+				if (!config.isOmission(type, property)) {
+					Object innerPojo = ((Method) getters.get(property))
+							.invoke(pojo, null);
+					String renamed = config.renamedJava(fieldClass,
+							property);
+					if (renamed != null) {
+						property = renamed;
+					}
+					if (fieldClass == Object.class) {
+						sb.append(snippetFromUntyped(innerPojo, property,
+								"", depth + 1, fieldClass));
+					} else {
+						sb.append(toXml(innerPojo, property, null,
+								depth + 1, fieldClass));
+					}
+
 				}
 			}
+		} catch (InvocationTargetException ex) {
+			throw new PersistenceException("Could not serialize. "
+					+ ex.toString(), ex);
+		} catch (IllegalAccessException ex) {
+			throw new PersistenceException("Could not serialize. "
+					+ ex.toString(), ex);
 		}
 		sb.append(config.indent(depth));
 		closeTag(sb, name);
