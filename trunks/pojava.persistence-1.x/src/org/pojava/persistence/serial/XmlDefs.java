@@ -1,6 +1,7 @@
 package org.pojava.persistence.serial;
 
 import java.sql.Timestamp;
+import java.util.AbstractMap;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,7 +70,7 @@ public class XmlDefs {
 	private Map accessors = new HashMap();
 	/**
 	 * The referenceId is a serial number for representing referenced objects.
-	 */	
+	 */
 	private int referenceId = 1;
 	/**
 	 * Defines the number of pad characters used by each indent.
@@ -271,6 +272,15 @@ public class XmlDefs {
 	 * @return
 	 */
 	public Integer register(Object obj) {
+		if (obj == null) {
+			return null;
+		}
+		Class type = obj.getClass();
+		if (!type.isArray() && !hasAccessors(type)
+				&& !java.util.Collection.class.isAssignableFrom(type)
+				&& !AbstractMap.class.isAssignableFrom(type)) {
+			addAccessors(ReflectionTool.accessors(type));
+		}
 		Integer refId = null;
 		if (serialized.containsKey(obj)) {
 			refId = (Integer) serialized.get(obj);
@@ -383,9 +393,10 @@ public class XmlDefs {
 		}
 		return props;
 	}
-	
+
 	/**
 	 * Return true if Accessors have been cached for this class.
+	 * 
 	 * @param type
 	 * @return
 	 */
@@ -395,10 +406,20 @@ public class XmlDefs {
 
 	/**
 	 * Retrieve the cached accessors for this class.
+	 * 
 	 * @param type
 	 * @return
 	 */
 	public Accessors getAccessors(Class type) {
 		return (Accessors) accessors.get(type);
+	}
+
+	/**
+	 * Cache accessors for a class.
+	 * 
+	 * @param accessor
+	 */
+	public void addAccessors(Accessors accessor) {
+		accessors.put(accessor.getType(), accessor);
 	}
 }
