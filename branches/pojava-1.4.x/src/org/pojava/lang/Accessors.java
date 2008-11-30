@@ -1,23 +1,23 @@
 package org.pojava.lang;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Accessors {
 
 	Class type;
-	Set getters=new HashSet();
-	Set setters=new HashSet();
+	Map getters=new HashMap();
+	Map setters=new HashMap();
 	public Class getType() {
 		return type;
 	}
 	public void setType(Class type) {
 		this.type = type;
 	}
-	public Set getGetters() {
+	public Map getGetters() {
 		return getters;
 	}
-	public Set getSetters() {
+	public Map getSetters() {
 		return setters;
 	}
 	
