@@ -1,5 +1,6 @@
 package org.pojava.persistence.serial;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.pojava.datetime.DateTime;
+import org.pojava.persistence.examples.Person;
 import org.pojava.persistence.examples.Potpourri;
 
 public class XmlSerializerTester extends TestCase {
@@ -43,15 +45,15 @@ public class XmlSerializerTester extends TestCase {
 		String xml = serializer.toXml(c);
 		assertEquals("<obj class=\"Character\">A</obj>\n", xml);
 	}
-	
+
 	public void testArrayInt() throws Exception {
-		int[] numbers=new int[3];
-		numbers[0]=1;
-		numbers[1]=2;
-		numbers[2]=3;
+		int[] numbers = new int[3];
+		numbers[0] = 1;
+		numbers[1] = 2;
+		numbers[2] = 3;
 		XmlSerializer serializer = new XmlSerializer();
 		String xml = serializer.toXml(numbers);
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb = new StringBuffer();
 		sb.append("<obj class=\"[I\">\n");
 		sb.append("  <e>1</e>\n");
 		sb.append("  <e>2</e>\n");
@@ -59,21 +61,21 @@ public class XmlSerializerTester extends TestCase {
 		sb.append("</obj>\n");
 		assertEquals(sb.toString(), xml);
 	}
-	
+
 	public void testArrayInteger() {
-		Integer[] numbers=new Integer[3];
-		numbers[0]=new Integer(1);
-		numbers[1]=new Integer(2);
-		numbers[2]=new Integer(3);
+		Integer[] numbers = new Integer[3];
+		numbers[0] = new Integer(1);
+		numbers[1] = new Integer(2);
+		numbers[2] = new Integer(3);
 		XmlSerializer serializer = new XmlSerializer();
 		String xml = serializer.toXml(numbers);
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb = new StringBuffer();
 		sb.append("<obj class=\"[Ljava.lang.Integer;\">\n");
 		sb.append("  <e>1</e>\n");
 		sb.append("  <e>2</e>\n");
 		sb.append("  <e>3</e>\n");
 		sb.append("</obj>\n");
-		assertEquals(sb.toString(), xml);		
+		assertEquals(sb.toString(), xml);
 	}
 
 	public void testSet() {
@@ -85,20 +87,18 @@ public class XmlSerializerTester extends TestCase {
 		List list = new ArrayList();
 		list.add(set);
 		String xml = serializer.toXml(list);
-		assertTrue(xml.indexOf("<obj class=\"java.util.ArrayList\">\n")>=0);
-		assertTrue(xml.indexOf("  <obj class=\"java.util.HashSet\">\n")>=0);
-		assertTrue(xml.indexOf("  <obj class=\"Object\"/>\n")>=0);
-		assertTrue(xml.indexOf("  <obj class=\"java.util.HashSet\">\n")>=0);
-		assertTrue(xml.indexOf("  <obj class=\"Integer\">3</obj>\n")>=0);
-		assertTrue(xml.indexOf("    <obj class=\"String\">Yarn</obj>\n")>=0);
+		assertTrue(xml.indexOf("<obj class=\"java.util.ArrayList\">\n") >= 0);
+		assertTrue(xml.indexOf("  <obj class=\"java.util.HashSet\">\n") >= 0);
+		assertTrue(xml.indexOf("  <obj class=\"Object\"/>\n") >= 0);
+		assertTrue(xml.indexOf("  <obj class=\"java.util.HashSet\">\n") >= 0);
+		assertTrue(xml.indexOf("  <obj class=\"Integer\">3</obj>\n") >= 0);
+		assertTrue(xml.indexOf("    <obj class=\"String\">Yarn</obj>\n") >= 0);
 		/*
-		assertEquals("<obj class=\"java.util.ArrayList\">\n"
-				+ "  <obj class=\"java.util.HashSet\">\n"
-				+ "    <obj class=\"Object\"/>\n"
-				+ "    <obj class=\"Integer\">3</obj>\n"
-				+ "    <obj class=\"String\">Yarn</obj>\n" + "  </obj>\n"
-				+ "</obj>\n", xml);
-		*/
+		 * assertEquals("<obj class=\"java.util.ArrayList\">\n" + " <obj
+		 * class=\"java.util.HashSet\">\n" + " <obj class=\"Object\"/>\n" + "
+		 * <obj class=\"Integer\">3</obj>\n" + " <obj class=\"String\">Yarn</obj>\n" + "
+		 * </obj>\n" + "</obj>\n", xml);
+		 */
 	}
 
 	public void testMap() {
@@ -119,6 +119,27 @@ public class XmlSerializerTester extends TestCase {
 		sb.append("  </map>\n");
 		sb.append("</obj>\n");
 		assertEquals(sb.toString(), xml);
+	}
+
+	public void testUtilDate() {
+		Date d = new Date(123456789);
+		XmlSerializer serializer = new XmlSerializer();
+		String xml = serializer.toXml(d);
+		assertEquals("<obj class=\"java.util.Date\">123456789</obj>\n", xml);
+	}
+
+	public void testSqlDate() {
+		java.sql.Date d = new java.sql.Date(123456789);
+		XmlSerializer serializer = new XmlSerializer();
+		String xml = serializer.toXml(d);
+		assertEquals("<obj class=\"java.sql.Date\">123456789</obj>\n", xml);
+	}
+
+	public void testTimestamp() {
+		Timestamp ts = new Timestamp(-86400123);
+		XmlSerializer serializer = new XmlSerializer();
+		String xml = serializer.toXml(ts);
+		assertEquals("<obj class=\"java.sql.Timestamp\">-86400.877</obj>\n", xml);
 	}
 
 	/**
@@ -145,7 +166,7 @@ public class XmlSerializerTester extends TestCase {
 		Set set = new HashSet();
 		set.add(new Integer(42));
 		set.add("What is six times seven?");
-		Map map=new HashMap();
+		Map map = new HashMap();
 		map.put("reset", set);
 		map.put(new Object(), new Integer(1));
 		map.put(new Date(1234), new DateTime(1234));
@@ -156,24 +177,36 @@ public class XmlSerializerTester extends TestCase {
 		pojo.setConfused(pojo);
 		XmlSerializer serializer = new XmlSerializer();
 		String xml = serializer.toXml(pojo);
-		// System.out.println(xml);
-		assertTrue(xml.startsWith("<obj class=\"org.pojava.persistence.examples.Potpourri\" mem=\"1\">\n"));
-		assertTrue(xml.indexOf("  <d>86400000</d>\n")>=0);
-		assertTrue(xml.indexOf("  <d>86400000</d>\n")>=0);
-		assertTrue(xml.indexOf("  <numbers>\n" 
-				+ "    <e>1</e>\n"
-				+ "    <e>2</e>\n"
-				+ "    <e>3</e>\n"
-				+ "  </numbers>\n")>0);
-		assertTrue(xml.indexOf("  <confused ref=\"1\"/>\n")>0);
-		assertTrue(xml.indexOf("  <set mem=\"2\">\n")>0);
-		assertTrue(xml.indexOf("    <obj class=\"Integer\">42</obj>\n")>0);
-		assertTrue(xml.indexOf("    <obj class=\"String\">What is six times seven?</obj>\n")>0);
-		assertTrue(xml.indexOf("  </set>\n")>0);
-		assertTrue(xml.indexOf("  <five>5</five>\n")>0);
-		assertTrue(xml.indexOf("  <dt>86400.0</dt>\n")>0);
-		assertTrue(xml.indexOf("  <bob>\n" + "    <obj class=\"Long\">9876543210</obj>\n" + "  </bob>\n")>0);
-		assertTrue(xml.indexOf("  <str>hello</str>\n")>0);
-		assertTrue(xml.indexOf("</obj>\n")>0);
+		assertTrue(xml
+				.startsWith("<obj class=\"org.pojava.persistence.examples.Potpourri\" mem=\"1\">\n"));
+		assertTrue(xml.indexOf("  <d>86400000</d>\n") >= 0);
+		assertTrue(xml.indexOf("  <numbers>\n" + "    <e>1</e>\n"
+				+ "    <e>2</e>\n" + "    <e>3</e>\n" + "  </numbers>\n") > 0);
+		assertTrue(xml.indexOf("  <confused ref=\"1\"/>\n") > 0);
+		assertTrue(xml.indexOf("  <set mem=\"2\">\n") > 0);
+		assertTrue(xml.indexOf("    <obj class=\"Integer\">42</obj>\n") > 0);
+		assertTrue(xml
+				.indexOf("    <obj class=\"String\">What is six times seven?</obj>\n") > 0);
+		assertTrue(xml.indexOf("  </set>\n") > 0);
+		assertTrue(xml.indexOf("  <five>5</five>\n") > 0);
+		assertTrue(xml.indexOf("  <dt>86400.0</dt>\n") > 0);
+		assertTrue(xml.indexOf("  <bob>\n"
+				+ "    <obj class=\"Long\">9876543210</obj>\n" + "  </bob>\n") > 0);
+		assertTrue(xml.indexOf("  <str>hello</str>\n") > 0);
+		assertTrue(xml.indexOf("</obj>\n") > 0);
+	}
+
+	public void testPerson() {
+		Person bob = new Person();
+		bob.setName("Bob");
+		bob.setParent(bob);
+		XmlSerializer serializer = new XmlSerializer();
+		String xml = serializer.toXml(bob);
+		StringBuffer sb = new StringBuffer();
+		sb.append("<obj class=\"org.pojava.persistence.examples.Person\" mem=\"1\">\n");
+		sb.append("  <name>Bob</name>\n");
+		sb.append("  <parent ref=\"1\"/>\n");
+		sb.append("</obj>\n");
+		assertEquals(sb.toString(), xml);
 	}
 }
