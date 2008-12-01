@@ -21,8 +21,6 @@ import org.pojava.util.ReflectionTool;
 /**
  * XmlDefs holds configuration settings for serialization.
  * 
- * Note that this is not reentrant.
- * 
  * @author John Pile
  * 
  */
@@ -79,7 +77,7 @@ public class XmlDefs {
 	/**
 	 * Indentation is defined by substring portions of pad.
 	 */
-	private String pad = "                                                               ";
+	private String pad = "                                                                ";
 
 	/**
 	 * Initialize XmlDefs with known factory mappings.
