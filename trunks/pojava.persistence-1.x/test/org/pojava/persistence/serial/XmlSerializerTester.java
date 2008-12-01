@@ -93,12 +93,6 @@ public class XmlSerializerTester extends TestCase {
 		assertTrue(xml.indexOf("  <obj class=\"java.util.HashSet\">\n") >= 0);
 		assertTrue(xml.indexOf("  <obj class=\"Integer\">3</obj>\n") >= 0);
 		assertTrue(xml.indexOf("    <obj class=\"String\">Yarn</obj>\n") >= 0);
-		/*
-		 * assertEquals("<obj class=\"java.util.ArrayList\">\n" + " <obj
-		 * class=\"java.util.HashSet\">\n" + " <obj class=\"Object\"/>\n" + "
-		 * <obj class=\"Integer\">3</obj>\n" + " <obj class=\"String\">Yarn</obj>\n" + "
-		 * </obj>\n" + "</obj>\n", xml);
-		 */
 	}
 
 	public void testMap() {
