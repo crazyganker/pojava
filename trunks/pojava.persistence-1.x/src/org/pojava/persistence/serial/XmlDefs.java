@@ -46,17 +46,13 @@ public class XmlDefs {
 	 */
 	private Map serialized = new HashMap();
 	/**
-	 * The renamedXml map keeps track of name changes from xml to java.
+	 * Renamed fields are stored by type.
 	 */
-	private Map renamedXml = new HashMap();
-	/**
-	 * The renamedJava map keeps track of name changes from java to xml.
-	 */
-	private Map renamedJava = new HashMap();
+	private Map renamed = new HashMap();
 	/**
 	 * Omissions is used to define objects to omit from the serialized document.
 	 */
-	private Set omissions = new HashSet();
+	private Map omissions = new HashMap();
 	/**
 	 * Properties holds the getters and setters of interest to the serialization
 	 * process.
@@ -303,6 +299,17 @@ public class XmlDefs {
 		referenceId = 1;
 	}
 
+	public void rename(Class type, String property, String xmlName) {
+		RenamedFields rf;
+		if (renamed.containsKey(type)) {
+			rf = (RenamedFields) renamed.get(type);
+		} else {
+			rf = new RenamedFields();
+			renamed.put(type, rf);
+		}
+		rf.rename(property, xmlName);
+	}
+
 	/**
 	 * 
 	 * @param type
@@ -310,11 +317,12 @@ public class XmlDefs {
 	 * @return
 	 */
 	public String renamedXml(Class type, String name) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(type.getName());
-		sb.append(' ');
-		sb.append(name);
-		return (String) renamedXml.get(sb.toString());
+		if (renamed.containsKey(type)) {
+			RenamedFields rf = (RenamedFields) renamed.get(type);
+			return rf.javaNameFor(name);
+		} else {
+			return name;
+		}
 	}
 
 	/**
@@ -325,22 +333,12 @@ public class XmlDefs {
 	 * @return
 	 */
 	public String renamedJava(Class type, String name) {
-		return (String) renamedJava.get(key(type, name));
-	}
-
-	/**
-	 * Keeps track of XML tags to rename when matching to properties.
-	 * 
-	 * @param type
-	 * @param name
-	 * @return tag equivalent of property
-	 */
-	public static String key(Class type, String name) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(type.getName());
-		sb.append(' ');
-		sb.append(name);
-		return sb.toString();
+		if (renamed.containsKey(type)) {
+			RenamedFields rf = (RenamedFields) renamed.get(type);
+			return rf.xmlNameFor(name);
+		} else {
+			return name;
+		}
 	}
 
 	/**
@@ -363,7 +361,14 @@ public class XmlDefs {
 	 * @param property
 	 */
 	public void addOmission(Class type, String property) {
-		omissions.add(key(type, property));
+		Set propertySet;
+		if (omissions.containsKey(type)) {
+			propertySet = (Set) omissions.get(type);
+		} else {
+			propertySet = new HashSet();
+			omissions.put(type, propertySet);
+		}
+		propertySet.add(property);
 	}
 
 	/**
@@ -374,7 +379,10 @@ public class XmlDefs {
 	 * @return
 	 */
 	public boolean isOmission(Class type, String property) {
-		return omissions.contains(key(type, property));
+		if (omissions.containsKey(type)) {
+			return ((Set) omissions.get(type)).contains(property);
+		}
+		return false;
 	}
 
 	/**

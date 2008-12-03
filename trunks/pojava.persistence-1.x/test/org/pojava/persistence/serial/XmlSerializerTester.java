@@ -204,4 +204,43 @@ public class XmlSerializerTester extends TestCase {
 		sb.append("</obj>\n");
 		assertEquals(sb.toString(), xml);
 	}
+	
+	public void testOmission() {
+		Set set = new HashSet();
+		set.add(new Integer(42));
+		set.add("What is six times seven?");
+		Map map = new HashMap();
+		map.put("reset", set);
+		map.put(new Object(), new Integer(1));
+		map.put(new Date(1234), new DateTime(1234));
+		Potpourri pojo = new Potpourri("hello", 5, new Date(86400000),
+				new DateTime(86400, 0), null, null, set, map);
+		int[] numbers = { 1, 2, 3 };
+		pojo.setNumbers(numbers);
+		pojo.setConfused(pojo);
+		XmlDefs defs=new XmlDefs();
+		XmlSerializer serializer = new XmlSerializer(defs);
+		String xml=serializer.toXml(pojo);
+		assertTrue(xml.indexOf("<numbers>")>0);
+		defs.addOmission(pojo.getClass(), "numbers");
+		xml = serializer.toXml(pojo);
+		assertTrue(xml.indexOf("<numbers>")<0);
+	}
+	
+	public void testRename() {
+		Potpourri pojo = new Potpourri("hello", 5, new Date(86400000),
+				new DateTime(86400, 0), null, null, null, null);
+		int[] numbers = { 1, 2, 3 };
+		pojo.setNumbers(numbers);
+		pojo.setConfused(pojo);
+		XmlDefs defs=new XmlDefs();
+		XmlSerializer serializer = new XmlSerializer(defs);
+		String xml=serializer.toXml(pojo);
+		assertTrue(xml.indexOf("<numbers>")>0);
+		defs.rename(pojo.getClass(), "numbers", "numerals");
+		xml = serializer.toXml(pojo);
+		System.out.println(xml);
+		assertTrue(xml.indexOf("<numerals>")>0);
+	}
+
 }

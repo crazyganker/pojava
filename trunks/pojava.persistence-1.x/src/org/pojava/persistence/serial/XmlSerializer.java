@@ -282,6 +282,9 @@ public class XmlSerializer {
 	private String snippetFromUntyped(Object pojo, String name, String attribs,
 			int depth, Class baseClass) {
 		StringBuffer sb = new StringBuffer();
+		if (pojo==null) {
+			return "";
+		}
 		boolean isColl = pojo != null
 				&& java.util.Collection.class.isAssignableFrom(pojo.getClass());
 		if (isColl) {
@@ -301,17 +304,15 @@ public class XmlSerializer {
 			openTag(sb, name, attribs, depth);
 			sb.append('\n');
 		}
-		int saveDepth = depth++;
 		if (pojo == null) {
-			sb.append(config.indent(depth));
+			sb.append(config.indent(depth+1));
 			sb.append("<obj class=\"null\"/>\n");
 		} else {
 			Class memberClass = pojo.getClass();
 			if (memberClass != Object.class) {
-				sb.append(toXml(pojo, null, null, depth, baseClass));
+				sb.append(toXml(pojo, null, null, depth+1, baseClass));
 			}
 		}
-		depth = saveDepth;
 		if (!isColl || attribs == null || attribs.length() == 0) {
 			sb.append(config.indent(depth));
 			closeTag(sb, name);
@@ -412,6 +413,7 @@ public class XmlSerializer {
 		StringBuffer sb = new StringBuffer();
 		int length = Array.getLength(pojo);
 		if (length > 0) {
+			name=config.renamedJava(baseClass, name);
 			openTag(sb, name, attribs, depth);
 			sb.append('\n');
 			for (int i = 0; i < length; i++) {
@@ -443,7 +445,13 @@ public class XmlSerializer {
 	private String snippetFromPojo(Object pojo, String name, String attribs,
 			int depth, Class baseClass) {
 		StringBuffer sb = new StringBuffer();
-		openTag(sb, name, attribs, depth);
+		String renamed = config.renamedJava(baseClass,
+				name);
+		if (renamed==null) {
+			openTag(sb, name, attribs, depth);
+		} else {
+			openTag(sb, renamed, attribs, depth);
+		}
 		sb.append('\n');
 		Class type = pojo.getClass();
 		try {
@@ -457,17 +465,19 @@ public class XmlSerializer {
 				if (!config.isOmission(type, property)) {
 					Object innerPojo = ((Method) getters.get(property))
 							.invoke(pojo, null);
-					String renamed = config.renamedJava(fieldClass,
+					/*
+					String renamed = config.renamedJava(type,
 							property);
 					if (renamed != null) {
 						property = renamed;
 					}
+					*/
 					if (fieldClass == Object.class) {
 						sb.append(snippetFromUntyped(innerPojo, property,
 								"", depth + 1, fieldClass));
 					} else {
 						sb.append(toXml(innerPojo, property, null,
-								depth + 1, fieldClass));
+							depth + 1, baseClass));
 					}
 
 				}
@@ -480,7 +490,11 @@ public class XmlSerializer {
 					+ ex.toString(), ex);
 		}
 		sb.append(config.indent(depth));
-		closeTag(sb, name);
+		if (renamed==null) {
+			closeTag(sb, name);
+		} else {
+			closeTag(sb, renamed);
+		}
 		return sb.toString();
 	}
 
