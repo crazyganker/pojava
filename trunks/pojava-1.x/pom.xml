@@ -4,11 +4,12 @@
   <groupId>pojava</groupId>
   <artifactId>pojava</artifactId>
   <name>POJava Utilities</name>
-  <version>1.3.0</version>
+  <version>1.4.0</version>
   <description/>
   <properties>
-  <source-compiler-version>1.4</source-compiler-version>
-  <output-directory>${basedir}/target/classes</output-directory>
+  	<source-compiler-version>1.4</source-compiler-version>
+  	<output-directory>${basedir}/target/classes</output-directory>
+  	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <build>
     <outputDirectory>target/classes</outputDirectory>
@@ -19,6 +20,9 @@
         <directory>${basedir}/target</directory>
         <resources>
             <resource>
+	        	<excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
                 <directory>${basedir}/src</directory>
             </resource>
         </resources>
