@@ -18,6 +18,7 @@ package org.pojava.datetime;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 /**
  * This class converts a DateTime into year, month, day, hour, minute, second,
@@ -46,8 +47,9 @@ public class Tm {
 	 * date is easier for calculations, so I use it as an epoch. The year starts
 	 * on March 1 so that a leap day is always at the end of a year.
 	 */
+	private static final long GREG_EPOCH_UTC = -11670912000000L;
 	private static final long GREG_EPOCH = new DateTime("1600-03-01")
-			.getMillis();
+			.toMillis();
 	/**
 	 * These are the results we're looking to populate.
 	 */
@@ -67,7 +69,11 @@ public class Tm {
 	 *            DateTime object
 	 */
 	public Tm(DateTime dt) {
-		init(dt);
+		init(dt, TimeZone.getDefault());
+	}
+
+	public Tm(DateTime dt, TimeZone tz) {
+		init(dt, tz);
 	}
 
 	/**
@@ -77,7 +83,11 @@ public class Tm {
 	 *            Date/Time in UTC assuming the default time zone.
 	 */
 	public Tm(long millis) {
-		init(new DateTime(millis));
+		init(new DateTime(millis), TimeZone.getDefault());
+	}
+
+	public Tm(long millis, TimeZone tz) {
+		init(new DateTime(millis), tz);
 	}
 
 	/**
@@ -91,7 +101,7 @@ public class Tm {
 		Calendar cal = new GregorianCalendar();
 		cal.setTimeInMillis(millis);
 		this.year = cal.get(Calendar.YEAR);
-		this.month = cal.get(Calendar.MONTH);
+		this.month = 1 + cal.get(Calendar.MONTH);
 		this.day = cal.get(Calendar.DATE);
 		this.hour = cal.get(Calendar.HOUR_OF_DAY);
 		this.minute = cal.get(Calendar.MINUTE);
@@ -105,12 +115,12 @@ public class Tm {
 	 * @param dt
 	 *            DateTime
 	 */
-	private void init(DateTime dt) {
-		long millis = dt.getMillis();
+	private void init(DateTime dt, TimeZone timeZone) {
+		long millis = dt.toMillis();
 		long duration = millis - GREG_EPOCH;
 		this.nanosecond = dt.getNanos();
-		this.weekday = dt.getWeekday();
-		if (dt.getTimeZone().inDaylightTime(dt.getDate())) {
+		this.weekday = calcWeekday(millis, timeZone);
+		if (timeZone.inDaylightTime(dt.toDate())) {
 			duration += HOUR;
 		}
 		if (millis < GREG_EPOCH) {
@@ -120,23 +130,22 @@ public class Tm {
 		// Remove 400yr blocks, then 100yr, then 4, then 1.
 		long quadCents = duration / QUADCENT;
 		duration -= quadCents * QUADCENT;
-		long cents = duration / CENT;
+		long cents = Math.min(3, duration / CENT);
 		duration -= cents * CENT;
 		long quadYears = duration / QUADYEAR;
 		duration -= quadYears * QUADYEAR;
-		boolean canLeap = (duration >= YEAR);
-		year = (int) (duration / YEAR);
+		year = Math.min(3, (int) (duration / YEAR));
 		duration -= year * YEAR;
 		// Calculate year based on those blocks
 		year += 1600 + quadCents * 400 + cents * 100 + quadYears * 4;
-		// This rough calculation gets close to the month, but not over
 		month = (int) (duration / (30 * DAY));
-		// This will get you the rest of the way there if needed.
 		if (MONTH[month] <= duration) {
 			month++;
 		}
 		// Same strategy as above, removing largest chunks first.
-		duration -= MONTH[month - 1];
+		if (month > 0) {
+			duration -= MONTH[month - 1];
+		}
 		day = (int) (duration / DAY);
 		duration -= day * DAY;
 		hour = (int) duration / HOUR;
@@ -149,14 +158,93 @@ public class Tm {
 		month += 2;
 		if (month > 12) {
 			year++;
-			month -= 12;
+			if (month == 15) {
+				day = 29;
+				month = 2;
+			} else {
+				month -= 12;
+			}
 		}
-		// If this is a leap year, March 1 is really Feb 29.
-		if (canLeap && month == 3 && day == 1 && year % 4 == 0
-				&& (year % 400 == 0 || year % 100 != 0)) {
-			month--;
-			day = 29;
+	}
+
+	/**
+	 * Return numeric day of week, usually Sun=1, Mon=2, ... , Sat=7;
+	 * 
+	 * @return Numeric day of week, usually Sun=1, Mon=2, ... , Sat=7. See
+	 *         DateTimeConfig.
+	 */
+	public static int calcWeekday(long millis, TimeZone timeZone) {
+		long leftover = 0;
+		// Adding 2000 years in weeks makes all calculations positive.
+		// Adding epoch DOW shifts us into phase with start of week.
+		long offset = DateTimeConfig.getGlobalDefault().getEpochDOW()
+				* Duration.DAY + 52 * Duration.WEEK * 2000;
+		leftover = offset + millis + timeZone.getOffset(millis);
+		leftover %= Duration.WEEK;
+		leftover /= Duration.DAY;
+		// Convert from zero to one based
+		leftover++;
+		return (int) leftover;
+	}
+
+	public static long calcTime(int year, int month, int day) {
+		return calcTime(year, month, day, 0, 0, 0, 0, TimeZone.getDefault());
+	}
+	
+	public static long calcTime(int year, int month, int day, int hour,
+			int min, int sec, int milli) {
+		return calcTime(year, month, day, hour, min, sec, milli, TimeZone.getDefault());
+	}
+	
+	public static long calcTime(int year, int month, int day, int hour,
+			int min, int sec, int milli, TimeZone tz) {
+		long millis = GREG_EPOCH_UTC;
+		int yyyy=year;
+		if (year < 1600) {
+			Calendar cal = Calendar.getInstance(tz);
+			cal.set(Calendar.YEAR, year);
+			cal.set(Calendar.MONTH, month-1);
+			cal.set(Calendar.DAY_OF_MONTH, day);
+			cal.set(Calendar.HOUR_OF_DAY, hour);
+			cal.set(Calendar.MINUTE, min);
+			cal.set(Calendar.SECOND, sec);
+			cal.set(Calendar.MILLISECOND, milli);
+			return cal.getTimeInMillis();
 		}
+		year -= 1600;
+		int ct = year / 400;
+		millis += QUADCENT * ct;
+		year -= 400 * ct;
+		ct = year / 100;
+		millis += CENT * ct;
+		year -= 100 * ct;
+		ct = year / 4;
+		millis += QUADYEAR * ct;
+		year -= 4 * ct;
+		millis += YEAR * year;
+		// Years, Months, Days
+		if (month < 3) {
+			millis -= (yyyy % 4 == 0 && (yyyy % 100 != 0 || yyyy % 400 == 0)) ? DAY * 60
+					: DAY * 59;
+			if (month == 2) {
+				millis += DAY * 31;
+			}
+		} else {
+			if (month > 8) {
+				millis += DAY * ((month > 10) ? (month == 11 ? 245 : 275)
+						: (month == 9 ? 184 : 214));
+			} else if (month > 4) {
+				millis += DAY * ((month > 6) ? (month == 7 ? 122 : 153)
+						: (month == 5 ? 61 : 92));
+			} else if (month == 4) {
+				millis += DAY * 31;
+			}
+		}
+		millis += DAY * (day-1);
+		// Hours, Minutes, Seconds, Milliseconds
+		millis += Duration.HOUR * hour + Duration.MINUTE * min + Duration.SECOND * sec + milli;
+		millis -= tz.getOffset(millis);
+		return millis;
 	}
 
 	/**
