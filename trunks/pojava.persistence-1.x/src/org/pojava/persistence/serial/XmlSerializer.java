@@ -199,7 +199,7 @@ public class XmlSerializer {
 		// Simple objects can be overridden with a factory
 		SerialFactory override = config.factory(type);
 		if (override != null) {
-			name=config.renamedJava(type, name);
+			name=config.renamedJava(baseClass, name);
 			openTag(sb, name, attribSb.toString(), depth);
 			sb.append(override.serialize(pojo));
 			closeTag(sb, name);
@@ -475,6 +475,7 @@ public class XmlSerializer {
 						property = renamed;
 					}
 					*/
+					// property=config.renamedJava(baseClass, name);
 					if (fieldClass == Object.class) {
 						sb.append(snippetFromUntyped(innerPojo, property,
 								"", depth + 1, fieldClass));

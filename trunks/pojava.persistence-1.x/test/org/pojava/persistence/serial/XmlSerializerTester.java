@@ -239,12 +239,25 @@ public class XmlSerializerTester extends TestCase {
 		// System.out.println(xml);
 		assertTrue(xml.indexOf("<numbers>")>0);
 		assertTrue(xml.indexOf("<confused")>0);
+		assertTrue(xml.indexOf("<dt>")>0);
+		assertTrue(xml.indexOf("<d>")>0);
+		assertTrue(xml.indexOf("<five>")>0);
+		assertTrue(xml.indexOf("<str>")>0);
 		defs.rename(pojo.getClass(), "numbers", "numerals");
 		defs.rename(pojo.getClass(), "confused", "cornfused");
+		defs.rename(pojo.getClass(), "dt", "datetime");
+		defs.rename(pojo.getClass(), "d", "date");
+		defs.rename(pojo.getClass(), "five", "numberFive");
+		defs.rename(pojo.getClass(), "str", "string");
 		xml = serializer.toXml(pojo);
 		// System.out.println(xml);
 		assertTrue(xml.indexOf("<numerals>")>0);
 		assertTrue(xml.indexOf("<cornfused")>0);
+		assertTrue(xml.indexOf("<datetime>")>0);
+		assertTrue(xml.indexOf("<date>")>0);
+		assertTrue(xml.indexOf("<string>")>0);
+		assertTrue(xml.indexOf("<numberFive>5</numberFive>")>0);
+		
 	}
 
 }
