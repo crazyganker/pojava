@@ -17,7 +17,6 @@ package org.pojava.datetime;
  */
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -87,7 +86,7 @@ import org.pojava.util.StringTool;
  */
 public class DateTime implements Serializable, Comparable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 140L;
 
 	/**
 	 * These months have less than 31 days
@@ -106,7 +105,7 @@ public class DateTime implements Serializable, Comparable {
 	/**
 	 * Default time zone is determined by system
 	 */
-	protected TimeZone timeZone = TimeZone.getDefault();
+	protected String timeZoneId;
 
 	/**
 	 * Config contains info specific to zoning and formatting.
@@ -128,6 +127,7 @@ public class DateTime implements Serializable, Comparable {
 	 */
 	public DateTime() {
 		this.systemDur = new Duration(System.currentTimeMillis());
+		this.timeZoneId=TimeZone.getDefault().getID();
 	}
 
 	/**
@@ -138,6 +138,7 @@ public class DateTime implements Serializable, Comparable {
 	 */
 	public DateTime(long millis) {
 		this.systemDur = new Duration(millis);
+		this.timeZoneId=TimeZone.getDefault().getID();
 	}
 
 	/**
@@ -151,8 +152,21 @@ public class DateTime implements Serializable, Comparable {
 	public DateTime(long millis, TimeZone tz) {
 		this.systemDur = new Duration(millis);
 		if (tz != null) {
-			this.timeZone = tz;
+			this.timeZoneId = tz.getID();
 		}
+	}
+
+	/**
+	 * DateTime constructed from time in milliseconds since epoch.
+	 * 
+	 * @param millis
+	 *            Number of milliseconds since epoch
+	 * @param tzId
+	 *            ID of Time Zone held by DateTime
+	 */
+	public DateTime(long millis, String tzId) {
+		this.systemDur = new Duration(millis);
+		this.timeZoneId = tzId;
 	}
 
 	/**
@@ -180,7 +194,24 @@ public class DateTime implements Serializable, Comparable {
 	public DateTime(long seconds, int nanos, TimeZone tz) {
 		this.systemDur = new Duration(seconds, nanos);
 		if (tz != null) {
-			this.timeZone = tz;
+			this.timeZoneId = tz.getID();
+		}
+	}
+
+	/**
+	 * Construct a DateTime from seconds and fractional seconds.
+	 * 
+	 * @param seconds
+	 *            Number of seconds since epoch (typically 1970-01-01)
+	 * @param nanos
+	 *            Nanosecond offset in range +/- 999999999
+	 * @param tz
+	 *            TimeZone
+	 */
+	public DateTime(long seconds, int nanos, String tzId) {
+		this.systemDur = new Duration(seconds, nanos);
+		if (tzId != null) {
+			this.timeZoneId = tzId;
 		}
 	}
 
@@ -196,6 +227,7 @@ public class DateTime implements Serializable, Comparable {
 		}
 		DateTime dt = parse(str);
 		this.systemDur = dt.systemDur;
+		this.timeZoneId = dt.timeZoneId;
 	}
 
 	/**
@@ -281,7 +313,7 @@ public class DateTime implements Serializable, Comparable {
 			return compareTo((DateTime) other);
 		}
 		if (other.getClass() == Timestamp.class) {
-			return this.getTimestamp().compareTo((Timestamp) other);
+			return this.toTimestamp().compareTo((Timestamp) other);
 		}
 		if (Date.class.isAssignableFrom(other.getClass())) {
 			return this.compareTo(new DateTime(((Date) other).getTime()));
@@ -295,8 +327,8 @@ public class DateTime implements Serializable, Comparable {
 	 * 
 	 * @return This DateTime as a Timestamp object.
 	 */
-	public Timestamp getTimestamp() {
-		Timestamp ts = new Timestamp(this.systemDur.getMillis());
+	public Timestamp toTimestamp() {
+		Timestamp ts = new Timestamp(this.systemDur.toMillis());
 		if (this.systemDur.getNanos() > 0) {
 			ts.setNanos(this.systemDur.getNanos());
 		}
@@ -308,8 +340,8 @@ public class DateTime implements Serializable, Comparable {
 	 * 
 	 * @return this DateTime truncated and converted to a java.util.Date object.
 	 */
-	public Date getDate() {
-		return new Date(this.systemDur.getMillis());
+	public Date toDate() {
+		return new Date(this.systemDur.toMillis());
 	}
 
 	/**
@@ -317,8 +349,8 @@ public class DateTime implements Serializable, Comparable {
 	 * 
 	 * @return this TimeZone.
 	 */
-	public TimeZone getTimeZone() {
-		return timeZone;
+	public TimeZone timeZone() {
+		return DateTimeConfig.getTimeZone(this.timeZoneId);
 	}
 
 	/**
@@ -326,27 +358,22 @@ public class DateTime implements Serializable, Comparable {
 	 * second in the same timezone as the system.
 	 */
 	public String toString() {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(getConfig()
-				.getDefaultDateFormat());
+		String str=DateTimeFormat.format(config().getDefaultDateFormat(), this);
 		if (this.systemDur.millis < DateTime.CE) {
-			return simpleDateFormat
-					.format(new Date(this.systemDur.getMillis()))
-					+ " BC";
+			return str+" BC";
+		} else {
+			return str;
 		}
-		return simpleDateFormat.format(new Date(this.systemDur.getMillis()));
 	}
 
 	/**
-	 * Providing a format allows for some flexibility. The inefficiency of
-	 * constructing a Date and a SimpleDateFormat each time, plus a lack of
-	 * sub-millisecond support does cry out for a custom Formatter, though.
+	 * Return a String according to the provided format.
 	 * 
 	 * @param format
 	 * @return A formatted string version of the current DateTime.
 	 */
 	public String toString(String format) {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
-		return simpleDateFormat.format(new Date(this.systemDur.getMillis()));
+		return DateTimeFormat.format(format,this);
 	}
 
 	/**
@@ -357,10 +384,7 @@ public class DateTime implements Serializable, Comparable {
 	 * @return A string version of the this DateTime specified in local time.
 	 */
 	public String toLocalString() {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd HH:mm:ss");
-		simpleDateFormat.setTimeZone(this.timeZone);
-		return simpleDateFormat.format(new Date(this.systemDur.getMillis()));
+		return DateTimeFormat.format("yyyy-MM-dd HH:mm:ss", this, DateTimeConfig.getTimeZone(this.timeZoneId));
 	}
 
 	/**
@@ -372,7 +396,7 @@ public class DateTime implements Serializable, Comparable {
 	public DateTime add(Duration dur) {
 		Duration calcDur = dur.add(this.getSeconds(), this.getNanos());
 		return new DateTime(calcDur.getSeconds(), calcDur.getNanos(),
-				this.timeZone);
+				this.timeZoneId);
 	}
 
 	/**
@@ -384,7 +408,7 @@ public class DateTime implements Serializable, Comparable {
 	 */
 	public DateTime add(long milliseconds) {
 		Duration dur = this.systemDur.add(milliseconds);
-		return new DateTime(dur.getSeconds(), dur.getNanos());
+		return new DateTime(dur.getSeconds(), dur.getNanos(), this.timeZoneId);
 	}
 
 	/**
@@ -421,7 +445,7 @@ public class DateTime implements Serializable, Comparable {
 			}
 		}
 		/* Calendar periods (same time, different day) */
-		Calendar cal = Calendar.getInstance(this.timeZone);
+		Calendar cal = Calendar.getInstance(DateTimeConfig.getTimeZone(this.timeZoneId));
 		cal.setTimeInMillis(this.systemDur.millis);
 		if (calUnit == CalendarUnit.DAY) {
 			cal.add(Calendar.DATE, qty);
@@ -437,7 +461,7 @@ public class DateTime implements Serializable, Comparable {
 			cal.add(Calendar.YEAR, 100 * qty);
 		}
 		return new DateTime(cal.getTimeInMillis() / 1000, systemDur.getNanos(),
-				this.timeZone);
+				this.timeZoneId);
 	}
 
 	/**
@@ -446,14 +470,14 @@ public class DateTime implements Serializable, Comparable {
 	 * @return Numeric day of week, usually Sun=1, Mon=2, ... , Sat=7. See
 	 *         DateTimeConfig.
 	 */
-	public int getWeekday() {
+	public int weekday() {
 		long leftover = 0;
 		// Adding 2000 years in weeks makes all calculations positive.
 		// Adding epoch DOW shifts us into phase with start of week.
-		long offset = getConfig().getEpochDOW() * Duration.DAY + 52
+		long offset = config().getEpochDOW() * Duration.DAY + 52
 				* Duration.WEEK * 2000;
-		leftover = offset + this.getMillis()
-				+ timeZone.getOffset(this.getMillis());
+		leftover = offset + this.toMillis()
+				+ DateTimeConfig.getTimeZone(this.timeZoneId).getOffset(this.toMillis());
 		leftover %= Duration.WEEK;
 		leftover /= Duration.DAY;
 		// Convert from zero to one based
@@ -547,7 +571,7 @@ public class DateTime implements Serializable, Comparable {
 			throw new NullPointerException(
 					"Cannot parse time from empty string.");
 		}
-		Calendar cal = Calendar.getInstance();
+		Tm tm=new Tm(System.currentTimeMillis());
 		if (str.charAt(0) == '+' || str.charAt(0) == '-') {
 			return parseRelativeDate(str, config);
 		}
@@ -560,7 +584,7 @@ public class DateTime implements Serializable, Comparable {
 		int hour = 0, minute = 0, second = 0, nanosecond = 0;
 		String tzString = null;
 		TimeZone tz = TimeZone.getDefault();
-		int thisYear = cal.get(Calendar.YEAR);
+		int thisYear=tm.getYear();
 		int centuryTurn = thisYear - (thisYear % 100);
 		// Build a table describing which fields are integers.
 		boolean[] integers = new boolean[parts.length];
@@ -763,28 +787,13 @@ public class DateTime implements Serializable, Comparable {
 		}
 		DateTime returnDt;
 		if (hasTimeZone) {
-			cal = Calendar.getInstance(tz);
-			cal.set(Calendar.YEAR, year);
-			cal.set(Calendar.MONTH, month);
-			cal.set(Calendar.DAY_OF_MONTH, day);
-			cal.set(Calendar.HOUR_OF_DAY, hour);
-			cal.set(Calendar.MINUTE, minute);
-			cal.set(Calendar.SECOND, second);
-			cal.set(Calendar.MILLISECOND, nanosecond / 1000000);
-			returnDt = new DateTime(cal.getTimeInMillis(), tz);
+			returnDt=new DateTime(Tm.calcTime(year, 1+month, day, hour, minute, second, nanosecond / 1000000, tz));
 		} else {
 			// Start with Pacific Standard Time (which observes DST)
 			tz = TimeZone.getTimeZone("America/Los_Angeles");
-			cal = Calendar.getInstance(tz);
-			cal.set(Calendar.YEAR, year);
-			cal.set(Calendar.MONTH, month);
-			cal.set(Calendar.DAY_OF_MONTH, day);
-			cal.set(Calendar.HOUR_OF_DAY, hour);
-			cal.set(Calendar.MINUTE, minute);
-			cal.set(Calendar.SECOND, second);
-			cal.set(Calendar.MILLISECOND, nanosecond / 1000000);
+			returnDt=new DateTime(Tm.calcTime(year, 1+month, day, hour, minute, second, nanosecond / 1000000, tz));
 			// Determine if date is in DST
-			if (tz.inDaylightTime(new Date(cal.getTimeInMillis()))) {
+			if (tz.inDaylightTime(new Date(returnDt.toMillis()))) {
 				inDST = true;
 			}
 			StringBuffer sb = new StringBuffer(8);
@@ -826,17 +835,10 @@ public class DateTime implements Serializable, Comparable {
 							new Integer(offsetHours).toString()).toString());
 				}
 			}
-			cal = Calendar.getInstance(tz);
-			cal.set(Calendar.YEAR, year);
-			cal.set(Calendar.MONTH, month);
-			cal.set(Calendar.DAY_OF_MONTH, day);
-			cal.set(Calendar.HOUR_OF_DAY, hour);
-			cal.set(Calendar.MINUTE, minute);
-			cal.set(Calendar.SECOND, second);
-			cal.set(Calendar.MILLISECOND, nanosecond / 1000000);
-			returnDt = new DateTime(cal.getTimeInMillis(), tz);
+			returnDt=new DateTime(Tm.calcTime(year, 1+month, day, hour, minute, second, nanosecond / 1000000, tz));
 		}
-		return new DateTime(returnDt.getSeconds(), nanosecond);
+		returnDt.systemDur.nanos=nanosecond;
+		return returnDt;
 	}
 
 	/**
@@ -854,45 +856,45 @@ public class DateTime implements Serializable, Comparable {
 				trim = this.systemDur.millis % Duration.MINUTE;
 				if (trim < 0)
 					trim += Duration.MINUTE;
-				return new DateTime(this.systemDur.millis - trim, this.timeZone);
+				return new DateTime(this.systemDur.millis - trim, this.timeZoneId);
 			}
 			if (unit == CalendarUnit.SECOND) {
 				trim = this.systemDur.millis % Duration.SECOND;
 				if (trim < 0)
 					trim += Duration.SECOND;
-				return new DateTime(this.systemDur.millis - trim, this.timeZone);
+				return new DateTime(this.systemDur.millis - trim, this.timeZoneId);
 			}
 			if (unit == CalendarUnit.MILLISECOND) {
-				return new DateTime(this.systemDur.millis, this.timeZone);
+				return new DateTime(this.systemDur.millis, this.timeZoneId);
 			}
 			if (unit == CalendarUnit.MICROSECOND) {
 				int nanotrim = this.systemDur.nanos % 1000000;
 				if (nanotrim < 0)
 					nanotrim += 1000000;
 				return new DateTime(this.getSeconds(), this.systemDur.nanos
-						- nanotrim, this.timeZone);
+						- nanotrim, this.timeZoneId);
 			}
-			return new DateTime(this.systemDur.millis, this.timeZone);
+			return new DateTime(this.systemDur.millis, this.timeZoneId);
 		}
 		// Shift to same time of day at Rose line
 		long calcTime = this.systemDur.millis
-				+ timeZone.getOffset(this.systemDur.millis);
+				+ DateTimeConfig.getTimeZone(this.timeZoneId).getOffset(this.systemDur.millis);
 		// Truncate and shift back to local time
 		if (unit == CalendarUnit.HOUR) {
 			trim = calcTime % Duration.HOUR;
 			if (trim < 0)
 				trim += Duration.HOUR;
 			calcTime -= trim;
-			calcTime -= timeZone.getOffset(calcTime);
-			return new DateTime(calcTime, this.timeZone);
+			calcTime -= DateTimeConfig.getTimeZone(this.timeZoneId).getOffset(calcTime);
+			return new DateTime(calcTime, this.timeZoneId);
 		}
 		if (unit == CalendarUnit.DAY) {
 			trim = calcTime % Duration.DAY;
 			if (trim < 0)
 				trim += Duration.DAY;
 			calcTime -= trim;
-			calcTime -= timeZone.getOffset(calcTime);
-			return new DateTime(calcTime, this.timeZone);
+			calcTime -= DateTimeConfig.getTimeZone(this.timeZoneId).getOffset(calcTime);
+			return new DateTime(calcTime, this.timeZoneId);
 		}
 		if (unit == CalendarUnit.WEEK) {
 			if (config == null) {
@@ -900,34 +902,22 @@ public class DateTime implements Serializable, Comparable {
 			}
 			long dow = ((calcTime / Duration.DAY) + config.getEpochDOW()) % 7;
 			calcTime -= (calcTime % Duration.DAY + Duration.DAY * dow);
-			calcTime -= timeZone.getOffset(calcTime);
-			return new DateTime(calcTime, this.timeZone);
+			calcTime -= DateTimeConfig.getTimeZone(this.timeZoneId).getOffset(calcTime);
+			return new DateTime(calcTime, this.timeZoneId);
 		}
-		// TODO: Wean off of Calendar object
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(this.systemDur.millis);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		cal.set(Calendar.DAY_OF_MONTH, 1);
+		Tm tm=new Tm(this.systemDur.millis);
 		if (unit == CalendarUnit.MONTH) {
-			return new DateTime(cal.getTimeInMillis(), this.timeZone);
+			return new DateTime(Tm.calcTime(tm.getYear(), tm.getMonth(), 1));
 		}
 		if (unit == CalendarUnit.QUARTER) {
-			int monthOffset = cal.get(Calendar.MONTH) % 3;
-			cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) - monthOffset);
-			return new DateTime(cal.getTimeInMillis(), this.timeZone);
+			int monthOffset = (tm.getMonth()-1) %3;
+			return new DateTime(Tm.calcTime(tm.getYear(), tm.getMonth()-monthOffset, 1));
 		}
 		if (unit == CalendarUnit.YEAR) {
-			cal.set(Calendar.MONTH, 0);
-			return new DateTime(cal.getTimeInMillis(), this.timeZone);
+			return new DateTime(Tm.calcTime(tm.getYear(), 1, 1));
 		}
 		if (unit == CalendarUnit.CENTURY) {
-			int calYear = cal.get(Calendar.YEAR);
-			cal.set(Calendar.MONTH, 0);
-			cal.set(Calendar.YEAR, calYear - calYear % 100);
-			return new DateTime(cal.getTimeInMillis(), this.timeZone);
+			return new DateTime(Tm.calcTime(tm.getYear()-tm.getYear()%100, 1, 1));
 		}
 		throw new IllegalArgumentException(
 				"That precision is still unsupported.  Sorry, my bad.");
@@ -947,8 +937,8 @@ public class DateTime implements Serializable, Comparable {
 	 * 
 	 * @return Milliseconds offset from epoch (1970-01-01 00:00:00).
 	 */
-	public long getMillis() {
-		return systemDur.getMillis();
+	public long toMillis() {
+		return systemDur.toMillis();
 	}
 
 	/**
@@ -978,7 +968,7 @@ public class DateTime implements Serializable, Comparable {
 		} else if (dateTime instanceof java.util.Date) {
 			dt = new DateTime(((java.util.Date) dateTime).getTime());
 		}
-		return systemDur.getMillis() == dt.getMillis()
+		return systemDur.toMillis() == dt.toMillis()
 				&& systemDur.getNanos() == dt.getNanos();
 	}
 
@@ -987,11 +977,15 @@ public class DateTime implements Serializable, Comparable {
 	 * 
 	 * @return the global DateTimeConfig object used by DateTime.
 	 */
-	public DateTimeConfig getConfig() {
+	public DateTimeConfig config() {
 		if (config == null) {
 			config = DateTimeConfig.getGlobalDefault();
 		}
 		return config;
+	}
+	
+	public String getTimeZoneId() {
+		return this.timeZoneId;
 	}
 
 }
