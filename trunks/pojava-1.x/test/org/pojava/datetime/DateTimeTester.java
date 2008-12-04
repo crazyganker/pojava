@@ -21,7 +21,7 @@ public class DateTimeTester extends TestCase {
 	 */
 	public void testDateToMillis() {
 		DateTime dt = DateTime.parse("2008-05-16 01:23:45.987 PST");
-		assertEquals(987, dt.getMillis() % 1000);
+		assertEquals(987, dt.toMillis() % 1000);
 		assertEquals(987000000, dt.getNanos());
 	}
 
@@ -55,7 +55,8 @@ public class DateTimeTester extends TestCase {
 				.toString(format));
 		assertEquals("2000-01-01 00:00:00.000", dt.truncate(
 				CalendarUnit.CENTURY).toString(format));
-		dt=new DateTime(-22222222);  // Eight twos, Brutus? 1969-12-31 09:49:37.778
+		dt = new DateTime(-22222222); // Eight twos, Brutus? 1969-12-31
+										// 09:49:37.778
 		assertEquals("1969-12-31 09:49:37.778", dt.truncate(
 				CalendarUnit.NANOSECOND).toString(format));
 		assertEquals("1969-12-31 09:49:37.778", dt.truncate(
@@ -68,8 +69,8 @@ public class DateTimeTester extends TestCase {
 				.truncate(CalendarUnit.MINUTE).toString(format));
 		assertEquals("1969-12-31 09:00:00.000", dt.truncate(CalendarUnit.HOUR)
 				.toString(format));
-		assertEquals("1969-12-31 00:00:00.000", dt.truncate(
-				CalendarUnit.DAY).toString(format));
+		assertEquals("1969-12-31 00:00:00.000", dt.truncate(CalendarUnit.DAY)
+				.toString(format));
 		assertEquals("1969-12-28 00:00:00.000", dt.truncate(CalendarUnit.WEEK)
 				.toString(format));
 		assertEquals("1969-12-01 00:00:00.000", dt.truncate(CalendarUnit.MONTH)
@@ -132,15 +133,15 @@ public class DateTimeTester extends TestCase {
 		dtNew = dt.add(CalendarUnit.MILLISECOND, 3);
 		assertEquals(3000000, dtNew.getNanos() - dt.getNanos());
 		dtNew = dt.add(CalendarUnit.SECOND, -4);
-		assertEquals(-4 * Duration.SECOND, dtNew.getMillis() - dt.getMillis());
+		assertEquals(-4 * Duration.SECOND, dtNew.toMillis() - dt.toMillis());
 		dtNew = dt.add(CalendarUnit.MINUTE, 5);
-		assertEquals(5 * Duration.MINUTE, dtNew.getMillis() - dt.getMillis());
+		assertEquals(5 * Duration.MINUTE, dtNew.toMillis() - dt.toMillis());
 		dtNew = dt.add(CalendarUnit.HOUR, -6);
-		assertEquals(-6 * Duration.HOUR, dtNew.getMillis() - dt.getMillis());
+		assertEquals(-6 * Duration.HOUR, dtNew.toMillis() - dt.toMillis());
 		dtNew = dt.add(CalendarUnit.DAY, 7);
-		assertEquals(7 * Duration.DAY, dtNew.getMillis() - dt.getMillis());
+		assertEquals(7 * Duration.DAY, dtNew.toMillis() - dt.toMillis());
 		dtNew = dt.add(CalendarUnit.WEEK, -8);
-		assertEquals(-8 * Duration.WEEK, dtNew.getMillis() - dt.getMillis()
+		assertEquals(-8 * Duration.WEEK, dtNew.toMillis() - dt.toMillis()
 				- (TimeZone.getDefault().getDSTSavings()));
 		dtNew = dt.add(CalendarUnit.MONTH, 9);
 		assertEquals("1956-03-14 02:03:04.123", dtNew.toString(format));
@@ -152,29 +153,29 @@ public class DateTimeTester extends TestCase {
 
 	public void XtestChart() {
 		// Known leap seconds
-		System.out.println(DateTime.parse("1972-07-01").getMillis());
-		System.out.println(DateTime.parse("1973-01-01").getMillis());
-		System.out.println(DateTime.parse("1974-01-01").getMillis());
-		System.out.println(DateTime.parse("1975-01-01").getMillis());
-		System.out.println(DateTime.parse("1976-01-01").getMillis());
-		System.out.println(DateTime.parse("1977-01-01").getMillis());
-		System.out.println(DateTime.parse("1978-01-01").getMillis());
-		System.out.println(DateTime.parse("1979-01-01").getMillis());
-		System.out.println(DateTime.parse("1980-01-01").getMillis());
-		System.out.println(DateTime.parse("1981-07-01").getMillis());
-		System.out.println(DateTime.parse("1982-07-01").getMillis());
-		System.out.println(DateTime.parse("1983-07-01").getMillis());
-		System.out.println(DateTime.parse("1985-07-01").getMillis());
-		System.out.println(DateTime.parse("1988-01-01").getMillis());
-		System.out.println(DateTime.parse("1990-01-01").getMillis());
-		System.out.println(DateTime.parse("1991-01-01").getMillis());
-		System.out.println(DateTime.parse("1992-07-01").getMillis());
-		System.out.println(DateTime.parse("1993-07-01").getMillis());
-		System.out.println(DateTime.parse("1994-07-01").getMillis());
-		System.out.println(DateTime.parse("1996-01-01").getMillis());
-		System.out.println(DateTime.parse("1997-07-01").getMillis());
-		System.out.println(DateTime.parse("1999-01-01").getMillis());
-		System.out.println(DateTime.parse("2006-01-01").getMillis());
+		System.out.println(DateTime.parse("1972-07-01").toMillis());
+		System.out.println(DateTime.parse("1973-01-01").toMillis());
+		System.out.println(DateTime.parse("1974-01-01").toMillis());
+		System.out.println(DateTime.parse("1975-01-01").toMillis());
+		System.out.println(DateTime.parse("1976-01-01").toMillis());
+		System.out.println(DateTime.parse("1977-01-01").toMillis());
+		System.out.println(DateTime.parse("1978-01-01").toMillis());
+		System.out.println(DateTime.parse("1979-01-01").toMillis());
+		System.out.println(DateTime.parse("1980-01-01").toMillis());
+		System.out.println(DateTime.parse("1981-07-01").toMillis());
+		System.out.println(DateTime.parse("1982-07-01").toMillis());
+		System.out.println(DateTime.parse("1983-07-01").toMillis());
+		System.out.println(DateTime.parse("1985-07-01").toMillis());
+		System.out.println(DateTime.parse("1988-01-01").toMillis());
+		System.out.println(DateTime.parse("1990-01-01").toMillis());
+		System.out.println(DateTime.parse("1991-01-01").toMillis());
+		System.out.println(DateTime.parse("1992-07-01").toMillis());
+		System.out.println(DateTime.parse("1993-07-01").toMillis());
+		System.out.println(DateTime.parse("1994-07-01").toMillis());
+		System.out.println(DateTime.parse("1996-01-01").toMillis());
+		System.out.println(DateTime.parse("1997-07-01").toMillis());
+		System.out.println(DateTime.parse("1999-01-01").toMillis());
+		System.out.println(DateTime.parse("2006-01-01").toMillis());
 
 		// Supported time zones
 		String ids[] = TimeZone.getAvailableIDs();
@@ -210,6 +211,11 @@ public class DateTimeTester extends TestCase {
 				"el 29 de febrero de 2000").toString());
 	}
 
+	public void testLeap() {
+		assertEquals("2000-02-29 00:00:00", new DateTime("2000-02-29 00:00:00")
+				.toString());
+	}
+
 	/**
 	 * These tests show the consistency of the interpretation of millisecond
 	 * values between the native Date object and the DateTime object.
@@ -223,23 +229,23 @@ public class DateTimeTester extends TestCase {
 		long millis = -62135700000000L;
 		Date d = new Date(millis);
 		DateTime dt = new DateTime(d.toString());
-		assertEquals(millis, dt.getMillis());
+		assertEquals(millis, dt.toMillis());
 
 		// The year 9999
 		millis = 253402260044000L;
 		d = new Date(millis);
 		dt = new DateTime(d.toString());
-		assertEquals(millis, dt.getMillis());
+		assertEquals(millis, dt.toMillis());
 
 		// A year after 9999
 		millis = 263402260044000L;
 		d = new Date(millis);
 		dt = new DateTime(d.toString());
-		assertEquals(millis, dt.getMillis());
+		assertEquals(millis, dt.toMillis());
 
 		// A millisecond prior to the year 0001
 		millis = -62135740800001L;
-		assertEquals(millis, new DateTime("0001-01-01").getMillis() - 1);
+		assertEquals(millis, new DateTime("0001-01-01").toMillis() - 1);
 		assertEquals("0001-12-31 23:59:59 BC", new DateTime(millis).toString());
 
 	}
@@ -254,9 +260,15 @@ public class DateTimeTester extends TestCase {
 		// Regular year
 		assertEquals("1902-02-28 23:59:59", new DateTime("1902-03-01").add(-1)
 				.toString());
+	}
+
+	public void testRegularYearLeap() {
 		// Regular leap year
 		assertEquals("1904-02-29 23:59:59", new DateTime("1904-03-01").add(-1)
 				.toString());
+	}
+
+	public void testThousandYearLeap() {
 		// 1000 year leap year inclusion
 		assertEquals("1000-02-29 23:59:59", new DateTime("1000-03-01").add(-1)
 				.toString());
@@ -276,11 +288,11 @@ public class DateTimeTester extends TestCase {
 		assertEquals(dow, tm.getWeekday());
 		cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 		assertEquals(Calendar.SUNDAY, new DateTime(cal.getTimeInMillis())
-				.getWeekday());
+				.weekday());
 		TimeZone tz = TimeZone.getTimeZone("PST");
-		assertEquals(Calendar.WEDNESDAY, new DateTime(0, tz).getWeekday());
+		assertEquals(Calendar.WEDNESDAY, new DateTime(0, tz).weekday());
 		assertEquals(Calendar.THURSDAY, new DateTime(-40 * Duration.WEEK
-				+ Duration.DAY, tz).getWeekday());
+				+ Duration.DAY, tz).weekday());
 	}
 
 	public void testCompareTo() {
@@ -300,7 +312,7 @@ public class DateTimeTester extends TestCase {
 		DateTime dt1 = new DateTime();
 		DateTime dt2 = new DateTime("-1");
 		long dur = System.currentTimeMillis() - start;
-		long diff = dt2.add(Duration.DAY).getMillis() - dt1.getMillis();
+		long diff = dt2.add(Duration.DAY).toMillis() - dt1.toMillis();
 		// The relative date "-1" represents 24hrs in past.
 		// The values for dt1 and dt2 will be one day apart, plus some
 		// small bit of extra time that elapsed between the two calculations.
@@ -312,46 +324,76 @@ public class DateTimeTester extends TestCase {
 		DateTime dt1 = new DateTime();
 		DateTime dt2 = new DateTime("+1D");
 		long dur = System.currentTimeMillis() - start;
-		long diff = dt2.add(-Duration.DAY).getMillis() - dt1.getMillis();
+		long diff = dt2.add(-Duration.DAY).toMillis() - dt1.toMillis();
 		// The relative date "-1" represents 24hrs in past.
 		// The values for dt1 and dt2 will be one day apart, plus some
 		// small bit of extra time that elapsed between the two calculations.
 		assertTrue(diff <= dur);
 	}
-	
+
 	public void testToLocalString() {
-		DateTime dt=new DateTime("Jan 26, 1969");
+		DateTime dt = new DateTime("Jan 26, 1969");
 		assertEquals("1969-01-26 00:00:00", dt.toLocalString());
 	}
-	
+
 	/**
 	 * It is always prudent to verify that your examples actually work :)
 	 */
 	public void testJavaDocClaims() {
-		DateTime dt1=new DateTime("3:21pm on January 26, 1969");
-		DateTime dt2=new DateTime("26-Jan-1969 03:21 PM");
-		DateTime dt3=new DateTime("1/26/69 15:21");
-		DateTime dt4=new DateTime("1969.01.26 15.21");
-		DateTime dt5=new DateTime("el 26 de enero de 1969 15.21");
-		assertEquals(dt1,dt2);
-		assertEquals(dt1,dt3);
-		assertEquals(dt1,dt4);
-		assertEquals(dt1,dt5);		
+		DateTime dt1 = new DateTime("3:21pm on January 26, 1969");
+		DateTime dt2 = new DateTime("26-Jan-1969 03:21 PM");
+		DateTime dt3 = new DateTime("1/26/69 15:21");
+		DateTime dt4 = new DateTime("1969.01.26 15.21");
+		DateTime dt5 = new DateTime("el 26 de enero de 1969 15.21");
+		assertEquals(dt1, dt2);
+		assertEquals(dt1, dt3);
+		assertEquals(dt1, dt4);
+		assertEquals(dt1, dt5);
 	}
-	
+
 	/**
-	 * This looks for a broad spectrum of issues, spanning different
-	 * times of day, days of the month, leap and non-leap years.
+	 * This looks for a broad spectrum of issues, spanning different times of
+	 * day, days of the month, leap and non-leap years.
 	 */
 	public void testFourYearsDaily() {
-		DateTime dt=new DateTime("2008-01-01");
-		Calendar cal=Calendar.getInstance();
-		cal.setTimeInMillis(dt.getMillis());
-		for (int i=0; i<365*4; i++) {
-			assertEquals(cal.getTimeInMillis(), dt.getMillis());
+		DateTime dt = new DateTime("2008-01-01");
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(dt.toMillis());
+		for (int i = 0; i < 365 * 4; i++) {
+			assertEquals(cal.getTimeInMillis(), dt.toMillis());
 			cal.add(Calendar.DATE, 1);
 			cal.add(Calendar.SECOND, 61);
-			dt=dt.add(CalendarUnit.DAY, 1).add(CalendarUnit.SECOND,61);
+			dt = dt.add(CalendarUnit.DAY, 1).add(CalendarUnit.SECOND, 61);
+		}
+	}
+
+	public void test1600() {
+		DateTime leap = new DateTime("1200-03-01");
+		assertEquals("1200-03-01 00:00:00", leap.toString());
+		leap = new DateTime("1604-03-01");
+		assertEquals("1604-03-01 00:00:00", leap.toString());
+		leap = new DateTime("1600-03-01");
+		assertEquals("1600-03-01 00:00:00", leap.toString());
+	}
+
+	public void testThousandEdges() {
+		Calendar calFeb = Calendar.getInstance();
+		StringBuffer sb = new StringBuffer();
+		for (int year = 1000; year <= 2110; year++) {
+			DateTime dtMar = new DateTime(Integer.toString(year) + "-03-01");
+			DateTime dtFeb = dtMar.add(-1);
+			assertEquals("-03-01", dtMar.toString().substring(4, 10));
+			calFeb.setTimeInMillis(dtFeb.toMillis());
+			int dom = calFeb.get(Calendar.DAY_OF_MONTH);
+			int month = calFeb.get(Calendar.MONTH) + 1;
+			sb.setLength(0);
+			sb.append(year);
+			sb.append("-0");
+			sb.append(month);
+			sb.append("-");
+			sb.append(dom);
+			sb.append(" 23:59:59");
+			assertEquals(sb.toString(), dtFeb.toString());
 		}
 	}
 

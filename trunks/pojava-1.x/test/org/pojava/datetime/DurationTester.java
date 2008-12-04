@@ -13,7 +13,7 @@ public class DurationTester extends TestCase {
 		assertTrue(d2.compareTo(d1)>0);
 		assertTrue(d2.compareTo(d3)==0);
 		d3=d3.add(0, 123);
-		assertEquals(d2.getMillis(),d3.getMillis());
+		assertEquals(d2.toMillis(),d3.toMillis());
 		assertTrue(d2.compareTo(d3)<0);
 	}
 	
@@ -29,7 +29,7 @@ public class DurationTester extends TestCase {
 	public void testAdd() {
 		Duration d1=new Duration(1);
 		Duration d2=new Duration(2);
-		assertEquals(3, d1.add(d2).getMillis());
+		assertEquals(3, d1.add(d2).toMillis());
 	}
 	
 	public void testDefaultConstructor() {
