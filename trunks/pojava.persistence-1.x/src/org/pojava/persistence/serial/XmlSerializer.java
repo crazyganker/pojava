@@ -161,6 +161,7 @@ public class XmlSerializer {
 		}
 		// A null object gets an early out
 		if (pojo == null) {
+			name=config.renamedJava(type, name);
 			sb.append(config.indent(depth));
 			sb.append('<');
 			sb.append(name);
@@ -185,6 +186,7 @@ public class XmlSerializer {
 				} else {
 					// Subsequent references are referenced.
 					sb.append(config.indent(depth));
+					name=config.renamedJava(type, name);
 					sb.append("<");
 					sb.append(name);
 					sb.append(" ref=\"");
@@ -197,6 +199,7 @@ public class XmlSerializer {
 		// Simple objects can be overridden with a factory
 		SerialFactory override = config.factory(type);
 		if (override != null) {
+			name=config.renamedJava(type, name);
 			openTag(sb, name, attribSb.toString(), depth);
 			sb.append(override.serialize(pojo));
 			closeTag(sb, name);

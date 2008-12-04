@@ -236,11 +236,15 @@ public class XmlSerializerTester extends TestCase {
 		XmlDefs defs=new XmlDefs();
 		XmlSerializer serializer = new XmlSerializer(defs);
 		String xml=serializer.toXml(pojo);
+		// System.out.println(xml);
 		assertTrue(xml.indexOf("<numbers>")>0);
+		assertTrue(xml.indexOf("<confused")>0);
 		defs.rename(pojo.getClass(), "numbers", "numerals");
+		defs.rename(pojo.getClass(), "confused", "cornfused");
 		xml = serializer.toXml(pojo);
-		System.out.println(xml);
+		// System.out.println(xml);
 		assertTrue(xml.indexOf("<numerals>")>0);
+		assertTrue(xml.indexOf("<cornfused")>0);
 	}
 
 }
