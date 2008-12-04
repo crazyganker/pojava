@@ -16,6 +16,7 @@ limitations under the License.
 */
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -132,5 +133,17 @@ public class BoundStringTester extends TestCase {
 		assertEquals(DateTime.class, ((Binding)bs.getBindings().get(0)).getType());
 		assertEquals("two", ((Binding)bs.getBindings().get(1)).getObj().toString());
 		assertEquals(3, bs.getBindings().size());
+	}
+	
+	public void testUnbind() {
+		List bindings=new ArrayList();
+		bindings.add(new Binding(String.class, "two"));
+		bindings.add(new Binding(Integer.class, new Integer(3)));
+		BoundString bs=new BoundString("(?, ?, ?, ?)");
+		bs.addBinding(DateTime.class, new DateTime("1/1/1"));
+		bs.addBindings(bindings);
+		bs.addBinding(Date.class, new DateTime("2003/02/01"));
+		assertEquals(4, bs.getBindings().size());
+		assertEquals("('01/01/2001', 'two', 3, '02/01/2003')", bs.toString());
 	}
 }
