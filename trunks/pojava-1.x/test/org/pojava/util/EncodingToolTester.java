@@ -100,5 +100,23 @@ public class EncodingToolTester extends TestCase {
 			}
 		}
 	}
+	
+	public void testBase2EncodeDecode() {
+		String str="abc";
+		String binary=EncodingTool.base2Encode(str.getBytes());
+		assertEquals("011000010110001001100011", binary);
+		binary=binary.substring(0,8)+" "+binary.substring(8, 16) + "\n" + binary.substring(16);
+		String orig=new String(EncodingTool.base2Decode(binary));
+		assertEquals("abc", orig);
+	}
 
+	public void testBase2DecodeShorty() {
+		String tooShort="0100101001";
+		try {
+			EncodingTool.base2Decode(tooShort.toCharArray());
+			fail("Expecting IllegalArgumentException");
+		} catch (IllegalArgumentException ex) {
+			
+		}
+	}
 }
