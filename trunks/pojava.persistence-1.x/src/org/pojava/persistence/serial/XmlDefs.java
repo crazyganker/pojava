@@ -74,7 +74,11 @@ public class XmlDefs {
 	 * Indentation is defined by substring portions of pad.
 	 */
 	private String pad = "                                                                ";
-
+	/**
+	 * When omitting nulls, null values are not serialized, and the deserializer will accept
+	 * whatever the default is for that field (which works out well when the default is null).
+	 */
+	private boolean omittingNulls=false;
 	/**
 	 * Initialize XmlDefs with known factory mappings.
 	 */
@@ -428,4 +432,22 @@ public class XmlDefs {
 	public void addAccessors(Accessors accessor) {
 		accessors.put(accessor.getType(), accessor);
 	}
+
+	/**
+	 * True if null values are omitted from serialized document.
+	 * @return
+	 */
+	public boolean isOmittingNulls() {
+		return omittingNulls;
+	}
+
+	/**
+	 * Set false to include null values explicitly in the output.
+	 * @param omittingNulls
+	 */
+	public void setOmittingNulls(boolean omittingNulls) {
+		this.omittingNulls = omittingNulls;
+	}
+	
+	
 }
