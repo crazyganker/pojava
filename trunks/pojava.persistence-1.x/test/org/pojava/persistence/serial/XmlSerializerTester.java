@@ -225,6 +225,21 @@ public class XmlSerializerTester extends TestCase {
 		sb.append("</obj>\n");
 		assertEquals(sb.toString(), xml);
 	}
+	
+	public void testNullsByOmission() {
+		// If omittingNulls is set true, nulls are left out of xml.
+		// This works only if the default values are also null.
+		Potpourri pojo = new Potpourri();
+		XmlDefs defs=new XmlDefs();
+		defs.setOmittingNulls(true);
+		XmlSerializer serializer = new XmlSerializer(defs);
+		String xml = serializer.toXml(pojo);
+		StringBuffer sb = new StringBuffer();
+		sb.append("<obj class=\"org.pojava.persistence.examples.Potpourri\">\n");
+		sb.append("  <five>0</five>\n");
+		sb.append("</obj>\n");
+		assertEquals(sb.toString(), xml);
+	}
 
 	public void testOmission() {
 		Set set = new HashSet();
