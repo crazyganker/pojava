@@ -133,7 +133,8 @@ public class XmlSerializerTester extends TestCase {
 		Timestamp ts = new Timestamp(-86400123);
 		XmlSerializer serializer = new XmlSerializer();
 		String xml = serializer.toXml(ts);
-		assertEquals("<obj class=\"java.sql.Timestamp\">-86400.877</obj>\n", xml);
+		assertEquals("<obj class=\"java.sql.Timestamp\">-86400.877</obj>\n",
+				xml);
 	}
 
 	/**
@@ -198,13 +199,33 @@ public class XmlSerializerTester extends TestCase {
 		XmlSerializer serializer = new XmlSerializer();
 		String xml = serializer.toXml(bob);
 		StringBuffer sb = new StringBuffer();
-		sb.append("<obj class=\"org.pojava.persistence.examples.Person\" mem=\"1\">\n");
+		sb
+				.append("<obj class=\"org.pojava.persistence.examples.Person\" mem=\"1\">\n");
 		sb.append("  <name>Bob</name>\n");
 		sb.append("  <parent ref=\"1\"/>\n");
 		sb.append("</obj>\n");
 		assertEquals(sb.toString(), xml);
 	}
-	
+
+	public void testNulls() {
+		Potpourri pojo = new Potpourri();
+		XmlSerializer serializer = new XmlSerializer();
+		String xml = serializer.toXml(pojo);
+		StringBuffer sb = new StringBuffer();
+		sb.append("<obj class=\"org.pojava.persistence.examples.Potpourri\">\n");
+		sb.append("  <dt><null/></dt>\n");
+		sb.append("  <d><null/></d>\n");
+		sb.append("  <bob><null/></bob>\n");
+		sb.append("  <five>0</five>\n");
+		sb.append("  <str><null/></str>\n");
+		sb.append("  <numbers><null/></numbers>\n");
+		sb.append("  <set><null/></set>\n");
+		sb.append("  <confused><null/></confused>\n");
+		sb.append("  <map><null/></map>\n");
+		sb.append("</obj>\n");
+		assertEquals(sb.toString(), xml);
+	}
+
 	public void testOmission() {
 		Set set = new HashSet();
 		set.add(new Integer(42));
@@ -218,31 +239,31 @@ public class XmlSerializerTester extends TestCase {
 		int[] numbers = { 1, 2, 3 };
 		pojo.setNumbers(numbers);
 		pojo.setConfused(pojo);
-		XmlDefs defs=new XmlDefs();
+		XmlDefs defs = new XmlDefs();
 		XmlSerializer serializer = new XmlSerializer(defs);
-		String xml=serializer.toXml(pojo);
-		assertTrue(xml.indexOf("<numbers>")>0);
+		String xml = serializer.toXml(pojo);
+		assertTrue(xml.indexOf("<numbers>") > 0);
 		defs.addOmission(pojo.getClass(), "numbers");
 		xml = serializer.toXml(pojo);
-		assertTrue(xml.indexOf("<numbers>")<0);
+		assertTrue(xml.indexOf("<numbers>") < 0);
 	}
-	
+
 	public void testRename() {
 		Potpourri pojo = new Potpourri("hello", 5, new Date(86400000),
 				new DateTime(86400, 0), null, null, null, null);
 		int[] numbers = { 1, 2, 3 };
 		pojo.setNumbers(numbers);
 		pojo.setConfused(pojo);
-		XmlDefs defs=new XmlDefs();
+		XmlDefs defs = new XmlDefs();
 		XmlSerializer serializer = new XmlSerializer(defs);
-		String xml=serializer.toXml(pojo);
+		String xml = serializer.toXml(pojo);
 		// System.out.println(xml);
-		assertTrue(xml.indexOf("<numbers>")>0);
-		assertTrue(xml.indexOf("<confused")>0);
-		assertTrue(xml.indexOf("<dt>")>0);
-		assertTrue(xml.indexOf("<d>")>0);
-		assertTrue(xml.indexOf("<five>")>0);
-		assertTrue(xml.indexOf("<str>")>0);
+		assertTrue(xml.indexOf("<numbers>") > 0);
+		assertTrue(xml.indexOf("<confused") > 0);
+		assertTrue(xml.indexOf("<dt>") > 0);
+		assertTrue(xml.indexOf("<d>") > 0);
+		assertTrue(xml.indexOf("<five>") > 0);
+		assertTrue(xml.indexOf("<str>") > 0);
 		defs.rename(pojo.getClass(), "numbers", "numerals");
 		defs.rename(pojo.getClass(), "confused", "cornfused");
 		defs.rename(pojo.getClass(), "dt", "datetime");
@@ -251,13 +272,13 @@ public class XmlSerializerTester extends TestCase {
 		defs.rename(pojo.getClass(), "str", "string");
 		xml = serializer.toXml(pojo);
 		// System.out.println(xml);
-		assertTrue(xml.indexOf("<numerals>")>0);
-		assertTrue(xml.indexOf("<cornfused")>0);
-		assertTrue(xml.indexOf("<datetime>")>0);
-		assertTrue(xml.indexOf("<date>")>0);
-		assertTrue(xml.indexOf("<string>")>0);
-		assertTrue(xml.indexOf("<numberFive>5</numberFive>")>0);
-		
+		assertTrue(xml.indexOf("<numerals>") > 0);
+		assertTrue(xml.indexOf("<cornfused") > 0);
+		assertTrue(xml.indexOf("<datetime>") > 0);
+		assertTrue(xml.indexOf("<date>") > 0);
+		assertTrue(xml.indexOf("<string>") > 0);
+		assertTrue(xml.indexOf("<numberFive>5</numberFive>") > 0);
+
 	}
 
 }

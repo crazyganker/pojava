@@ -143,10 +143,19 @@ public class XmlSerializer {
 	 */
 	private String toXml(Object pojo, String name, String attribs, int depth,
 			Class baseClass) {
+		StringBuffer sb;
 		if (pojo == null) {
-			return "";
+			if (config.isOmittingNulls()) {
+				return "";
+			} else {
+				sb=new StringBuffer();
+				openTag(sb, name, attribs, depth);
+				sb.append("<null/>");
+				closeTag(sb, name);
+				return sb.toString();
+			}
 		}
-		StringBuffer sb = new StringBuffer();
+		sb = new StringBuffer();
 		StringBuffer attribSb = new StringBuffer();
 		Class type = pojo.getClass();
 		if (attribs != null) {
@@ -162,12 +171,9 @@ public class XmlSerializer {
 		// A null object gets an early out
 		if (pojo == null) {
 			name=config.renamedJava(type, name);
-			sb.append(config.indent(depth));
-			sb.append('<');
-			sb.append(name);
-			sb.append("><null/></");
-			sb.append(name);
-			sb.append(">\n");
+			openTag(sb, name, attribs, depth);
+			sb.append("<null/>");
+			closeTag(sb, name);
 			return sb.toString();
 		}
 		if (baseClass == null) {
@@ -286,7 +292,13 @@ public class XmlSerializer {
 			int depth, Class baseClass) {
 		StringBuffer sb = new StringBuffer();
 		if (pojo==null) {
-			return "";
+			if (config.isOmittingNulls()) {
+				return "";
+			}
+			openTag(sb, name, null, depth);
+			sb.append("<null/>");
+			closeTag(sb, name);
+			return sb.toString();
 		}
 		boolean isColl = pojo != null
 				&& java.util.Collection.class.isAssignableFrom(pojo.getClass());
