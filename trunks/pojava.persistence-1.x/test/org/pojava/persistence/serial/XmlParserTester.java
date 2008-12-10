@@ -100,4 +100,29 @@ public class XmlParserTester extends TestCase {
 		assertEquals(3,numbers.length);
 	}
 
+	public void testNulls() {
+		StringBuffer sb=new StringBuffer();
+		sb.append("<obj class=\"org.pojava.persistence.examples.Potpourri\">\n");
+		sb.append("  <dt><null/></dt>\n");
+		sb.append("  <d><null/></d>\n");
+		sb.append("  <bob><null/></bob>\n");
+		sb.append("  <five>0</five>\n");
+		sb.append("  <str><null/></str>\n");
+		sb.append("  <numbers><null/></numbers>\n");
+		sb.append("  <set><null/></set>\n");
+		sb.append("  <confused><null/></confused>\n");
+		sb.append("  <map><null/></map>\n");
+		sb.append("</obj>\n");
+		XmlParser parser=new XmlParser();
+		Potpourri pojo=(Potpourri) parser.parse(sb.toString());
+		assertNull(pojo.getBob());
+		assertNull(pojo.getConfused());
+		assertNull(pojo.getD());
+		assertNull(pojo.getDt());
+		assertNull(pojo.getMap());
+		assertNull(pojo.getNumbers());
+		assertNull(pojo.getSet());
+		assertNull(pojo.getStr());
+		assertEquals(0, pojo.getFive());
+	}
 }

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.pojava.datetime.DateTime;
 import org.pojava.exception.PersistenceException;
 import org.pojava.util.ReflectionTool;
 import org.xml.sax.Attributes;
@@ -151,6 +152,10 @@ public class XmlParser implements ContentHandler {
 			if (fqprops[depth] != null) {
 				fqprops[depth] = null;
 			}
+			if ("null".equals(localName)) {
+				objs[depth - 1] = new HashMap();
+				return;
+			}
 			StringBuffer sb = buffers[depth];
 			if (depth > 1) {
 				sb.append(fqprops[depth - 1]);
@@ -179,14 +184,14 @@ public class XmlParser implements ContentHandler {
 				if ("class".equals(attribName) || "type".equals(attribName)) {
 					if (!(atts.getValue(i).indexOf('.') > 0)) {
 						if (atts.getValue(i).equals("DateTime")) {
-							sb.append("org.pojava.datetime.DateTime");
+							types[depth] = DateTime.class;
 						} else {
 							char c = atts.getValue(i).charAt(0);
 							if (c >= 'A' && c <= 'Z')
 								sb.append("java.lang.");
 							sb.append(atts.getValue(i));
+							types[depth] = Class.forName(sb.toString());
 						}
-						types[depth] = Class.forName(sb.toString());
 						sb.setLength(0);
 					} else {
 						types[depth] = Class.forName(atts.getValue(i));
@@ -226,12 +231,21 @@ public class XmlParser implements ContentHandler {
 		} else {
 			key = localName;
 		}
-		if (defs.isValue(types[depth])) {
-			Object[] params = new Object[1];
-			params[0] = buffers[depth].toString();
-			objs[depth - 1].put(key, defs.construct(types[depth], params));
+		if ("null".equals(key)) {
+			objs[depth - 1].put(key, null);
+		} else if (defs.isValue(types[depth])) {
+			if (objs[depth]!=null && objs[depth].containsKey("null") && buffers[depth].length() == 0) {
+				objs[depth - 1].put(key, null);
+			} else {
+				Object[] params = new Object[1];
+				params[0] = buffers[depth].toString();
+				objs[depth - 1].put(key, defs.construct(types[depth], params));
+			}
+		} else if (types[depth] == null) {
+			objs[depth - 1].put(key, null);
 		} else if (types[depth].isArray()) {
-			if (depth > 0 && types[depth-1]!=null
+			if (depth > 0
+					&& types[depth - 1] != null
 					&& java.util.AbstractMap.class
 							.isAssignableFrom(types[depth - 1])) {
 				Map map = (Map) objs[depth - 1];
@@ -241,26 +255,35 @@ public class XmlParser implements ContentHandler {
 					map.put(mapKey, it.next());
 				}
 			} else {
-				Object array = Array.newInstance(types[depth+1], objs[depth].size());
-				for (int i = 0; i < objs[depth].size(); i++) {
-					Array.set(array, i, objs[depth].get(new Integer(1 + i)));
+				if (types[depth + 1] == null) {
+					objs[depth - 1].put(key, null);
+				} else {
+					Object array = Array.newInstance(types[depth + 1],
+							objs[depth].size());
+					for (int i = 0; i < objs[depth].size(); i++) {
+						Array
+								.set(array, i, objs[depth].get(new Integer(
+										1 + i)));
+					}
+					objs[depth - 1].put(key, array);
 				}
-				objs[depth - 1].put(key, array);
 			}
 		} else {
 			if (!refValues.containsKey(fqprops[depth])) {
 				if (types[depth] == Object.class) {
 					if (objs[depth].containsKey("obj")) {
 						objs[depth - 1].put(key, objs[depth].get("obj"));
-					} else {
+					} else if (!objs[depth].containsKey("null")){
 						objs[depth - 1].put(key, new Object());
 					}
 				} else if (java.util.AbstractMap.class
 						.isAssignableFrom(types[depth])) {
 					objs[depth - 1].put(key, objs[depth]);
 				} else {
-					objs[depth - 1].put(key, defs.construct(types[depth],
-							objs[depth]));
+					if (!objs[depth].containsKey("null")) {
+						objs[depth - 1].put(key, defs.construct(types[depth],
+								objs[depth]));						
+					}
 				}
 			}
 		}
