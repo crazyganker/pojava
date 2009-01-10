@@ -10,12 +10,14 @@ public class DateTimeTester extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
+	    DateTimeConfig.globalAmericanDateFormat();
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
 
+	
 	/**
 	 * Test for the parsed ".987" in both millis and nanos.
 	 */
@@ -395,6 +397,22 @@ public class DateTimeTester extends TestCase {
 			sb.append(" 23:59:59");
 			assertEquals(sb.toString(), dtFeb.toString());
 		}
+	}
+	
+	public void testEuropean() {
+		DateTimeConfig.globalEuropeanDateFormat();
+	    DateTime dt1=new DateTime("01/02/2003");
+	    assertEquals("2003-02-01 00:00:00", dt1.toString());
+	    dt1=new DateTime("12/11/2010 09:08:07");
+	    assertEquals("2010-11-12 09:08:07", dt1.toString());
+	    dt1=new DateTime("20080109");
+	    assertEquals("2008-01-09 00:00:00", dt1.toString());
+	    DateTimeConfig.globalAmericanDateFormat();
+	}
+	
+	public void testPacked() {
+		DateTime dt1=new DateTime("20080109");
+		assertEquals("2008-01-09 00:00:00", dt1.toString());
 	}
 
 }

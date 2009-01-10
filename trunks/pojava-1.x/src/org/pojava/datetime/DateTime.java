@@ -629,6 +629,7 @@ public class DateTime implements Serializable, Comparable {
 									&& !usedint[i - 1]) {
 								month = StringTool
 										.parseIntFragment(parts[i - 1]);
+								month--;
 								hasMonth = true;
 								usedint[i - 1] = true;
 							}
@@ -646,6 +647,7 @@ public class DateTime implements Serializable, Comparable {
 				if (!hasYear && !hasMonth && !hasDay && parts[i].length() == 8) {
 					year = Integer.parseInt(parts[i].substring(0, 4));
 					month = Integer.parseInt(parts[i].substring(4, 6));
+					month--;
 					day = Integer.parseInt(parts[i].substring(6, 8));
 					hasYear = true;
 					hasMonth = true;
