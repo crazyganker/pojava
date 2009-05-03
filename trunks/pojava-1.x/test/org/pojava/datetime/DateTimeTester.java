@@ -410,6 +410,13 @@ public class DateTimeTester extends TestCase {
 	    DateTimeConfig.globalAmericanDateFormat();
 	}
 	
+	public void testEuropean2() {
+		DateTimeConfig.globalEuropeanDateFormat();
+        DateTime dt1=new DateTime("01-07-2003");
+        System.out.println(dt1.toDate().toString());		
+	    DateTimeConfig.globalAmericanDateFormat();
+	}
+	
 	public void testPacked() {
 		DateTime dt1=new DateTime("20080109");
 		assertEquals("2008-01-09 00:00:00", dt1.toString());
