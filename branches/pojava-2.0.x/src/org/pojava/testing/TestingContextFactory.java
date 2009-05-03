@@ -32,7 +32,7 @@ public class TestingContextFactory implements InitialContextFactory {
 
 	private static Context ctx;
 
-	public Context getInitialContext(Hashtable map) throws NamingException {
+	public Context getInitialContext(Hashtable<?,?> map) throws NamingException {
 		if (ctx == null) {
 			ctx = new TestingContext();
 		}

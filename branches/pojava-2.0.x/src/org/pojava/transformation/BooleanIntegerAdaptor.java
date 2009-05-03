@@ -26,13 +26,13 @@ import org.pojava.lang.Binding;
  */
 public class BooleanIntegerAdaptor implements TypedAdaptor {
 	
-	private static final Class INBOUND_TYPE=Boolean.class;
-	private static final Class OUTBOUND_TYPE=Integer.class;
+	private static final Class<Boolean> INBOUND_TYPE=Boolean.class;
+	private static final Class<Integer> OUTBOUND_TYPE=Integer.class;
 
-	public Class inboundType() {
+	public Class<Boolean> inboundType() {
 		return INBOUND_TYPE;
 	}
-	public Class outboundType() {
+	public Class<Integer> outboundType() {
 		return OUTBOUND_TYPE;
 	}
 	

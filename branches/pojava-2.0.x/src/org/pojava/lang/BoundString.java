@@ -36,7 +36,7 @@ public class BoundString {
 	private final char placeholder = '?';
 	private static final char quot = '\'';
 	private final StringBuffer sb = new StringBuffer();
-	private final List bindings = new ArrayList();
+	private final List<Binding> bindings = new ArrayList<Binding>();
 	private static final String date2ms = "MM/dd/yyyy HH:mm:ss.SSS";
 
 	/**
@@ -95,7 +95,7 @@ public class BoundString {
 	 * 
 	 * @return List of Binding objects.
 	 */
-	public List getBindings() {
+	public List<Binding> getBindings() {
 		return this.bindings;
 	}
 
@@ -116,7 +116,7 @@ public class BoundString {
 	 * @param obj
 	 *            object to bind.
 	 */
-	public void addBinding(Class type, Object obj) {
+	public <T> void addBinding(Class<T> type, T obj) {
 		this.bindings.add(new Binding(type, obj));
 	}
 
@@ -125,7 +125,7 @@ public class BoundString {
 	 * 
 	 * @param bindings
 	 */
-	public void addBindings(Collection bindings) {
+	public void addBindings(Collection<Binding> bindings) {
 		this.bindings.addAll(bindings);
 	}
 
@@ -181,7 +181,7 @@ public class BoundString {
 					sb.append("null");
 				} else {
 					Object obj = binding.getObj();
-					Class type = binding.getType();
+					Class<?> type = binding.getType();
 					if (type == Integer.class || type == int.class
 							|| type == Long.class || type == long.class) {
 						sb.append(obj.toString());

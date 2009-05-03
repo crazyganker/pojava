@@ -22,7 +22,7 @@ package org.pojava.datetime;
  * @author John Pile
  * 
  */
-public class Duration implements Comparable {
+public class Duration implements Comparable<Duration> {
 
 	/**
 	 * A MILLISECOND = one thousandth of a second
@@ -152,21 +152,15 @@ public class Duration implements Comparable {
 	 * Return relative comparison between two Durations.
 	 * @return -1, 0, or 1 of left compared to right.
 	 */
-	public int compareTo(Object other) {
+	public int compareTo(Duration other) {
 		if (other == null) {
 			throw new NullPointerException("Cannot compare Duration to null.");
 		}
-		if (!Duration.class.isAssignableFrom(other.getClass())) {
-			throw new IllegalArgumentException(
-					"Cannot compare Duration type to "
-							+ other.getClass().getName());
-		}
-		Duration otherDur = (Duration) other;
-		if (this.millis == otherDur.millis) {
-			return nanos < otherDur.nanos ? -1 : nanos == otherDur.nanos ? 0
+		if (this.millis == other.millis) {
+			return nanos < other.nanos ? -1 : nanos == other.nanos ? 0
 					: 1;
 		}
-		return this.millis < otherDur.millis ? -1 : 1;
+		return this.millis < other.millis ? -1 : 1;
 	}
 	
 	/**
@@ -174,12 +168,8 @@ public class Duration implements Comparable {
 	 * @param other is a Duration or derived object
 	 * @return True if durations match.
 	 */
-	public boolean equals(Object other) {
-		if (other.getClass().isAssignableFrom(Duration.class)) {
-			Duration dur=(Duration)other;
-			return (this.millis==dur.toMillis() && this.nanos==dur.getNanos());
-		}
-		return false;
+	public boolean equals(Duration other) {
+		return (this.millis==other.toMillis() && this.nanos==other.getNanos());
 	}
 
 	/**

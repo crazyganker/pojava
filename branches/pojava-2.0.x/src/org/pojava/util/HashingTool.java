@@ -36,9 +36,9 @@ public class HashingTool {
 	 * @return Comma separated list of supported hashing algorithms.
 	 */
 	private static String supportedHashingAlgorithms() {
-		Set algorithms = Security.getAlgorithms("MessageDigest");
+		Set<String> algorithms = Security.getAlgorithms("MessageDigest");
 		StringBuffer sb = new StringBuffer();
-		for (Iterator it = algorithms.iterator(); it.hasNext();) {
+		for (Iterator<String> it = algorithms.iterator(); it.hasNext();) {
 			sb.append(it.next().toString());
 			sb.append(", ");
 		}

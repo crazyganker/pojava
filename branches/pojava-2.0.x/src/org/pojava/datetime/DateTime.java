@@ -84,7 +84,7 @@ import org.pojava.util.StringTool;
  * @author John Pile
  * 
  */
-public class DateTime implements Serializable, Comparable {
+public class DateTime implements Serializable, Comparable<DateTime> {
 
 	private static final long serialVersionUID = 140L;
 
@@ -300,26 +300,6 @@ public class DateTime implements Serializable, Comparable {
 			throw new NullPointerException("Cannot compare DateTime to null.");
 		}
 		return this.systemDur.compareTo(other.systemDur);
-	}
-
-	/**
-	 * Compare to another Date + Time object to determine ordering
-	 * 
-	 * @return -1, 0, or 1 based on comparison to another DateTime, Date, or
-	 *         Timestamp object.
-	 */
-	public int compareTo(Object other) {
-		if (other.getClass() == DateTime.class) {
-			return compareTo((DateTime) other);
-		}
-		if (other.getClass() == Timestamp.class) {
-			return this.toTimestamp().compareTo((Timestamp) other);
-		}
-		if (Date.class.isAssignableFrom(other.getClass())) {
-			return this.compareTo(new DateTime(((Date) other).getTime()));
-		}
-		throw new IllegalArgumentException("Cannot compare DateTime to "
-				+ other.getClass().getName() + ".");
 	}
 
 	/**

@@ -38,7 +38,7 @@ public interface IDateTimeConfig {
 	 * map to add your own timezones by referencing other timezones.
 	 * @return TimeZones.
 	 */
-	public Map getTzMap();
+	public Map<String,String> getTzMap();
 
 	/**
 	 * Language support for interpreting names of months.

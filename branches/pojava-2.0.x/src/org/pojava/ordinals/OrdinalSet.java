@@ -30,8 +30,8 @@ import java.util.Map;
  */
 public class OrdinalSet {
 
-	private List list = new ArrayList();
-	private Map map = new HashMap();
+	private List<Ordinal> list = new ArrayList<Ordinal>();
+	private Map<String, Ordinal> map = new HashMap<String, Ordinal>();
 
 	protected void add(String name, Ordinal obj) {
 		list.add(obj);
@@ -42,7 +42,7 @@ public class OrdinalSet {
 		return (Ordinal) map.get(name);
 	}
 
-	public Iterator iterator() {
+	public Iterator<Ordinal> iterator() {
 		return list.iterator();
 	}
 }

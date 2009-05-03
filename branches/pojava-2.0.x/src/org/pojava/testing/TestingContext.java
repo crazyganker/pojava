@@ -19,8 +19,10 @@ package org.pojava.testing;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.Name;
+import javax.naming.NameClassPair;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -48,7 +50,7 @@ import javax.naming.NamingException;
  */
 public class TestingContext implements Context {
 
-	private Hashtable map = new Hashtable();
+	private Hashtable<String,Object> map = new Hashtable<String,Object>();
 
 	private String prefix = null;
 
@@ -135,7 +137,7 @@ public class TestingContext implements Context {
 				"destroySubcontext(String name) Not implemented.");
 	}
 
-	public Hashtable getEnvironment() throws NamingException {
+	public Hashtable<String,Object> getEnvironment() throws NamingException {
 		throw new UnsupportedOperationException(
 				"getEnvironment() Not implemented.");
 	}
@@ -154,23 +156,21 @@ public class TestingContext implements Context {
 		throw new UnsupportedOperationException(
 				"getNameParser(String name) Not implemented.");
 	}
-
-	public NamingEnumeration list(Name name) throws NamingException {
+	public NamingEnumeration<NameClassPair> list(Name name) throws NamingException {
 		throw new UnsupportedOperationException(
 				"list(Name name) Not implemented.");
 	}
-
-	public NamingEnumeration list(String name) throws NamingException {
+	public NamingEnumeration<NameClassPair> list(String name) throws NamingException {
 		throw new UnsupportedOperationException(
 				"list(String name) Not implemented.");
 	}
 
-	public NamingEnumeration listBindings(Name name) throws NamingException {
+	public NamingEnumeration<Binding> listBindings(Name name) throws NamingException {
 		throw new UnsupportedOperationException(
 				"listBindings(Name name) Not implemented.");
 	}
 
-	public NamingEnumeration listBindings(String name) throws NamingException {
+	public NamingEnumeration<Binding> listBindings(String name) throws NamingException {
 		throw new UnsupportedOperationException(
 				"listBindings(String name) Not implemented.");
 	}
@@ -194,8 +194,8 @@ public class TestingContext implements Context {
 		name = normalized(name);
 		Object target = map.get(name);
 		if (target == null) {
-			Hashtable submap = new Hashtable();
-			for (Iterator iter = map.keySet().iterator(); iter.hasNext();) {
+			Hashtable<String, Object> submap = new Hashtable<String, Object>();
+			for (Iterator<String> iter = map.keySet().iterator(); iter.hasNext();) {
 				String key = (String) iter.next();
 				if (key.startsWith(name + "/")) {
 					submap.put(key.substring(name.length() + 1), map.get(key));

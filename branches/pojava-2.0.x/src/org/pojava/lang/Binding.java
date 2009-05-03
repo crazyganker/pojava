@@ -27,7 +27,7 @@ public class Binding {
 	/**
 	 * The type describes the intended type of the object, even if null.
 	 */
-	private Class type;
+	private Class<?> type;
 	
 	/**
 	 * The obj holds an object or null described by the type.
@@ -39,16 +39,16 @@ public class Binding {
 	 * @param type
 	 * @param obj
 	 */
-	public Binding(Class type, Object obj) {
+	public <T> Binding(Class<T> type, T obj) {
 		this.type=type;
 		this.obj=obj;
 	}
 
-	public Class getType() {
+	public Class<?> getType() {
 		return type;
 	}
 
-	public void setType(Class type) {
+	public void setType(Class<?> type) {
 		this.type = type;
 	}
 

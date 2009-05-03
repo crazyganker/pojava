@@ -27,7 +27,7 @@ public class BoundStringTester extends TestCase {
 
 	public void testEmpty() {
 		BoundString bs=new BoundString();
-		assertEquals(new ArrayList(), bs.getBindings());
+		assertEquals(new ArrayList<String>(), bs.getBindings());
 		assertEquals("", bs.getString());
 	}
 
@@ -123,7 +123,7 @@ public class BoundStringTester extends TestCase {
 	}
 	
 	public void testAddBindings() {
-		List bindings=new ArrayList();
+		List<Binding> bindings=new ArrayList<Binding>();
 		bindings.add(new Binding(String.class, "two"));
 		bindings.add(new Binding(Integer.class, new Integer(3)));
 		BoundString bs=new BoundString();
@@ -136,13 +136,13 @@ public class BoundStringTester extends TestCase {
 	}
 	
 	public void testUnbind() {
-		List bindings=new ArrayList();
+		List<Binding> bindings=new ArrayList<Binding>();
 		bindings.add(new Binding(String.class, "two"));
 		bindings.add(new Binding(Integer.class, new Integer(3)));
 		BoundString bs=new BoundString("(?, ?, ?, ?)");
 		bs.addBinding(DateTime.class, new DateTime("1/1/1"));
 		bs.addBindings(bindings);
-		bs.addBinding(Date.class, new DateTime("2003/02/01"));
+		bs.addBinding(Date.class, new DateTime("2003/02/01").toDate());
 		assertEquals(4, bs.getBindings().size());
 		assertEquals("('01/01/2001', 'two', 3, '02/01/2003')", bs.toString());
 	}

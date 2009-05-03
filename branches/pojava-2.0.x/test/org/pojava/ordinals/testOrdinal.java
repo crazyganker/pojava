@@ -7,8 +7,8 @@ import org.pojava.datetime.CalendarUnit;
 public class testOrdinal extends TestCase {
 
 	public void testOrdinalComparisons() {
-		assertTrue(CalendarUnit.DAY.isLessThan(CalendarUnit.YEAR));
-		assertTrue(CalendarUnit.CENTURY.isGreaterThan(CalendarUnit.NANOSECOND));
+		assertTrue(CalendarUnit.DAY.compareTo(CalendarUnit.YEAR)<0);
+		assertTrue(CalendarUnit.CENTURY.compareTo(CalendarUnit.NANOSECOND)>0);
 		assertTrue(CalendarUnit.WEEK.equals(CalendarUnit.valueOf("WEEK")));
 		assertFalse(CalendarUnit.WEEK.equals("WEEK"));
 		assertFalse(CalendarUnit.WEEK.equals(CalendarUnit.MONTH));
@@ -22,7 +22,7 @@ public class testOrdinal extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		} catch (IllegalArgumentException ex) {
 			assertEquals(
-					"No ordinal class org.pojava.datetime.CalendarUnit.NOTHING",
+					"No enum const class org.pojava.datetime.CalendarUnit.NOTHING",
 					ex.getMessage());
 		}
 	}

@@ -78,7 +78,7 @@ public class DriverManagerDataSource implements DataSource {
 	/**
 	 * Compulsory unwrap method.  Unsupported.
 	 */
-	public Object unwrap(Class c) {
+	public <T> T unwrap(Class<T> c) {
 		return null;
 	}
 
@@ -106,7 +106,7 @@ public class DriverManagerDataSource implements DataSource {
 	/**
 	 * Unsupported.
 	 */
-	public boolean isWrapperFor(Class type) {
+	public boolean isWrapperFor(Class<?> type) {
 		return false;
 	}
 

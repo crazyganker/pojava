@@ -33,6 +33,8 @@ public class DurationTester extends TestCase {
 	}
 	
 	public void testDefaultConstructor() {
-		assertEquals(new Duration(0), new Duration());
+		Duration d1=new Duration(0);
+		Duration d2=new Duration();
+		assertTrue(d1.equals(d2));
 	}
 }

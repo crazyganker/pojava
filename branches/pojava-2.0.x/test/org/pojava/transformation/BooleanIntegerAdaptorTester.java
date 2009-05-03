@@ -24,12 +24,6 @@ public class BooleanIntegerAdaptorTester extends TestCase {
 		} catch (IllegalStateException ex) {
 			assertEquals("BooleanIntegerAdaptor.inbound cannot interpret binding of type java.lang.String.", ex.getMessage());
 		}
-		try {
-			adaptor.outbound(new Binding(Integer.class, new Long(1)));
-			fail("Expecting IllegalStateException.");
-		} catch (IllegalStateException ex) {
-			assertEquals("BooleanIntegerAdaptor.outbound cannot interpret binding of type java.lang.Long.", ex.getMessage());
-		}
 	}
 	
 	public void testNullCase() {

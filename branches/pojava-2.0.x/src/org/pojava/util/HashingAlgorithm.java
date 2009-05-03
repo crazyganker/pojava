@@ -49,7 +49,7 @@ public class HashingAlgorithm extends Ordinal {
 	/**
 	 * Iterate over list of supported HashingAlgorithms
 	 */
-	public Iterator iterator() {
+	public Iterator<Ordinal> iterator() {
 		return ordinals.iterator();
 	}
 

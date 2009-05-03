@@ -46,7 +46,7 @@ public class JNDIRegistry {
 	 */
 	public static Context getInitialContext() throws NamingException {
 		String initialContextFactory = "org.pojava.testing.TestingContextFactory";
-		Hashtable env = new Hashtable();
+		Hashtable<String,String> env = new Hashtable<String,String>();
 		env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
 		System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
 				initialContextFactory);
@@ -59,7 +59,7 @@ public class JNDIRegistry {
 	 */
 	public static Context getInitialContext(String initialContextFactory)
 			throws NamingException {
-		Hashtable env = new Hashtable();
+		Hashtable<String,String> env = new Hashtable<String,String>();
 		env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
 		System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
 				initialContextFactory);

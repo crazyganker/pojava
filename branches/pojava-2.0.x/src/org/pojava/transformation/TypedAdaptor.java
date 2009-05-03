@@ -35,12 +35,12 @@ public interface TypedAdaptor extends BindingAdaptor {
 	 * Return the Class that the inbound Binding will provide. 
 	 * @return Class after transformation.
 	 */
-	Class inboundType();
+	Class<?> inboundType();
 	
 	/**
 	 * Return the Class that the outbound Binding will provide. 
 	 * @return Class after transformation.
 	 */
-	Class outboundType();
+	Class<?> outboundType();
 
 }
