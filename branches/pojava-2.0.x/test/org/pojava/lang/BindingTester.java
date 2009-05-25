@@ -1,24 +1,29 @@
 package org.pojava.lang;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 public class BindingTester extends TestCase {
 
 	public void testAccessors() {
-		Binding binding=new Binding(String.class, "tada");
+		Binding<String> binding=new Binding<String>(String.class, "tada");
 		assertEquals(String.class, binding.getType());
-		binding.setType(Integer.class);
-		binding.setObj(new Integer(42));
-		assertEquals(Integer.class, binding.getType());
-		assertEquals(new Integer(42), binding.getObj());
+		assertEquals("tada", binding.getObj());
 	}
 
 
 	public void testNulledAccessors() {
-		Binding binding=new Binding(String.class, "tada");
-		binding.setType(null);
+		Binding<Long> binding=new Binding<Long>(null, 1234L);
 		binding.setObj(null);
 		assertEquals(null, binding.getObj());
 		assertEquals(null, binding.getType());
+	}
+	
+	public void testBindingList() {
+		List<UncheckedBinding> bindingList=new ArrayList<UncheckedBinding>();
+		bindingList.add(new Binding<String>(String.class, "new"));
+		bindingList.add(new Binding<Long>(Long.class, 123L));
 	}
 }

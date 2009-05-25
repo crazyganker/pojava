@@ -123,22 +123,22 @@ public class BoundStringTester extends TestCase {
 	}
 	
 	public void testAddBindings() {
-		List<Binding> bindings=new ArrayList<Binding>();
-		bindings.add(new Binding(String.class, "two"));
-		bindings.add(new Binding(Integer.class, new Integer(3)));
+		List<UncheckedBinding> bindings=new ArrayList<UncheckedBinding>();
+		bindings.add(new Binding<String>(String.class, "two"));
+		bindings.add(new Binding<Integer>(Integer.class, new Integer(3)));
 		BoundString bs=new BoundString();
 		bs.append("(?, ?, ?)");
 		bs.addBinding(DateTime.class, new DateTime("1/1/1"));
 		bs.addBindings(bindings);
-		assertEquals(DateTime.class, ((Binding)bs.getBindings().get(0)).getType());
-		assertEquals("two", ((Binding)bs.getBindings().get(1)).getObj().toString());
+		assertEquals(DateTime.class, ((UncheckedBinding)bs.getBindings().get(0)).getType());
+		assertEquals("two", ((UncheckedBinding)bs.getBindings().get(1)).getObj().toString());
 		assertEquals(3, bs.getBindings().size());
 	}
 	
 	public void testUnbind() {
-		List<Binding> bindings=new ArrayList<Binding>();
-		bindings.add(new Binding(String.class, "two"));
-		bindings.add(new Binding(Integer.class, new Integer(3)));
+		List<UncheckedBinding> bindings=new ArrayList<UncheckedBinding>();
+		bindings.add(new Binding<String>(String.class, "two"));
+		bindings.add(new Binding<Integer>(Integer.class, new Integer(3)));
 		BoundString bs=new BoundString("(?, ?, ?, ?)");
 		bs.addBinding(DateTime.class, new DateTime("1/1/1"));
 		bs.addBindings(bindings);
