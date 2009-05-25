@@ -27,20 +27,24 @@ import org.pojava.lang.Binding;
  * @author John Pile
  * 
  */
-public interface BindingAdaptor {
+public abstract class BindingAdaptor<I,O> {
 
+	public abstract Class<I> inboundType();
+	
+	public abstract Class<O> outboundType();
+	
 	/**
 	 * Inbound example might be from the persistence layer to the business layer.
 	 * @param obj
 	 * @return a new binding translated from the old
 	 */
-	Binding inbound(Binding obj);
+	public abstract Binding<I> inbound(Binding<O> obj);
 
 	/**
 	 * Outbound is typically originating from the business layer to the persistence layer.
 	 * @param obj
 	 * @return a new binding translated from the old
 	 */
-	Binding outbound(Binding obj);
+	public abstract Binding<O> outbound(Binding<I> obj);
 
 }

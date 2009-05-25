@@ -22,21 +22,18 @@ import org.pojava.lang.Binding;
  * The BooleanYNAdaptor transforms a Boolean true/false value to a
  * character Y/N value.
  */
-public class BooleanYNAdaptor implements TypedAdaptor {
-
-	private static final Class<Boolean> INBOUND_TYPE = Boolean.class;
-	private static final Class<String> OUTBOUND_TYPE = String.class;
+public class BooleanYNAdaptor extends BindingAdaptor<Boolean,String> {
 
 	public Class<Boolean> inboundType() {
-		return INBOUND_TYPE;
+		return Boolean.class;
 	}
 	
 	public Class<String> outboundType() {
-		return OUTBOUND_TYPE;
+		return String.class;
 	}
 	
-	public Binding inbound(Binding fromBinding) {
-		Binding toBinding = new Binding(INBOUND_TYPE, null);
+	public Binding<Boolean> inbound(Binding<String> fromBinding) {
+		Binding<Boolean> toBinding = new Binding<Boolean>(Boolean.class, null);
 		if (fromBinding == null || fromBinding.getObj() == null) {
 			return toBinding;
 		}
@@ -53,14 +50,13 @@ public class BooleanYNAdaptor implements TypedAdaptor {
 		return toBinding;
 	}
 
-	public Binding outbound(Binding fromBinding) {
-		Binding toBinding = new Binding(OUTBOUND_TYPE, null);
+	public Binding<String> outbound(Binding<Boolean> fromBinding) {
+		Binding<String> toBinding = new Binding<String>(String.class, null);
 		if (fromBinding == null || fromBinding.getObj() == null) {
 			return toBinding;
 		}
-		if (fromBinding.getObj().getClass().equals(INBOUND_TYPE)) {
-			toBinding
-					.setObj(((Boolean) fromBinding.getObj()).booleanValue() ? "Y"
+		if (fromBinding.getObj().getClass().equals(Boolean.class)) {
+			toBinding.setValue(((Boolean) fromBinding.getObj()).booleanValue() ? "Y"
 							: "N");
 		} else {
 			throw new IllegalStateException(
