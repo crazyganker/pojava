@@ -22,42 +22,42 @@ limitations under the License.
  * @author John Pile
  *
  */
-public class Binding {
+public class Binding<T> extends UncheckedBinding {
 
 	/**
-	 * The type describes the intended type of the object, even if null.
-	 */
-	private Class<?> type;
-	
-	/**
-	 * The obj holds an object or null described by the type.
-	 */
-	private Object obj;
-	
-	/**
-	 * Construct a Binding from its two only fields.
+	 * Construct a Binding from an object.
 	 * @param type
 	 * @param obj
 	 */
-	public <T> Binding(Class<T> type, T obj) {
-		this.type=type;
-		this.obj=obj;
+	public Binding(Class<T> type, T obj) {
+		super(type,obj);
 	}
 
-	public Class<?> getType() {
-		return type;
+	/**
+	 * Return the type represented by this binding.
+	 */
+	@SuppressWarnings("unchecked")
+	public Class<T> getType() {
+		Class<T> clazz=(Class<T>) super.getType();
+		return clazz;
 	}
 
-	public void setType(Class<?> type) {
-		this.type = type;
-	}
-
-	public Object getObj() {
+	/**
+	 * Retrieve typed value of object.
+	 * @return Typed value of object.
+	 */
+	@SuppressWarnings("unchecked")
+	public T getValue() {
+		T obj=(T)super.getObj();
 		return obj;
 	}
 
-	public void setObj(Object obj) {
-		this.obj = obj;
+	/**
+	 * Store a new value into this object.
+	 * @param obj
+	 */
+	public void setValue(T obj) {
+		super.setObj(obj);
 	}
 	
 }
