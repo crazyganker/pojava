@@ -36,7 +36,7 @@ public class BoundString {
 	private final char placeholder = '?';
 	private static final char quot = '\'';
 	private final StringBuffer sb = new StringBuffer();
-	private final List<Binding> bindings = new ArrayList<Binding>();
+	private final List<UncheckedBinding> bindings = new ArrayList<UncheckedBinding>();
 	private static final String date2ms = "MM/dd/yyyy HH:mm:ss.SSS";
 
 	/**
@@ -95,7 +95,7 @@ public class BoundString {
 	 * 
 	 * @return List of Binding objects.
 	 */
-	public List<Binding> getBindings() {
+	public List<UncheckedBinding> getBindings() {
 		return this.bindings;
 	}
 
@@ -117,7 +117,7 @@ public class BoundString {
 	 *            object to bind.
 	 */
 	public <T> void addBinding(Class<T> type, T obj) {
-		this.bindings.add(new Binding(type, obj));
+		this.bindings.add(new Binding<T>(type, obj));
 	}
 
 	/**
@@ -125,7 +125,7 @@ public class BoundString {
 	 * 
 	 * @param bindings
 	 */
-	public void addBindings(Collection<Binding> bindings) {
+	public void addBindings(Collection<UncheckedBinding> bindings) {
 		this.bindings.addAll(bindings);
 	}
 
@@ -176,7 +176,7 @@ public class BoundString {
 		for (int i = 0; i < sql.length; i++) {
 			char c = sql[i];
 			if (c == '?') {
-				Binding binding = (Binding) getBindings().get(marker++);
+				UncheckedBinding binding = (UncheckedBinding) getBindings().get(marker++);
 				if (binding.getObj() == null) {
 					sb.append("null");
 				} else {
