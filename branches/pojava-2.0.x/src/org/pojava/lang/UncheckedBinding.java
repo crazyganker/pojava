@@ -16,9 +16,9 @@ limitations under the License.
 */
 
 /**
- * A Binding is representation of an object (including null) with its class.
  * An UncheckedBinding provides loose requirements for mixing multiple
- * binding types into the same list.
+ * Binding types into the same list.
+ * A Binding is representation of an object (including null) with its class.
  * 
  * @author John Pile
  *
