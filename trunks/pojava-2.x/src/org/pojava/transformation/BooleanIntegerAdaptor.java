@@ -1,6 +1,6 @@
 package org.pojava.transformation;
 /*
-Copyright 2008 John Pile
+Copyright 2008-09 John Pile
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,24 +24,21 @@ import org.pojava.lang.Binding;
  * @author John Pile
  *
  */
-public class BooleanIntegerAdaptor implements TypedAdaptor {
+public class BooleanIntegerAdaptor extends BindingAdaptor<Boolean,Integer> {
 	
-	private static final Class INBOUND_TYPE=Boolean.class;
-	private static final Class OUTBOUND_TYPE=Integer.class;
-
-	public Class inboundType() {
-		return INBOUND_TYPE;
+	public Class<Boolean> inboundType() {
+		return Boolean.class;
 	}
-	public Class outboundType() {
-		return OUTBOUND_TYPE;
+	public Class<Integer> outboundType() {
+		return Integer.class;
 	}
 	
-	public Binding inbound(Binding fromBinding) {
-		Binding toBinding=new Binding(INBOUND_TYPE, null);
+	public Binding<Boolean> inbound(Binding<Integer> fromBinding) {
+		Binding<Boolean> toBinding=new Binding<Boolean>(Boolean.class, null);
 		if (fromBinding==null || fromBinding.getObj()==null) {
 			return toBinding;
 		}
-		if (fromBinding.getObj().getClass().equals(OUTBOUND_TYPE)) {
+		if (fromBinding.getObj().getClass().equals(Integer.class)) {
 			toBinding.setObj(new Boolean(((Integer)fromBinding.getObj()).intValue()!=0));
 		} else {
 			throw new IllegalStateException("BooleanIntegerAdaptor.inbound cannot interpret binding of type " + fromBinding.getObj().getClass().getName() + ".");
@@ -49,12 +46,12 @@ public class BooleanIntegerAdaptor implements TypedAdaptor {
 		return toBinding;
 	}
 
-	public Binding outbound(Binding fromBinding) {
-		Binding toBinding=new Binding(OUTBOUND_TYPE, null);
+	public Binding<Integer> outbound(Binding<Boolean> fromBinding) {
+		Binding<Integer> toBinding=new Binding<Integer>(Integer.class, null);
 		if (fromBinding==null || fromBinding.getObj()==null) {
 			return toBinding;
 		}
-		if (fromBinding.getObj().getClass().equals(INBOUND_TYPE)) {
+		if (fromBinding.getObj().getClass().equals(Boolean.class)) {
 			toBinding.setObj(new Integer(((Boolean)fromBinding.getObj()).booleanValue() ? 1 : 0));
 		} else {
 			throw new IllegalStateException("BooleanIntegerAdaptor.outbound cannot interpret binding of type " + fromBinding.getObj().getClass().getName() + ".");			

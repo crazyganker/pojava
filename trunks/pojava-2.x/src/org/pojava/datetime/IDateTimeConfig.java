@@ -1,7 +1,7 @@
 package org.pojava.datetime;
 
 /*
- Copyright 2008 John Pile
+ Copyright 2008-09 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public interface IDateTimeConfig {
 	 * map to add your own timezones by referencing other timezones.
 	 * @return TimeZones.
 	 */
-	public Map getTzMap();
+	public Map<String,String> getTzMap();
 
 	/**
 	 * Language support for interpreting names of months.

@@ -1,7 +1,7 @@
 package org.pojava.util;
 
 /*
- Copyright 2008 John Pile
+ Copyright 2008-09 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class ReflectionTool {
 	 *            Class to test.
 	 * @return True if class is a type of Collection, else false.
 	 */
-	public static boolean isCollection(Class type) {
+	public static boolean isCollection(Class<?> type) {
 		return java.util.Collection.class.isAssignableFrom(type);
 	}
 
@@ -54,7 +54,7 @@ public class ReflectionTool {
 	 *            Class to test.
 	 * @return True if object is Map, else false.
 	 */
-	public static boolean isMap(Class type) {
+	public static boolean isMap(Class<?> type) {
 		return java.util.AbstractMap.class.isAssignableFrom(type)
 				|| type == Map.class;
 	}
@@ -65,7 +65,7 @@ public class ReflectionTool {
 	 * @param propClass
 	 * @return
 	 */
-	public static boolean isBasic(Class propClass) {
+	public static boolean isBasic(Class<?> propClass) {
 		return propClass.isPrimitive() || propClass == String.class
 				|| propClass == Integer.class || propClass == Double.class
 				|| propClass == Boolean.class || propClass == Long.class
@@ -95,8 +95,8 @@ public class ReflectionTool {
 	 *            Class of properties to harvest.
 	 * @return Map of names to classes.
 	 */
-	public static Map propertyMap(Class baseClass) {
-		Map map = new HashMap();
+	public static Map<String,Class<?>> propertyMap(Class<?> baseClass) {
+		Map<String,Class<?>> map = new HashMap<String,Class<?>>();
 		Method[] methods = baseClass.getMethods();
 		for (int i = 0; i < methods.length; i++) {
 			Method method = methods[i];
@@ -125,11 +125,11 @@ public class ReflectionTool {
 			InstantiationException {
 		Object innerObject = parent;
 		Object tempObject = null;
-		Class propClass = null;
-		Class innerObjectClass = null;
+		Class<? extends Object> propClass = null;
+		Class<? extends Object> innerObjectClass = null;
 		Method method = null;
 		Object[] params = new Object[1];
-		Class[] parameterTypes = new Class[1];
+		Class<?>[] parameterTypes = new Class<?>[1];
 		if (path.startsWith("./")) {
 			path = path.substring(2);
 		}
@@ -145,25 +145,25 @@ public class ReflectionTool {
 								.indexOf('[') + 1, pathPart[p].indexOf(']')));
 					} else {
 						method = innerObjectClass.getMethod(
-								getter(pathPart[p]), null);
+								getter(pathPart[p]), (Class <?>[])null);
 					}
 				} catch (NoSuchMethodException ex) {
 					method = innerObject.getClass()
-							.getMethod(pathPart[p], null);
+							.getMethod(pathPart[p], (Class <?>[]) null);
 				}
 				if (offset == null) {
-					innerObject = method.invoke(innerObject, null);
+					innerObject = method.invoke(innerObject, (Object[])null);
 				} else {
 					if (!(innerObjectClass.isArray()
 							|| isCollection(innerObjectClass) || isMap(innerObjectClass))) {
 						method = innerObjectClass.getMethod(getter(pathPart[p]
-								.substring(0, pathPart[p].indexOf('['))), null);
-						tempObject = method.invoke(innerObject, null);
+								.substring(0, pathPart[p].indexOf('['))), (Class <?>[]) null);
+						tempObject = method.invoke(innerObject, (Object[])null);
 						// If a collection offset is requested for a null
 						// collection, construct one.
 						if (tempObject == null) {
 							tempObject = innerObjectClass.newInstance();
-							Class[] classes = { innerObjectClass };
+							Class<?>[] classes = { innerObjectClass };
 							Object[] objects = { tempObject };
 							method = innerObjectClass.getMethod(
 									setter(pathPart[p]), classes);
@@ -175,12 +175,12 @@ public class ReflectionTool {
 					if (innerObjectClass.isArray()) {
 						innerObject = Array.get(innerObject, offset.intValue());
 					} else if (isCollection(innerObjectClass)) {
-						innerObject = ((Collection) innerObject).toArray()[offset
+						innerObject = ((Collection<?>) innerObject).toArray()[offset
 								.intValue()];
 					} else if (isMap(innerObjectClass)) {
 						// Order is not guaranteed, but a map can be fully
 						// iterated.
-						innerObject = ((Map) innerObject).values().toArray()[offset
+						innerObject = ((Map<?,?>) innerObject).values().toArray()[offset
 								.intValue() - 1];
 					} else {
 						throw new IllegalStateException("Failed to extract '"
@@ -195,10 +195,10 @@ public class ReflectionTool {
 			// the getter.
 			try {
 				method = innerObject.getClass().getMethod(
-						getter(pathPart[pathPart.length - 1]), null);
+						getter(pathPart[pathPart.length - 1]), (Class <?>[])null);
 			} catch (NoSuchMethodException ex) {
 				method = innerObject.getClass().getMethod(
-						pathPart[pathPart.length - 1], null);
+						pathPart[pathPart.length - 1], (Class <?>[])null);
 			}
 			propClass = method.getReturnType();
 			parameterTypes[0] = propClass;
@@ -237,7 +237,7 @@ public class ReflectionTool {
 		try {
 			// Get or Create our way down to a method
 			for (int p = 0; p < getters.length - 1; p++) {
-				tempObject = getters[p].invoke(innerObject, null);
+				tempObject = getters[p].invoke(innerObject, (Object[])null);
 				if (tempObject == null) {
 					// The requested child object doesn't exist yet and we
 					// need to drill down to one of its properties...
@@ -285,9 +285,9 @@ public class ReflectionTool {
 	 *            reference to an object's property
 	 * @return Class of the specified property.
 	 */
-	public static Class propertyType(Class baseClass, String property)
+	public static Class<?> propertyType(Class<?> baseClass, String property)
 			throws NoSuchMethodException {
-		Class innerClass = baseClass;
+		Class<?> innerClass = baseClass;
 		Method method = null;
 		if (property.startsWith("./")) {
 			property = property.substring(2);
@@ -295,9 +295,9 @@ public class ReflectionTool {
 		String[] path = property.split("[./]");
 		for (int p = 0; p < path.length; p++) {
 			try {
-				method = innerClass.getMethod(getter(path[p]), null);
+				method = innerClass.getMethod(getter(path[p]), (Class <?>[])null);
 			} catch (NoSuchMethodException ex) {
-				method = innerClass.getMethod(path[p], null);
+				method = innerClass.getMethod(path[p], (Class <?>[])null);
 			}
 			innerClass = method.getReturnType();
 		}
@@ -316,11 +316,11 @@ public class ReflectionTool {
 		Method[] setters = new Method[getterMethods.length];
 		for (int i = 0; i < setters.length; i++) {
 			Method getter = getterMethods[i];
-			Class parent = getter.getDeclaringClass();
+			Class<?> parent = getter.getDeclaringClass();
 			String getterName = getter.getName();
 			String setterName = "set"
 					+ getterName.substring(getterName.charAt(0) == 'i' ? 2 : 3);
-			Class[] params = { getter.getReturnType() };
+			Class<?>[] params = { getter.getReturnType() };
 			setters[i] = parent.getMethod(setterName, params);
 		}
 		return setters;
@@ -333,12 +333,12 @@ public class ReflectionTool {
 	 *            hold class of object containing the get accessors
 	 * @return array of getter methods drilling down to a property
 	 */
-	public static Accessors accessors(Class type) {
+	public static Accessors accessors(Class<?> type) {
 		Method[] allMethods = type.getMethods();
 		Accessors accessors = new Accessors();
 		accessors.setType(type);
-		Map getters = accessors.getGetters();
-		Map setters = accessors.getSetters();
+		Map<String,Method> getters = accessors.getGetters();
+		Map<String,Method> setters = accessors.getSetters();
 		for (int i = 0; i < allMethods.length; i++) {
 			Method meth = allMethods[i];
 			String methName=meth.getName();
@@ -365,7 +365,7 @@ public class ReflectionTool {
 	 *            class of object containing the accessors
 	 * @return referenced getters and setters for a class
 	 */
-	public static Accessors accessors(Class type, Map getterNames, Map setterNames) throws NoSuchMethodException {
+	public static Accessors accessors(Class<?> type, Map<String,Method> getterNames, Map<String,Method> setterNames) throws NoSuchMethodException {
 		Method[] allMethods = type.getMethods();
 		Accessors accessors = new Accessors();
 		for (int i = 0; i < allMethods.length; i++) {
@@ -389,9 +389,9 @@ public class ReflectionTool {
 	 *            hold a reference to a bean property
 	 * @return array of getter methods drilling down to a property
 	 */
-	public static Method[] getterMethodDrilldown(Class type, String property)
+	public static Method[] getterMethodDrilldown(Class<?> type, String property)
 			throws NoSuchMethodException {
-		Class innerClass = type;
+		Class<?> innerClass = type;
 		Method method = null;
 		if (property.startsWith("./")) {
 			property = property.substring(2);
@@ -401,13 +401,13 @@ public class ReflectionTool {
 		for (int p = 0; p < path.length; p++) {
 			if (path[p].indexOf('[') >= 0) {
 				method = innerClass.getMethod(getter(path[p].substring(0,
-						path[p].indexOf('['))), null);
+						path[p].indexOf('['))), (Class <?>[])null);
 			} else {
 				try {
-					method = innerClass.getMethod(getter(path[p]), null);
+					method = innerClass.getMethod(getter(path[p]), (Class <?>[])null);
 				} catch (NoSuchMethodException ex) {
 					method = innerClass.getMethod("is"
-							+ StringTool.capitalize(path[p]), null);
+							+ StringTool.capitalize(path[p]), (Class <?>[])null);
 				}
 			}
 			methods[p] = method;
@@ -432,7 +432,7 @@ public class ReflectionTool {
 		int i = 0;
 		try {
 			for (i = 0; i < getters.length; i++) {
-				innerObject = getters[i].invoke(innerObject, null);
+				innerObject = getters[i].invoke(innerObject, (Object[])null);
 			}
 		} catch (IllegalAccessException ex) {
 			StringBuffer sb = new StringBuffer();
@@ -463,7 +463,7 @@ public class ReflectionTool {
 	 */
 	public static Object getNestedValue(String relativePath, Object bean) {
 		Object innerObject = bean;
-		Class innerObjectClass = null;
+		Class<?> innerObjectClass = null;
 		Method method = null;
 		if (relativePath.startsWith("./")) {
 			relativePath = relativePath.substring(2);
@@ -479,30 +479,30 @@ public class ReflectionTool {
 								.indexOf('[') + 1, path[p].indexOf(']')));
 					} else {
 						method = innerObjectClass.getMethod(getter(path[p]),
-								null);
+								(Class <?>[])null);
 					}
 				} catch (NoSuchMethodException ex) {
-					method = innerObjectClass.getMethod(path[p], null);
+					method = innerObjectClass.getMethod(path[p], (Class <?>[]) null);
 				}
 				if (offset == null) {
-					innerObject = method.invoke(innerObject, null);
+					innerObject = method.invoke(innerObject, (Object[])null);
 				} else {
 					if (!(innerObjectClass.isArray()
 							|| isCollection(innerObjectClass) || isMap(innerObjectClass))) {
 						method = innerObjectClass.getMethod(getter(path[p]
-								.substring(0, path[p].indexOf('['))), null);
-						innerObject = method.invoke(innerObject, null);
+								.substring(0, path[p].indexOf('['))), (Class <?>[])null);
+						innerObject = method.invoke(innerObject, (Object[])null);
 						innerObjectClass = innerObject.getClass();
 					}
 					if (innerObjectClass.isArray()) {
 						innerObject = Array.get(innerObject, offset.intValue());
 					} else if (isCollection(innerObjectClass)) {
-						innerObject = ((Collection) innerObject).toArray()[offset
+						innerObject = ((Collection<?>) innerObject).toArray()[offset
 								.intValue() - 1];
 					} else if (isMap(innerObjectClass)) {
 						// Order is not guaranteed, but a map can be fully
 						// iterated.
-						innerObject = ((Map) innerObject).values().toArray()[offset
+						innerObject = ((Map<?,?>) innerObject).values().toArray()[offset
 								.intValue() - 1];
 					} else {
 						throw new IllegalStateException("Failed to extract '"
@@ -579,13 +579,13 @@ public class ReflectionTool {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public static void populateFromMap(Object obj, Map properties,
-			Map setters) throws IllegalAccessException,
+	public static void populateFromMap(Object obj, Map<String,Object[]> properties,
+			Map<String,Method> setters) throws IllegalAccessException,
 			InvocationTargetException {
 		if (obj == null || setters == null || setters.isEmpty()) {
 			return;
 		}
-		for (Iterator it=setters.keySet().iterator(); it.hasNext();) {
+		for (Iterator<String> it=setters.keySet().iterator(); it.hasNext();) {
 			String setterName=(String) it.next();
 			Method setter = (Method) setters.get(setterName);
 			String prop = propertyFor(setter);
@@ -602,8 +602,8 @@ public class ReflectionTool {
 	 * @param pojoClass
 	 * @return Map of all getters for a class
 	 */
-	public static Map getterChains(Class pojoClass) {
-		Map getterChains = new HashMap();
+	public static Map<String,Method[]> getterChains(Class<?> pojoClass) {
+		Map<String,Method[]> getterChains = new HashMap<String,Method[]>();
 		Method[] methods = pojoClass.getMethods();
 		for (int i = 0; i < methods.length; i++) {
 			String name = methods[i].getName();
@@ -623,16 +623,16 @@ public class ReflectionTool {
 	 * @param getterChains
 	 * @return Map of all setters for a class matching the getters
 	 */
-	public static Map setterChains(Map getterChains) {
-		Map setterChains = new HashMap();
-		for (Iterator it = getterChains.keySet().iterator(); it.hasNext();) {
-			Method[] getters = (Method[]) it.next();
+	public static Map<String,Method[]> setterChains(Map<String,Method[]> getterChains) {
+		Map<String,Method[]> setterChains = new HashMap<String,Method[]>();
+		for (Iterator<String> it = getterChains.keySet().iterator(); it.hasNext();) {
+			Method[] getters = (Method[]) getterChains.get(it.next());
 			Method[] setters = new Method[getters.length];
 			try {
 				for (int i = 0; i < getters.length; i++) {
 					String name = "set" + getters[i].getName().substring(3);
 					setters[i] = getters[i].getReturnType().getMethod(name,
-							null);
+							(Class <?>[]) null);
 				}
 			} catch (NoSuchMethodException ex) {
 				// ignore

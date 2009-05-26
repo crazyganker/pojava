@@ -1,7 +1,7 @@
 package org.pojava.ordinals;
 
 /*
- Copyright 2008 John Pile
+ Copyright 2008-09 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -54,20 +54,16 @@ import java.util.Iterator;
  * @author John Pile
  * 
  */
-public abstract class Ordinal implements Comparable {
+public abstract class Ordinal implements Comparable<Ordinal> {
 
 	protected static int ct = 0;
 	protected int pos = 0;
 	protected String name;
 
-	public abstract Iterator iterator();
+	public abstract Iterator<Ordinal> iterator();
 
 	public int compareTo(Ordinal ord) {
 		return this.pos - ord.pos;
-	}
-
-	public int compareTo(Object obj) {
-		return compareTo((Ordinal) obj);
 	}
 
 	public boolean isLessThan(Ordinal ord) {

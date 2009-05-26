@@ -1,7 +1,7 @@
 package org.pojava.transformation;
 
 /*
- Copyright 2008 John Pile
+ Copyright 2008-09 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -22,21 +22,18 @@ import org.pojava.lang.Binding;
  * The BooleanYNAdaptor transforms a Boolean true/false value to a
  * character Y/N value.
  */
-public class BooleanYNAdaptor implements TypedAdaptor {
+public class BooleanYNAdaptor extends BindingAdaptor<Boolean,String> {
 
-	private static final Class INBOUND_TYPE = Boolean.class;
-	private static final Class OUTBOUND_TYPE = String.class;
-
-	public Class inboundType() {
-		return INBOUND_TYPE;
+	public Class<Boolean> inboundType() {
+		return Boolean.class;
 	}
 	
-	public Class outboundType() {
-		return OUTBOUND_TYPE;
+	public Class<String> outboundType() {
+		return String.class;
 	}
 	
-	public Binding inbound(Binding fromBinding) {
-		Binding toBinding = new Binding(INBOUND_TYPE, null);
+	public Binding<Boolean> inbound(Binding<String> fromBinding) {
+		Binding<Boolean> toBinding = new Binding<Boolean>(Boolean.class, null);
 		if (fromBinding == null || fromBinding.getObj() == null) {
 			return toBinding;
 		}
@@ -53,14 +50,13 @@ public class BooleanYNAdaptor implements TypedAdaptor {
 		return toBinding;
 	}
 
-	public Binding outbound(Binding fromBinding) {
-		Binding toBinding = new Binding(OUTBOUND_TYPE, null);
+	public Binding<String> outbound(Binding<Boolean> fromBinding) {
+		Binding<String> toBinding = new Binding<String>(String.class, null);
 		if (fromBinding == null || fromBinding.getObj() == null) {
 			return toBinding;
 		}
-		if (fromBinding.getObj().getClass().equals(INBOUND_TYPE)) {
-			toBinding
-					.setObj(((Boolean) fromBinding.getObj()).booleanValue() ? "Y"
+		if (fromBinding.getObj().getClass().equals(Boolean.class)) {
+			toBinding.setValue(((Boolean) fromBinding.getObj()).booleanValue() ? "Y"
 							: "N");
 		} else {
 			throw new IllegalStateException(

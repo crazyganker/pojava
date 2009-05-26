@@ -1,6 +1,6 @@
 package org.pojava.transformation;
 /*
-Copyright 2008 John Pile
+Copyright 2008-09 John Pile
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,20 +27,24 @@ import org.pojava.lang.Binding;
  * @author John Pile
  * 
  */
-public interface BindingAdaptor {
+public abstract class BindingAdaptor<I,O> {
 
+	public abstract Class<I> inboundType();
+	
+	public abstract Class<O> outboundType();
+	
 	/**
 	 * Inbound example might be from the persistence layer to the business layer.
 	 * @param obj
 	 * @return a new binding translated from the old
 	 */
-	Binding inbound(Binding obj);
+	public abstract Binding<I> inbound(Binding<O> obj);
 
 	/**
 	 * Outbound is typically originating from the business layer to the persistence layer.
 	 * @param obj
 	 * @return a new binding translated from the old
 	 */
-	Binding outbound(Binding obj);
+	public abstract Binding<O> outbound(Binding<I> obj);
 
 }

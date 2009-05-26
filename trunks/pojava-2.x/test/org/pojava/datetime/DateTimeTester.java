@@ -301,12 +301,6 @@ public class DateTimeTester extends TestCase {
 		DateTime dt1 = new DateTime(12345);
 		DateTime dt2 = new DateTime(12346);
 		assertTrue(dt1.compareTo(dt2) < 0);
-		try {
-			dt1.compareTo(new Integer(5));
-		} catch (IllegalArgumentException ex) {
-			assertEquals("Cannot compare DateTime to java.lang.Integer.", ex
-					.getMessage());
-		}
 	}
 
 	public void testRelativeDateMinus() {
@@ -413,7 +407,8 @@ public class DateTimeTester extends TestCase {
 	public void testEuropean2() {
 		DateTimeConfig.globalEuropeanDateFormat();
         DateTime dt1=new DateTime("01-07-2003");
-        System.out.println(dt1.toDate().toString());		
+        // System.out.println(dt1.toDate().toString());
+        assertEquals("2003-07-01 00:00:00", dt1.toString());
 	    DateTimeConfig.globalAmericanDateFormat();
 	}
 	

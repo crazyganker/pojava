@@ -110,7 +110,7 @@ public class TmTester extends TestCase {
 	public void testOldLeapDate() {
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(1204272059000L); // Feb 29
-		System.out.println(new Date(cal.getTimeInMillis()));
+		// System.out.println(new Date(cal.getTimeInMillis()));
 		Tm tm = new Tm(cal.getTimeInMillis());
 		assertEquals(cal.get(Calendar.DATE), tm.getDay());
 		assertEquals(1 + cal.get(Calendar.MONTH), tm.getMonth());

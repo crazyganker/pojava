@@ -16,48 +16,42 @@ limitations under the License.
 */
 
 /**
- * A Binding is representation of an object with its class.
- * Its class can be inferred even when the object is null.
+ * An UncheckedBinding provides loose requirements for mixing multiple
+ * Binding types into the same list.
+ * A Binding is representation of an object (including null) with its class.
  * 
  * @author John Pile
  *
  */
-public class Binding<T> extends UncheckedBinding {
+public class UncheckedBinding {
 
+	private Class<?> type;
+	
+	/**
+	 * The obj holds an object or null described by the type.
+	 */
+	private Object obj;
+	
 	/**
 	 * Construct a Binding from an object.
 	 * @param type
 	 * @param obj
 	 */
-	public Binding(Class<T> type, T obj) {
-		super(type,obj);
+	public <T>UncheckedBinding(Class<T> type, T obj) {
+		this.type=type;
+		this.obj=obj;
 	}
 
-	/**
-	 * Return the type represented by this binding.
-	 */
-	@SuppressWarnings("unchecked")
-	public Class<T> getType() {
-		Class<T> clazz=(Class<T>) super.getType();
-		return clazz;
+	public Class<?> getType() {
+		return this.type;
 	}
 
-	/**
-	 * Retrieve typed value of object.
-	 * @return Typed value of object.
-	 */
-	@SuppressWarnings("unchecked")
-	public T getValue() {
-		T obj=(T)super.getObj();
+	public Object getObj() {
 		return obj;
 	}
 
-	/**
-	 * Store a new value into this object.
-	 * @param obj
-	 */
-	public void setValue(T obj) {
-		super.setObj(obj);
+	public void setObj(Object obj) {
+		this.obj = obj;
 	}
 	
 }

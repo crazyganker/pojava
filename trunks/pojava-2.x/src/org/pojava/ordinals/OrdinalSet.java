@@ -1,7 +1,7 @@
 package org.pojava.ordinals;
 
 /*
- Copyright 2008 John Pile
+ Copyright 2008-09 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ import java.util.Map;
  */
 public class OrdinalSet {
 
-	private List list = new ArrayList();
-	private Map map = new HashMap();
+	private List<Ordinal> list = new ArrayList<Ordinal>();
+	private Map<String, Ordinal> map = new HashMap<String, Ordinal>();
 
 	protected void add(String name, Ordinal obj) {
 		list.add(obj);
@@ -42,7 +42,7 @@ public class OrdinalSet {
 		return (Ordinal) map.get(name);
 	}
 
-	public Iterator iterator() {
+	public Iterator<Ordinal> iterator() {
 		return list.iterator();
 	}
 }

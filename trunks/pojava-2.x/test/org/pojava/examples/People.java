@@ -5,10 +5,10 @@ import java.util.List;
 
 public class People {
 
-	List people=new ArrayList();
+	List<Person> people=new ArrayList<Person>();
 	Person leader=null;
 
-	public List getPeople() {
+	public List<Person> getPeople() {
 		return people;
 	}
 

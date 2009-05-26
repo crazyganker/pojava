@@ -1,7 +1,7 @@
 package org.pojava.datetime;
 
 /*
- Copyright 2008 John Pile
+ Copyright 2008-09 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -74,12 +74,12 @@ public class DateTimeConfig implements IDateTimeConfig {
 	 * }
 	 * </pre>
 	 */
-	private static Map tzMap = new HashMap();
+	private static Map<String, String> tzMap = new HashMap<String, String>();
 	static {
 		tzMap.put("Z", "UTC");
 	}
 
-	private static final Map tzCache = new HashMap();
+	private static final Map<String, TimeZone> tzCache = new HashMap<String, TimeZone>();
 	static {
 		TimeZone tz=TimeZone.getDefault();
 		tzCache.put(tz.getID(), tz);
@@ -98,7 +98,7 @@ public class DateTimeConfig implements IDateTimeConfig {
 	 * LANGUAGE_MONTHS maps a language to a string array of 12 calendar month
 	 * prefixes.
 	 */
-	public static final Map LANGUAGE_MONTHS = new HashMap();
+	public static final Map<String, String[]> LANGUAGE_MONTHS = new HashMap<String, String[]>();
 	static {
 		LANGUAGE_MONTHS.put("DE", MONTHS_DE_GER);
 		LANGUAGE_MONTHS.put("EN", MONTHS_EN_ENG);
@@ -111,7 +111,7 @@ public class DateTimeConfig implements IDateTimeConfig {
 	 * languages are checked against calendar names. You can increase
 	 * performance of the parser by ordering or removing entries.
 	 */
-	public static final List SUPPORTED_LANGUAGES = new ArrayList();
+	public static final List<String> SUPPORTED_LANGUAGES = new ArrayList<String>();
 	static {
 		SUPPORTED_LANGUAGES.add("EN");
 		SUPPORTED_LANGUAGES.add("ES");
@@ -140,7 +140,7 @@ public class DateTimeConfig implements IDateTimeConfig {
 	/**
 	 * @return a Map of time zones recognized by DateTime.
 	 */
-	public Map getTzMap() {
+	public Map<String, String> getTzMap() {
 		return tzMap;
 	}
 
@@ -148,7 +148,7 @@ public class DateTimeConfig implements IDateTimeConfig {
 	 * Set a Map of time zones recognized by DateTime
 	 * @param tzMap
 	 */
-	public void setTzMap(Map tzMap) {
+	public void setTzMap(Map<String, String> tzMap) {
 		DateTimeConfig.tzMap = tzMap;
 	}
 
@@ -236,11 +236,21 @@ public class DateTimeConfig implements IDateTimeConfig {
 	public Object[] getSupportedLanguages() {
 		return SUPPORTED_LANGUAGES.toArray();
 	}
-	
+
+	/**
+	 * Add your own uniquely named time zone to the list of interpreted zones.
+	 * @param id the name identifying your time zone
+	 * @param tz a TimeZone object
+	 */
 	public static void addTimeZone(String id, TimeZone tz) {
 		tzCache.put(id, tz);
 	}
 
+	/**
+	 * Fetch a registered time zone by name
+	 * @param id name of time zone to fetch
+	 * @return TimeZone object
+	 */
 	public static TimeZone getTimeZone(String id) {
 		TimeZone tz;
 		if (!tzCache.containsKey(id)) {

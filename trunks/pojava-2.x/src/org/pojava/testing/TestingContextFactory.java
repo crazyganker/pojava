@@ -1,7 +1,7 @@
 package org.pojava.testing;
 
 /*
- Copyright 2008 John Pile
+ Copyright 2008-09 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class TestingContextFactory implements InitialContextFactory {
 
 	private static Context ctx;
 
-	public Context getInitialContext(Hashtable map) throws NamingException {
+	public Context getInitialContext(Hashtable<?,?> map) throws NamingException {
 		if (ctx == null) {
 			ctx = new TestingContext();
 		}

@@ -22,11 +22,11 @@ public class HashingToolTester extends TestCase {
 	}
 
 	public void testAlgorithms() {
-		Set algorithms = Security.getAlgorithms("MessageDigest");
+		Set<String> algorithms = Security.getAlgorithms("MessageDigest");
 		if (DEBUG) {
 			System.out.println("\nALGORITHMS\n==========");
-			for (Iterator it = algorithms.iterator(); it.hasNext();) {
-				System.out.println(it.next().toString());
+			for (Iterator<String> it = algorithms.iterator(); it.hasNext();) {
+				System.out.println(it.next());
 			}
 		}
 	}

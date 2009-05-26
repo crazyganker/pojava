@@ -1,6 +1,6 @@
 package org.pojava.transformation;
 /*
-Copyright 2008 John Pile
+Copyright 2008-09 John Pile
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.Date;
 
 import org.pojava.datetime.DateTime;
 import org.pojava.lang.Binding;
+import org.pojava.lang.UncheckedBinding;
 
 /**
  * The DefaultAdaptor passes most data through directly, but performs
@@ -29,10 +30,21 @@ import org.pojava.lang.Binding;
  * @author John Pile
  *
  */
-public class DefaultAdaptor implements BindingAdaptor {
-
-	public Binding inbound(Binding inBinding) {
-		Binding outBinding=inBinding;
+public class DefaultAdaptor implements UncheckedAdaptor {
+	
+	public Class<?> inboundType() {
+		return Object.class;
+	}
+	
+	public Class<?> outboundType() {
+		return Object.class;
+	}
+	
+	/**
+	 * Inbound is typically converting JDBC values to local POJO values.
+	 */
+	public UncheckedBinding inbound(UncheckedBinding inBinding) {
+		UncheckedBinding outBinding=inBinding;
 		if (inBinding==null) return null;
 		if (inBinding.getObj()==null) {
 			return outBinding;
@@ -41,25 +53,29 @@ public class DefaultAdaptor implements BindingAdaptor {
 			return outBinding;
 		}
 		if (Date.class.isAssignableFrom(inBinding.getObj().getClass())) {
-			outBinding=new Binding(DateTime.class, new DateTime(((Date)inBinding.getObj()).getTime()));
+			outBinding=new Binding<DateTime>(DateTime.class, new DateTime(((Date)inBinding.getObj()).getTime()));
 		}
 		return outBinding;
 	}
 
-	public Binding outbound(Binding outBinding) {
-		Binding inBinding=outBinding;
+	/**
+	 * This default outbound adaptor caters to the currently wide JDBC support for the
+	 * Timestamp object.  As JDBC evolves over time, this may need to be adjusted or replaced.
+	 */
+	public UncheckedBinding outbound(UncheckedBinding outBinding) {
+		UncheckedBinding inBinding=outBinding;
 		if (outBinding==null) return null;
 		if (outBinding.getObj()==null) {
-			inBinding=new Binding(Timestamp.class, null);
+			inBinding=new Binding<Timestamp>(Timestamp.class, null);
 		}
 		if (Time.class==outBinding.getType()) {
 			return inBinding;
 		}
 		if (outBinding.getType().equals(DateTime.class)) {
-			inBinding=new Binding(Timestamp.class, ((DateTime)outBinding.getObj()).toTimestamp());
+			inBinding=new Binding<Timestamp>(Timestamp.class, ((DateTime)outBinding.getObj()).toTimestamp());
 		}
 		if (Date.class.isAssignableFrom(outBinding.getType())) {
-			inBinding=new Binding(Timestamp.class, new Timestamp(((Date)outBinding.getObj()).getTime()));
+			inBinding=new Binding<Timestamp>(Timestamp.class, new Timestamp(((Date)outBinding.getObj()).getTime()));
 		}
 		return inBinding;
 	}

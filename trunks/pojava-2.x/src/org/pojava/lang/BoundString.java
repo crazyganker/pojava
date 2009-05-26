@@ -1,7 +1,7 @@
 package org.pojava.lang;
 
 /*
- Copyright 2008 John Pile
+ Copyright 2008-09 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class BoundString {
 	private final char placeholder = '?';
 	private static final char quot = '\'';
 	private final StringBuffer sb = new StringBuffer();
-	private final List bindings = new ArrayList();
+	private final List<UncheckedBinding> bindings = new ArrayList<UncheckedBinding>();
 	private static final String date2ms = "MM/dd/yyyy HH:mm:ss.SSS";
 
 	/**
@@ -95,7 +95,7 @@ public class BoundString {
 	 * 
 	 * @return List of Binding objects.
 	 */
-	public List getBindings() {
+	public List<UncheckedBinding> getBindings() {
 		return this.bindings;
 	}
 
@@ -116,8 +116,8 @@ public class BoundString {
 	 * @param obj
 	 *            object to bind.
 	 */
-	public void addBinding(Class type, Object obj) {
-		this.bindings.add(new Binding(type, obj));
+	public <T> void addBinding(Class<T> type, T obj) {
+		this.bindings.add(new Binding<T>(type, obj));
 	}
 
 	/**
@@ -125,7 +125,7 @@ public class BoundString {
 	 * 
 	 * @param bindings
 	 */
-	public void addBindings(Collection bindings) {
+	public void addBindings(Collection<UncheckedBinding> bindings) {
 		this.bindings.addAll(bindings);
 	}
 
@@ -176,12 +176,12 @@ public class BoundString {
 		for (int i = 0; i < sql.length; i++) {
 			char c = sql[i];
 			if (c == '?') {
-				Binding binding = (Binding) getBindings().get(marker++);
+				UncheckedBinding binding = (UncheckedBinding) getBindings().get(marker++);
 				if (binding.getObj() == null) {
 					sb.append("null");
 				} else {
 					Object obj = binding.getObj();
-					Class type = binding.getType();
+					Class<?> type = binding.getType();
 					if (type == Integer.class || type == int.class
 							|| type == Long.class || type == long.class) {
 						sb.append(obj.toString());

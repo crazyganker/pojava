@@ -1,7 +1,7 @@
 package org.pojava.lang;
 
 /*
- Copyright 2008 John Pile
+ Copyright 2008-09 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -21,6 +21,6 @@ package org.pojava.lang;
  */
 public interface Processor {
 
-	int process(Object obj);
+	<T> int process(T obj);
 
 }

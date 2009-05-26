@@ -7,34 +7,30 @@ import org.pojava.lang.Binding;
 public class BooleanIntegerAdaptorTester extends TestCase {
 
 	public void testCleanCase() {
-		BindingAdaptor adaptor=new BooleanIntegerAdaptor();
-		Binding local=new Binding(Boolean.class, Boolean.TRUE);
-		Binding remote=new Binding(Integer.class, new Integer(1));
-		Binding adapted=adaptor.inbound(remote);
-		assertEquals(local.getObj(), adapted.getObj());
-		adapted=adaptor.outbound(local);
-		assertEquals(remote.getObj(), adapted.getObj());
+		BindingAdaptor<Boolean,Integer> adaptor=new BooleanIntegerAdaptor();
+		Binding<Boolean> local=new Binding<Boolean>(Boolean.class, Boolean.TRUE);
+		Binding<Integer> remote=new Binding<Integer>(Integer.class, new Integer(1));
+		Binding<Boolean> adaptedIn=adaptor.inbound(remote);
+		Binding<Integer> adaptedOut=adaptor.outbound(local);
+		assertEquals(local.getObj(), adaptedIn.getObj());
+		assertEquals(remote.getObj(), adaptedOut.getObj());
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void testDirtyCase() {
-		BindingAdaptor adaptor=new BooleanIntegerAdaptor();
+		BindingAdaptor<Boolean,Integer> adaptor=new BooleanIntegerAdaptor();
 		try {
+			// Force an incompatibly-typed binding into the adaptor.
 			adaptor.inbound(new Binding(String.class, "invalid"));
 			fail("Expecting IllegalStateException.");
 		} catch (IllegalStateException ex) {
 			assertEquals("BooleanIntegerAdaptor.inbound cannot interpret binding of type java.lang.String.", ex.getMessage());
 		}
-		try {
-			adaptor.outbound(new Binding(Integer.class, new Long(1)));
-			fail("Expecting IllegalStateException.");
-		} catch (IllegalStateException ex) {
-			assertEquals("BooleanIntegerAdaptor.outbound cannot interpret binding of type java.lang.Long.", ex.getMessage());
-		}
 	}
 	
 	public void testNullCase() {
-		BindingAdaptor adaptor=new BooleanIntegerAdaptor();
-		assertEquals(null, adaptor.inbound(new Binding(String.class, null)).getObj());
+		BindingAdaptor<Boolean,Integer> adaptor=new BooleanIntegerAdaptor();
+		assertEquals(null, adaptor.inbound(null).getObj());
 		assertEquals(null, adaptor.outbound(null).getObj());
 	}
 }

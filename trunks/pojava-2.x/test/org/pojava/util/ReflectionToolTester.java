@@ -59,7 +59,7 @@ public class ReflectionToolTester extends TestCase {
 	}
 
 	public void testPropertyMap() {
-		Map propMap = ReflectionTool.propertyMap(Person.class);
+		Map<String, Class<?>> propMap = ReflectionTool.propertyMap(Person.class);
 		assertTrue(propMap.get("birth") == DateTime.class);
 		assertTrue(propMap.get("id") == int.class);
 		assertTrue(propMap.get("name") == String.class);
@@ -88,8 +88,8 @@ public class ReflectionToolTester extends TestCase {
 	public void testGetterMethods() throws Exception {
 		Method[] methods = ReflectionTool.getterMethodDrilldown(People.class,
 				"leader.id");
-		assertEquals(methods[0], People.class.getMethod("getLeader", null));
-		assertEquals(methods[1], Person.class.getMethod("getId", null));
+		assertEquals(methods[0], People.class.getMethod("getLeader", (Class<?>[])null));
+		assertEquals(methods[1], Person.class.getMethod("getId", (Class<?>[])null));
 	}
 
 	public void testNestedValue() throws Exception {
