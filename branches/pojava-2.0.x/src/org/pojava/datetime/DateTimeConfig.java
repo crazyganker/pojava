@@ -236,11 +236,21 @@ public class DateTimeConfig implements IDateTimeConfig {
 	public Object[] getSupportedLanguages() {
 		return SUPPORTED_LANGUAGES.toArray();
 	}
-	
+
+	/**
+	 * Add your own uniquely named time zone to the list of interpreted zones.
+	 * @param id the name identifying your time zone
+	 * @param tz a TimeZone object
+	 */
 	public static void addTimeZone(String id, TimeZone tz) {
 		tzCache.put(id, tz);
 	}
 
+	/**
+	 * Fetch a registered time zone by name
+	 * @param id name of time zone to fetch
+	 * @return TimeZone object
+	 */
 	public static TimeZone getTimeZone(String id) {
 		TimeZone tz;
 		if (!tzCache.containsKey(id)) {
