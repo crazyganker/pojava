@@ -4,6 +4,7 @@ import java.sql.Time;
 import java.util.Date;
 
 import org.pojava.lang.Binding;
+import org.pojava.transformation.BindingAdaptor;
 
 /**
  * Process a Time value from a ResultSet. This ensures that the hidden date
@@ -12,7 +13,7 @@ import org.pojava.lang.Binding;
  * @author John Pile
  * 
  */
-public class TimeAdaptor implements TypedAdaptor {
+public class TimeAdaptor extends BindingAdaptor {
 
 	/**
 	 * The type the translator will produce for the bean.

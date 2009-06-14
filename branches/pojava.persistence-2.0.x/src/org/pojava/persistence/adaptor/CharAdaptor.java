@@ -1,6 +1,7 @@
 package org.pojava.persistence.adaptor;
 
 import org.pojava.lang.Binding;
+import org.pojava.transformation.BindingAdaptor;
 
 /**
  * Adaptor for managing Java to JDBC for a Character value.
@@ -8,7 +9,7 @@ import org.pojava.lang.Binding;
  * @author John Pile
  * 
  */
-public class CharAdaptor implements TypedAdaptor {
+public class CharAdaptor extends BindingAdaptor {
 
 	/**
 	 * The type the translator will produce for the bean.

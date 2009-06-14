@@ -22,7 +22,6 @@ import java.sql.SQLException;
 
 import org.pojava.exception.ReflectionException;
 import org.pojava.lang.Binding;
-import org.pojava.persistence.adaptor.TypedAdaptor;
 import org.pojava.transformation.BindingAdaptor;
 import org.pojava.util.ReflectionTool;
 
@@ -118,7 +117,7 @@ public class FieldMap {
 	 * @param tableMap
 	 */
 	public FieldMap(String property, String fieldName, boolean isKeyField,
-			TypedAdaptor adaptor, TableMap tableMap)
+			BindingAdaptor adaptor, TableMap tableMap)
 			throws NoSuchMethodException {
 		Class parentType = tableMap.getJavaClass();
 		this.property = property;

@@ -2,6 +2,7 @@ package org.pojava.persistence.adaptor;
 
 import org.pojava.datetime.DateTime;
 import org.pojava.lang.Binding;
+import org.pojava.transformation.BindingAdaptor;
 
 /**
  * Adaptor for managing Java to JDBC for a java.sql.Date value mapped to a
@@ -10,7 +11,7 @@ import org.pojava.lang.Binding;
  * @author John Pile
  * 
  */
-public class DateTimeSqlAdaptor implements TypedAdaptor {
+public class DateTimeSqlAdaptor extends BindingAdaptor {
 
 	/**
 	 * The type the translator will produce for the bean.

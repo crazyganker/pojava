@@ -37,7 +37,7 @@ import org.pojava.exception.InconceivableException;
 import org.pojava.exception.PersistenceException;
 import org.pojava.lang.Binding;
 import org.pojava.lang.BoundString;
-import org.pojava.persistence.adaptor.TypedAdaptor;
+import org.pojava.transformation.BindingAdaptor;
 import org.pojava.util.ReflectionTool;
 import org.pojava.util.StringTool;
 
@@ -251,7 +251,7 @@ public class TableMap {
 	 * @throws NoSuchMethodException
 	 */
 	public void FieldMap(String property, String fieldName, boolean isKeyField,
-			TypedAdaptor adaptor)
+			BindingAdaptor adaptor)
 			throws NoSuchMethodException {
 		addFieldMap(new FieldMap(property, fieldName, isKeyField, adaptor, this));
 	}

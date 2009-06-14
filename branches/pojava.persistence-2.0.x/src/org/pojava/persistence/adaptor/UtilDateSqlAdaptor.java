@@ -10,7 +10,7 @@ import org.pojava.transformation.BindingAdaptor;
  * @author John Pile
  * 
  */
-public class UtilDateSqlAdaptor implements BindingAdaptor {
+public class UtilDateSqlAdaptor extends BindingAdaptor {
 
 	/**
 	 * The type the translator will produce for the bean.
