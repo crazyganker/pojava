@@ -39,13 +39,7 @@ public class BooleanIntegerAdaptor extends BindingAdaptor<Boolean, Integer> {
         if (fromBinding == null || fromBinding.getObj() == null) {
             return toBinding;
         }
-        if (fromBinding.getObj().getClass().equals(Integer.class)) {
-            toBinding.setObj(new Boolean(((Integer) fromBinding.getObj()).intValue() != 0));
-        } else {
-            throw new IllegalStateException(
-                    "BooleanIntegerAdaptor.inbound cannot interpret binding of type "
-                            + fromBinding.getObj().getClass().getName() + ".");
-        }
+        toBinding.setObj(Boolean.valueOf(fromBinding.getValue().intValue() != 0));
         return toBinding;
     }
 
@@ -54,14 +48,7 @@ public class BooleanIntegerAdaptor extends BindingAdaptor<Boolean, Integer> {
         if (fromBinding == null || fromBinding.getObj() == null) {
             return toBinding;
         }
-        if (fromBinding.getObj().getClass().equals(Boolean.class)) {
-            toBinding.setObj(new Integer(((Boolean) fromBinding.getObj()).booleanValue() ? 1
-                    : 0));
-        } else {
-            throw new IllegalStateException(
-                    "BooleanIntegerAdaptor.outbound cannot interpret binding of type "
-                            + fromBinding.getObj().getClass().getName() + ".");
-        }
+        toBinding.setObj(Integer.valueOf(fromBinding.getValue().equals(Boolean.TRUE) ? 1 : 0));
         return toBinding;
     }
 
