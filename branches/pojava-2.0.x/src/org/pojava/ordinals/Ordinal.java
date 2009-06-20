@@ -19,27 +19,27 @@ package org.pojava.ordinals;
 import java.util.Iterator;
 
 /**
- * An ordinal is roughly equivalent to an Enum. Enums are great-- a good reason
- * to upgrade, really. If you still need backward compatibility with Java 1.4.2,
- * though, this can be a good alternative that can provide a smooth transition
- * to Enums in the future. <br/> <em>Example code:</em><br/>
+ * An ordinal is roughly equivalent to an Enum. Enums are great-- a good reason to upgrade,
+ * really. If you still need backward compatibility with Java 1.4.2, though, this can be a good
+ * alternative that can provide a smooth transition to Enums in the future. <br/>
+ * <em>Example code:</em><br/>
  * 
  * <pre>
  * public class AlertLevel extends Ordinal {
  * 
- * 	private static final OrdinalSet ordinals = new OrdinalSet();
+ *     private static final OrdinalSet ordinals = new OrdinalSet();
  * 
- * 	public static final AlertLevel INFO = new AlertLevel(&quot;INFO&quot;);
- * 	public static final AlertLevel WARNING = new AlertLevel(&quot;WARNING&quot;);
- * 	public static final AlertLevel ERROR = new AlertLevel(&quot;ERROR&quot;);
+ *     public static final AlertLevel INFO = new AlertLevel(&quot;INFO&quot;);
+ *     public static final AlertLevel WARNING = new AlertLevel(&quot;WARNING&quot;);
+ *     public static final AlertLevel ERROR = new AlertLevel(&quot;ERROR&quot;);
  * 
- * 	private AlertLevel(String name) {
- * 		register(ordinals, name, this);
- * 	}
+ *     private AlertLevel(String name) {
+ *         register(ordinals, name, this);
+ *     }
  * 
- * 	public Iterator iterator() {
- * 		return ordinals.iterator();
- * 	}
+ *     public Iterator iterator() {
+ *         return ordinals.iterator();
+ *     }
  * 
  * }
  * </pre>
@@ -56,40 +56,40 @@ import java.util.Iterator;
  */
 public abstract class Ordinal implements Comparable<Ordinal> {
 
-	protected static int ct = 0;
-	protected int pos = 0;
-	protected String name;
+    protected static int ct = 0;
+    protected int pos = 0;
+    protected String name;
 
-	public abstract Iterator<Ordinal> iterator();
+    public abstract Iterator<Ordinal> iterator();
 
-	public int compareTo(Ordinal ord) {
-		return this.pos - ord.pos;
-	}
+    public int compareTo(Ordinal ord) {
+        return this.pos - ord.pos;
+    }
 
-	public boolean isLessThan(Ordinal ord) {
-		return this.pos < ord.pos;
-	}
+    public boolean isLessThan(Ordinal ord) {
+        return this.pos < ord.pos;
+    }
 
-	public boolean isGreaterThan(Ordinal ord) {
-		return this.pos > ord.pos;
-	}
+    public boolean isGreaterThan(Ordinal ord) {
+        return this.pos > ord.pos;
+    }
 
-	public boolean equals(Ordinal ord) {
-		return this.pos == ord.pos;
-	}
+    public boolean equals(Ordinal ord) {
+        return this.pos == ord.pos;
+    }
 
-	public void register(OrdinalSet ordinals, String name, Ordinal ordinal) {
-		this.pos = ct++;
-		this.name = name;
-		ordinals.add(name, ordinal);
-	}
+    public void register(OrdinalSet ordinals, String name, Ordinal ordinal) {
+        this.pos = ct++;
+        this.name = name;
+        ordinals.add(name, ordinal);
+    }
 
-	public String toString() {
-		return name;
-	}
+    public String toString() {
+        return name;
+    }
 
-	public int ordinal() {
-		return this.pos;
-	}
+    public int ordinal() {
+        return this.pos;
+    }
 
 }

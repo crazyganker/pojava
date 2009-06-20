@@ -21,6 +21,6 @@ package org.pojava.lang;
  */
 public interface Processor {
 
-	<T> int process(T obj);
+    <T> int process(T obj);
 
 }

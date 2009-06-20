@@ -6,31 +6,33 @@ import org.pojava.lang.Binding;
 
 public class BooleanIntegerAdaptorTester extends TestCase {
 
-	public void testCleanCase() {
-		BindingAdaptor<Boolean,Integer> adaptor=new BooleanIntegerAdaptor();
-		Binding<Boolean> local=new Binding<Boolean>(Boolean.class, Boolean.TRUE);
-		Binding<Integer> remote=new Binding<Integer>(Integer.class, new Integer(1));
-		Binding<Boolean> adaptedIn=adaptor.inbound(remote);
-		Binding<Integer> adaptedOut=adaptor.outbound(local);
-		assertEquals(local.getObj(), adaptedIn.getObj());
-		assertEquals(remote.getObj(), adaptedOut.getObj());
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void testDirtyCase() {
-		BindingAdaptor<Boolean,Integer> adaptor=new BooleanIntegerAdaptor();
-		try {
-			// Force an incompatibly-typed binding into the adaptor.
-			adaptor.inbound(new Binding(String.class, "invalid"));
-			fail("Expecting IllegalStateException.");
-		} catch (IllegalStateException ex) {
-			assertEquals("BooleanIntegerAdaptor.inbound cannot interpret binding of type java.lang.String.", ex.getMessage());
-		}
-	}
-	
-	public void testNullCase() {
-		BindingAdaptor<Boolean,Integer> adaptor=new BooleanIntegerAdaptor();
-		assertEquals(null, adaptor.inbound(null).getObj());
-		assertEquals(null, adaptor.outbound(null).getObj());
-	}
+    public void testCleanCase() {
+        BindingAdaptor<Boolean, Integer> adaptor = new BooleanIntegerAdaptor();
+        Binding<Boolean> local = new Binding<Boolean>(Boolean.class, Boolean.TRUE);
+        Binding<Integer> remote = new Binding<Integer>(Integer.class, new Integer(1));
+        Binding<Boolean> adaptedIn = adaptor.inbound(remote);
+        Binding<Integer> adaptedOut = adaptor.outbound(local);
+        assertEquals(local.getObj(), adaptedIn.getObj());
+        assertEquals(remote.getObj(), adaptedOut.getObj());
+    }
+
+    @SuppressWarnings("unchecked")
+    public void testDirtyCase() {
+        BindingAdaptor<Boolean, Integer> adaptor = new BooleanIntegerAdaptor();
+        try {
+            // Force an incompatibly-typed binding into the adaptor.
+            adaptor.inbound(new Binding(String.class, "invalid"));
+            fail("Expecting IllegalStateException.");
+        } catch (IllegalStateException ex) {
+            assertEquals(
+                    "BooleanIntegerAdaptor.inbound cannot interpret binding of type java.lang.String.",
+                    ex.getMessage());
+        }
+    }
+
+    public void testNullCase() {
+        BindingAdaptor<Boolean, Integer> adaptor = new BooleanIntegerAdaptor();
+        assertEquals(null, adaptor.inbound(null).getObj());
+        assertEquals(null, adaptor.outbound(null).getObj());
+    }
 }
