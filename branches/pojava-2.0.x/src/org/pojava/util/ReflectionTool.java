@@ -241,6 +241,8 @@ public class ReflectionTool {
             setters[setters.length - 1].invoke(innerObject, params);
         } catch (InvocationTargetException ex) {
             throw new ReflectionException(ex.getMessage(), ex);
+        } catch (IllegalArgumentException ex) {
+            throw new ReflectionException(ex.getMessage(), ex);
         }
     }
 
@@ -569,12 +571,12 @@ public class ReflectionTool {
         if (obj == null || setters == null || setters.isEmpty()) {
             return;
         }
-        for (Iterator<String> it = setters.keySet().iterator(); it.hasNext();) {
-            String setterName = (String) it.next();
-            Method setter = (Method) setters.get(setterName);
+        for (Iterator<Map.Entry<String, Method>> it = setters.entrySet().iterator(); it
+                .hasNext();) {
+            Method setter = it.next().getValue();
             String prop = propertyFor(setter);
             if (properties.containsKey(prop)) {
-                Object[] args = { properties.get(propertyFor(setter)) };
+                Object[] args = { properties.get(prop) };
                 setter.invoke(obj, args);
             }
         }
@@ -608,8 +610,10 @@ public class ReflectionTool {
      */
     public static Map<String, Method[]> setterChains(Map<String, Method[]> getterChains) {
         Map<String, Method[]> setterChains = new HashMap<String, Method[]>();
-        for (Iterator<String> it = getterChains.keySet().iterator(); it.hasNext();) {
-            Method[] getters = (Method[]) getterChains.get(it.next());
+        for (Iterator<Map.Entry<String, Method[]>> it = getterChains.entrySet().iterator(); it
+                .hasNext();) {
+            Map.Entry<String, Method[]> entry = it.next();
+            Method[] getters = entry.getValue();
             Method[] setters = new Method[getters.length];
             try {
                 for (int i = 0; i < getters.length; i++) {
