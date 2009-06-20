@@ -55,13 +55,7 @@ public class BooleanYNAdaptor extends BindingAdaptor<Boolean, String> {
         if (fromBinding == null || fromBinding.getObj() == null) {
             return toBinding;
         }
-        if (fromBinding.getObj().getClass().equals(Boolean.class)) {
-            toBinding.setValue(((Boolean) fromBinding.getObj()).booleanValue() ? "Y" : "N");
-        } else {
-            throw new IllegalStateException(
-                    "BooleanIntegerAdaptor.outbound cannot interpret binding of type "
-                            + fromBinding.getObj().getClass().getName() + ".");
-        }
+        toBinding.setValue(fromBinding.getValue().equals(Boolean.TRUE) ? "Y" : "N");
         return toBinding;
     }
 
