@@ -16,6 +16,7 @@ package org.pojava.datetime;
  limitations under the License.
  */
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +31,12 @@ import java.util.TimeZone;
  * @author John Pile
  * 
  */
-public class DateTimeConfig implements IDateTimeConfig {
+public class DateTimeConfig implements IDateTimeConfig, Serializable {
+
+    /**
+     * Compulsory serial ID.
+     */
+    private static final long serialVersionUID = 1L;
 
     /**
      * Singleton pattern. The globalDefault variable is referenced by DateTime, so changes you
@@ -145,12 +151,12 @@ public class DateTimeConfig implements IDateTimeConfig {
     }
 
     /**
-     * Set a Map of time zones recognized by DateTime
+     * Merge a Map of time zones recognized by DateTime
      * 
      * @param tzMap
      */
-    public void setTzMap(Map<String, String> tzMap) {
-        DateTimeConfig.tzMap = tzMap;
+    public void addTzMap(Map<String, String> tzMap) {
+        DateTimeConfig.tzMap.putAll(tzMap);
     }
 
     /**
