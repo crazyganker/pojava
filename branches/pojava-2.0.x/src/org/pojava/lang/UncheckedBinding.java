@@ -38,7 +38,7 @@ public class UncheckedBinding {
      * @param type
      * @param obj
      */
-    public <T> UncheckedBinding(Class<T> type, T obj) {
+    public UncheckedBinding(Class<?> type, Object obj) {
         this.type = type;
         this.obj = obj;
     }
