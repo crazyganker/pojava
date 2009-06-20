@@ -54,7 +54,7 @@ public class HashingTool {
         Set<String> algorithms = Security.getAlgorithms("MessageDigest");
         StringBuffer sb = new StringBuffer();
         for (Iterator<String> it = algorithms.iterator(); it.hasNext();) {
-            sb.append(it.next().toString());
+            sb.append(it.next());
             sb.append(", ");
         }
         sb.setLength(Math.max(0, sb.length() - 2));
@@ -72,7 +72,7 @@ public class HashingTool {
      */
     public static byte[] hash(final byte[] hashMe, HashingAlgorithm alg) {
         try {
-            return hash(hashMe, alg.toString());
+            return hash(hashMe, alg.toString().replace('_', '-'));
         } catch (NoSuchAlgorithmException ex) {
             throw new InconceivableException("Unsupported algorithm [" + alg.toString()
                     + "].  Must be one of " + supportedHashingAlgorithms(), ex);
