@@ -419,13 +419,13 @@ public class DateTime implements Serializable, Comparable {
         /* Fixed durations */
         if (calUnit.compareTo(CalendarUnit.DAY) < 0) {
             if (calUnit == CalendarUnit.HOUR) {
-                return this.add(qty * 3600000);
+                return this.add(qty * 3600000L);
             }
             if (calUnit == CalendarUnit.MINUTE) {
-                return this.add(qty * 60000);
+                return this.add(qty * 60000L);
             }
             if (calUnit == CalendarUnit.SECOND) {
-                return this.add(qty * 1000);
+                return this.add(qty * 1000L);
             }
             if (calUnit == CalendarUnit.MILLISECOND) {
                 return this.add(qty);
@@ -810,7 +810,7 @@ public class DateTime implements Serializable, Comparable {
                         offsetHours--;
                     }
                     tz = TimeZone.getTimeZone(config.getTzMap().get(
-                            new Integer(offsetHours).toString()).toString());
+                            Integer.toString(offsetHours)).toString());
                 }
             }
             returnDt = new DateTime(Tm.calcTime(year, 1 + month, day, hour, minute, second,
@@ -931,24 +931,32 @@ public class DateTime implements Serializable, Comparable {
     }
 
     /**
-     * This compares a DateTime with either another DateTime or any of Java's standard dates
-     * extending from java.util.Date.
+     * This compares a DateTime with another DateTime.
      * 
      * @param dateTime
      * @return True if DateTime values represent the same point in time.
      */
     public boolean equals(Object dateTime) {
-        DateTime dt = null;
         if (dateTime == null) {
             return false;
         }
-        if (dateTime instanceof DateTime) {
-            dt = (DateTime) dateTime;
-        } else if (dateTime instanceof java.util.Date) {
-            dt = new DateTime(((java.util.Date) dateTime).getTime());
+        if (dateTime.getClass() == this.getClass()) {
+            DateTime dt = (DateTime) dateTime;
+            return systemDur.toMillis() == dt.toMillis()
+                    && systemDur.getNanos() == dt.getNanos();
         }
-        return systemDur.toMillis() == dt.toMillis() && systemDur.getNanos() == dt.getNanos();
+        return false;
     }
+
+    /*
+     * Reasonably unique hashCode, since we're providing an equals method.
+     * 
+     * @return a hashCode varying by the most significant fields, millis and nanos.
+     */
+    public int hashCode() {
+        return systemDur.hashCode();
+    }
+
 
     /**
      * Return the global configuration used by DateTime.
