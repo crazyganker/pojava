@@ -144,6 +144,7 @@ public class DateTimeFormat {
             } else {
                 sb.append(wes[tm.getWeekday()]);
             }
+            break;
         case 'a':
             sb.append(tm.getHour() > 11 ? "PM" : "AM");
             break;
