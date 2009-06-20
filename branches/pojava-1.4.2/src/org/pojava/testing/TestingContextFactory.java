@@ -30,13 +30,13 @@ import javax.naming.spi.InitialContextFactory;
  */
 public class TestingContextFactory implements InitialContextFactory {
 
-	private static Context ctx;
+    private static Context ctx;
 
-	public Context getInitialContext(Hashtable map) throws NamingException {
-		if (ctx == null) {
-			ctx = new TestingContext();
-		}
-		return ctx;
-	}
+    public Context getInitialContext(Hashtable map) throws NamingException {
+        if (ctx == null) {
+            ctx = new TestingContext();
+        }
+        return ctx;
+    }
 
 }
