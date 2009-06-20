@@ -1,5 +1,7 @@
 package org.pojava.datetime;
 
+import java.io.Serializable;
+
 /*
  Copyright 2008-09 John Pile
 
@@ -22,7 +24,12 @@ package org.pojava.datetime;
  * @author John Pile
  * 
  */
-public class Duration implements Comparable<Duration> {
+public class Duration implements Comparable<Duration>, Serializable {
+
+    /**
+     * Compulsory serial ID.
+     */
+    private static final long serialVersionUID = 1L;
 
     /**
      * A MILLISECOND = one thousandth of a second
@@ -172,8 +179,16 @@ public class Duration implements Comparable<Duration> {
      *            is a Duration or derived object
      * @return True if durations match.
      */
-    public boolean equals(Duration other) {
-        return (this.millis == other.toMillis() && this.nanos == other.getNanos());
+    public boolean equals(Object other) {
+        if (other instanceof Duration) {
+            return compareTo((Duration) other) == 0;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) ((this.millis & 0xFFFF) ^ this.nanos);
     }
 
     /**
