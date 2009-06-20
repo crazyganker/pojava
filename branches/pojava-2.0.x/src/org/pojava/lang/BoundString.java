@@ -33,7 +33,7 @@ import org.pojava.datetime.DateTimeFormat;
  */
 public class BoundString {
 
-    private final char placeholder = '?';
+    private static char PLACEHOLDER = '?';
     private static final char quot = '\'';
     private final StringBuffer sb = new StringBuffer();
     private final List<UncheckedBinding> bindings = new ArrayList<UncheckedBinding>();
@@ -120,6 +120,10 @@ public class BoundString {
         this.bindings.add(new Binding<T>(type, obj));
     }
 
+    public void addBinding(UncheckedBinding binding) {
+        this.bindings.add(binding);
+    }
+
     /**
      * Add a collection of bindings.
      * 
@@ -145,7 +149,7 @@ public class BoundString {
     public boolean isImbalanced() {
         int placeholders = 0;
         for (int i = 0; i < sb.length(); i++) {
-            if (sb.charAt(i) == placeholder) {
+            if (sb.charAt(i) == PLACEHOLDER) {
                 placeholders++;
             }
         }
