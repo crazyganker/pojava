@@ -148,9 +148,9 @@ public class Tm {
         day = (int) (duration / DAY);
         duration -= day * DAY;
         hour = (int) duration / HOUR;
-        duration -= hour * HOUR;
+        duration -= 1L * hour * HOUR;
         minute = (int) duration / 60000;
-        duration -= minute * 60000;
+        duration -= minute * 60000L;
         second = (int) duration / 1000;
         day++;
         // Shift from March calendar start, to January calendar start.
