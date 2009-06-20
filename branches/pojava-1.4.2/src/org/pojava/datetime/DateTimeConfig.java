@@ -152,6 +152,16 @@ public class DateTimeConfig implements IDateTimeConfig {
     public void setTzMap(Map tzMap) {
         DateTimeConfig.tzMap = tzMap;
     }
+    
+    /**
+     * Set a Map of time zones recognized by DateTime
+     * 
+     * @param tzMap
+     */
+    public void addTzMap(Map tzMap) {
+        DateTimeConfig.tzMap.putAll(tzMap);
+    }
+
 
     /**
      * 
