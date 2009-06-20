@@ -16,30 +16,29 @@ package org.pojava.datetime;
  limitations under the License.
  */
 
-
 /**
- * A CalendarUnit represents a time interval whose duration is allowed to vary
- * in order to adjust to Daylight Saving Time where needed.
+ * A CalendarUnit represents a time interval whose duration is allowed to vary in order to
+ * adjust to Daylight Saving Time where needed.
  * 
- * The fundamental difference between CalendarUnit and Duration is that
- * calculations performed with CalendarUnit will seek to match an equivalent
- * time of day should a DST to non-DST boundary be crossed, whereas calculations
- * with Duration will simply add a fixed unit of time.
+ * The fundamental difference between CalendarUnit and Duration is that calculations performed
+ * with CalendarUnit will seek to match an equivalent time of day should a DST to non-DST
+ * boundary be crossed, whereas calculations with Duration will simply add a fixed unit of time.
  * 
  * @author John Pile
  * 
  */
 public enum CalendarUnit {
-	NANOSECOND,  /* A NANOSECOND = a billionth of a second   */
-	MICROSECOND, /* A MICROSECOND = a millionth of a second  */
-	MILLISECOND, /* A MILLISECOND = a thousandth of a second */
-	SECOND,      /* A SECOND = Well, you probably know what a second is... */
-	MINUTE,      /* A MINUTE = sixty seconds (there are no leap seconds in system time) */
-	HOUR,        /* An HOUR = a shift of one hour on the clock, regardless of elapsed time. */
-	DAY,         /* A DAY = a shift to the same time on the next calendar day */
-	WEEK,        /* A WEEK = a shift to the same time offset by 7 calendar days */
-	MONTH,       /* A MONTH = a shift to the same day of the month for a different month */
-	QUARTER,     /* A QUARTER = a shift of three calendar months */
-	YEAR,        /* A YEAR = a shift of one calendar year */
-	CENTURY      /* A CENTURY = a shift of one hundred calendar years */
+    NANOSECOND, /* A NANOSECOND = a billionth of a second */
+    MICROSECOND, /* A MICROSECOND = a millionth of a second */
+    MILLISECOND, /* A MILLISECOND = a thousandth of a second */
+    SECOND, /* A SECOND = Well, you probably know what a second is... */
+    MINUTE, /* A MINUTE = sixty seconds (there are no leap seconds in system time) */
+    HOUR, /* An HOUR = a shift of one hour on the clock, regardless of elapsed time. */
+    DAY, /* A DAY = a shift to the same time on the next calendar day */
+    WEEK, /* A WEEK = a shift to the same time offset by 7 calendar days */
+    MONTH, /* A MONTH = a shift to the same day of the month for a different month */
+    QUARTER, /* A QUARTER = a shift of three calendar months */
+    YEAR, /* A YEAR = a shift of one calendar year */
+    CENTURY
+    /* A CENTURY = a shift of one hundred calendar years */
 }
