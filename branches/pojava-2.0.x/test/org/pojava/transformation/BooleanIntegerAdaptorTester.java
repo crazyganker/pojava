@@ -22,11 +22,10 @@ public class BooleanIntegerAdaptorTester extends TestCase {
         try {
             // Force an incompatibly-typed binding into the adaptor.
             adaptor.inbound(new Binding(String.class, "invalid"));
-            fail("Expecting IllegalStateException.");
-        } catch (IllegalStateException ex) {
-            assertEquals(
-                    "BooleanIntegerAdaptor.inbound cannot interpret binding of type java.lang.String.",
-                    ex.getMessage());
+            fail("Expecting ClassCastException.");
+        } catch (ClassCastException ex) {
+            assertEquals("java.lang.String cannot be cast to java.lang.Integer", ex
+                    .getMessage());
         }
     }
 

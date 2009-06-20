@@ -26,20 +26,18 @@ public class BooleanYNAdaptorTester extends TestCase {
     public void testDirtyCase() {
         BindingAdaptor adaptor = new BooleanIntegerAdaptor();
         try {
-            adaptor.inbound(new Binding<String>(String.class, "invalid"));
-            fail("Expecting IllegalStateException.");
-        } catch (IllegalStateException ex) {
-            assertEquals(
-                    "BooleanIntegerAdaptor.inbound cannot interpret binding of type java.lang.String.",
-                    ex.getMessage());
+            adaptor.inbound(new Binding(String.class, "invalid"));
+            fail("Expecting ClassCastException.");
+        } catch (ClassCastException ex) {
+            assertEquals("java.lang.String cannot be cast to java.lang.Integer", ex
+                    .getMessage());
         }
         try {
             adaptor.outbound(new Binding(String.class, "other"));
-            fail("Expecting IllegalStateException.");
-        } catch (IllegalStateException ex) {
-            assertEquals(
-                    "BooleanIntegerAdaptor.outbound cannot interpret binding of type java.lang.String.",
-                    ex.getMessage());
+            fail("Expecting ClassCastException.");
+        } catch (ClassCastException ex) {
+            assertEquals("java.lang.String cannot be cast to java.lang.Boolean", ex
+                    .getMessage());
         }
     }
 
