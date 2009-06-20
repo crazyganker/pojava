@@ -178,11 +178,17 @@ public class Duration implements Comparable {
      * @return True if durations match.
      */
     public boolean equals(Object other) {
-        if (other.getClass().isAssignableFrom(Duration.class)) {
-            Duration dur = (Duration) other;
-            return (this.millis == dur.toMillis() && this.nanos == dur.getNanos());
+        if (other instanceof Duration) {
+            return compareTo((Duration) other) == 0;
         }
         return false;
+    }
+
+    /**
+     * Equality is determined by UTC Date/Time. 
+     */
+    public int hashCode() {
+        return (int) ((this.millis & 0xFFFF) ^ this.nanos);
     }
 
     /**
