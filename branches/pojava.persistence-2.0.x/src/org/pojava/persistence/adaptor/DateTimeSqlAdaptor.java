@@ -1,60 +1,65 @@
 package org.pojava.persistence.adaptor;
 
+import java.sql.Timestamp;
+
 import org.pojava.datetime.DateTime;
 import org.pojava.lang.Binding;
 import org.pojava.transformation.BindingAdaptor;
 
 /**
- * Adaptor for managing Java to JDBC for a java.sql.Date value mapped to a
+ * Adaptor for managing Java to JDBC for a Timestamp or Date value mapped to a
  * DateTime value.
  * 
  * @author John Pile
  * 
  */
-public class DateTimeSqlAdaptor extends BindingAdaptor {
+public class DateTimeSqlAdaptor extends BindingAdaptor<DateTime,Timestamp> {
 
 	/**
 	 * The type the translator will produce for the bean.
 	 */
-	public Class inboundType() {
-		return java.sql.Date.class;
+	public Class<DateTime> inboundType() {
+		return DateTime.class;
 	}
 
 	/**
 	 * The type the translator will produce for the JDBC driver.
 	 */
-	public Class outboundType() {
-		return DateTime.class;
+	public Class<Timestamp> outboundType() {
+		return Timestamp.class;
 	}
 
 	/**
 	 * Translate the binding from the data source towards Java bean.
 	 */
-	public Binding inbound(Binding inBinding) {
+	public Binding<DateTime> inbound(Binding<Timestamp> inBinding) {
 		// Prevent constructing a new object when you can.
 		if (inBinding == null)
 			return null;
+		Binding<DateTime> outBinding=new Binding<DateTime>(DateTime.class, null);
 		if (inBinding.getObj() == null) {
-			return inBinding;
+			return outBinding;
 		}
-		Binding outBinding;
-		outBinding = new Binding(DateTime.class, new DateTime(
-				((java.util.Date) inBinding.getObj()).getTime()));
+		if (inBinding.getObj().getClass()==Timestamp.class) {
+			outBinding.setValue(new DateTime((Timestamp) inBinding.getObj()));
+		} else {
+			outBinding.setValue(new DateTime(((java.util.Date)inBinding.getObj()).getTime()));
+		}
 		return outBinding;
 	}
 
 	/**
 	 * Translate the binding from the java bean to the data source.
 	 */
-	public Binding outbound(Binding outBinding) {
+	public Binding<Timestamp> outbound(Binding<DateTime> outBinding) {
 		// Prevent constructing a new object when you can.
 		if (outBinding == null)
 			return null;
+		Binding<Timestamp> inBinding=new Binding<Timestamp>(Timestamp.class, null);
 		if (outBinding.getObj() == null) {
-			return outBinding;
+			return inBinding;
 		}
-		Binding inBinding = new Binding(java.sql.Timestamp.class,
-				new java.sql.Date(((DateTime) outBinding.getObj()).toMillis()));
+		inBinding.setValue(new Timestamp(outBinding.getValue().toMillis()));
 		return inBinding;
 	}
 }

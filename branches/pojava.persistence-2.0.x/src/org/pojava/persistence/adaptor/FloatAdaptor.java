@@ -9,33 +9,30 @@ import org.pojava.transformation.BindingAdaptor;
  * @author John Pile
  * 
  */
-public class FloatAdaptor extends BindingAdaptor {
+public class FloatAdaptor extends BindingAdaptor<Float,Float> {
 
 	/**
 	 * The type the translator will produce for the bean.
 	 */
-	public Class inboundType() {
+	public Class<Float> inboundType() {
 		return Float.class;
 	}
 
 	/**
 	 * The type the translator will produce for the JDBC driver.
 	 */
-	public Class outboundType() {
+	public Class<Float> outboundType() {
 		return Float.class;
 	}
 
 	/**
 	 * Translate the binding from the data source towards Java bean.
 	 */
-	public Binding inbound(Binding inBinding) {
-		Binding outBinding = new Binding(Float.class, null);
-		if (inBinding == null || inBinding.getObj() == null)
-			return outBinding;
-		if (inBinding.getObj().getClass().equals(Float.class)) {
-			outBinding.setObj(inBinding.getObj());
-			return outBinding;
+	public Binding<Float> inbound(Binding<Float> inBinding) {
+		if (inBinding==null || inBinding.getObj()==null || inBinding.getObj().getClass()==Float.class) {
+			return inBinding;
 		}
+		Binding<Float> outBinding = new Binding<Float>(Float.class, null);
 		outBinding.setObj(new Float(inBinding.getObj().toString()));
 		return outBinding;
 	}
@@ -43,7 +40,7 @@ public class FloatAdaptor extends BindingAdaptor {
 	/**
 	 * Translate the binding from the java bean to the data source.
 	 */
-	public Binding outbound(Binding obj) {
-		return obj;
+	public Binding<Float> outbound(Binding<Float> outBinding) {
+		return outBinding;
 	}
 }

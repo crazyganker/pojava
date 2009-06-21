@@ -9,38 +9,38 @@ import org.pojava.transformation.BindingAdaptor;
  * @author John Pile
  * 
  */
-public class CharAdaptor extends BindingAdaptor {
+public class CharAdaptor extends BindingAdaptor<Character,Character> {
 
 	/**
 	 * The type the translator will produce for the bean.
 	 */
-	public Class inboundType() {
+	public Class<Character> inboundType() {
 		return Character.class;
 	}
 
 	/**
 	 * The type the translator will produce for the JDBC driver.
 	 */
-	public Class outboundType() {
+	public Class<Character> outboundType() {
 		return Character.class;
 	}
 
 	/**
 	 * Translate the binding from the data source towards Java bean.
 	 */
-	public Binding inbound(Binding inBinding) {
+	public Binding<Character> inbound(Binding<Character> inBinding) {
 		// Prevent constructing a new object when you can.
-		if (inBinding == null)
-			return null;
-		if (inBinding.getObj() == null
-				|| Character.class.equals(inBinding.getType())) {
+		if (inBinding == null || inBinding.getObj() == null
+				|| Character.class == inBinding.getObj().getClass()) {
 			return inBinding;
 		}
-		Binding outBinding = new Binding(Character.class, inBinding.getObj());
+		Binding<Character> outBinding = new Binding<Character>(Character.class, null);
 		// A single character array must be translated to a character.
-		if (String.class.equals(inBinding.getType())) {
-			String chars = (String) inBinding.getObj();
-			outBinding.setObj(new Character(chars.length() == 0 ? ' ' : chars
+		String chars=inBinding.getObj().toString();
+		if (chars.length()==0) {
+			return null;
+		} else {
+			outBinding.setObj(Character.valueOf(chars.length() == 0 ? ' ' : chars
 					.charAt(0)));
 		}
 		return outBinding;
@@ -49,7 +49,7 @@ public class CharAdaptor extends BindingAdaptor {
 	/**
 	 * Translate the binding from the java bean to the data source.
 	 */
-	public Binding outbound(Binding obj) {
-		return obj;
+	public Binding<Character> outbound(Binding<Character> outBinding) {
+		return outBinding;
 	}
 }

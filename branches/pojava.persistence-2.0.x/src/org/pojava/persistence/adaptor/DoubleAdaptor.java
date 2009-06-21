@@ -9,33 +9,30 @@ import org.pojava.transformation.BindingAdaptor;
  * @author John Pile
  * 
  */
-public class DoubleAdaptor extends BindingAdaptor {
+public class DoubleAdaptor extends BindingAdaptor<Double,Double> {
 
 	/**
 	 * The type the translator will produce for the bean.
 	 */
-	public Class inboundType() {
+	public Class<Double> inboundType() {
 		return Double.class;
 	}
 
 	/**
 	 * The type the translator will produce for the JDBC driver.
 	 */
-	public Class outboundType() {
+	public Class<Double> outboundType() {
 		return Double.class;
 	}
 
 	/**
 	 * Translate the binding from the data source towards Java bean.
 	 */
-	public Binding inbound(Binding inBinding) {
-		Binding outBinding = new Binding(Double.class, null);
-		if (inBinding == null || inBinding.getObj() == null)
-			return outBinding;
-		if (inBinding.getObj().getClass().equals(Double.class)) {
-			outBinding.setObj(inBinding.getObj());
-			return outBinding;
+	public Binding<Double> inbound(Binding<Double> inBinding) {
+		if (inBinding==null || inBinding.getObj()==null || inBinding.getObj().getClass()==Double.class) {
+			return inBinding;
 		}
+		Binding<Double> outBinding = new Binding<Double>(Double.class, null);
 		outBinding.setObj(new Double(inBinding.getObj().toString()));
 		return outBinding;
 	}
@@ -43,7 +40,7 @@ public class DoubleAdaptor extends BindingAdaptor {
 	/**
 	 * Translate the binding from the java bean to the data source.
 	 */
-	public Binding outbound(Binding obj) {
-		return obj;
+	public Binding<Double> outbound(Binding<Double> outBinding) {
+		return outBinding;
 	}
 }

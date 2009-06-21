@@ -9,51 +9,38 @@ import org.pojava.transformation.BindingAdaptor;
  * @author John Pile
  * 
  */
-public class LongAdaptor extends BindingAdaptor {
+public class LongAdaptor extends BindingAdaptor<Long,Long> {
 
 	/**
 	 * The type the translator will produce for the bean.
 	 */
-	public Class inboundType() {
+	public Class<Long> inboundType() {
 		return Long.class;
 	}
 
 	/**
 	 * The type the translator will produce for the JDBC driver.
 	 */
-	public Class outboundType() {
+	public Class<Long> outboundType() {
 		return Long.class;
 	}
 
 	/**
 	 * Translate the binding from the data source towards Java bean.
 	 */
-	public Binding inbound(Binding inBinding) {
-		Binding outBinding = new Binding(Long.class, null);
-		if (inBinding == null || inBinding.getObj()==null) {
-			return outBinding;
+	public Binding<Long> inbound(Binding<Long> inBinding) {
+		if (inBinding == null || inBinding.getObj()==null || inBinding.getObj().getClass()==Long.class) {
+			return inBinding;
 		}
-		if (inBinding.getObj().getClass().equals(Long.class)) {
-			outBinding.setObj(inBinding.getObj());
-		} else {
-			outBinding.setObj(new Long(inBinding.getObj().toString()));
-		}
+		Binding<Long> outBinding=new Binding<Long>(Long.class, null);
+		outBinding.setObj(new Long(inBinding.getObj().toString()));
 		return outBinding;
 	}
 
 	/**
 	 * Translate the binding from the java bean to the data source.
 	 */
-	public Binding outbound(Binding outBinding) {
-		Binding inBinding = new Binding(Long.class, null);
-		if (outBinding == null || outBinding.getObj()==null) {
-			return outBinding;
-		}
-		if (outBinding.getObj().getClass().equals(Long.class)) {
-			inBinding.setObj(outBinding.getObj());
-		} else {
-			inBinding.setObj(new Long(outBinding.getObj().toString()));
-		}
-		return inBinding;
+	public Binding<Long> outbound(Binding<Long> outBinding) {
+		return outBinding;
 	}
 }

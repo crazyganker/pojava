@@ -9,51 +9,45 @@ import org.pojava.transformation.BindingAdaptor;
  * @author John Pile
  * 
  */
-public class BooleanAdaptor extends BindingAdaptor {
+public class BooleanAdaptor extends BindingAdaptor<Boolean, Boolean> {
 
 	/**
 	 * The type the translator will produce for the bean.
 	 */
-	public Class inboundType() {
+	public Class<Boolean> inboundType() {
 		return Boolean.class;
 	}
 
 	/**
 	 * The type the translator will produce for the JDBC driver.
 	 */
-	public Class outboundType() {
+	public Class<Boolean> outboundType() {
 		return Boolean.class;
 	}
 
 	/**
 	 * Translate the binding from the data source towards Java bean.
 	 */
-	public Binding inbound(Binding inBinding) {
-		Binding outBinding = new Binding(Boolean.class, null);
-		if (inBinding == null || inBinding.getObj()==null) {
-			return outBinding;
+	public Binding<Boolean> inbound(Binding<Boolean> inBinding) {
+		if (inBinding == null || inBinding.getObj() == null
+				|| Boolean.class == inBinding.getObj().getClass()) {
+			return inBinding;
 		}
-		if (inBinding.getObj().getClass().equals(Boolean.class)) {
-			outBinding.setObj(inBinding.getObj());
-		} else {
-			outBinding.setObj(new Boolean(inBinding.getObj().toString()));
-		}
-		return outBinding;
+		// Variations like 10, TF, YN get their own adaptors so we know what to
+		// do on the way out.
+		return new Binding<Boolean>(Boolean.class, Boolean.valueOf(inBinding
+				.getObj().toString()));
 	}
 
 	/**
 	 * Translate the binding from the java bean to the data source.
 	 */
-	public Binding outbound(Binding outBinding) {
-		Binding inBinding = new Binding(Boolean.class, null);
-		if (outBinding == null || outBinding.getObj()==null) {
+	public Binding<Boolean> outbound(Binding<Boolean> outBinding) {
+		Binding<Boolean> inBinding = new Binding<Boolean>(Boolean.class, null);
+		if (outBinding == null || outBinding.getObj() == null) {
 			return outBinding;
 		}
-		if (outBinding.getObj().getClass().equals(Boolean.class)) {
-			inBinding.setObj(outBinding.getObj());
-		} else {
-			inBinding.setObj(new Boolean(outBinding.getObj().toString()));
-		}
+		inBinding.setObj(outBinding.getObj());
 		return inBinding;
 	}
 }
