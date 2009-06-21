@@ -14,14 +14,14 @@ public class Potpourri {
 	private Object bob; // = new Long(9876543210L);
 	private Potpourri confused; // =this;
 	private int[] numbers; // ={ 1, 2, 3 };
-	private Set set;
-	private Map map;
+	private Set<?> set;
+	private Map<?, ?> map;
 
 	public Potpourri() {
 		// Currently, this is a requirement.
 	}
 
-	public Potpourri(String str, int five, Date d, DateTime dt, Object bob, Potpourri confused, Set set, Map map) {
+	public Potpourri(String str, int five, Date d, DateTime dt, Object bob, Potpourri confused, Set<?> set, Map<?,?> map) {
 		this.str=str;
 		this.five=five;
 		this.d=d;
@@ -88,19 +88,19 @@ public class Potpourri {
 		return numbers;
 	}
 
-	public Set getSet() {
+	public Set<?> getSet() {
 		return set;
 	}
 
-	public void setSet(Set set) {
+	public void setSet(Set<?> set) {
 		this.set = set;
 	}
 
-	public Map getMap() {
+	public Map<?,?> getMap() {
 		return map;
 	}
 
-	public void setMap(Map map) {
+	public void setMap(Map<String,?> map) {
 		this.map = map;
 	}
 
