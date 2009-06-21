@@ -9,7 +9,7 @@ import java.util.Map;
  * @author John Pile
  *
  */
-public interface SerialFactory {
+public interface SerialFactory<T> {
 
 	/**
 	 * Construct an object from an array.
@@ -17,7 +17,7 @@ public interface SerialFactory {
 	 * @param params
 	 * @return
 	 */
-	Object construct(Class type, Object[] params);
+	T construct(Class<T> type, Object[] params);
 	
 	/**
 	 * Construct an object from a property map.
@@ -25,13 +25,13 @@ public interface SerialFactory {
 	 * @param params
 	 * @return
 	 */
-	Object construct(Class type, Map params);
+	Object construct(Class<T> type, Map<String,?> params);
 	
 	/**
 	 * Serialize an object to XML.
 	 * @param obj
 	 * @return
 	 */
-	String serialize(Object obj);
+	String serialize(T obj);
 	
 }
