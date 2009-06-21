@@ -53,7 +53,7 @@ public class DaoTesterPrimitives extends TestCase {
 		assertEquals(StringTool.pad(obj.getTestCharacter5(), 5), dbo
 				.getTestCharacter5());
 		assertEquals(new DateTime(obj.getTestDate().getTime())
-				.truncate(CalendarUnit.DAY), dbo.getTestDate());
+				.truncate(CalendarUnit.DAY), new DateTime(dbo.getTestDate().getTime()));
 		assertEquals(obj.getTestId(), dbo.getTestId());
 		assertEquals(obj.getTestReal(), dbo.getTestReal(), 0);
 		assertEquals(obj.getTestSmallint(), dbo.getTestSmallint());
