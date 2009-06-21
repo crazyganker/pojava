@@ -1,5 +1,6 @@
 package org.pojava.persistence.serial;
 
+import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.util.AbstractMap;
 import java.util.Date;
@@ -29,39 +30,39 @@ public class XmlDefs {
 	/**
 	 * Factories define how objects are constructed.
 	 */
-	public Map factories = new HashMap();
+	public Map<Class<?>, SerialFactory<?>> factories = new HashMap<Class<?>, SerialFactory<?>>();
 	/**
 	 * The defaultFactory constructs all the primitive equivalents.
 	 */
-	private SerialFactory defaultFactory = new DefaultFactory();
+	private SerialFactory<?> defaultFactory = new DefaultFactory();
 	/**
 	 * Objects are tracked in the reference map to ensure that the object is
 	 * referenced rather than duplicated when it is parsed from the XML
 	 * produced.
 	 */
-	private Map referenced = new HashMap();
+	private Map<Object, Integer> referenced = new HashMap<Object, Integer>();
 	/**
 	 * The serialized map show which objects have been serialized, and are
 	 * candidates for referencing.
 	 */
-	private Map serialized = new HashMap();
+	private Map<Object, Integer> serialized = new HashMap<Object, Integer>();
 	/**
 	 * Renamed fields are stored by type.
 	 */
-	private Map renamed = new HashMap();
+	private Map<Class<?>, RenamedFields> renamed = new HashMap<Class<?>, RenamedFields>();
 	/**
 	 * Omissions is used to define objects to omit from the serialized document.
 	 */
-	private Map omissions = new HashMap();
+	private Map<Class<?>, Set<String>> omissions = new HashMap<Class<?>, Set<String>>();
 	/**
 	 * Properties holds the getters and setters of interest to the serialization
 	 * process.
 	 */
-	private Map properties = new HashMap();
+	private Map<Class<?>, Map<String,Class<?>>> properties = new HashMap<Class<?>, Map<String,Class<?>>>();
 	/**
 	 * Maps the getters and setters of a class.
 	 */
-	private Map accessors = new HashMap();
+	private Map<Class<?>, Accessors> accessors = new HashMap<Class<?>, Accessors>();
 	/**
 	 * The referenceId is a serial number for representing referenced objects.
 	 */
@@ -97,10 +98,10 @@ public class XmlDefs {
 	 */
 	private void registerCustomAccessors() {
 		Accessors getterSetters;
-		Map getters, setters;
-		Class[] timeParams = { long.class };
-		Class[] nanosParams = { int.class };
-		Class type;
+		Map<String,Method> getters, setters;
+		Class<?>[] timeParams = { long.class };
+		Class<?>[] nanosParams = { int.class };
+		Class<?> type;
 		try {
 			// Timestamp ====================================
 			getterSetters = new Accessors();
@@ -108,8 +109,8 @@ public class XmlDefs {
 			setters = getterSetters.getSetters();
 			type = java.sql.Timestamp.class;
 			getterSetters.setType(type);
-			getters.put("getTime", type.getMethod("getTime", null));
-			getters.put("getNanos", type.getMethod("getNanos", null));
+			getters.put("getTime", type.getMethod("getTime", (Class <?>[]) null));
+			getters.put("getNanos", type.getMethod("getNanos", (Class <?>[]) null));
 			setters.put("setTime", type.getMethod("setTime", timeParams));
 			setters.put("setNanos", type.getMethod("setNanos", nanosParams));
 			accessors.put(type, getterSetters);
@@ -119,16 +120,15 @@ public class XmlDefs {
 			getters = getterSetters.getGetters();
 			setters = getterSetters.getSetters();
 			getterSetters.setType(type);
-			getters.put("getTime", type.getMethod("getTime", null));
+			getters.put("getTime", type.getMethod("getTime", (Class <?>[]) null));
 			setters.put("setTime", type.getMethod("setTime", timeParams));
 			accessors.put(type, getterSetters);
-			// java.util.Date ====================================
 			type = java.util.Date.class;
 			getterSetters = new Accessors();
 			getters = getterSetters.getGetters();
 			setters = getterSetters.getSetters();
 			getterSetters.setType(type);
-			getters.put("getTime", type.getMethod("getTime", null));
+			getters.put("getTime", type.getMethod("getTime", (Class<?>[]) null));
 			setters.put("setTime", type.getMethod("setTime", timeParams));
 			accessors.put(type, getterSetters);
 		} catch (NoSuchMethodException ex) {
@@ -142,10 +142,10 @@ public class XmlDefs {
 	 * Register factories by class.
 	 */
 	private void registerFactories() {
-		registerFactory(Date.class, new DateFactory());
-		registerFactory(java.sql.Date.class, new DateFactory());
-		registerFactory(Timestamp.class, new DateFactory());
-		registerFactory(DateTime.class, new DateTimeFactory());
+		registerFactory(Date.class, new DateFactory<Date>());
+		registerFactory(java.sql.Date.class, new DateFactory<java.sql.Date>());
+		registerFactory(Timestamp.class, new DateFactory<Timestamp>());
+		registerFactory(DateTime.class, new DateTimeFactory<DateTime>());
 		registerFactory(Integer.class, defaultFactory);
 		registerFactory(Character.class, defaultFactory);
 		registerFactory(Long.class, defaultFactory);
@@ -162,7 +162,7 @@ public class XmlDefs {
 	 * @param type
 	 * @param factory
 	 */
-	public void registerFactory(Class type, SerialFactory factory) {
+	public void registerFactory(Class<?> type, SerialFactory<?> factory) {
 		factories.put(type, factory);
 	}
 
@@ -172,8 +172,8 @@ public class XmlDefs {
 	 * @param type
 	 * @return SerialFactory for given type
 	 */
-	public SerialFactory factory(Class type) {
-		return (SerialFactory) factories.get(type);
+	public SerialFactory<?> factory(Class<?> type) {
+		return factories.get(type);
 	}
 
 	/**
@@ -183,8 +183,9 @@ public class XmlDefs {
 	 * @param params
 	 * @return constructed Object
 	 */
-	public Object construct(Class type, Object[] params) {
-		SerialFactory factory = (SerialFactory) factories.get(type);
+	@SuppressWarnings("unchecked")
+	public Object construct(Class<?> type, Object[] params) {
+		SerialFactory factory = factories.get(type);
 		if (factory == null) {
 			factory = defaultFactory;
 		}
@@ -198,9 +199,10 @@ public class XmlDefs {
 	 * @param params
 	 * @return constructed Object
 	 */
-	public Object construct(Class type, Map params) {
+	@SuppressWarnings("unchecked")
+	public Object construct(Class<?> type, Map params) {
 		Object newObj;
-		SerialFactory factory = (SerialFactory) factories.get(type);
+		SerialFactory factory = factories.get(type);
 		try {
 			if (factory == null) {
 				newObj = type.newInstance();
@@ -222,7 +224,7 @@ public class XmlDefs {
 	 * @param type
 	 * @return true if supported
 	 */
-	public boolean isValue(Class type) {
+	public boolean isValue(Class<?> type) {
 		if (type == null) {
 			return false;
 		}
@@ -246,7 +248,7 @@ public class XmlDefs {
 	 * @return
 	 */
 	public Integer getReferenceId(Object obj) {
-		return (Integer) referenced.get(obj);
+		return referenced.get(obj);
 	}
 
 	/**
@@ -273,7 +275,7 @@ public class XmlDefs {
 		if (obj == null) {
 			return null;
 		}
-		Class type = obj.getClass();
+		Class<? extends Object> type = obj.getClass();
 		if (!type.isArray() && !hasAccessors(type)
 				&& !java.util.Collection.class.isAssignableFrom(type)
 				&& !AbstractMap.class.isAssignableFrom(type)) {
@@ -281,9 +283,9 @@ public class XmlDefs {
 		}
 		Integer refId = null;
 		if (serialized.containsKey(obj)) {
-			refId = (Integer) serialized.get(obj);
+			refId = serialized.get(obj);
 			if (refId.intValue() == 0) {
-				refId = new Integer(referenceId++);
+				refId = Integer.valueOf(referenceId++);
 				serialized.put(obj, refId);
 				referenced.put(obj, refId);
 			}
@@ -303,10 +305,10 @@ public class XmlDefs {
 		referenceId = 1;
 	}
 
-	public void rename(Class type, String property, String xmlName) {
+	public void rename(Class<?> type, String property, String xmlName) {
 		RenamedFields rf;
 		if (renamed.containsKey(type)) {
-			rf = (RenamedFields) renamed.get(type);
+			rf = renamed.get(type);
 		} else {
 			rf = new RenamedFields();
 			renamed.put(type, rf);
@@ -320,9 +322,9 @@ public class XmlDefs {
 	 * @param name
 	 * @return
 	 */
-	public String renamedXml(Class type, String name) {
+	public String renamedXml(Class<?> type, String name) {
 		if (renamed.containsKey(type)) {
-			RenamedFields rf = (RenamedFields) renamed.get(type);
+			RenamedFields rf = renamed.get(type);
 			return rf.javaNameFor(name);
 		} else {
 			return name;
@@ -336,9 +338,9 @@ public class XmlDefs {
 	 * @param name
 	 * @return
 	 */
-	public String renamedJava(Class type, String name) {
+	public String renamedJava(Class<?> type, String name) {
 		if (renamed.containsKey(type)) {
-			RenamedFields rf = (RenamedFields) renamed.get(type);
+			RenamedFields rf = renamed.get(type);
 			return rf.xmlNameFor(name);
 		} else {
 			return name;
@@ -364,12 +366,12 @@ public class XmlDefs {
 	 * @param type
 	 * @param property
 	 */
-	public void addOmission(Class type, String property) {
-		Set propertySet;
+	public void addOmission(Class<?> type, String property) {
+		Set<String> propertySet;
 		if (omissions.containsKey(type)) {
-			propertySet = (Set) omissions.get(type);
+			propertySet = omissions.get(type);
 		} else {
-			propertySet = new HashSet();
+			propertySet = new HashSet<String>();
 			omissions.put(type, propertySet);
 		}
 		propertySet.add(property);
@@ -382,9 +384,9 @@ public class XmlDefs {
 	 * @param property
 	 * @return
 	 */
-	public boolean isOmission(Class type, String property) {
+	public boolean isOmission(Class<?> type, String property) {
 		if (omissions.containsKey(type)) {
-			return ((Set) omissions.get(type)).contains(property);
+			return omissions.get(type).contains(property);
 		}
 		return false;
 	}
@@ -395,8 +397,8 @@ public class XmlDefs {
 	 * @param type
 	 * @return
 	 */
-	public Map getProperties(Class type) {
-		Map props = (Map) properties.get(type);
+	public Map<String,Class<?>> getProperties(Class<?> type) {
+		Map<String,Class<?>> props = properties.get(type);
 		if (props == null) {
 			props = ReflectionTool.propertyMap(type);
 			properties.put(type, props);
@@ -410,7 +412,7 @@ public class XmlDefs {
 	 * @param type
 	 * @return
 	 */
-	public boolean hasAccessors(Class type) {
+	public boolean hasAccessors(Class<? extends Object> type) {
 		return accessors.containsKey(type);
 	}
 
@@ -420,8 +422,8 @@ public class XmlDefs {
 	 * @param type
 	 * @return
 	 */
-	public Accessors getAccessors(Class type) {
-		return (Accessors) accessors.get(type);
+	public Accessors getAccessors(Class<?> type) {
+		return accessors.get(type);
 	}
 
 	/**
