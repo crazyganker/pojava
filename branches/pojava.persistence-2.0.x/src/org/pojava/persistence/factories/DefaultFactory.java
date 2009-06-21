@@ -12,6 +12,7 @@ import org.pojava.util.EncodingTool;
  * @author John Pile
  *
  */
+@SuppressWarnings("unchecked")
 public class DefaultFactory implements SerialFactory {
 
 	/**
@@ -51,7 +52,7 @@ public class DefaultFactory implements SerialFactory {
 				return new Long(value);
 			} else if (type == char.class) {
 				if (value.length() > 0) {
-					return new Character(value.charAt(0));
+					return Character.valueOf(value.charAt(0));
 				}
 			} else if (type == byte.class) {
 				if (value.length() == 2) {
@@ -72,9 +73,6 @@ public class DefaultFactory implements SerialFactory {
 			}
 		}
 		if (type.getName().startsWith("java.lang.")) {
-			if (value == null) {
-				return null;
-			}
 			if (type == java.lang.Integer.class) {
 				return new Integer(value.trim());
 			} else if (type == java.lang.Character.class) {
