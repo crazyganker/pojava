@@ -73,6 +73,7 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
 		sql.append(newSql);
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void addBinding(Class type, Object value) {
 		sql.addBinding(type, value);
 	}
