@@ -12,11 +12,11 @@ import org.pojava.persistence.sql.TableMap;
  * @author John Pile
  * 
  */
-public class ResultSetToList implements ResultSetProcessor {
+public class ResultSetToList<T> implements ResultSetProcessor {
 
-	private List list = null;
+	private List<T> list = null;
 
-	private TableMap map = null;
+	private TableMap<T> map = null;
 
 	/**
 	 * This processor populates a list from the result set.
@@ -24,7 +24,7 @@ public class ResultSetToList implements ResultSetProcessor {
 	 * @param map
 	 * @param list
 	 */
-	public ResultSetToList(TableMap map, List list) {
+	public ResultSetToList(TableMap<T> map, List<T> list) {
 		if (map == null) {
 			throw new IllegalArgumentException(
 					"Cannot construct a ResultSetToList with a null map.");
