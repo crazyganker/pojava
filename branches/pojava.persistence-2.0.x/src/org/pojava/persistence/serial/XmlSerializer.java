@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.pojava.exception.PersistenceException;
 import org.pojava.lang.Accessors;
@@ -60,18 +61,18 @@ public class XmlSerializer {
 				return;
 			}
 		}
-		Class type = pojo.getClass();
+		Class<?> type = pojo.getClass();
 		if (ReflectionTool.isBasic(type) || type.equals(Object.class)) {
 			return;
 		} else if (config.hasAccessors(type)) {
-			Map getters = config.getAccessors(type).getGetters();
-			for (Iterator it = getters.keySet().iterator(); it.hasNext();) {
-				String key = (String) it.next();
+			Map<String, Method> getters = config.getAccessors(type).getGetters();
+			for (Iterator<String> it = getters.keySet().iterator(); it.hasNext();) {
+				String key = it.next();
 				String property = ReflectionTool.propertyFor(key);
 				if (!config.isOmission(type, property)) {
 					try {
-						Object obj = ((Method) getters.get(key)).invoke(pojo,
-								null);
+						Object obj = getters.get(key).invoke(pojo,
+								(Object[])null);
 						walk(obj);
 					} catch (IllegalAccessException ex) {
 						throw new PersistenceException("Could not serialize "
@@ -83,13 +84,13 @@ public class XmlSerializer {
 				}
 			}
 		} else if (java.util.Collection.class.isAssignableFrom(type)) {
-			Collection collection = (Collection) pojo;
-			for (Iterator listIter = collection.iterator(); listIter.hasNext();) {
+			Collection<?> collection = (Collection<?>) pojo;
+			for (Iterator<?> listIter = collection.iterator(); listIter.hasNext();) {
 				walk(listIter.next());
 			}
 		} else if (java.util.AbstractMap.class.isAssignableFrom(type)) {
-			Map map = (Map) pojo;
-			for (Iterator mapIter = map.keySet().iterator(); mapIter.hasNext();) {
+			Map<?,?> map = (Map<?,?>) pojo;
+			for (Iterator<?> mapIter = map.keySet().iterator(); mapIter.hasNext();) {
 				Object mapKey = mapIter.next();
 				walk(mapKey);
 				walk(map.get(mapKey));
@@ -102,12 +103,12 @@ public class XmlSerializer {
 		} else {
 			Accessors accessors = ReflectionTool.accessors(type);
 			config.addAccessors(accessors);
-			Map getters=accessors.getGetters();
-			for (Iterator it = getters.keySet().iterator(); it
+			Map<String,Method> getters=accessors.getGetters();
+			for (Iterator<String> it = getters.keySet().iterator(); it
 					.hasNext();) {
 				try {
-					Method meth=(Method) getters.get(it.next());
-					walk(meth.invoke(pojo, null));
+					Method meth=getters.get(it.next());
+					walk(meth.invoke(pojo, (Object[])null));
 				} catch (InvocationTargetException ex1) {
 					throw new PersistenceException("Couldn't walk. "
 							+ ex1.toString(), ex1);
@@ -141,8 +142,9 @@ public class XmlSerializer {
 	 * @param baseClass
 	 * @return XML document as a String.
 	 */
+	@SuppressWarnings("unchecked")
 	private String toXml(Object pojo, String name, String attribs, int depth,
-			Class baseClass) {
+			Class<?> baseClass) {
 		StringBuffer sb;
 		if (pojo == null) {
 			if (config.isOmittingNulls()) {
@@ -157,7 +159,7 @@ public class XmlSerializer {
 		}
 		sb = new StringBuffer();
 		StringBuffer attribSb = new StringBuffer();
-		Class type = pojo.getClass();
+		Class<?> type = pojo.getClass();
 		if (attribs != null) {
 			attribSb.append(attribs);
 		}
@@ -167,14 +169,6 @@ public class XmlSerializer {
 			attribSb.append(className(pojo));
 			attribSb.append('"');
 			name = "obj";
-		}
-		// A null object gets an early out
-		if (pojo == null) {
-			name=config.renamedJava(type, name);
-			openTag(sb, name, attribs, depth);
-			sb.append("<null/>");
-			closeTag(sb, name);
-			return sb.toString();
 		}
 		if (baseClass == null) {
 			baseClass = pojo.getClass();
@@ -203,7 +197,7 @@ public class XmlSerializer {
 			}
 		}
 		// Simple objects can be overridden with a factory
-		SerialFactory override = config.factory(type);
+		SerialFactory<Object> override = (SerialFactory<Object>) config.factory(type);
 		if (override != null) {
 			name=config.renamedJava(baseClass, name);
 			openTag(sb, name, attribSb.toString(), depth);
@@ -289,7 +283,7 @@ public class XmlSerializer {
 	 * @return
 	 */
 	private String snippetFromUntyped(Object pojo, String name, String attribs,
-			int depth, Class baseClass) {
+			int depth, Class<?> baseClass) {
 		StringBuffer sb = new StringBuffer();
 		if (pojo==null) {
 			if (config.isOmittingNulls()) {
@@ -300,8 +294,7 @@ public class XmlSerializer {
 			closeTag(sb, name);
 			return sb.toString();
 		}
-		boolean isColl = pojo != null
-				&& java.util.Collection.class.isAssignableFrom(pojo.getClass());
+		boolean isColl = java.util.Collection.class.isAssignableFrom(pojo.getClass());
 		if (isColl) {
 			if (attribs == null || attribs.length() == 0) {
 				openTag(sb, name, null, depth);
@@ -319,14 +312,9 @@ public class XmlSerializer {
 			openTag(sb, name, attribs, depth);
 			sb.append('\n');
 		}
-		if (pojo == null) {
-			sb.append(config.indent(depth+1));
-			sb.append("<obj class=\"null\"/>\n");
-		} else {
-			Class memberClass = pojo.getClass();
-			if (memberClass != Object.class) {
-				sb.append(toXml(pojo, null, null, depth+1, baseClass));
-			}
+		Class<?> memberClass = pojo.getClass();
+		if (memberClass != Object.class) {
+			sb.append(toXml(pojo, null, null, depth+1, baseClass));
 		}
 		if (!isColl || attribs == null || attribs.length() == 0) {
 			sb.append(config.indent(depth));
@@ -351,9 +339,9 @@ public class XmlSerializer {
 		StringBuffer sb = new StringBuffer();
 		openTag(sb, name, attribs, depth);
 		sb.append('\n');
-		Collection collection = (Collection) pojo;
+		Collection<?> collection = (Collection<?>) pojo;
 		int counter = 1;
-		for (Iterator listIter = collection.iterator(); listIter.hasNext();) {
+		for (Iterator<?> listIter = collection.iterator(); listIter.hasNext();) {
 			Object member = listIter.next();
 			if (member == null) {
 				sb.append("<obj class=\"null\"/>\n");
@@ -386,15 +374,16 @@ public class XmlSerializer {
 		StringBuffer sb = new StringBuffer();
 		openTag(sb, name, attribs, depth);
 		sb.append('\n');
-		Map map = (Map) pojo;
-		for (Iterator listIter = map.keySet().iterator(); listIter.hasNext();) {
+		Map<?, ?> map = (Map<?,?>) pojo;
+		for (Iterator<?> listIter = map.entrySet().iterator(); listIter.hasNext();) {
 			sb.append(config.indent(depth + 1));
 			sb.append("<map>\n");
+			Map.Entry<?,?> entry=(Entry<?, ?>) listIter.next();
 			// Map the key
-			Object mapKey = listIter.next();
+			Object mapKey = entry.getKey();
 			sb.append(toXml(mapKey, null, null, depth + 2, mapKey.getClass()));
 			// Map the value
-			Object mapValue = map.get(mapKey);
+			Object mapValue = entry.getValue();
 			if (mapValue == null) {
 				sb.append(config.indent(depth + 2));
 				sb.append("<null/>\n");
@@ -424,7 +413,7 @@ public class XmlSerializer {
 	 * @return
 	 */
 	private String snippetFromArray(Object pojo, String name, String attribs,
-			int depth, Class baseClass) {
+			int depth, Class<?> baseClass) {
 		StringBuffer sb = new StringBuffer();
 		int length = Array.getLength(pojo);
 		if (length > 0) {
@@ -449,16 +438,18 @@ public class XmlSerializer {
 	 * 
 	 * @param pojo
 	 *            Object to render as xml.
-	 * @param heap
-	 *            Index of rendered objects.
 	 * @param name
 	 *            Name of object
 	 * @param attribs
 	 *            Blank or " type=\"dot\""
+	 * @param depth
+	 * 			  Depth used for indentation.
+	 * @param baseClass
+	 * 			  Um...
 	 * @return
 	 */
 	private String snippetFromPojo(Object pojo, String name, String attribs,
-			int depth, Class baseClass) {
+			int depth, Class<?> baseClass) {
 		StringBuffer sb = new StringBuffer();
 		String renamed = config.renamedJava(baseClass,
 				name);
@@ -468,26 +459,19 @@ public class XmlSerializer {
 			openTag(sb, renamed, attribs, depth);
 		}
 		sb.append('\n');
-		Class type = pojo.getClass();
+		Class<?> type = pojo.getClass();
 		try {
 			Accessors accessors = config.getAccessors(type);
-			Map getters = accessors.getGetters();
-			for (Iterator it = getters.keySet().iterator(); it.hasNext();) {
-				String property = (String) it.next();
-				Method getter=(Method) getters.get(property);
-				Class fieldClass = getter.getReturnType();
+			Map<String,Method> getters = accessors.getGetters();
+			for (Iterator<Map.Entry<String,Method>> it = getters.entrySet().iterator(); it.hasNext();) {
+				Map.Entry<String,Method> entry=it.next();
+				String property=entry.getKey();
+				Method getter=entry.getValue();
+				Class<?> fieldClass = getter.getReturnType();
 				
 				if (!config.isOmission(type, property)) {
-					Object innerPojo = ((Method) getters.get(property))
-							.invoke(pojo, null);
-					/*
-					String renamed = config.renamedJava(type,
-							property);
-					if (renamed != null) {
-						property = renamed;
-					}
-					*/
-					// property=config.renamedJava(baseClass, name);
+					Object innerPojo = getters.get(property)
+							.invoke(pojo, (Object[])null);
 					if (fieldClass == Object.class) {
 						sb.append(snippetFromUntyped(innerPojo, property,
 								"", depth + 1, fieldClass));
