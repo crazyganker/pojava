@@ -310,8 +310,9 @@ public class XmlParser<T> implements ContentHandler {
 
     /**
      * Resolver is an envelope used for resolving referenced objects.
+     * 
      * @author John Pile
-     *
+     * 
      */
     protected static class Resolver {
         Object obj;

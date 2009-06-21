@@ -3,11 +3,11 @@ package org.pojava.persistence.sql;
 import java.sql.Connection;
 
 /**
- * A connection source provides an interface allowing one to request
- * a connection from a repository by a name.
+ * A connection source provides an interface allowing one to request a connection from a
+ * repository by a name.
  * 
  * @author John Pile
- *
+ * 
  */
 public interface ConnectionSource {
 
