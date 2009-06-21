@@ -1,21 +1,20 @@
 package org.pojava.persistence.sql;
 
 /**
- * This interface describes expected functionality from a Transaction object
- * specific to JDBC.
+ * This interface describes expected functionality from a Transaction object specific to JDBC.
  * 
  * @author John Pile
  */
 public interface Transaction {
 
-	/**
-	 * Commit all managed connections
-	 */
-	void commit();
+    /**
+     * Commit all managed connections
+     */
+    void commit();
 
-	/**
-	 * Roll back all managed connections.
-	 */
-	void rollback();
+    /**
+     * Roll back all managed connections.
+     */
+    void rollback();
 
 }

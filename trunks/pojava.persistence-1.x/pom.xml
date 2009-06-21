@@ -4,7 +4,19 @@
   <groupId>pojava</groupId>
   <artifactId>pojava-persistence</artifactId>
   <name>POJava Persistence Utility</name>
-  <version>1.4.1</version>
+  <version>1.4.2</version>
+  <description>
+  POJava Persistence provides a simple, flexible, pre-packaged persistence
+  layer for Java applications.  It is an ORM (Object Relational Mapping) tool
+  with a bent towards supporting existing beans and POJO's rather than instrumenting
+  them to support a tool.  The Version 1.x branch of this tool is designed to support Java 1.4 and earlier.
+  Please see POJava Persistence 2.x for Java 5.0 and higher.
+  </description>  
+  <properties>
+  	<source-compiler-version>1.4</source-compiler-version>
+  	<output-directory>${basedir}/target/classes</output-directory>
+  	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
   <build>
     <outputDirectory>target/classes</outputDirectory>
     <finalName>${artifactId}-${project.version}</finalName>
@@ -50,20 +62,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.0</version>
-                <configuration>
-                    <warName>${war-name}</warName>
-                    <webResources>
-                        <resource>
-                            <directory>${basedir}/web</directory>
-                        </resource>
-                    </webResources>
-                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <includes>
@@ -98,8 +96,7 @@
     </repository>
     
   </distributionManagement>
-  <description/>
-     <dependencies>
+  <dependencies>
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
@@ -115,7 +112,7 @@
       <dependency>
 		  <groupId>pojava</groupId> 
 		  <artifactId>pojava</artifactId> 
-		  <version>1.4.0</version>
+		  <version>1.4.2</version>
 	  </dependency>
-   </dependencies>
+  </dependencies>
 </project>
