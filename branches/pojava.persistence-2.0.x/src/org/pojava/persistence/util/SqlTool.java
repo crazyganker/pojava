@@ -30,8 +30,8 @@ import java.util.List;
 import org.pojava.datetime.DateTime;
 import org.pojava.exception.InitializationException;
 import org.pojava.exception.PersistenceException;
-import org.pojava.lang.Binding;
 import org.pojava.lang.BoundString;
+import org.pojava.lang.UncheckedBinding;
 import org.pojava.persistence.processor.ResultSetProcessor;
 import org.pojava.persistence.processor.ResultSetToInt;
 import org.pojava.persistence.query.PreparedSql;
@@ -133,16 +133,16 @@ public class SqlTool {
 	 * 
 	 * @param pstmt
 	 *            PreparedStatement needing bindings
-	 * @param bindings
+	 * @param list
 	 *            Bindings to bind to the prepared statement
 	 * @throws SQLException
 	 */
-	public static void prepareBindings(PreparedStatement pstmt, List bindings)
+	public static void prepareBindings(PreparedStatement pstmt, List<UncheckedBinding> list)
 			throws SQLException {
 		int i = 0;
-		for (Iterator it = bindings.iterator(); it.hasNext();) {
+		for (Iterator<UncheckedBinding> it = list.iterator(); it.hasNext();) {
 			i++;
-			Binding binding = (Binding) it.next();
+			UncheckedBinding binding = it.next();
 			int sqlType = sqlTypeFromClass(binding.getType());
 			Object o = binding.getObj();
 			if (o == null) {
@@ -160,7 +160,7 @@ public class SqlTool {
 	 *            Class of java object to persist
 	 * @return
 	 */
-	private static int sqlTypeFromClass(Class c) {
+	private static int sqlTypeFromClass(Class<?> c) {
 		int type = 0;
 		if (c.equals(Integer.class) || c.equals(int.class)) {
 			type = Types.INTEGER;
@@ -199,7 +199,7 @@ public class SqlTool {
 	 * @return InitializationException
 	 */
 	private static InitializationException initializationException(
-			SQLException ex, Class javaClass, String tableName, String dsName) {
+			SQLException ex, Class<?> javaClass, String tableName, String dsName) {
 		StringBuffer msg = new StringBuffer();
 		msg.append("Cannot auto-initialize TableMap(");
 		msg.append(javaClass.toString());
@@ -220,10 +220,11 @@ public class SqlTool {
 	 * @param dsName
 	 * @return TableMap retrieved from database MetaData
 	 */
-	public static TableMap autoGenerateTableMap(Class javaClass,
+	@SuppressWarnings("unchecked")
+	public static TableMap<?> autoGenerateTableMap(Class<?> javaClass,
 			String tableName, String dsName) {
 		try {
-			TableMap tableMap = new TableMap(javaClass, tableName, dsName);
+			TableMap<?> tableMap = new TableMap(javaClass, tableName, dsName);
 			tableMap.autoBind();
 			return tableMap;
 		} catch (SQLException ex) {
