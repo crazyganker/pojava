@@ -12,11 +12,12 @@ import org.pojava.datetime.DateTime;
  * @author John Pile
  *
  */
-public class DateTimeFactory implements SerialFactory {
+public class DateTimeFactory<T> implements SerialFactory<T> {
 
 	/**
 	 * Construct a DateTime object from a parameter array.
 	 */
+	@SuppressWarnings("unchecked")
 	public Object construct(Class type, Object[] params) {
 		DateTime dt = null;
 		if (type == DateTime.class) {
@@ -40,6 +41,7 @@ public class DateTimeFactory implements SerialFactory {
 	/**
 	 * Costruct an object from mapped parameters.
 	 */
+	@SuppressWarnings("unchecked")
 	public Object construct(Class type, Map params) {
 		if (type == DateTime.class) {
 			if (params.containsKey("seconds")) {
