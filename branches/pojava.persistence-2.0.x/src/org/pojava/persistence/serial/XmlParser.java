@@ -308,7 +308,12 @@ public class XmlParser<T> implements ContentHandler {
     public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
     }
 
-    public static class Resolver {
+    /**
+     * Resolver is an envelope used for resolving referenced objects.
+     * @author John Pile
+     *
+     */
+    protected static class Resolver {
         Object obj;
 
         public Resolver(Object obj) {

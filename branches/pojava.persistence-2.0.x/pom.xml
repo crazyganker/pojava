@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>pojava</groupId>
@@ -82,6 +82,16 @@
       </plugin>
     </plugins>
   </reporting>
+  <developers>
+  	<developer>
+  		<id>phatfingers</id>
+  		<name>John Pile</name>
+  		<email>john@pile.us</email>
+  		<organization>POJava.org</organization>
+  		<organizationUrl>http://pojava.org</organizationUrl>
+  		<timezone>PDT</timezone>
+  	</developer>
+  </developers>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -98,7 +108,12 @@
     </repository>
     
   </distributionManagement>
-  <description/>
+  <description>
+  POJava Persistence 2.x provides a simple, flexible, pre-packaged persistence
+  layer for Java applications.  It is an ORM (Object Relational Mapping) tool
+  with a bent towards supporting existing beans and POJO's rather than instrumenting
+  them to support a tool.
+  </description>
      <dependencies>
       <dependency>
          <groupId>junit</groupId>
