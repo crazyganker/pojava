@@ -12,14 +12,14 @@ import org.pojava.persistence.util.DaoTool;
 
 public class TypeTestDao {
 
-	private static final Class JAVA_CLASS = TypeTest.class;
+	private static final Class<TypeTest> JAVA_CLASS = TypeTest.class;
 	private static final String TABLE_NAME = "type_test";
 	private static final String DS_NAME = "pojava_test";
 
-	private static final TableMap MAP = newTableMap();
+	private static final TableMap<TypeTest> MAP = newTableMap();
 
-	public static TableMap newTableMap() {
-		TableMap tableMap = DatabaseCache.getTableMap(JAVA_CLASS, TABLE_NAME,
+	public static TableMap<TypeTest> newTableMap() {
+		TableMap<TypeTest> tableMap = (TableMap<TypeTest>) DatabaseCache.getTableMap(JAVA_CLASS, TABLE_NAME,
 				DS_NAME);
 		return tableMap;
 	}
@@ -56,9 +56,9 @@ public class TypeTestDao {
 				obj);
 	}
 
-	public static List listByQuery(ConnectionSource connector, SqlQuery query)
+	public static List<TypeTest> listByQuery(ConnectionSource connector, SqlQuery query)
 			throws SQLException {
-		return DaoTool
+		return (List <TypeTest>) DaoTool
 				.listByQuery(connector.getConnection(DS_NAME), MAP, query);
 	}
 

@@ -177,14 +177,14 @@ public class DaoTester extends TestCase {
 	public void testListByQueryForAll() throws Exception {
 		insertSampleDataForAll();
 		TypeTestQuery ptq = new TypeTestQuery().forAll();
-		List objs = TypeTestDao.listByQuery(trans, ptq);
+		List<TypeTest> objs = TypeTestDao.listByQuery(trans, ptq);
 		assertEquals(3, objs.size());
 	}
 
 	public void testListByQueryForSome() throws Exception {
 		insertSampleDataForSome();
 		TypeTestQuery ptq = new TypeTestQuery().forIdGreaterThan(10);
-		List objs = TypeTestDao.listByQuery(trans, ptq);
+		List<TypeTest> objs = TypeTestDao.listByQuery(trans, ptq);
 		assertEquals(2, objs.size());
 	}
 

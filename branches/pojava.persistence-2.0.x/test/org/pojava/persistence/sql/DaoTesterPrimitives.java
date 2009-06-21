@@ -53,7 +53,7 @@ public class DaoTesterPrimitives extends TestCase {
 		assertEquals(StringTool.pad(obj.getTestCharacter5(), 5), dbo
 				.getTestCharacter5());
 		assertEquals(new DateTime(obj.getTestDate().getTime())
-				.truncate(CalendarUnit.DAY), dbo.getTestDate());
+				.truncate(CalendarUnit.DAY).toDate(), dbo.getTestDate());
 		assertEquals(obj.getTestId(), dbo.getTestId());
 		assertEquals(obj.getTestReal(), dbo.getTestReal(), 0);
 		assertEquals(obj.getTestSmallint(), dbo.getTestSmallint());
@@ -95,7 +95,7 @@ public class DaoTesterPrimitives extends TestCase {
 	}
 
 	public void testBatchInsert() throws Exception {
-		List list=new ArrayList();
+		List<PrimitiveTest> list=new ArrayList<PrimitiveTest>();
 		list.add(Mock.newPrimitiveTest(1));
 		list.add(Mock.newPrimitiveTest(2));
 		list.add(Mock.newPrimitiveTest(3));
@@ -194,14 +194,14 @@ public class DaoTesterPrimitives extends TestCase {
 	public void testListByQueryForAll() throws Exception {
 		insertSampleDataForAll();
 		TypeTestQuery ptq = new TypeTestQuery().forAll();
-		List objs = PrimitiveTestDao.listByQuery(trans, ptq);
+		List<PrimitiveTest> objs = PrimitiveTestDao.listByQuery(trans, ptq);
 		assertEquals(3, objs.size());
 	}
 
 	public void testListByQueryForSome() throws Exception {
 		insertSampleDataForSome();
 		TypeTestQuery ptq = new TypeTestQuery().forIdGreaterThan(10);
-		List objs = PrimitiveTestDao.listByQuery(trans, ptq);
+		List<PrimitiveTest> objs = PrimitiveTestDao.listByQuery(trans, ptq);
 		assertEquals(2, objs.size());
 	}
 

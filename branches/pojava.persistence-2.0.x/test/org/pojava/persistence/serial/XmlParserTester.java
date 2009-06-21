@@ -13,7 +13,7 @@ public class XmlParserTester extends TestCase {
 	public void testDateFromXml() throws Exception {
 		String xml = ("<obj class=\"java.util.Date\">1226476800</obj>\n");
 		// System.out.println(xml);
-		XmlParser parser = new XmlParser();
+		XmlParser<Date> parser = new XmlParser<Date>();
 		Date d = (Date) parser.parse(xml);
 		assertEquals(1226476800, d.getTime());
 	}
@@ -21,8 +21,8 @@ public class XmlParserTester extends TestCase {
 	public void testDateTimeFromXml() throws Exception {
 		String xml = ("<obj class=\"org.pojava.datetime.DateTime\">1226476.8</obj>\n");
 		// System.out.println(xml);
-		XmlParser parser = new XmlParser();
-		DateTime dt = (DateTime) parser.parse(xml);
+		XmlParser<DateTime> parser = new XmlParser<DateTime>();
+		DateTime dt = parser.parse(xml);
 		assertEquals(1226476800, dt.toMillis());
 	}
 	
@@ -38,8 +38,8 @@ public class XmlParserTester extends TestCase {
 			+ "  </bob>\n"
 			+ "  <str>hello</str>\n"
 			+ "</obj>\n";
-		XmlParser parser = new XmlParser();
-		Potpourri pot=(Potpourri) parser.parse(xml);
+		XmlParser<Potpourri> parser = new XmlParser<Potpourri>();
+		Potpourri pot=parser.parse(xml);
 		assertEquals(86400000, pot.getD().getTime());
 		assertEquals(pot, pot.getConfused());
 		assertEquals(5, pot.getFive());
@@ -61,8 +61,8 @@ public class XmlParserTester extends TestCase {
 			+ "  <bob>\n"
 			+ "    <obj class=\"Long\">9876543210</obj>\n"
 			+ "  </bob>\n" + "  <str>Hello</str>\n" + "</obj>\n";
-		XmlParser parser = new XmlParser();
-		Potpourri pot=(Potpourri) parser.parse(xml);
+		XmlParser<Potpourri> parser = new XmlParser<Potpourri>();
+		Potpourri pot=parser.parse(xml);
 		assertEquals(86400000, pot.getD().getTime());
 		assertEquals(pot, pot.getConfused());
 		assertEquals(5, pot.getFive());
@@ -71,6 +71,10 @@ public class XmlParserTester extends TestCase {
 		assertEquals("Hello", pot.getStr());
 	}
 	
+	/**
+	 * 
+	 * @throws Exception
+	 */
 	public void testMap() throws Exception {
 		StringBuffer sb = new StringBuffer();
 		sb.append("<obj class=\"java.util.HashMap\">\n");
@@ -83,8 +87,8 @@ public class XmlParserTester extends TestCase {
 		sb.append("    <obj class=\"Integer\">1</obj>\n");
 		sb.append("  </map>\n");
 		sb.append("</obj>\n");
-		XmlParser parser = new XmlParser();
-		Map map=(Map) parser.parse(sb.toString());
+		XmlParser<Map<Object,Object>> parser = new XmlParser<Map<Object,Object>>();
+		Map<Object,Object> map=(Map<Object,Object>) parser.parse(sb.toString());
 		assertEquals(2,map.size());
 	}
 
@@ -95,8 +99,8 @@ public class XmlParserTester extends TestCase {
 		sb.append("  <e>2</e>\n");
 		sb.append("  <e>3</e>\n");
 		sb.append("</obj>\n");
-		XmlParser parser = new XmlParser();
-		int[] numbers=(int[]) parser.parse(sb.toString());
+		XmlParser<int[]> parser = new XmlParser<int[]>();
+		int[] numbers=parser.parse(sb.toString());
 		assertEquals(3,numbers.length);
 	}
 
@@ -113,8 +117,8 @@ public class XmlParserTester extends TestCase {
 		sb.append("  <confused><null/></confused>\n");
 		sb.append("  <map><null/></map>\n");
 		sb.append("</obj>\n");
-		XmlParser parser=new XmlParser();
-		Potpourri pojo=(Potpourri) parser.parse(sb.toString());
+		XmlParser<Potpourri> parser=new XmlParser<Potpourri>();
+		Potpourri pojo=parser.parse(sb.toString());
 		assertNull(pojo.getBob());
 		assertNull(pojo.getConfused());
 		assertNull(pojo.getD());

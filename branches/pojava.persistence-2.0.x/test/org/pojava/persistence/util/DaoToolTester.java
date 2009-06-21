@@ -20,11 +20,11 @@ import org.pojava.testing.JNDIRegistry;
 
 public class DaoToolTester extends TestCase {
 
-	private static final Class JAVA_CLASS = TypeTest.class;
+	private static final Class<TypeTest> JAVA_CLASS = TypeTest.class;
 	private static final String TABLE_NAME = "dao_test";
 	private static final String DS_NAME = "pojava_test";
 	private DatabaseTransaction trans = null;
-	private TableMap MAP = null;
+	private TableMap<TypeTest> MAP = null;
 
 	protected void setUp() throws Exception {
 		JNDIRegistry.getInitialContext();
@@ -37,7 +37,7 @@ public class DaoToolTester extends TestCase {
 			trans = new DatabaseTransaction();
 			TypeTestDao.deleteByQuery(trans, new TypeTestQuery().forAll());
 		}
-		MAP = DatabaseCache.getTableMap(JAVA_CLASS, TABLE_NAME, DS_NAME);
+		MAP = (TableMap<TypeTest>) DatabaseCache.getTableMap(JAVA_CLASS, TABLE_NAME, DS_NAME);
 	}
 
 	protected void tearDown() throws Exception {

@@ -79,12 +79,12 @@ public class XmlSerializerTester extends TestCase {
 	}
 
 	public void testSet() {
-		Set set = new HashSet();
+		Set<Object> set = new HashSet<Object>();
 		set.add(new Integer(3));
 		set.add(new Object());
 		set.add("Yarn");
 		XmlSerializer serializer = new XmlSerializer();
-		List list = new ArrayList();
+		List<Set<Object>> list = new ArrayList<Set<Object>>();
 		list.add(set);
 		String xml = serializer.toXml(list);
 		assertTrue(xml.indexOf("<obj class=\"java.util.ArrayList\">\n") >= 0);
@@ -96,7 +96,7 @@ public class XmlSerializerTester extends TestCase {
 	}
 
 	public void testMap() {
-		Map map = new HashMap();
+		Map<Object,Object> map = new HashMap<Object,Object>();
 		map.put("one", new Integer(1));
 		map.put(new Integer(2), "two");
 		XmlSerializer serializer = new XmlSerializer();
@@ -158,10 +158,10 @@ public class XmlSerializerTester extends TestCase {
 		// This "POJO" is a little less plain than the typical "generate getters
 		// and setters" variety.
 		Object bob = new Long(9876543210L);
-		Set set = new HashSet();
+		Set<Object> set = new HashSet<Object>();
 		set.add(new Integer(42));
 		set.add("What is six times seven?");
-		Map map = new HashMap();
+		Map<Object,Object> map = new HashMap<Object,Object>();
 		map.put("reset", set);
 		map.put(new Object(), new Integer(1));
 		map.put(new Date(1234), new DateTime(1234));
@@ -242,10 +242,10 @@ public class XmlSerializerTester extends TestCase {
 	}
 
 	public void testOmission() {
-		Set set = new HashSet();
+		Set<Object> set = new HashSet<Object>();
 		set.add(new Integer(42));
 		set.add("What is six times seven?");
-		Map map = new HashMap();
+		Map<Object,Object> map = new HashMap<Object,Object>();
 		map.put("reset", set);
 		map.put(new Object(), new Integer(1));
 		map.put(new Date(1234), new DateTime(1234));
