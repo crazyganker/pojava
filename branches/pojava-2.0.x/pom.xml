@@ -10,12 +10,15 @@
   application development. It showcases a versatile immutable 
   DateTime object capable of parsing free-form dates in multiple
   languages and formats, and a variety of effective utilities.
-  </description>  
+  </description>
   <properties>
   	<source-compiler-version>5.0</source-compiler-version>
   	<output-directory>${basedir}/target/classes</output-directory>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+  <scm>
+  	<url>http://code.google.com/p/pojava/source/browse/#svn/trunks/pojava.persistence-2.x</url>
+  </scm>
   <build>
     <outputDirectory>target/classes</outputDirectory>
     <finalName>${artifactId}-${project.version}</finalName>
@@ -88,6 +91,16 @@
       </plugin>
     </plugins>
   </reporting>
+  <developers>
+  	<developer>
+  		<id>phatfingers</id>
+  		<name>John Pile</name>
+  		<email>john@pile.us</email>
+  		<organization>POJava.org</organization>
+  		<organizationUrl>http://sourceforge.net/projects/pojava/</organizationUrl>
+  		<timezone>PDT</timezone>
+  	</developer>
+  </developers>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
