@@ -31,6 +31,7 @@ import org.pojava.persistence.processor.ResultSetToList;
 import org.pojava.persistence.processor.ResultSetToProcessor;
 import org.pojava.persistence.query.PreparedSql;
 import org.pojava.persistence.query.SqlQuery;
+import org.pojava.persistence.sql.FieldMap;
 import org.pojava.persistence.sql.TableMap;
 
 /**
@@ -55,7 +56,7 @@ public class DaoTool {
 	 * @param query
 	 * @param action
 	 */
-	private static final void validateParams(TableMap map, SqlQuery query,
+	private static final <T> void validateParamsQuery(TableMap<T> map, SqlQuery query,
 			String action) {
 		if (query == null) {
 			StringBuffer msg = new StringBuffer();
@@ -80,7 +81,33 @@ public class DaoTool {
 	 * @param obj
 	 * @param action
 	 */
-	private static final void validateParams(TableMap map, Object obj,
+	private static final <T> void validateParamsList(TableMap<T> map, List<T> obj,
+			String action) {
+		if (obj == null) {
+			StringBuffer msg = new StringBuffer();
+			msg.append("Cannot perform ");
+			msg.append(action);
+			msg.append(" on null list.");
+			throw new IllegalArgumentException(msg.toString());
+		}
+		if (map == null) {
+			StringBuffer msg = new StringBuffer();
+			msg.append("Cannot perform ");
+			msg.append(action);
+			msg.append(" because TableMap is null.");
+			throw new IllegalArgumentException(msg.toString());
+		}
+	}
+
+	
+	/**
+	 * Validate parameters common to various operations.
+	 * 
+	 * @param map
+	 * @param obj
+	 * @param action
+	 */
+	private static final <T> void validateParams(TableMap<T> map, T obj,
 			String action) {
 		if (obj == null) {
 			StringBuffer msg = new StringBuffer();
@@ -118,7 +145,7 @@ public class DaoTool {
 	 * @param obj
 	 * @return number of rows inserted (should always be 1)
 	 */
-	public static final int insert(Connection conn, TableMap map, Object obj) {
+	public static final <T> int insert(Connection conn, TableMap<T> map, T obj) {
 		validateParams(map, obj, "insert");
 		try {
 			PreparedSql query = new PreparedSql(map.sqlInsert(obj),
@@ -140,18 +167,18 @@ public class DaoTool {
 	 *            List of objects of the class specified in map
 	 * @return array of success values in same order as list
 	 */
-	public static final int[] batchInsert(Connection conn, TableMap map,
-			List list) {
+	public static final <T> int[] batchInsert(Connection conn, TableMap<T> map,
+			List<T> list) {
 		PreparedStatement pstmt = null;
-		validateParams(map, list, "batchInsert");
+		validateParamsList(map, list, "batchInsert");
 		if (list == null || list.size() == 0) {
 			return new int[0];
 		}
-		Object obj = list.get(0);
+		T obj = list.get(0);
 		try {
 			BoundString sql = map.sqlInsert(obj);
 			pstmt = conn.prepareStatement(sql.getString());
-			for (Iterator it = list.iterator(); it.hasNext();) {
+			for (Iterator<T> it = list.iterator(); it.hasNext();) {
 				obj = it.next();
 				sql = map.sqlInsert(obj);
 				SqlTool.prepareBindings(pstmt, sql.getBindings());
@@ -180,8 +207,8 @@ public class DaoTool {
 	 * @param obj
 	 * @return number of rows updated or inserted (should always be 1)
 	 */
-	public static final int updateInsert(Connection conn, TableMap map,
-			Object obj) {
+	public static final <T> int updateInsert(Connection conn, TableMap<T> map,
+			T obj) {
 		validateParams(map, obj, "updateInsert");
 		int ct = update(conn, map, obj);
 		if (ct == 0) {
@@ -199,8 +226,8 @@ public class DaoTool {
 	 * @param obj
 	 * @return Number of records inserted (should be 1 or 0).
 	 */
-	public static final int passiveInsert(Connection conn, TableMap map,
-			Object obj) {
+	public static final <T> int passiveInsert(Connection conn, TableMap<T> map,
+			T obj) {
 		validateParams(map, obj, "passiveInsert");
 		if (null == find(conn, map, obj)) {
 			return insert(conn, map, obj);
@@ -218,7 +245,7 @@ public class DaoTool {
 	 * @param obj
 	 * @return Number of rows updated.
 	 */
-	public static final int update(Connection conn, TableMap map, Object obj) {
+	public static final <T> int update(Connection conn, TableMap<T> map, T obj) {
 		validateParams(map, obj, "update");
 		try {
 			PreparedSql query = new PreparedSql(map.sqlUpdate(obj),
@@ -237,7 +264,7 @@ public class DaoTool {
 	 * @param obj
 	 * @return Number of rows deleted.
 	 */
-	public static final int delete(Connection conn, TableMap map, Object obj) {
+	public static final <T> int delete(Connection conn, TableMap<T> map, T obj) {
 		validateParams(map, obj, "delete");
 		try {
 			PreparedSql query = new PreparedSql(map.sqlDelete(obj),
@@ -257,13 +284,13 @@ public class DaoTool {
 	 * @param obj
 	 * @return the result of the query packaged into a mapped bean.
 	 */
-	public static final Object find(Connection conn, TableMap map, Object obj) {
+	public static final <T> T find(Connection conn, TableMap<T> map, T obj) {
 		validateParams(map, obj, "find");
 		try {
 			PreparedSql query = new PreparedSql(map.sqlSelect(obj),
 					DEFAULT_MAXROWS);
-			List list = new ArrayList();
-			ResultSetToList processor = new ResultSetToList(map, list);
+			List<T> list = new ArrayList<T>();
+			ResultSetToList<T> processor = new ResultSetToList<T>(map, list);
 			int ct = SqlTool.executeQuery(query, conn, processor);
 			if (ct == 0) {
 				return null;
@@ -277,8 +304,8 @@ public class DaoTool {
 			msg.append(", table=");
 			msg.append(map.getTableName());
 			msg.append(" specifies key fields of (");
-			for (Iterator it = map.getKeyFields().iterator(); it.hasNext();) {
-				String key = (String) it.next();
+			for (Iterator<FieldMap<T,?,?>> it = map.getKeyFields().iterator(); it.hasNext();) {
+				String key = (String) it.next().getColumnName();
 				msg.append(key);
 				msg.append(", ");
 			}
@@ -298,13 +325,14 @@ public class DaoTool {
 	 * @param query
 	 * @return a List of objects matching the query.
 	 */
-	public static final List listByQuery(Connection conn, TableMap map,
+	@SuppressWarnings("unchecked")
+	public static final <T> List<T> listByQuery(Connection conn, TableMap<T> map,
 			SqlQuery query) {
-		validateParams(map, query, "listByQuery");
+		validateParamsQuery(map, query, "listByQuery");
 		try {
 			PreparedSql sql = query.generatePreparedSql(map.sqlSelect());
-			List list = new ArrayList();
-			ResultSetToList processor = new ResultSetToList(map, list);
+			List<T> list = new ArrayList();
+			ResultSetToList<T> processor = new ResultSetToList(map, list);
 			SqlTool.executeQuery(sql, conn, processor);
 			return list;
 		} catch (SQLException ex) {
@@ -327,11 +355,11 @@ public class DaoTool {
 	 * @param objProcessor
 	 * @return number of rows processed
 	 */
-	public static final int processByQuery(Connection conn, TableMap map,
+	public static final<T> int processByQuery(Connection conn, TableMap<T> map,
 			SqlQuery query, Processor objProcessor) {
-		validateParams(map, query, "processByQuery");
+		validateParamsQuery(map, query, "processByQuery");
 		try {
-			ResultSetToProcessor processor = new ResultSetToProcessor(map,
+			ResultSetToProcessor<T> processor = new ResultSetToProcessor<T>(map,
 					objProcessor);
 			return SqlTool.executeQuery(query.generatePreparedSql(map
 					.sqlSelect()), conn, processor);
@@ -347,7 +375,7 @@ public class DaoTool {
 	 * @param query
 	 * @return intValue of first column of first row of ResultSet
 	 */
-	public static final int countByQuery(Connection conn, TableMap map,
+	public static final <T> int countByQuery(Connection conn, TableMap<T> map,
 			SqlQuery query) {
 		try {
 			if (query == null) {
@@ -371,7 +399,7 @@ public class DaoTool {
 	 * @param query
 	 * @return number of rows deleted
 	 */
-	public static final int deleteByQuery(Connection conn, TableMap map,
+	public static final <T> int deleteByQuery(Connection conn, TableMap<T> map,
 			SqlQuery query) {
 		try {
 			if (query == null) {
