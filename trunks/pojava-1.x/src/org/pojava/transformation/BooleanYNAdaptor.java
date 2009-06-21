@@ -24,50 +24,48 @@ import org.pojava.lang.Binding;
  */
 public class BooleanYNAdaptor implements TypedAdaptor {
 
-	private static final Class INBOUND_TYPE = Boolean.class;
-	private static final Class OUTBOUND_TYPE = String.class;
+    private static final Class INBOUND_TYPE = Boolean.class;
+    private static final Class OUTBOUND_TYPE = String.class;
 
-	public Class inboundType() {
-		return INBOUND_TYPE;
-	}
-	
-	public Class outboundType() {
-		return OUTBOUND_TYPE;
-	}
-	
-	public Binding inbound(Binding fromBinding) {
-		Binding toBinding = new Binding(INBOUND_TYPE, null);
-		if (fromBinding == null || fromBinding.getObj() == null) {
-			return toBinding;
-		}
-		String fromStr = fromBinding.getObj().toString();
-		if (fromStr.length() == 0) {
-			return toBinding;
-		}
-		char fromChar = fromStr.charAt(0);
-		if (Character.toUpperCase(fromChar) == 'Y') {
-			toBinding.setObj(Boolean.TRUE);
-		} else if (Character.toUpperCase(fromChar) == 'N') {
-			toBinding.setObj(Boolean.FALSE);
-		}
-		return toBinding;
-	}
+    public Class inboundType() {
+        return INBOUND_TYPE;
+    }
 
-	public Binding outbound(Binding fromBinding) {
-		Binding toBinding = new Binding(OUTBOUND_TYPE, null);
-		if (fromBinding == null || fromBinding.getObj() == null) {
-			return toBinding;
-		}
-		if (fromBinding.getObj().getClass().equals(INBOUND_TYPE)) {
-			toBinding
-					.setObj(((Boolean) fromBinding.getObj()).booleanValue() ? "Y"
-							: "N");
-		} else {
-			throw new IllegalStateException(
-					"BooleanIntegerAdaptor.outbound cannot interpret binding of type "
-							+ fromBinding.getObj().getClass().getName() + ".");
-		}
-		return toBinding;
-	}
+    public Class outboundType() {
+        return OUTBOUND_TYPE;
+    }
+
+    public Binding inbound(Binding fromBinding) {
+        Binding toBinding = new Binding(INBOUND_TYPE, null);
+        if (fromBinding == null || fromBinding.getObj() == null) {
+            return toBinding;
+        }
+        String fromStr = fromBinding.getObj().toString();
+        if (fromStr.length() == 0) {
+            return toBinding;
+        }
+        char fromChar = fromStr.charAt(0);
+        if (Character.toUpperCase(fromChar) == 'Y') {
+            toBinding.setObj(Boolean.TRUE);
+        } else if (Character.toUpperCase(fromChar) == 'N') {
+            toBinding.setObj(Boolean.FALSE);
+        }
+        return toBinding;
+    }
+
+    public Binding outbound(Binding fromBinding) {
+        Binding toBinding = new Binding(OUTBOUND_TYPE, null);
+        if (fromBinding == null || fromBinding.getObj() == null) {
+            return toBinding;
+        }
+        if (fromBinding.getObj().getClass().equals(INBOUND_TYPE)) {
+            toBinding.setObj(((Boolean) fromBinding.getObj()).booleanValue() ? "Y" : "N");
+        } else {
+            throw new IllegalStateException(
+                    "BooleanIntegerAdaptor.outbound cannot interpret binding of type "
+                            + fromBinding.getObj().getClass().getName() + ".");
+        }
+        return toBinding;
+    }
 
 }

@@ -29,42 +29,44 @@ import org.pojava.ordinals.OrdinalSet;
  */
 public class HashingAlgorithm extends Ordinal {
 
-	private static final OrdinalSet ordinals = new OrdinalSet();
+    private static final OrdinalSet ordinals = new OrdinalSet();
 
-	public static final HashingAlgorithm MD5 = new HashingAlgorithm("MD5");
-	public static final HashingAlgorithm SHA = new HashingAlgorithm("SHA");
-	public static final HashingAlgorithm SHA_256 = new HashingAlgorithm("SHA-256");
-	/*
-	public static final HashingAlgorithm SHA_384 = new HashingAlgorithm("SHA-384");
-	public static final HashingAlgorithm SHA_512 = new HashingAlgorithm("SHA-512");
-	*/
+    public static final HashingAlgorithm MD5 = new HashingAlgorithm("MD5");
+    public static final HashingAlgorithm SHA = new HashingAlgorithm("SHA");
+    public static final HashingAlgorithm SHA_256 = new HashingAlgorithm("SHA-256");
 
-	/**
-	 * Private constructor used internally
-	 */
-	private HashingAlgorithm(String name) {
-		register(ordinals, name, this);
-	}
+    /*
+     * public static final HashingAlgorithm SHA_384 = new HashingAlgorithm("SHA-384"); public
+     * static final HashingAlgorithm SHA_512 = new HashingAlgorithm("SHA-512");
+     */
 
-	/**
-	 * Iterate over list of supported HashingAlgorithms
-	 */
-	public Iterator iterator() {
-		return ordinals.iterator();
-	}
+    /**
+     * Private constructor used internally
+     */
+    private HashingAlgorithm(String name) {
+        register(ordinals, name, this);
+    }
 
-	/**
-	 * Access a HashingAlgorithm reference by its name
-	 * @param name
-	 * @return Named HashingAlgorithm
-	 */
-	public static HashingAlgorithm valueOf(String name) {
-		Ordinal located = ordinals.get(name);
-		if (located == null) {
-			throw new IllegalArgumentException("No ordinal class "
-					+ HashingAlgorithm.class.getName() + "." + name);
-		}
-		return (HashingAlgorithm) located;
-	}
+    /**
+     * Iterate over list of supported HashingAlgorithms
+     */
+    public Iterator iterator() {
+        return ordinals.iterator();
+    }
+
+    /**
+     * Access a HashingAlgorithm reference by its name
+     * 
+     * @param name
+     * @return Named HashingAlgorithm
+     */
+    public static HashingAlgorithm valueOf(String name) {
+        Ordinal located = ordinals.get(name);
+        if (located == null) {
+            throw new IllegalArgumentException("No ordinal class "
+                    + HashingAlgorithm.class.getName() + "." + name);
+        }
+        return (HashingAlgorithm) located;
+    }
 
 }

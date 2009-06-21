@@ -4,8 +4,13 @@
   <groupId>pojava</groupId>
   <artifactId>pojava</artifactId>
   <name>POJava Utilities</name>
-  <version>1.4.1</version>
-  <description/>
+  <version>1.4.2</version>
+  <description>
+  POJava is a simple, light-weight Java-based API for speeding
+  application development. It showcases a versatile immutable 
+  DateTime object capable of parsing free-form dates in multiple
+  languages and formats, and a variety of effective utilities.
+  </description>  
   <properties>
   	<source-compiler-version>1.4</source-compiler-version>
   	<output-directory>${basedir}/target/classes</output-directory>
@@ -90,13 +95,12 @@
     </repository>
     
   </distributionManagement>
-  
-     <dependencies>
+  <dependencies>
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
          <version>3.8.2</version>
          <scope>test</scope>
       </dependency>
-   </dependencies>
+  </dependencies>
 </project>

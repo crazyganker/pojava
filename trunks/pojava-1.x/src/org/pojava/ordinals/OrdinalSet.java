@@ -30,19 +30,19 @@ import java.util.Map;
  */
 public class OrdinalSet {
 
-	private List list = new ArrayList();
-	private Map map = new HashMap();
+    private List list = new ArrayList();
+    private Map map = new HashMap();
 
-	protected void add(String name, Ordinal obj) {
-		list.add(obj);
-		map.put(name, obj);
-	}
+    protected void add(String name, Ordinal obj) {
+        list.add(obj);
+        map.put(name, obj);
+    }
 
-	public Ordinal get(String name) {
-		return (Ordinal) map.get(name);
-	}
+    public Ordinal get(String name) {
+        return (Ordinal) map.get(name);
+    }
 
-	public Iterator iterator() {
-		return list.iterator();
-	}
+    public Iterator iterator() {
+        return list.iterator();
+    }
 }

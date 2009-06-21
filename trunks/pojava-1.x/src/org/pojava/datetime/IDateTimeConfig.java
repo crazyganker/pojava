@@ -19,31 +19,33 @@ package org.pojava.datetime;
 import java.util.Map;
 
 /**
- * This interface defines methods essential for global configuration
- * of the DateTime object.
+ * This interface defines methods essential for global configuration of the DateTime object.
  * 
  * @author John Pile
- *
+ * 
  */
 public interface IDateTimeConfig {
 
-	/**
-	 * British DD/MM/YYYY vs. Western MM/DD/YYYY
-	 * @return True if parser interprets DD/MM/YYYY vs MM/DD/YYYY.
-	 */
-	public boolean isDmyOrder();
+    /**
+     * British DD/MM/YYYY vs. Western MM/DD/YYYY
+     * 
+     * @return True if parser interprets DD/MM/YYYY vs MM/DD/YYYY.
+     */
+    public boolean isDmyOrder();
 
-	/**
-	 * Map of timezones and their offsets.  You can customize the default
-	 * map to add your own timezones by referencing other timezones.
-	 * @return TimeZones.
-	 */
-	public Map getTzMap();
+    /**
+     * Map of timezones and their offsets. You can customize the default map to add your own
+     * timezones by referencing other timezones.
+     * 
+     * @return TimeZones.
+     */
+    public Map getTzMap();
 
-	/**
-	 * Language support for interpreting names of months.
-	 * @return Array of supported language refs.
-	 */
-	public Object[] getSupportedLanguages();
+    /**
+     * Language support for interpreting names of months.
+     * 
+     * @return Array of supported language refs.
+     */
+    public Object[] getSupportedLanguages();
 
 }
