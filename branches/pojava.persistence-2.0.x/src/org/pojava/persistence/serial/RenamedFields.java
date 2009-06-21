@@ -11,8 +11,8 @@ import java.util.Map;
  */
 public class RenamedFields {
 
-	private final Map fromJavaName=new HashMap();
-	private final Map fromXmlName=new HashMap();
+	private final Map<String,String> fromJavaName=new HashMap<String,String>();
+	private final Map<String,String> fromXmlName=new HashMap<String,String>();
 
 	/**
 	 * Double-map the java-to-xml and xml-to-java entries.
