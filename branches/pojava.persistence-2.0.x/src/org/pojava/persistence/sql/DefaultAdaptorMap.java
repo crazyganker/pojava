@@ -3,8 +3,6 @@ package org.pojava.persistence.sql;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Time;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.pojava.datetime.DateTime;
 import org.pojava.persistence.adaptor.BigDecimalAdaptor;
@@ -16,21 +14,29 @@ import org.pojava.persistence.adaptor.DoubleAdaptor;
 import org.pojava.persistence.adaptor.FloatAdaptor;
 import org.pojava.persistence.adaptor.IntegerAdaptor;
 import org.pojava.persistence.adaptor.LongAdaptor;
-import org.pojava.persistence.adaptor.StringableAdaptor;
+import org.pojava.persistence.adaptor.PassthroughAdaptor;
 import org.pojava.persistence.adaptor.TimeAdaptor;
 import org.pojava.persistence.adaptor.UtilDateSqlAdaptor;
 import org.pojava.transformation.BindingAdaptor;
 
 /**
- * BasicAdaptorMap is a rules engine for determining which BindingAdaptor to use
+ * DefaultAdaptorMap is a rules engine for determining which BindingAdaptor to use
  * to translate data between a database field and a bean property.
+ * 
+ * It uses the (method + columnClass) as search criteria.
+ * The search attempts to derive a best fitting Adaptor for that property.
+ * Adaptors are stateless, so the algorithm strives for adaptor reuse.
+ * 
+ * The vision:
+ * A default can be supplied for the property returnType.
+ * An optional user-defined override can finesse column types where needed.
  * 
  * @author John Pile
  * 
  */
-public class DefaultAdaptorMap implements AdaptorMap {
+public class DefaultAdaptorMap implements AdaptorMap<Object, Object> {
 
-	private static final StringableAdaptor DEFAULT_ADAPTOR = new StringableAdaptor();
+	private static final PassthroughAdaptor DEFAULT_ADAPTOR = new PassthroughAdaptor();
 	private static final IntegerAdaptor INTEGER_ADAPTOR = new IntegerAdaptor();
 	private static final LongAdaptor LONG_ADAPTOR = new LongAdaptor();
 	private static final CharAdaptor CHAR_ADAPTOR = new CharAdaptor();
@@ -43,19 +49,20 @@ public class DefaultAdaptorMap implements AdaptorMap {
 	private static final DateTimeSqlAdaptor DATETIMESQL_ADAPTOR = new DateTimeSqlAdaptor();
 	private static final BooleanAdaptor BOOLEAN_ADAPTOR = new BooleanAdaptor();
 
-	private static final Map beanClassMethodMaps = new HashMap();
-
 	private static final DefaultAdaptorMap adaptorMap = new DefaultAdaptorMap();
 
 	/**
 	 * Select an adaptor based on a variety of possible criteria.
 	 */
-	public BindingAdaptor chooseAdaptor(Class beanClass, Method[] getters,
-			Class columnClass) {
+	@SuppressWarnings("unchecked")
+	public BindingAdaptor chooseAdaptor(Method method, Class columnClass) {
 		BindingAdaptor adaptor;
-		Method method = getters[getters.length - 1];
+
+		if (AdaptorRegistry.containsKey(method)) {
+			return AdaptorRegistry.get(method);
+		}
 		// Default behavior is based solely on the property type
-		Class returnType = method.getReturnType();
+		Class<?> returnType = method.getReturnType();
 		if (returnType.equals(int.class) || returnType.equals(Integer.class)) {
 			adaptor = INTEGER_ADAPTOR;
 		} else if (returnType.equals(long.class) || returnType.equals(Long.class)) {
@@ -81,15 +88,6 @@ public class DefaultAdaptorMap implements AdaptorMap {
 			adaptor = DATETIMESQL_ADAPTOR;
 		} else {
 			adaptor = DEFAULT_ADAPTOR;
-		}
-		// User-defined overrides provide access to custom adaptors
-		if (beanClassMethodMaps.containsKey(beanClass)) {
-			Map methodMap = (Map) beanClassMethodMaps.get(beanClass);
-			if (methodMap != null) {
-				if (methodMap.containsKey(method)) {
-					adaptor = (BindingAdaptor) methodMap.get(method);
-				}
-			}
 		}
 		return adaptor;
 	}
