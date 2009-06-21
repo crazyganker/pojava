@@ -11,16 +11,15 @@ import java.sql.SQLException;
  */
 public class ResultSetToInt implements ResultSetProcessor {
 
-	/**
-	 * Process the first element of the first row of a ResultSet, returning as
-	 * an integer.
-	 */
-	public int process(ResultSet rs) throws SQLException {
-		int result = 0;
-		if (rs.next()) {
-			result = rs.getInt(1);
-		}
-		return result;
-	}
+    /**
+     * Process the first element of the first row of a ResultSet, returning as an integer.
+     */
+    public int process(ResultSet rs) throws SQLException {
+        int result = 0;
+        if (rs.next()) {
+            result = rs.getInt(1);
+        }
+        return result;
+    }
 
 }
