@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -244,5 +245,65 @@ public class SqlTool {
 			throw new PersistenceException(ex.getMessage(), ex);
 		}
 	}
+
+    /**
+     * Close spent database resources
+     * @param rs ResultSet ready to be closed
+     * @param stmt Statement ready to be closed
+     * @param conn Connection ready to be closed
+     */
+    public static void close(ResultSet rs, Statement stmt, Connection conn) {
+        PersistenceException pex=null;
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+        } catch (SQLException ex) {
+            pex=new PersistenceException(ex.getMessage(), ex);
+        }
+        try {
+            if (stmt != null) {
+                stmt.close();
+            }
+        } catch (SQLException ex) {
+            pex=new PersistenceException(ex.getMessage(), ex);
+        }
+        try {
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException ex) {
+            pex=new PersistenceException(ex.getMessage(), ex);
+        }
+        if (pex!=null) {
+            throw pex;
+        }
+    }
+
+    /**
+     * Close a result set and statement.
+     * @param rs ResultSet ready to be closed
+     * @param stmt Statement ready to be closed
+     */
+    public static void close(ResultSet rs, Statement stmt) {
+        PersistenceException pex=null;
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+        } catch (SQLException ex) {
+            pex=new PersistenceException(ex.getMessage(), ex);
+        }
+        try {
+            if (stmt != null) {
+                stmt.close();
+            }
+        } catch (SQLException ex) {
+            pex=new PersistenceException(ex.getMessage(), ex);
+        }
+        if (pex!=null) {
+            throw pex;
+        }
+    }
 
 }

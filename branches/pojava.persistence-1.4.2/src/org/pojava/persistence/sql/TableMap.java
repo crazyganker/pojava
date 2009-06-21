@@ -38,6 +38,7 @@ import org.pojava.exception.PersistenceException;
 import org.pojava.lang.Binding;
 import org.pojava.lang.BoundString;
 import org.pojava.persistence.adaptor.TypedAdaptor;
+import org.pojava.persistence.util.SqlTool;
 import org.pojava.util.ReflectionTool;
 import org.pojava.util.StringTool;
 
@@ -125,12 +126,7 @@ public class TableMap {
 			ResultSetMetaData dtMeta = rs.getMetaData();
 			autoBind(conn, dtMeta);
 		} finally {
-			if (rs != null)
-				rs.close();
-			if (stmt != null)
-				stmt.close();
-			if (conn != null)
-				conn.close();
+		    SqlTool.close(rs,stmt,conn);
 		}
 	}
 
@@ -250,7 +246,7 @@ public class TableMap {
 	 * @param adaptor
 	 * @throws NoSuchMethodException
 	 */
-	public void FieldMap(String property, String fieldName, boolean isKeyField,
+	public void addFieldMap(String property, String fieldName, boolean isKeyField,
 			TypedAdaptor adaptor)
 			throws NoSuchMethodException {
 		addFieldMap(new FieldMap(property, fieldName, isKeyField, adaptor, this));
