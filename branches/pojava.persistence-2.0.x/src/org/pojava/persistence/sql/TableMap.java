@@ -38,6 +38,7 @@ import org.pojava.exception.PersistenceException;
 import org.pojava.lang.Binding;
 import org.pojava.lang.BoundString;
 import org.pojava.lang.UncheckedBinding;
+import org.pojava.persistence.util.SqlTool;
 import org.pojava.transformation.BindingAdaptor;
 import org.pojava.util.ReflectionTool;
 import org.pojava.util.StringTool;
@@ -126,12 +127,7 @@ public class TableMap<POJO> {
 			ResultSetMetaData dtMeta = rs.getMetaData();
 			autoBind(conn, dtMeta);
 		} finally {
-			if (rs != null)
-				rs.close();
-			if (stmt != null)
-				stmt.close();
-			if (conn != null)
-				conn.close();
+		    SqlTool.close(rs, stmt, conn);
 		}
 	}
 
@@ -249,7 +245,7 @@ public class TableMap<POJO> {
 	 * @throws NoSuchMethodException
 	 */
 	@SuppressWarnings("unchecked")
-	public void FieldMap(String property, String fieldName, boolean isKeyField,
+	public void addFieldMap(String property, String fieldName, boolean isKeyField,
 			BindingAdaptor adaptor)
 			throws NoSuchMethodException {
 		addFieldMap(new FieldMap(property, fieldName, isKeyField, adaptor, this));

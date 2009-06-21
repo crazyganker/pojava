@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -79,12 +80,7 @@ public class SqlTool {
 		PreparedStatement pstmt = generatePreparedStatement(query, conn);
 		ResultSet rs = pstmt.executeQuery();
 		int result = processor.process(rs);
-		if (rs != null) {
-			rs.close();
-		}
-		if (pstmt != null) {
-			pstmt.close();
-		}
+		close(rs,pstmt);
 		return result;
 	}
 
@@ -246,4 +242,64 @@ public class SqlTool {
 		}
 	}
 
+    /**
+     * Close spent JDBC resources.  Ensures call to close on all three even if
+     * one throws an exception during its closing.
+     * @param rs ResultSet ready to be closed
+     * @param stmt Statement ready to be closed
+     * @param conn Connection ready to be closed
+     */
+    public static void close(ResultSet rs, Statement stmt, Connection conn) {
+        PersistenceException pex=null;
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+        } catch (SQLException ex) {
+            pex=new PersistenceException(ex.getMessage(), ex);
+        }
+        try {
+            if (stmt != null) {
+                stmt.close();
+            }
+        } catch (SQLException ex) {
+            pex=new PersistenceException(ex.getMessage(), ex);
+        }
+        try {
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException ex) {
+            pex=new PersistenceException(ex.getMessage(), ex);
+        }
+        if (pex!=null) {
+            throw pex;
+        }
+    }
+
+    /**
+     * Close a result set and prepared statement.
+     * @param rs ResultSet ready to be closed
+     * @param stmt Statement ready to be closed
+     */
+    public static void close(ResultSet rs, Statement stmt) {
+        PersistenceException pex=null;
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+        } catch (SQLException ex) {
+            pex=new PersistenceException(ex.getMessage(), ex);
+        }
+        try {
+            if (stmt != null) {
+                stmt.close();
+            }
+        } catch (SQLException ex) {
+            pex=new PersistenceException(ex.getMessage(), ex);
+        }
+        if (pex!=null) {
+            throw pex;
+        }
+    }
 }
