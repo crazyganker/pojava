@@ -138,7 +138,7 @@ public class TransConnection implements Connection {
 	/**
 	 * Get typeMap for connection.
 	 */
-	public Map getTypeMap() throws SQLException {
+	public Map<String, Class <?>> getTypeMap() throws SQLException {
 		return conn.getTypeMap();
 	}
 
@@ -317,7 +317,7 @@ public class TransConnection implements Connection {
 	/**
 	 * Set typeMap to new Map.
 	 */
-	public void setTypeMap(Map arg0) throws SQLException {
+	public void setTypeMap(Map<String, Class <?>> arg0) throws SQLException {
 		conn.setTypeMap(arg0);
 	}
 
@@ -415,6 +415,7 @@ public class TransConnection implements Connection {
 	/**
 	 * Unsupported. Included to compile under Java 1.6.
 	 */
+	@SuppressWarnings("unchecked")
 	public Object unwrap(Class arg0) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
@@ -429,7 +430,7 @@ public class TransConnection implements Connection {
 	/**
 	 * Unsupported. Included to compile under Java 1.6.
 	 */
-	public boolean isWrapperFor(Class arg0) throws SQLException {
+	public boolean isWrapperFor(Class<?> arg0) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
