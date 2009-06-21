@@ -24,22 +24,22 @@ public class DatabaseCache {
 	/**
 	 * Holds DataSourceMetadata objects by DataSource name.
 	 */
-	private static Map dataSourceMetadataCache = new HashMap();
+	private static Map<String, DataSourceMetadata> dataSourceMetadataCache = new HashMap<String, DataSourceMetadata>();
 
 	/**
 	 * Holds DataSource objects by DataSource name.
 	 */
-	private static Map dataSourceCache = new HashMap();
+	private static Map<String,DataSource> dataSourceCache = new HashMap<String,DataSource>();
 
 	/**
 	 * Holds TableMap objects by Java class + table name.
 	 */
-	private static Map tableMapCache = new HashMap();
+	private static Map<String,TableMap<?>> tableMapCache = new HashMap<String,TableMap<?>>();
 
 	/**
 	 * Holds the names of DataSource objects used for locks.
 	 */
-	private static Map dataSourceLocks = new HashMap();
+	private static Map<String,Object> dataSourceLocks = new HashMap<String,Object>();
 
 	/**
 	 * Return the metadata for the named DataSource
@@ -122,7 +122,7 @@ public class DatabaseCache {
 	 * @param dataSourceName
 	 * @return String combining name, table, dataSource for use as a key
 	 */
-	private static String tableMapKey(Class javaClass, String tableName,
+	private static String tableMapKey(Class<?> javaClass, String tableName,
 			String dataSourceName) {
 		StringBuffer key = new StringBuffer();
 		key.append(javaClass.getName());
@@ -138,7 +138,7 @@ public class DatabaseCache {
 	 * 
 	 * @param tableMap
 	 */
-	public static void registerTableMap(TableMap tableMap) {
+	public static void registerTableMap(TableMap<? extends Object> tableMap) {
 		tableMapCache.put(tableMapKey(tableMap.getClass(), tableMap
 				.getTableName(), tableMap.getDataSourceName()), tableMap);
 	}
@@ -162,12 +162,13 @@ public class DatabaseCache {
 	 * @param dataSourceName
 	 * @return TableMap or null if not found.
 	 */
-	public static TableMap getTableMap(Class javaClass, String tableName,
+	@SuppressWarnings("unchecked")
+	public static <T> TableMap<T> getTableMap(Class<T> javaClass, String tableName,
 			String dataSourceName) {
 		String key = tableMapKey(javaClass, tableName, dataSourceName);
 		// Use cached version if it exists
 		if (tableMapCache.containsKey(key)) {
-			return (TableMap) tableMapCache.get(key);
+			return (TableMap<T>) tableMapCache.get(key);
 		}
 		Object lock;
 		// Acquire a lock unique to the key
@@ -179,11 +180,11 @@ public class DatabaseCache {
 			}
 		}
 		// The lock allows one thread per unique key
-		TableMap tableMap;
+		TableMap<T> tableMap;
 		synchronized (lock) {
-			tableMap = (TableMap) tableMapCache.get(key);
+			tableMap = (TableMap<T>) tableMapCache.get(key);
 			if (tableMap == null) {
-				tableMap = SqlTool.autoGenerateTableMap(javaClass, tableName,
+				tableMap = (TableMap<T>) SqlTool.autoGenerateTableMap(javaClass, tableName,
 						dataSourceName);
 				tableMapCache.put(key, tableMap);
 			}
