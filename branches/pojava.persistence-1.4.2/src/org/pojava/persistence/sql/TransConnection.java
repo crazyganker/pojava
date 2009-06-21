@@ -19,433 +19,426 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * This connection object provides a layer allowing a Transaction visibility to
- * intervene (or interfere :) when a user of the connection performs transaction
- * actions outside of those managed by the Transaction object itself.
+ * This connection object provides a layer allowing a Transaction visibility to intervene (or
+ * interfere :) when a user of the connection performs transaction actions outside of those
+ * managed by the Transaction object itself.
  * 
- * It mostly exists to allow a client to "close" a managed connection, and still
- * have the connection participate in a transaction rollback.
+ * It mostly exists to allow a client to "close" a managed connection, and still have the
+ * connection participate in a transaction rollback.
  * 
  * @author John Pile
  * 
  */
 public class TransConnection implements Connection {
 
-	/**
-	 * This allows a managed connection to be "closed", but still participate in
-	 * a Transaction rollback.
-	 */
-	private boolean closeAllowed = false;
-	
-	/**
-	 * This holds the inner connection that this connection represents.
-	 */
-	private Connection conn = null;
+    /**
+     * This allows a managed connection to be "closed", but still participate in a Transaction
+     * rollback.
+     */
+    private boolean closeAllowed = false;
 
-	/**
-	 * Create a new TransConnection from this connection.
-	 * 
-	 * @param conn
-	 */
-	public TransConnection(Connection conn) {
-		super();
-		this.conn = conn;
-	}
+    /**
+     * This holds the inner connection that this connection represents.
+     */
+    private Connection conn = null;
 
-	/**
-	 * Clear connection warnings.
-	 */
-	public void clearWarnings() throws SQLException {
-		conn.clearWarnings();
-	}
+    /**
+     * Create a new TransConnection from this connection.
+     * 
+     * @param conn
+     */
+    public TransConnection(Connection conn) {
+        super();
+        this.conn = conn;
+    }
 
-	/**
-	 * Close connection (ignored if closeAllowed is false).
-	 */
-	public void close() throws SQLException {
-		if (closeAllowed) {
-			conn.close();
-		}
-	}
+    /**
+     * Clear connection warnings.
+     */
+    public void clearWarnings() throws SQLException {
+        conn.clearWarnings();
+    }
 
-	/**
-	 * Commit transaction.
-	 */
-	public void commit() throws SQLException {
-		conn.commit();
-	}
+    /**
+     * Close connection (ignored if closeAllowed is false).
+     */
+    public void close() throws SQLException {
+        if (closeAllowed) {
+            conn.close();
+        }
+    }
 
-	/**
-	 * Create a statement
-	 */
-	public Statement createStatement() throws SQLException {
-		return conn.createStatement();
-	}
+    /**
+     * Commit transaction.
+     */
+    public void commit() throws SQLException {
+        conn.commit();
+    }
 
-	/**
-	 * Create a statement
-	 */
-	public Statement createStatement(int resultSetType, int resultSetConcurrency)
-			throws SQLException {
-		return conn.createStatement(resultSetType, resultSetConcurrency);
-	}
+    /**
+     * Create a statement
+     */
+    public Statement createStatement() throws SQLException {
+        return conn.createStatement();
+    }
 
-	/**
-	 * Create a statement
-	 */
-	public Statement createStatement(int resultSetType,
-			int resultSetConcurrency, int resultSetHoldability)
-			throws SQLException {
-		return conn.createStatement(resultSetType, resultSetConcurrency,
-				resultSetHoldability);
-	}
+    /**
+     * Create a statement
+     */
+    public Statement createStatement(int resultSetType, int resultSetConcurrency)
+            throws SQLException {
+        return conn.createStatement(resultSetType, resultSetConcurrency);
+    }
 
-	/**
-	 * Return true if autocommit is enabled.
-	 */
-	public boolean getAutoCommit() throws SQLException {
-		return conn.getAutoCommit();
-	}
+    /**
+     * Create a statement
+     */
+    public Statement createStatement(int resultSetType, int resultSetConcurrency,
+            int resultSetHoldability) throws SQLException {
+        return conn.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
+    }
 
-	/**
-	 * Retrieve the connection catalog.
-	 */
-	public String getCatalog() throws SQLException {
-		return conn.getCatalog();
-	}
+    /**
+     * Return true if autocommit is enabled.
+     */
+    public boolean getAutoCommit() throws SQLException {
+        return conn.getAutoCommit();
+    }
 
-	/**
-	 * Get connection's holdability
-	 */
-	public int getHoldability() throws SQLException {
-		return conn.getHoldability();
-	}
+    /**
+     * Retrieve the connection catalog.
+     */
+    public String getCatalog() throws SQLException {
+        return conn.getCatalog();
+    }
 
-	/**
-	 * Get useful connection metadata
-	 */
-	public DatabaseMetaData getMetaData() throws SQLException {
-		return conn.getMetaData();
-	}
+    /**
+     * Get connection's holdability
+     */
+    public int getHoldability() throws SQLException {
+        return conn.getHoldability();
+    }
 
-	/**
-	 * Get transaction isolation of connection.
-	 */
-	public int getTransactionIsolation() throws SQLException {
-		return conn.getTransactionIsolation();
-	}
+    /**
+     * Get useful connection metadata
+     */
+    public DatabaseMetaData getMetaData() throws SQLException {
+        return conn.getMetaData();
+    }
 
-	/**
-	 * Get typeMap for connection.
-	 */
-	public Map getTypeMap() throws SQLException {
-		return conn.getTypeMap();
-	}
+    /**
+     * Get transaction isolation of connection.
+     */
+    public int getTransactionIsolation() throws SQLException {
+        return conn.getTransactionIsolation();
+    }
 
-	/**
-	 * Get warnings from connection driver, which might not throw as Exceptions.
-	 */
-	public SQLWarning getWarnings() throws SQLException {
-		return conn.getWarnings();
-	}
+    /**
+     * Get typeMap for connection.
+     */
+    public Map getTypeMap() throws SQLException {
+        return conn.getTypeMap();
+    }
 
-	/**
-	 * Return true if connection is closed.
-	 */
-	public boolean isClosed() throws SQLException {
-		return conn.isClosed();
-	}
+    /**
+     * Get warnings from connection driver, which might not throw as Exceptions.
+     */
+    public SQLWarning getWarnings() throws SQLException {
+        return conn.getWarnings();
+    }
 
-	/**
-	 * Return true if connection is read only.
-	 */
-	public boolean isReadOnly() throws SQLException {
-		return conn.isReadOnly();
-	}
+    /**
+     * Return true if connection is closed.
+     */
+    public boolean isClosed() throws SQLException {
+        return conn.isClosed();
+    }
 
-	/**
-	 * Return the native equivalent of the given SQL statement.
-	 */
-	public String nativeSQL(String sql) throws SQLException {
-		return conn.nativeSQL(sql);
-	}
+    /**
+     * Return true if connection is read only.
+     */
+    public boolean isReadOnly() throws SQLException {
+        return conn.isReadOnly();
+    }
 
-	/**
-	 * Prepare a callable statement.
-	 */
-	public CallableStatement prepareCall(String sql) throws SQLException {
-		return conn.prepareCall(sql);
-	}
+    /**
+     * Return the native equivalent of the given SQL statement.
+     */
+    public String nativeSQL(String sql) throws SQLException {
+        return conn.nativeSQL(sql);
+    }
 
-	/**
-	 * Prepare a callable statement.
-	 */
-	public CallableStatement prepareCall(String sql, int resultSetType,
-			int resultSetConcurrency) throws SQLException {
-		return conn.prepareCall(sql, resultSetType, resultSetConcurrency);
-	}
+    /**
+     * Prepare a callable statement.
+     */
+    public CallableStatement prepareCall(String sql) throws SQLException {
+        return conn.prepareCall(sql);
+    }
 
-	/**
-	 * Prepare a callable statement.
-	 */
-	public CallableStatement prepareCall(String sql, int resultSetType,
-			int resultSetConcurrency, int resultSetHoldability)
-			throws SQLException {
-		return conn.prepareCall(sql, resultSetType, resultSetConcurrency,
-				resultSetHoldability);
-	}
+    /**
+     * Prepare a callable statement.
+     */
+    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency)
+            throws SQLException {
+        return conn.prepareCall(sql, resultSetType, resultSetConcurrency);
+    }
 
-	/**
-	 * Prepare a prepared statement.
-	 */
-	public PreparedStatement prepareStatement(String sql) throws SQLException {
-		return conn.prepareStatement(sql);
-	}
+    /**
+     * Prepare a callable statement.
+     */
+    public CallableStatement prepareCall(String sql, int resultSetType,
+            int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+        return conn.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+    }
 
-	/**
-	 * Prepare a prepared statement.
-	 */
-	public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys)
-			throws SQLException {
-		return conn.prepareStatement(sql, autoGeneratedKeys);
-	}
+    /**
+     * Prepare a prepared statement.
+     */
+    public PreparedStatement prepareStatement(String sql) throws SQLException {
+        return conn.prepareStatement(sql);
+    }
 
-	/**
-	 * Prepare a prepared statement.
-	 */
-	public PreparedStatement prepareStatement(String sql, int[] columnIndexes)
-			throws SQLException {
-		return conn.prepareStatement(sql, columnIndexes);
-	}
+    /**
+     * Prepare a prepared statement.
+     */
+    public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys)
+            throws SQLException {
+        return conn.prepareStatement(sql, autoGeneratedKeys);
+    }
 
-	/**
-	 * Prepare a prepared statement.
-	 */
-	public PreparedStatement prepareStatement(String sql, String[] columnNames)
-			throws SQLException {
-		return conn.prepareStatement(sql, columnNames);
-	}
+    /**
+     * Prepare a prepared statement.
+     */
+    public PreparedStatement prepareStatement(String sql, int[] columnIndexes)
+            throws SQLException {
+        return conn.prepareStatement(sql, columnIndexes);
+    }
 
-	/**
-	 * Prepare a prepared statement.
-	 */
-	public PreparedStatement prepareStatement(String sql, int resultSetType,
-			int resultSetConcurrency) throws SQLException {
-		return conn.prepareStatement(sql, resultSetType, resultSetConcurrency);
-	}
+    /**
+     * Prepare a prepared statement.
+     */
+    public PreparedStatement prepareStatement(String sql, String[] columnNames)
+            throws SQLException {
+        return conn.prepareStatement(sql, columnNames);
+    }
 
-	/**
-	 * Prepare a prepared statement.
-	 */
-	public PreparedStatement prepareStatement(String sql, int resultSetType,
-			int resultSetConcurrency, int resultSetHoldability)
-			throws SQLException {
-		return conn.prepareStatement(sql, resultSetType, resultSetConcurrency,
-				resultSetHoldability);
-	}
+    /**
+     * Prepare a prepared statement.
+     */
+    public PreparedStatement prepareStatement(String sql, int resultSetType,
+            int resultSetConcurrency) throws SQLException {
+        return conn.prepareStatement(sql, resultSetType, resultSetConcurrency);
+    }
 
-	/**
-	 * Release savepoint
-	 */
-	public void releaseSavepoint(Savepoint savepoint) throws SQLException {
-		conn.releaseSavepoint(savepoint);
-	}
+    /**
+     * Prepare a prepared statement.
+     */
+    public PreparedStatement prepareStatement(String sql, int resultSetType,
+            int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+        return conn.prepareStatement(sql, resultSetType, resultSetConcurrency,
+                resultSetHoldability);
+    }
 
-	/**
-	 * Perform rollback
-	 */
-	public void rollback() throws SQLException {
-		conn.rollback();
-	}
+    /**
+     * Release savepoint
+     */
+    public void releaseSavepoint(Savepoint savepoint) throws SQLException {
+        conn.releaseSavepoint(savepoint);
+    }
 
-	/**
-	 * Rollback to savepoint
-	 */
-	public void rollback(Savepoint savepoint) throws SQLException {
-		conn.rollback(savepoint);
-	}
+    /**
+     * Perform rollback
+     */
+    public void rollback() throws SQLException {
+        conn.rollback();
+    }
 
-	/**
-	 * Set AutoCommit
-	 */
-	public void setAutoCommit(boolean autoCommit) throws SQLException {
-		conn.setAutoCommit(autoCommit);
-	}
+    /**
+     * Rollback to savepoint
+     */
+    public void rollback(Savepoint savepoint) throws SQLException {
+        conn.rollback(savepoint);
+    }
 
-	/**
-	 * Set catalog
-	 */
-	public void setCatalog(String catalog) throws SQLException {
-		conn.setCatalog(catalog);
-	}
+    /**
+     * Set AutoCommit
+     */
+    public void setAutoCommit(boolean autoCommit) throws SQLException {
+        conn.setAutoCommit(autoCommit);
+    }
 
-	/**
-	 * Set the connection's holdability
-	 */
-	public void setHoldability(int holdability) throws SQLException {
-		conn.setHoldability(holdability);
-	}
+    /**
+     * Set catalog
+     */
+    public void setCatalog(String catalog) throws SQLException {
+        conn.setCatalog(catalog);
+    }
 
-	/**
-	 * Set read only attribute for the connection.
-	 */
-	public void setReadOnly(boolean readOnly) throws SQLException {
-		conn.setReadOnly(readOnly);
-	}
+    /**
+     * Set the connection's holdability
+     */
+    public void setHoldability(int holdability) throws SQLException {
+        conn.setHoldability(holdability);
+    }
 
-	/**
-	 * Set a transaction savepoint for this connection.
-	 */
-	public Savepoint setSavepoint() throws SQLException {
-		return conn.setSavepoint();
-	}
+    /**
+     * Set read only attribute for the connection.
+     */
+    public void setReadOnly(boolean readOnly) throws SQLException {
+        conn.setReadOnly(readOnly);
+    }
 
-	/**
-	 * Set a transaction savepoint for this connection.
-	 */
-	public Savepoint setSavepoint(String name) throws SQLException {
-		return conn.setSavepoint(name);
-	}
+    /**
+     * Set a transaction savepoint for this connection.
+     */
+    public Savepoint setSavepoint() throws SQLException {
+        return conn.setSavepoint();
+    }
 
-	/**
-	 * Set transaction Isolation defined in Connection object.
-	 */
-	public void setTransactionIsolation(int level) throws SQLException {
-		conn.setTransactionIsolation(level);
-	}
+    /**
+     * Set a transaction savepoint for this connection.
+     */
+    public Savepoint setSavepoint(String name) throws SQLException {
+        return conn.setSavepoint(name);
+    }
 
-	/**
-	 * Set typeMap to new Map.
-	 */
-	public void setTypeMap(Map arg0) throws SQLException {
-		conn.setTypeMap(arg0);
-	}
+    /**
+     * Set transaction Isolation defined in Connection object.
+     */
+    public void setTransactionIsolation(int level) throws SQLException {
+        conn.setTransactionIsolation(level);
+    }
 
-	/**
-	 * Compare two connections for equality.
-	 */
-	public boolean equals(Object obj) {
-		return conn.equals(obj) || super.equals(obj);
-	}
+    /**
+     * Set typeMap to new Map.
+     */
+    public void setTypeMap(Map arg0) throws SQLException {
+        conn.setTypeMap(arg0);
+    }
 
-	/**
-	 * HashCode of the connection.
-	 */
-	public int hashCode() {
-		return conn.hashCode();
-	}
+    /**
+     * Compare two connections for equality.
+     */
+    public boolean equals(Object obj) {
+        return conn.equals(obj) || super.equals(obj);
+    }
 
-	/**
-	 * Worthless conn.toString() output.
-	 */
-	public String toString() {
-		return conn.toString();
-	}
+    /**
+     * HashCode of the connection.
+     */
+    public int hashCode() {
+        return conn.hashCode();
+    }
 
-	/**
-	 * True if close will actually close the connection.
-	 * 
-	 * @return
-	 */
-	public boolean isCloseAllowed() {
-		return closeAllowed;
-	}
+    /**
+     * Worthless conn.toString() output.
+     */
+    public String toString() {
+        return conn.toString();
+    }
 
-	public void setCloseAllowed(boolean closeAllowed) {
-		this.closeAllowed = closeAllowed;
-	}
+    /**
+     * True if close will actually close the connection.
+     * 
+     * @return
+     */
+    public boolean isCloseAllowed() {
+        return closeAllowed;
+    }
 
-	/**
-	 * Unsupported. Included to compile under Java 1.6.
-	 */
-	public void setClientInfo(Properties properties)
-			throws SQLClientInfoException {
-		throw new UnsupportedOperationException();
-	}
+    public void setCloseAllowed(boolean closeAllowed) {
+        this.closeAllowed = closeAllowed;
+    }
 
-	/**
-	 * Unsupported. Included to compile under Java 1.6.
-	 */
-	public Clob createClob() throws SQLException {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * Unsupported. Included to compile under Java 1.6.
+     */
+    public void setClientInfo(Properties properties) throws SQLClientInfoException {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * Unsupported. Included to compile under Java 1.6.
-	 */
-	public NClob createNClob() throws SQLException {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * Unsupported. Included to compile under Java 1.6.
+     */
+    public Clob createClob() throws SQLException {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * Unsupported. Included to compile under Java 1.6.
-	 */
-	public Properties getClientInfo() throws SQLException {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * Unsupported. Included to compile under Java 1.6.
+     */
+    public NClob createNClob() throws SQLException {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * Unsupported. Included to compile under Java 1.6.
-	 */
-	public String getClientInfo(String name) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * Unsupported. Included to compile under Java 1.6.
+     */
+    public Properties getClientInfo() throws SQLException {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * Unsupported. Included to compile under Java 1.6.
-	 */
-	public Array createArrayOf(String typeName, Object[] elements) {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * Unsupported. Included to compile under Java 1.6.
+     */
+    public String getClientInfo(String name) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * Unsupported. Included to compile under Java 1.6.
-	 */
-	public Blob createBlob() throws SQLException {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * Unsupported. Included to compile under Java 1.6.
+     */
+    public Array createArrayOf(String typeName, Object[] elements) {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * Unsupported. Included to compile under Java 1.6.
-	 */
-	public SQLXML createSQLXML() throws SQLException {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * Unsupported. Included to compile under Java 1.6.
+     */
+    public Blob createBlob() throws SQLException {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * Unsupported. Included to compile under Java 1.6.
-	 */
-	public Object unwrap(Class arg0) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * Unsupported. Included to compile under Java 1.6.
+     */
+    public SQLXML createSQLXML() throws SQLException {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * Unsupported. Included to compile under Java 1.6.
-	 */
-	public boolean isValid(int timeout) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * Unsupported. Included to compile under Java 1.6.
+     */
+    public Object unwrap(Class arg0) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * Unsupported. Included to compile under Java 1.6.
-	 */
-	public boolean isWrapperFor(Class arg0) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * Unsupported. Included to compile under Java 1.6.
+     */
+    public boolean isValid(int timeout) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * Unsupported. Included to compile under Java 1.6.
-	 */
-	public void setClientInfo(String name, String value)
-			throws SQLClientInfoException {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * Unsupported. Included to compile under Java 1.6.
+     */
+    public boolean isWrapperFor(Class arg0) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * Unsupported. Included to compile under Java 1.6.
-	 */
-	public Struct createStruct(String str, Object[] objArray) {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * Unsupported. Included to compile under Java 1.6.
+     */
+    public void setClientInfo(String name, String value) throws SQLClientInfoException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Unsupported. Included to compile under Java 1.6.
+     */
+    public Struct createStruct(String str, Object[] objArray) {
+        throw new UnsupportedOperationException();
+    }
 
 }
