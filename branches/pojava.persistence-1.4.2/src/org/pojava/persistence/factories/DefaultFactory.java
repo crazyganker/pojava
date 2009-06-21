@@ -53,7 +53,7 @@ public class DefaultFactory implements SerialFactory {
                 return new Long(value);
             } else if (type == char.class) {
                 if (value.length() > 0) {
-                    return Character.valueOf(value.charAt(0));
+                    return new Character(value.charAt(0));
                 }
             } else if (type == byte.class) {
                 if (value.length() == 2) {

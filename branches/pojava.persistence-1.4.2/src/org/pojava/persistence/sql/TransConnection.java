@@ -1,22 +1,14 @@
 package org.pojava.persistence.sql;
 
-import java.sql.Array;
-import java.sql.Blob;
 import java.sql.CallableStatement;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.NClob;
 import java.sql.PreparedStatement;
-import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.SQLXML;
 import java.sql.Savepoint;
 import java.sql.Statement;
-import java.sql.Struct;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * This connection object provides a layer allowing a Transaction visibility to intervene (or
@@ -348,97 +340,6 @@ public class TransConnection implements Connection {
 
     public void setCloseAllowed(boolean closeAllowed) {
         this.closeAllowed = closeAllowed;
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public void setClientInfo(Properties properties) throws SQLClientInfoException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public Clob createClob() throws SQLException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public NClob createNClob() throws SQLException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public Properties getClientInfo() throws SQLException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public String getClientInfo(String name) throws SQLException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public Array createArrayOf(String typeName, Object[] elements) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public Blob createBlob() throws SQLException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public SQLXML createSQLXML() throws SQLException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public Object unwrap(Class arg0) throws SQLException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public boolean isValid(int timeout) throws SQLException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public boolean isWrapperFor(Class arg0) throws SQLException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public void setClientInfo(String name, String value) throws SQLClientInfoException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public Struct createStruct(String str, Object[] objArray) {
-        throw new UnsupportedOperationException();
     }
 
 }
