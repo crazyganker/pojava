@@ -283,7 +283,7 @@ public class XmlDefs {
 		if (serialized.containsKey(obj)) {
 			refId = (Integer) serialized.get(obj);
 			if (refId.intValue() == 0) {
-				refId = new Integer(referenceId++);
+				refId = Integer.valueOf(referenceId++);
 				serialized.put(obj, refId);
 				referenced.put(obj, refId);
 			}
