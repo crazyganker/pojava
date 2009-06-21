@@ -23,7 +23,7 @@ public class DatabaseTransaction implements Transaction, ConnectionSource {
 	/**
 	 * Connections mapped by DataSource name.
 	 */
-	Map connections = new HashMap();
+	Map<String,Connection> connections = new HashMap<String,Connection>();
 
 	Logger log = Logger.getLogger("org.pojava.database");
 
@@ -68,8 +68,8 @@ public class DatabaseTransaction implements Transaction, ConnectionSource {
 	 * Rollback all transactions on all managed connections.
 	 */
 	public void rollback() {
-		for (Iterator it = connections.values().iterator(); it.hasNext();) {
-			Connection conn = (Connection) it.next();
+		for (Iterator<Connection> it = connections.values().iterator(); it.hasNext();) {
+			Connection conn = it.next();
 			try {
 				conn.rollback();
 			} catch (SQLException ex) {
@@ -83,8 +83,8 @@ public class DatabaseTransaction implements Transaction, ConnectionSource {
 	 * Commit all transactions on all managed connections.
 	 */
 	public void commit() {
-		for (Iterator it = connections.values().iterator(); it.hasNext();) {
-			Connection conn = (Connection) it.next();
+		for (Iterator<Connection> it = connections.values().iterator(); it.hasNext();) {
+			Connection conn = it.next();
 			try {
 				conn.commit();
 			} catch (SQLException ex) {
@@ -98,7 +98,7 @@ public class DatabaseTransaction implements Transaction, ConnectionSource {
 	 * This actually does close the connections (or returns them to a pool).
 	 */
 	private void closeConnections() {
-		for (Iterator it = connections.values().iterator(); it.hasNext();) {
+		for (Iterator<Connection> it = connections.values().iterator(); it.hasNext();) {
 			TransConnection conn = (TransConnection) it.next();
 			try {
 				conn.setCloseAllowed(true);
