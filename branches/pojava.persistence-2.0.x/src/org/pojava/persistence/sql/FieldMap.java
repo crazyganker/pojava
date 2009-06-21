@@ -35,18 +35,18 @@ import org.pojava.util.ReflectionTool;
  * @author John Pile
  * 
  */
-public class FieldMap {
+public class FieldMap<POJO,PROP,COL> {
 
 	private String property;
 	private String columnName;
 	private boolean keyField;
-	private Class propertyClass;
-	private Class columnClass;
-	private BindingAdaptor adaptor;
+	private Class<PROP> propertyClass;
+	private Class<COL> columnClass;
+	private BindingAdaptor<PROP,COL> adaptor;
 	private Method[] getters;
 	private Method[] setters;
-	private TableMap tableMap;
-
+	private TableMap<POJO> tableMap;
+	
 	/**
 	 * Construct an empty FieldMap.
 	 */
@@ -63,20 +63,21 @@ public class FieldMap {
 	 * @param columnClass
 	 * @param tableMap
 	 */
+	@SuppressWarnings("unchecked")
 	public FieldMap(String property, String fieldName, boolean isKeyField,
-			Class columnClass, TableMap tableMap) throws NoSuchMethodException {
-		Class parentType = tableMap.getJavaClass();
+			Class<COL> columnClass, TableMap<POJO> tableMap) throws NoSuchMethodException {
+		Class<POJO> parentType = tableMap.getJavaClass();
 		this.property = property;
 		this.columnName = fieldName;
 		this.keyField = isKeyField;
 		this.getters = ReflectionTool.getterMethodDrilldown(parentType, property);
 		this.setters = ReflectionTool.setterMethodDrilldown(this.getters);
-		this.propertyClass = this.getters[this.getters.length - 1]
+		this.propertyClass = (Class<PROP>) this.getters[this.getters.length - 1]
 				.getReturnType();
 		this.tableMap = tableMap;
 		this.columnClass = columnClass;
 		this.adaptor = DefaultAdaptorMap.getInstance().chooseAdaptor(
-				parentType, this.getters, columnClass);
+				this.getters[this.getters.length-1], columnClass);
 	}
 
 	/**
@@ -90,21 +91,22 @@ public class FieldMap {
 	 * @param adaptorMap
 	 *            custom rules engine for determining a BindingAdaptor
 	 */
+	@SuppressWarnings("unchecked")
 	public FieldMap(String property, String fieldName, boolean isKeyField,
-			TableMap tableMap, Class columnClass, AdaptorMap adaptorMap)
+			TableMap<POJO> tableMap, Class<COL> columnClass, AdaptorMap adaptorMap)
 			throws NoSuchMethodException {
-		Class parentType = tableMap.getJavaClass();
+		Class<POJO> parentType = tableMap.getJavaClass();
 		this.property = property;
 		this.columnName = fieldName;
 		this.keyField = isKeyField;
 		this.getters = ReflectionTool.getterMethodDrilldown(parentType, property);
 		this.setters = ReflectionTool.setterMethodDrilldown(this.getters);
-		this.propertyClass = this.getters[this.getters.length - 1]
+		this.propertyClass = (Class<PROP>) this.getters[this.getters.length - 1]
 				.getReturnType();
 		this.tableMap = tableMap;
 		this.columnClass = columnClass;
-		this.adaptor = adaptorMap.chooseAdaptor(parentType, this.getters,
-				columnClass);
+		this.adaptor = adaptorMap.chooseAdaptor(this.getters[this.getters.length - 1],
+				propertyClass);
 	}
 
 	/**
@@ -117,9 +119,9 @@ public class FieldMap {
 	 * @param tableMap
 	 */
 	public FieldMap(String property, String fieldName, boolean isKeyField,
-			BindingAdaptor adaptor, TableMap tableMap)
+			BindingAdaptor<PROP,COL> adaptor, TableMap<POJO> tableMap)
 			throws NoSuchMethodException {
-		Class parentType = tableMap.getJavaClass();
+		Class<POJO> parentType = tableMap.getJavaClass();
 		this.property = property;
 		this.columnName = fieldName;
 		this.keyField = isKeyField;
@@ -183,9 +185,9 @@ public class FieldMap {
 	 * The columnClass specifies the class of the JDBC field representing the
 	 * database field value.
 	 * 
-	 * @return Java class of property.
+	 * @return type of JDBC column.
 	 */
-	public Class getColumnClass() {
+	public Class<COL> getColumnClass() {
 		return this.columnClass;
 	}
 
@@ -196,7 +198,7 @@ public class FieldMap {
 	 * @param columnClass
 	 *            data type returned by JDBC for this field
 	 */
-	public void setColumnClass(Class columnClass) {
+	public void setColumnClass(Class<COL> columnClass) {
 		this.columnClass = columnClass;
 	}
 
@@ -224,7 +226,7 @@ public class FieldMap {
 	 * 
 	 * @return Java Class of property value.
 	 */
-	public Class getPropertyClass() {
+	public Class<PROP> getPropertyClass() {
 		return propertyClass;
 	}
 
@@ -234,7 +236,7 @@ public class FieldMap {
 	 * 
 	 * @param propertyClass
 	 */
-	public void setPropertyClass(Class propertyClass) {
+	public void setPropertyClass(Class<PROP> propertyClass) {
 		this.propertyClass = propertyClass;
 	}
 
@@ -246,6 +248,7 @@ public class FieldMap {
 	 * @param obj
 	 * @throws SQLException
 	 */
+	@SuppressWarnings("unchecked")
 	public void setPropertyValue(ResultSet rs, int column, Object obj)
 			throws SQLException {
 		Object value = rs.getObject(column);
@@ -311,7 +314,7 @@ public class FieldMap {
 	 * 
 	 * @return BindingAdaptor
 	 */
-	public BindingAdaptor getAdaptor() {
+	public BindingAdaptor<PROP,COL> getAdaptor() {
 		return adaptor;
 	}
 
@@ -319,7 +322,7 @@ public class FieldMap {
 	 * Set the adaptor responsible for transforming the data between the
 	 * database field and the bean property.
 	 */
-	public void setAdaptor(BindingAdaptor adaptor) {
+	public void setAdaptor(BindingAdaptor<PROP,COL> adaptor) {
 		this.adaptor = adaptor;
 	}
 
@@ -328,7 +331,7 @@ public class FieldMap {
 	 * 
 	 * @param map
 	 */
-	public void setTableMap(TableMap map) {
+	public void setTableMap(TableMap<POJO> map) {
 		this.tableMap = map;
 	}
 
@@ -337,7 +340,7 @@ public class FieldMap {
 	 * 
 	 * @return containing TableMap
 	 */
-	public TableMap getTableMap() {
+	public TableMap<POJO> getTableMap() {
 		return this.tableMap;
 	}
 }
