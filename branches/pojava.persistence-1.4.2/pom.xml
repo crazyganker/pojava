@@ -5,6 +5,13 @@
   <artifactId>pojava-persistence</artifactId>
   <name>POJava Persistence Utility</name>
   <version>1.4.2</version>
+  <description>
+  POJava Persistence provides a simple, flexible, pre-packaged persistence
+  layer for Java applications.  It is an ORM (Object Relational Mapping) tool
+  with a bent towards supporting existing beans and POJO's rather than instrumenting
+  them to support a tool.  The Version 1.x branch of this tool is designed to support Java 1.4 and earlier.
+  Please see POJava Persistence 2.x for Java 5.0 and higher.
+  </description>  
   <properties>
   	<source-compiler-version>1.4</source-compiler-version>
   	<output-directory>${basedir}/target/classes</output-directory>
@@ -89,7 +96,6 @@
     </repository>
     
   </distributionManagement>
-  <description/>
   <dependencies>
       <dependency>
          <groupId>junit</groupId>
