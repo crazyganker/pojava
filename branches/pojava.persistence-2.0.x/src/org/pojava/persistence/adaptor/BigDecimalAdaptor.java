@@ -11,41 +11,33 @@ import org.pojava.transformation.BindingAdaptor;
  * @author John Pile
  * 
  */
-public class BigDecimalAdaptor extends BindingAdaptor {
+public class BigDecimalAdaptor extends BindingAdaptor<BigDecimal, BigDecimal> {
 
 	/**
 	 * The type the translator will produce for the bean.
 	 */
-	public Class inboundType() {
+	public Class<BigDecimal> inboundType() {
 		return BigDecimal.class;
 	}
 
 	/**
 	 * The type the translator will produce for the JDBC driver.
 	 */
-	public Class outboundType() {
+	public Class<BigDecimal> outboundType() {
 		return BigDecimal.class;
 	}
 
 	/**
 	 * Translate the binding from the data source towards Java bean.
 	 */
-	public Binding inbound(Binding inBinding) {
-		Binding outBinding = new Binding(BigDecimal.class, null);
-		if (inBinding == null || inBinding.getObj() == null)
-			return outBinding;
-		if (inBinding.getObj().getClass().equals(BigDecimal.class)) {
-			outBinding.setObj(inBinding.getObj());
-			return outBinding;
-		}
-		outBinding.setObj(new BigDecimal(inBinding.getObj().toString()));
-		return outBinding;
+	public Binding<BigDecimal> inbound(Binding<BigDecimal> inBinding) {
+		return inBinding;
 	}
 
 	/**
 	 * Translate the binding from the java bean to the data source.
 	 */
-	public Binding outbound(Binding obj) {
-		return obj;
+	public Binding<BigDecimal> outbound(Binding<BigDecimal> outBinding) {
+		return outBinding;
 	}
 }
