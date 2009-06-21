@@ -1,7 +1,7 @@
 package org.pojava.persistence.sql;
 
 /*
- Copyright 2008 John Pile
+ Copyright 2008-09 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.pojava.exception.InconceivableException;
 import org.pojava.exception.PersistenceException;
 import org.pojava.lang.Binding;
 import org.pojava.lang.BoundString;
+import org.pojava.lang.UncheckedBinding;
 import org.pojava.transformation.BindingAdaptor;
 import org.pojava.util.ReflectionTool;
 import org.pojava.util.StringTool;
@@ -48,11 +49,11 @@ import org.pojava.util.StringTool;
  * 
  * @author John Pile
  */
-public class TableMap {
-	List keyFields = new ArrayList();
-	List nonKeyFields = new ArrayList();
-	Map allFields = new HashMap();
-	Class javaClass = null;
+public class TableMap<POJO> {
+	List<FieldMap<POJO,?,?>> keyFields = new ArrayList<FieldMap<POJO,?,?>>();
+	List<FieldMap<POJO,?,?>> nonKeyFields = new ArrayList<FieldMap<POJO,?,?>>();
+	Map<String,FieldMap<POJO,?,?>> allFields = new HashMap<String,FieldMap<POJO,?,?>>();
+	Class<POJO> javaClass = null;
 	String tableName = null;
 	String dataSourceName = null;
 
@@ -66,7 +67,7 @@ public class TableMap {
 	 * @param tableName
 	 * @param dataSourceName
 	 */
-	public TableMap(Class javaClass, String tableName, String dataSourceName) {
+	public TableMap(Class<POJO> javaClass, String tableName, String dataSourceName) {
 		if (javaClass == null) {
 			throw new IllegalArgumentException(
 					"Null javaClass not allowed in TableMap.");
@@ -91,12 +92,12 @@ public class TableMap {
 	 * @return keys as a set of the most probable keys for each table
 	 * @throws SQLException
 	 */
-	private Set primaryKeys(Connection conn) throws SQLException {
+	private Set<String> primaryKeys(Connection conn) throws SQLException {
 		/*
 		 * TABLE_CAT, TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, KEY_SEQ, PK_NAME
 		 */
 		ResultSet rs = conn.getMetaData().getPrimaryKeys(null, null, tableName);
-		Set keys = new HashSet();
+		Set<String> keys = new HashSet<String>();
 		while (rs.next()) {
 			keys.add(rs.getString(4)); // COLUMN_NAME
 		}
@@ -141,15 +142,16 @@ public class TableMap {
 	 * @param rsMeta
 	 * @throws SQLException
 	 */
+	@SuppressWarnings("unchecked")
 	private void autoBind(Connection conn, ResultSetMetaData rsMeta)
 			throws SQLException {
-		Set primaryKeys = primaryKeys(conn);
+		Set<String> primaryKeys = primaryKeys(conn);
 		int cols = rsMeta.getColumnCount();
 		for (int i = 0; i < cols; i++) {
 			int column = i + 1;
 			String fieldName = rsMeta.getColumnName(column);
 			String property = StringTool.camelFromUnderscore(fieldName);
-			FieldMap fm = null;
+			FieldMap<POJO,?,?> fm = null;
 			try {
 				fm = new FieldMap(property, fieldName, primaryKeys
 						.contains(fieldName), Class.forName(rsMeta
@@ -179,7 +181,7 @@ public class TableMap {
 		return tableName;
 	}
 
-	public Class getJavaClass() {
+	public Class<POJO> getJavaClass() {
 		return javaClass;
 	}
 
@@ -187,15 +189,15 @@ public class TableMap {
 		return dataSourceName;
 	}
 
-	public List getKeyFields() {
+	public List<FieldMap<POJO,?,?>> getKeyFields() {
 		return keyFields;
 	}
 
-	public List getNonKeyFields() {
+	public List<FieldMap<POJO,?,?>> getNonKeyFields() {
 		return nonKeyFields;
 	}
 
-	public Map getAllFields() {
+	public Map<String,FieldMap<POJO,?,?>> getAllFields() {
 		return allFields;
 	}
 
@@ -204,15 +206,10 @@ public class TableMap {
 	 * 
 	 * @param field
 	 */
-	public void addFieldMap(FieldMap field) throws NoSuchMethodException {
+	public void addFieldMap(FieldMap<POJO,?,?> field) throws NoSuchMethodException {
 		if (field.getGetters() == null) {
 			field.setGetters(ReflectionTool.getterMethodDrilldown(javaClass, field
 					.getProperty()));
-		}
-		if (field.getPropertyClass() == null && field.getGetters() != null) {
-			field
-					.setPropertyClass(field.getGetters()[field.getGetters().length - 1]
-							.getReturnType());
 		}
 		if (field.getSetters() == null && field.getGetters() != null) {
 			field.setSetters(ReflectionTool.setterMethodDrilldown(field.getGetters()));
@@ -235,6 +232,7 @@ public class TableMap {
 	 * @param columnClass
 	 * @throws NoSuchMethodException
 	 */
+	@SuppressWarnings("unchecked")
 	public void addFieldMap(String property, String fieldName,
 			boolean isKeyField, Class columnClass) throws NoSuchMethodException {
 		addFieldMap(new FieldMap(property, fieldName, isKeyField, columnClass,
@@ -250,6 +248,7 @@ public class TableMap {
 	 * @param adaptor
 	 * @throws NoSuchMethodException
 	 */
+	@SuppressWarnings("unchecked")
 	public void FieldMap(String property, String fieldName, boolean isKeyField,
 			BindingAdaptor adaptor)
 			throws NoSuchMethodException {
@@ -263,8 +262,8 @@ public class TableMap {
 	 */
 	private String csvAllFields() {
 		StringBuffer sb = new StringBuffer();
-		for (Iterator it = this.allFields.values().iterator(); it.hasNext();) {
-			FieldMap fieldMap = (FieldMap) it.next();
+		for (Iterator<FieldMap<POJO,?,?>> it = this.allFields.values().iterator(); it.hasNext();) {
+			FieldMap<POJO,?,?> fieldMap = it.next();
 			sb.append(fieldMap.getColumnName());
 			sb.append(", ");
 		}
@@ -281,7 +280,7 @@ public class TableMap {
 	 * @return retrieved field data. Primitives are converted to equivalent
 	 *         object.
 	 */
-	private Object getFieldValue(FieldMap field, Object bean)
+	private Object getFieldValue(FieldMap<POJO,?,?> field, POJO bean)
 			throws NoSuchMethodException {
 		Object propertyObj;
 		if (field.getProperty().indexOf('[') >= 0) {
@@ -325,7 +324,7 @@ public class TableMap {
 	 * 
 	 * @return SQL select statement
 	 */
-	public BoundString sqlSelect(Object bean) {
+	public BoundString sqlSelect(POJO bean) {
 		BoundString bs = new BoundString();
 		if (this.keyFields.isEmpty()) {
 			throw new IllegalStateException(
@@ -346,7 +345,8 @@ public class TableMap {
 	 * @param bean
 	 * @return SQL insert statement
 	 */
-	public BoundString sqlInsert(Object bean) {
+	@SuppressWarnings("unchecked")
+	public BoundString sqlInsert(POJO bean) {
 		BoundString bs = new BoundString();
 		bs.append("INSERT INTO ");
 		bs.append(this.tableName);
@@ -354,15 +354,12 @@ public class TableMap {
 		bs.append(csvAllFields());
 		bs.append(") VALUES (");
 		try {
-			for (Iterator it = this.allFields.values().iterator(); it.hasNext();) {
-				FieldMap field = (FieldMap) it.next();
+			for (Iterator<FieldMap<POJO,?,?>> it = this.allFields.values().iterator(); it.hasNext();) {
+				FieldMap<POJO,?,?> field = it.next();
 				bs.append("?, ");
-				Binding b = field.getAdaptor().outbound(
+				bs.getBindings().add(field.getAdaptor().outbound(
 						new Binding(field.getPropertyClass(), getFieldValue(
-								field, bean)));
-				bs.getBindings().add(b);
-				// bs.addBinding(field.getPropertyClass(), getFieldValue(field,
-				// bean));
+								field, bean))));
 			}
 		} catch (NoSuchMethodException ex) {
 			throw new PersistenceException(
@@ -380,13 +377,14 @@ public class TableMap {
 	 * @param bean
 	 * @return SQL update statement
 	 */
-	public BoundString sqlUpdate(Object bean) {
+	@SuppressWarnings("unchecked")
+	public BoundString sqlUpdate(POJO bean) {
 		BoundString bs = new BoundString();
 		bs.append("UPDATE ");
 		bs.append(this.tableName);
 		bs.append(" SET ");
-		for (Iterator it = this.nonKeyFields.iterator(); it.hasNext();) {
-			FieldMap field = (FieldMap) it.next();
+		for (Iterator<FieldMap<POJO,?,?>> it = this.nonKeyFields.iterator(); it.hasNext();) {
+			FieldMap<POJO,?,?> field = it.next();
 			Method[] getters = field.getGetters();
 			Object propertyObj = null;
 			bs.append(field.getColumnName());
@@ -412,9 +410,8 @@ public class TableMap {
 				propertyObj = ReflectionTool.getNestedValue(field.getGetters(),
 						bean);
 			}
-			Binding b = field.getAdaptor().outbound(
-					new Binding(field.getPropertyClass(), propertyObj));
-			bs.addBinding(b.getType(), b.getObj());
+			bs.addBinding(field.getAdaptor().outbound(
+					new Binding(field.getPropertyClass(), propertyObj)));
 		}
 		bs.chop(2);
 		bs.append(whereKeyFieldsMatch(bean));
@@ -427,7 +424,7 @@ public class TableMap {
 	 * @param bean
 	 * @return SQL delete statement
 	 */
-	public BoundString sqlDelete(Object bean) {
+	public BoundString sqlDelete(POJO bean) {
 		BoundString bs = new BoundString();
 		bs.append("DELETE FROM ");
 		bs.append(this.tableName);
@@ -441,11 +438,11 @@ public class TableMap {
 	 * @param bean
 	 * @return SQL where clause
 	 */
-	public BoundString whereKeyFieldsMatch(Object bean) {
+	public BoundString whereKeyFieldsMatch(POJO bean) {
 		BoundString bs = new BoundString();
 		bs.append(" WHERE ");
-		for (Iterator it = this.keyFields.iterator(); it.hasNext();) {
-			FieldMap field = (FieldMap) it.next();
+		for (Iterator<FieldMap<POJO,?,?>> it = this.keyFields.iterator(); it.hasNext();) {
+			FieldMap<POJO,?,?> field = it.next();
 			bs.append(field.getColumnName());
 			Object propertyObj = null;
 			if (field.getGetters() == null) {
@@ -459,7 +456,8 @@ public class TableMap {
 				bs.append(" IS NULL AND ");
 			} else {
 				bs.append("=? AND ");
-				bs.addBinding(field.getPropertyClass(), propertyObj);
+				UncheckedBinding ub=new UncheckedBinding(field.getPropertyClass(), propertyObj);
+				bs.addBinding(ub);
 			}
 		}
 		bs.chop(5);
@@ -473,14 +471,14 @@ public class TableMap {
 	 *            ResultSet already advanced to next row.
 	 * @return bean extracted from a ResultSet row.
 	 */
-	public Object extractObject(ResultSet rs) {
-		Object obj = null;
+	public POJO extractObject(ResultSet rs) {
+		POJO obj = null;
 		try {
 			obj = this.javaClass.newInstance();
 			int i = 0;
-			for (Iterator it = allFields.values().iterator(); it.hasNext();) {
+			for (Iterator<FieldMap<POJO,?,?>> it = allFields.values().iterator(); it.hasNext();) {
 				i++;
-				FieldMap fld = (FieldMap) it.next();
+				FieldMap<POJO,?,?> fld = it.next();
 				fld.setPropertyValue(rs, i, obj);
 			}
 		} catch (InstantiationException ex) {
