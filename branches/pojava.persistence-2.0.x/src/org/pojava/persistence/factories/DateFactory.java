@@ -12,11 +12,12 @@ import org.pojava.datetime.DateTime;
  * 
  * @author John Pile
  */
-public class DateFactory implements SerialFactory {
+public class DateFactory<T> implements SerialFactory<T> {
 
 	/**
 	 * Construct a java.util.Date object.
 	 */
+	@SuppressWarnings("unchecked")
 	public Object construct(Class type, Object[] params) {
 		if (Date.class.isAssignableFrom(type)) {
 			if (type == Timestamp.class) {
@@ -33,7 +34,7 @@ public class DateFactory implements SerialFactory {
 						ts.setNanos(nanos);
 						return ts;
 					} else {
-						ts = new DateTime(params[0].toString()).toTimestamp();
+						return new DateTime(params[0].toString()).toTimestamp();
 					}
 				}
 			}
@@ -47,6 +48,7 @@ public class DateFactory implements SerialFactory {
 	/**
 	 * Construct a java.util.Date object.
 	 */
+	@SuppressWarnings("unchecked")
 	public Object construct(Class type, Map params) {
 		if (Date.class.isAssignableFrom(type)) {
 			long time=0;
@@ -66,7 +68,6 @@ public class DateFactory implements SerialFactory {
 				return new Date(time);
 			}
 		}
-		
 		return null;
 	}
 
@@ -93,7 +94,7 @@ public class DateFactory implements SerialFactory {
 				return sb.toString();
 			} else {
 				Date d = (Date) obj;
-				return new Long(d.getTime()).toString();
+				return Long.toString(d.getTime());
 			}
 		}
 		return "";
