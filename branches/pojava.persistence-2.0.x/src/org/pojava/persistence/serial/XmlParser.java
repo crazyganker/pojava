@@ -27,7 +27,8 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * @author John Pile
  * 
  */
-public class XmlParser implements ContentHandler {
+@SuppressWarnings("unchecked")
+public class XmlParser<T> implements ContentHandler {
 
 	private static final String SAX_DRIVER = "org.xml.sax.driver";
 	private static final String XERCES_PARSER = "org.apache.xerces.parsers.SAXParser";
@@ -37,18 +38,18 @@ public class XmlParser implements ContentHandler {
 
 	private int depth = 0;
 	private int size = 8;
-	Map[] objs = new Map[size];
+	Map<Object,Object>[] objs = new Map[size];
 	StringBuffer[] buffers = new StringBuffer[size];
-	Class[] types = new Class[size];
+	Class<?>[] types = new Class[size];
 	XmlDefs defs;
 	/**
 	 * Map ID's to Fully qualified paths down to a property
 	 */
-	Map refNames = new HashMap();
+	Map<String, String> refNames = new HashMap<String, String>();
 	/**
 	 * Map ID's to a registered value
 	 */
-	Map refValues = new HashMap();
+	Map<String, String> refValues = new HashMap<String, String>();
 	/**
 	 * Keep track of which property we're working on
 	 */
@@ -62,7 +63,7 @@ public class XmlParser implements ContentHandler {
 		this.defs = defs;
 	}
 
-	public Object parse(String xml) {
+	public T parse(String xml) {
 		XMLReader parser;
 		InputSource inp = new InputSource(new StringReader(xml));
 		try {
@@ -106,7 +107,7 @@ public class XmlParser implements ContentHandler {
 			throw new PersistenceException(
 					"Parse failure: " + ex2.getMessage(), ex2);
 		}
-		return objs[0].values().toArray()[0];
+		return (T) objs[0].values().toArray()[0];
 	}
 
 	/**
@@ -130,8 +131,8 @@ public class XmlParser implements ContentHandler {
 			depth++;
 			// Ensure array is large enough for this additional node
 			if (depth >= size) {
-				Map[] moreObjs = new Map[size * 2];
-				Class[] moreTypes = new Class[size * 2];
+				Map<Object,Object>[] moreObjs = new Map[size * 2];
+				Class<?>[] moreTypes = new Class[size * 2];
 				StringBuffer[] moreBuffers = new StringBuffer[size * 2];
 				String[] moreFqprops = new String[size * 2];
 				System.arraycopy(objs, 0, moreObjs, 0, size);
@@ -153,7 +154,7 @@ public class XmlParser implements ContentHandler {
 				fqprops[depth] = null;
 			}
 			if ("null".equals(localName)) {
-				objs[depth - 1] = new HashMap();
+				objs[depth - 1] = new HashMap<Object,Object>();
 				return;
 			}
 			StringBuffer sb = buffers[depth];
@@ -211,7 +212,7 @@ public class XmlParser implements ContentHandler {
 				refValues.put(fqprops[depth], refNames.get(id));
 			}
 			if (objs[depth - 1] == null) {
-				objs[depth - 1] = new HashMap();
+				objs[depth - 1] = new HashMap<Object,Object>();
 			}
 		} catch (ClassNotFoundException ex) {
 			throw new PersistenceException("ClassNotFound: " + ex.getMessage(),
@@ -227,7 +228,7 @@ public class XmlParser implements ContentHandler {
 		Object key;
 		// TODO: Address Map and Set collections
 		if (types[depth - 1] != null && types[depth - 1].isArray()) {
-			key = new Integer(1 + objs[depth - 1].size());
+			key = Integer.valueOf(1 + objs[depth - 1].size());
 		} else {
 			key = localName;
 		}
@@ -248,8 +249,8 @@ public class XmlParser implements ContentHandler {
 					&& types[depth - 1] != null
 					&& java.util.AbstractMap.class
 							.isAssignableFrom(types[depth - 1])) {
-				Map map = (Map) objs[depth - 1];
-				for (Iterator it = objs[depth].values().iterator(); it
+				Map<Object,Object> map = (Map<Object,Object>) objs[depth - 1];
+				for (Iterator<Object> it = objs[depth].values().iterator(); it
 						.hasNext();) {
 					Object mapKey = it.next();
 					map.put(mapKey, it.next());
@@ -296,7 +297,7 @@ public class XmlParser implements ContentHandler {
 	public void endDocument() throws SAXException {
 		if (refValues.size() > 0) {
 			Resolver resolver = new Resolver(objs[0].values().toArray()[0]);
-			for (Iterator it = refValues.keySet().iterator(); it.hasNext();) {
+			for (Iterator<String> it = refValues.keySet().iterator(); it.hasNext();) {
 				String ref = it.next().toString();
 				String mem = refValues.get(ref).toString();
 				Object memObj = ReflectionTool.getNestedValue(mem, resolver);
@@ -328,7 +329,7 @@ public class XmlParser implements ContentHandler {
 			throws SAXException {
 	}
 
-	public class Resolver {
+	public static class Resolver {
 		Object obj;
 
 		public Resolver(Object obj) {
