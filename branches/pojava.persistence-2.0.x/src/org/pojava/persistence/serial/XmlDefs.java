@@ -292,7 +292,7 @@ public class XmlDefs {
 		} else if (referenced.containsKey(obj)) {
 			serialized.put(obj, referenced.get(obj));
 		} else {
-			serialized.put(obj, new Integer(0));
+			serialized.put(obj, Integer.valueOf(0));
 		}
 		return refId;
 	}
