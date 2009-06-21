@@ -33,7 +33,7 @@ public class DateFactory implements SerialFactory {
 						ts.setNanos(nanos);
 						return ts;
 					} else {
-						ts = new DateTime(params[0].toString()).toTimestamp();
+						return new DateTime(params[0].toString()).toTimestamp();
 					}
 				}
 			}
