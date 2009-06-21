@@ -77,7 +77,7 @@ public class DefaultFactory implements SerialFactory {
 				return new Integer(value.trim());
 			} else if (type == java.lang.Character.class) {
 				if (value.length() > 0) {
-					return new Character(value.charAt(0));
+					return Character.valueOf(value.charAt(0));
 				}
 			} else if (type == java.lang.Byte.class) {
 				if (value.length() == 2) {
