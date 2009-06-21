@@ -11,16 +11,16 @@ import org.pojava.transformation.BindingAdaptor;
  * @author John Pile
  * 
  */
-public interface AdaptorMap {
+public interface AdaptorMap<PROP,COL> {
 
 	/**
 	 * Choose an adaptor specific to a type and set of methods.
-	 * @param beanClass
-	 * @param getters
-	 * @param columnClass
-	 * @return
+	 * @param parentType a Java object
+	 * @param getters a drill-down from parent.to.property
+	 * @param propClass the type of the drilled-down property
+	 * @return BindingAdaptor satisfying that property
 	 */
-	public BindingAdaptor chooseAdaptor(Class beanClass, Method[] getters,
-			Class columnClass);
+	public BindingAdaptor<PROP, COL> chooseAdaptor(Method getter,
+			Class<COL> columnClass);
 
 }
