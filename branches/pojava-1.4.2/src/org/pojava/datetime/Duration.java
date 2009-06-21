@@ -185,7 +185,7 @@ public class Duration implements Comparable {
     }
 
     /**
-     * Equality is determined by UTC Date/Time. 
+     * Equality is determined by UTC Date/Time.
      */
     public int hashCode() {
         return (int) ((this.millis & 0xFFFF) ^ this.nanos);

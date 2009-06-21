@@ -158,7 +158,7 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
     public void setTzMap(Map tzMap) {
         DateTimeConfig.tzMap = tzMap;
     }
-    
+
     /**
      * Set a Map of time zones recognized by DateTime
      * 
@@ -167,7 +167,6 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
     public void addTzMap(Map tzMap) {
         DateTimeConfig.tzMap.putAll(tzMap);
     }
-
 
     /**
      * 

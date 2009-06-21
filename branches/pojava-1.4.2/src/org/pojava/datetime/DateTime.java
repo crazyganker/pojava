@@ -957,7 +957,6 @@ public class DateTime implements Serializable, Comparable {
         return systemDur.hashCode();
     }
 
-
     /**
      * Return the global configuration used by DateTime.
      * 
