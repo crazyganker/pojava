@@ -16,17 +16,17 @@ package org.pojava.exception;
  limitations under the License.
  */
 /**
- * The InconceivableException was conceived for the purpose of covering cases
- * where the developer doesn't want to pass on the joy of handling exceptions he
- * believes can't happen to callers of his code. The benefit is that if they do
- * happen, they aren't just swallowed by an empty catch block he will have a
- * clue about where something unusually improbable must have occurred.
+ * The InconceivableException was conceived for the purpose of covering cases where the
+ * developer doesn't want to pass on the joy of handling exceptions he believes can't happen to
+ * callers of his code. The benefit is that if they do happen, they aren't just swallowed by an
+ * empty catch block he will have a clue about where something unusually improbable must have
+ * occurred.
  */
 public class InconceivableException extends RuntimeException {
 
-	private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 1;
 
-	public InconceivableException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+    public InconceivableException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

@@ -4,41 +4,41 @@ import org.pojava.datetime.DateTime;
 
 public class Person {
 
-	private int id;
-	private String name;
-	private DateTime birth;
-	
-	public Person() {
-	}
-	
-	public Person(int id, String name, DateTime birth) {
-		this.id=id;
-		this.name=name;
-		this.birth=birth;
-	}
+    private int id;
+    private String name;
+    private DateTime birth;
 
-	public int getId() {
-		return id;
-	}
+    public Person() {
+    }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    public Person(int id, String name, DateTime birth) {
+        this.id = id;
+        this.name = name;
+        this.birth = birth;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public int getId() {
+        return id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	public DateTime getBirth() {
-		return birth;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setBirth(DateTime birth) {
-		this.birth = birth;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public DateTime getBirth() {
+        return birth;
+    }
+
+    public void setBirth(DateTime birth) {
+        this.birth = birth;
+    }
 
 }

@@ -5,23 +5,23 @@ import java.util.List;
 
 public class People {
 
-	List<Person> people=new ArrayList<Person>();
-	Person leader=null;
+    List<Person> people = new ArrayList<Person>();
+    Person leader = null;
 
-	public List<Person> getPeople() {
-		return people;
-	}
+    public List<Person> getPeople() {
+        return people;
+    }
 
-	public void addPerson(Person person) {
-		people.add(person);
-	}
+    public void addPerson(Person person) {
+        people.add(person);
+    }
 
-	public Person getLeader() {
-		return leader;
-	}
+    public Person getLeader() {
+        return leader;
+    }
 
-	public void setLeader(Person leader) {
-		this.leader = leader;
-	}
+    public void setLeader(Person leader) {
+        this.leader = leader;
+    }
 
 }

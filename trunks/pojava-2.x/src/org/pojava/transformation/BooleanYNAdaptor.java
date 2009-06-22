@@ -22,48 +22,41 @@ import org.pojava.lang.Binding;
  * The BooleanYNAdaptor transforms a Boolean true/false value to a
  * character Y/N value.
  */
-public class BooleanYNAdaptor extends BindingAdaptor<Boolean,String> {
+public class BooleanYNAdaptor extends BindingAdaptor<Boolean, String> {
 
-	public Class<Boolean> inboundType() {
-		return Boolean.class;
-	}
-	
-	public Class<String> outboundType() {
-		return String.class;
-	}
-	
-	public Binding<Boolean> inbound(Binding<String> fromBinding) {
-		Binding<Boolean> toBinding = new Binding<Boolean>(Boolean.class, null);
-		if (fromBinding == null || fromBinding.getObj() == null) {
-			return toBinding;
-		}
-		String fromStr = fromBinding.getObj().toString();
-		if (fromStr.length() == 0) {
-			return toBinding;
-		}
-		char fromChar = fromStr.charAt(0);
-		if (Character.toUpperCase(fromChar) == 'Y') {
-			toBinding.setObj(Boolean.TRUE);
-		} else if (Character.toUpperCase(fromChar) == 'N') {
-			toBinding.setObj(Boolean.FALSE);
-		}
-		return toBinding;
-	}
+    public Class<Boolean> inboundType() {
+        return Boolean.class;
+    }
 
-	public Binding<String> outbound(Binding<Boolean> fromBinding) {
-		Binding<String> toBinding = new Binding<String>(String.class, null);
-		if (fromBinding == null || fromBinding.getObj() == null) {
-			return toBinding;
-		}
-		if (fromBinding.getObj().getClass().equals(Boolean.class)) {
-			toBinding.setValue(((Boolean) fromBinding.getObj()).booleanValue() ? "Y"
-							: "N");
-		} else {
-			throw new IllegalStateException(
-					"BooleanIntegerAdaptor.outbound cannot interpret binding of type "
-							+ fromBinding.getObj().getClass().getName() + ".");
-		}
-		return toBinding;
-	}
+    public Class<String> outboundType() {
+        return String.class;
+    }
+
+    public Binding<Boolean> inbound(Binding<String> fromBinding) {
+        Binding<Boolean> toBinding = new Binding<Boolean>(Boolean.class, null);
+        if (fromBinding == null || fromBinding.getObj() == null) {
+            return toBinding;
+        }
+        String fromStr = fromBinding.getObj().toString();
+        if (fromStr.length() == 0) {
+            return toBinding;
+        }
+        char fromChar = fromStr.charAt(0);
+        if (Character.toUpperCase(fromChar) == 'Y') {
+            toBinding.setObj(Boolean.TRUE);
+        } else if (Character.toUpperCase(fromChar) == 'N') {
+            toBinding.setObj(Boolean.FALSE);
+        }
+        return toBinding;
+    }
+
+    public Binding<String> outbound(Binding<Boolean> fromBinding) {
+        Binding<String> toBinding = new Binding<String>(String.class, null);
+        if (fromBinding == null || fromBinding.getObj() == null) {
+            return toBinding;
+        }
+        toBinding.setValue(fromBinding.getValue().equals(Boolean.TRUE) ? "Y" : "N");
+        return toBinding;
+    }
 
 }
