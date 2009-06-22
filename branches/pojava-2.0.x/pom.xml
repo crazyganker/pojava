@@ -12,7 +12,6 @@
   languages and formats, and a variety of effective utilities.
   </description>
   <properties>
-  	<source-compiler-version>5.0</source-compiler-version>
   	<output-directory>${basedir}/target/classes</output-directory>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
