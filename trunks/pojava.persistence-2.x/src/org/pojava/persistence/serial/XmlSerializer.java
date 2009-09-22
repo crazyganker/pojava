@@ -75,11 +75,15 @@ public class XmlSerializer {
                         Object obj = entry.getValue().invoke(pojo, (Object[]) null);
                         walk(obj);
                     } catch (IllegalAccessException ex) {
-                        throw new PersistenceException("Could not serialize "
-                                + pojo.getClass().getName(), ex);
+                        if (!config.isIgnoringIllegalAccessException()) {
+                            throw new PersistenceException("Could not serialize "
+                                    + pojo.getClass().getName(), ex);
+                        }
                     } catch (InvocationTargetException ex2) {
-                        throw new PersistenceException("Could not serialize "
-                                + pojo.getClass().getName(), ex2);
+                        if (!config.isIgnoringInvocationTargetException()) {
+                            throw new PersistenceException("Could not serialize "
+                                    + pojo.getClass().getName(), ex2);
+                        }
                     }
                 }
             }
@@ -467,9 +471,13 @@ public class XmlSerializer {
                 }
             }
         } catch (InvocationTargetException ex) {
-            throw new PersistenceException("Could not serialize. " + ex.toString(), ex);
+            if (!config.isIgnoringInvocationTargetException()) {
+                throw new PersistenceException("Could not serialize. " + ex.toString(), ex);
+            }
         } catch (IllegalAccessException ex) {
-            throw new PersistenceException("Could not serialize. " + ex.toString(), ex);
+            if (!config.isIgnoringIllegalAccessException()) {
+                throw new PersistenceException("Could not serialize. " + ex.toString(), ex);
+            }
         }
         sb.append(config.indent(depth));
         if (renamed == null) {

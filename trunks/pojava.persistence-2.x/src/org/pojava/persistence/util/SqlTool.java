@@ -16,6 +16,9 @@ package org.pojava.persistence.util;
  limitations under the License.
  */
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,6 +30,12 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 import org.pojava.datetime.DateTime;
 import org.pojava.exception.InitializationException;
@@ -37,6 +46,7 @@ import org.pojava.persistence.processor.ResultSetProcessor;
 import org.pojava.persistence.processor.ResultSetToInt;
 import org.pojava.persistence.query.PreparedSql;
 import org.pojava.persistence.sql.TableMap;
+import org.pojava.testing.DriverManagerDataSource;
 
 /**
  * Utilities for performing SQL tasks. POJava keeps things simple by using prepared statements.
@@ -306,4 +316,56 @@ public class SqlTool {
             throw pex;
         }
     }
+    
+    public static void close(Connection conn) throws SQLException {
+        if (conn!=null) {
+            conn.close();
+        }
+    }
+    
+    public static Properties fetchProperties(String propertyFile) {
+        Properties dataSourceProps = new Properties();
+        // override properties
+        try {
+            FileInputStream in = new FileInputStream(propertyFile);
+            dataSourceProps.load(in);
+            in.close();
+        } catch (FileNotFoundException ex) {
+            System.out.println("Could not find a property file named " + propertyFile);
+        } catch (IOException ex) {
+            System.out
+                    .println("IOException occurred trying to read config/datastore.properties.\n");
+            ex.printStackTrace();
+        }
+        return dataSourceProps;
+    }
+
+    /**
+     * Registers a property into the InitialContext. If the property starts with "jdbc/", then a group of properties are
+     * read to create and add a DataSource to the registry.
+     *
+     * @param props A Properties object pre-populated with data
+     * @param dsName The name of the DataSource to register in JNDI.
+     * @throws NamingException
+     */
+    public static void registerDataSource(Properties props, String dsName) throws NamingException, ClassNotFoundException {
+        Context ctx = new InitialContext();
+        Class.forName(props.getProperty(dsName+".driver"));
+        DataSource ds = new DriverManagerDataSource(
+                props.getProperty(dsName + ".url"),
+                props.getProperty(dsName + ".user"),
+                props.getProperty(dsName + ".password"));
+        ctx.bind("java:/comp/env/" + dsName.trim(), ds);
+        
+    }
+
+    public static DataSource readDataSource(Properties props, String dsName) throws NamingException, ClassNotFoundException {
+        Class.forName(props.getProperty(dsName+".driver"));
+        DataSource ds = new DriverManagerDataSource(
+                props.getProperty(dsName + ".url"),
+                props.getProperty(dsName + ".user"),
+                props.getProperty(dsName + ".password"));
+        return ds;
+    }
+    
 }

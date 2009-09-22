@@ -124,7 +124,7 @@ public class PrimitiveTestDao {
     }
 
     public static int processByQuery(ConnectionSource connector, SqlQuery query,
-            Processor objProcessor) throws SQLException {
+            Processor<PrimitiveTest> objProcessor) throws SQLException {
         Connection conn = connector.getConnection(DS_NAME);
         try {
             return DaoTool.processByQuery(connector.getConnection(DS_NAME), MAP, query,
