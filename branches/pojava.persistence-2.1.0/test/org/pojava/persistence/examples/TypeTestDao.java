@@ -67,7 +67,7 @@ public class TypeTestDao {
     }
 
     public static int processByQuery(ConnectionSource connector, SqlQuery query,
-            Processor objProcessor) throws SQLException {
+            Processor<TypeTest> objProcessor) throws SQLException {
         return DaoTool.processByQuery(connector.getConnection(DS_NAME), MAP, query,
                 objProcessor);
     }

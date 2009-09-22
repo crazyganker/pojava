@@ -345,7 +345,7 @@ public class DaoTool {
      * @return number of rows processed
      */
     public static final <T> int processByQuery(Connection conn, TableMap<T> map,
-            SqlQuery query, Processor objProcessor) {
+            SqlQuery query, Processor<T> objProcessor) {
         validateParamsQuery(map, query, "processByQuery");
         try {
             ResultSetToProcessor<T> processor = new ResultSetToProcessor<T>(map, objProcessor);

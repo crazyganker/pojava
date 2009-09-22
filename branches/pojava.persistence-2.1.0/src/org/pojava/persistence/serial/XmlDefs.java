@@ -78,6 +78,11 @@ public class XmlDefs {
      * whatever the default is for that field (which works out well when the default is null).
      */
     private boolean omittingNulls = false;
+    
+    private boolean ignoringInvocationTargetException=false;
+    
+    private boolean ignoringIllegalAccessException=false;
+
 
     /**
      * Initialize XmlDefs with known factory mappings.
@@ -449,4 +454,40 @@ public class XmlDefs {
         this.omittingNulls = omittingNulls;
     }
 
+    /**
+     * If true, then fields that throw InvocationTargetException are
+     * quietly ignored.
+     * @return true or false
+     */
+    public boolean isIgnoringInvocationTargetException() {
+        return ignoringInvocationTargetException;
+    }
+
+    /**
+     * If true, then fields that throw InvocationTargetException are
+     * quietly ignored.
+     */
+    public void setIgnoringInvocationTargetException(boolean ignoringInvocationTargetException) {
+        this.ignoringInvocationTargetException = ignoringInvocationTargetException;
+    }
+
+    /**
+     * If true, then fields that throw IllegalAccessException are
+     * quietly ignored.
+     * @return true or false
+     */
+    public boolean isIgnoringIllegalAccessException() {
+        return ignoringIllegalAccessException;
+    }
+
+    /**
+     * If true, then fields that throw IllegalAccessException are
+     * quietly ignored.
+     * @param ignoringIllegalAccessException true to quietly ignore exception.
+     */
+    public void setIgnoringIllegalAccessException(boolean ignoringIllegalAccessException) {
+        this.ignoringIllegalAccessException = ignoringIllegalAccessException;
+    }
+
+    
 }

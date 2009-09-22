@@ -261,11 +261,11 @@ public class DaoTesterPrimitives extends TestCase {
         assertEquals(obj11.getTestDouble() + obj22.getTestDouble(), proc.getSum(), 0);
     }
 
-    private class PrimitiveTestProcessor implements Processor {
+    private class PrimitiveTestProcessor implements Processor<PrimitiveTest> {
         private double sum = 0.0;
 
-        public int process(Object obj) {
-            PrimitiveTest bean = (PrimitiveTest) obj;
+        public int process(PrimitiveTest obj) {
+            PrimitiveTest bean = obj;
             if (bean != null) {
                 sum += bean.getTestDouble();
             }

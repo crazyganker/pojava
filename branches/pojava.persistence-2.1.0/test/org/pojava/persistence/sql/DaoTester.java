@@ -4,8 +4,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
-import javax.sql.DataSource;
-
 import junit.framework.TestCase;
 
 import org.pojava.datetime.CalendarUnit;
@@ -14,7 +12,7 @@ import org.pojava.persistence.examples.Mock;
 import org.pojava.persistence.examples.TypeTest;
 import org.pojava.persistence.examples.TypeTestDao;
 import org.pojava.persistence.examples.TypeTestQuery;
-import org.pojava.testing.DriverManagerDataSource;
+import org.pojava.persistence.util.SqlTool;
 import org.pojava.testing.JNDIRegistry;
 import org.pojava.util.StringTool;
 
@@ -24,19 +22,13 @@ public class DaoTester extends TestCase {
 
     protected void setUp() throws Exception {
         JNDIRegistry.getInitialContext();
-        Properties dsp = TestHelper.fetchDataSourceProperties();
-        if (dsp != null) {
-            Class.forName(dsp.getProperty("driver"));
-            DataSource ds = new DriverManagerDataSource(dsp.getProperty("url"), dsp
-                    .getProperty("user"), dsp.getProperty("password"));
-            DatabaseCache.registerDataSource(dsp.getProperty("name"), ds);
-            trans = new DatabaseTransaction();
-            TypeTestDao.deleteByQuery(trans, new TypeTestQuery().forAll());
-        }
+        Properties dsp=SqlTool.fetchProperties("config/ds_test.properties");
+        SqlTool.registerDataSource(dsp, "pojava_test");
+        trans=new DatabaseTransaction();
+        TypeTestDao.deleteByQuery(trans, new TypeTestQuery().forAll());
     }
 
     protected void tearDown() throws Exception {
-        // trans.commit();
         trans.rollback();
     }
 
@@ -244,11 +236,11 @@ public class DaoTester extends TestCase {
                 proc.getSum(), 0);
     }
 
-    private class TypeTestProcessor implements Processor {
+    private class TypeTestProcessor implements Processor<TypeTest> {
         private double sum = 0.0;
 
-        public int process(Object obj) {
-            TypeTest bean = (TypeTest) obj;
+        public int process(TypeTest obj) {
+            TypeTest bean = obj;
             if (bean != null) {
                 sum += bean.getTestDouble().doubleValue();
             }
