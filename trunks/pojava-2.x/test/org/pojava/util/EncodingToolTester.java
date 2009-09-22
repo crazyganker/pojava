@@ -50,6 +50,13 @@ public class EncodingToolTester extends TestCase {
             assertEquals(sb.toString(), decoded);
         }
     }
+    
+    public void testBase64Negative() {
+        byte[] raw={-28, -120};
+        char[] encoded=EncodingTool.base64Encode(raw);
+        byte[] decoded=EncodingTool.base64Decode(encoded);
+        assertEquals(raw[0], decoded[0]);
+    }
 
     public void testHexEncode() {
         byte[] oneByte = new byte[1];

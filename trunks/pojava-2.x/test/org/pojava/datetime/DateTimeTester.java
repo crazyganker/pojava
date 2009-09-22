@@ -383,7 +383,8 @@ public class DateTimeTester extends TestCase {
     public void testEuropean2() {
         DateTimeConfig.globalEuropeanDateFormat();
         DateTime dt1 = new DateTime("01-07-2003");
-        System.out.println(dt1.toDate().toString());
+        String str=dt1.toDate().toString();
+        assertEquals("Tue Jul 01 00:00:00", str.subSequence(0,19));
         DateTimeConfig.globalAmericanDateFormat();
     }
 
