@@ -61,7 +61,7 @@ public class EncodingTool {
             // Push into buffer in 8-bit chunks
             for (int i = 0; i < 3; i++) {
                 buffer <<= 8;
-                buffer |= (d < src.length ? src[d++] : 0);
+                buffer |= ((d < src.length ? src[d++] & 0x00ff : 0));
             }
             // Pop from buffer in 6-bit chunks
             for (int i = 0; i < 4; i++) {
