@@ -16,7 +16,11 @@ package org.pojava.testing;
  limitations under the License.
  */
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -100,6 +104,49 @@ public class JNDIRegistry {
     public static Object lookupFullyQualified(String name) throws NamingException {
         Context ctx = new InitialContext();
         return ctx.lookup(name);
+    }
+
+    /**
+     * Fetch properties from a custom.properties file.
+     * 
+     * @param propertyFile
+     * @return
+     */
+    public static Properties fetchProperties(String propertyFile) {
+        Properties dataSourceProps = new Properties();
+        // override properties
+        try {
+            FileInputStream in = new FileInputStream(propertyFile);
+            dataSourceProps.load(in);
+            in.close();
+        } catch (FileNotFoundException ex) {
+            System.out.println("Could not find a property file named " + propertyFile);
+        } catch (IOException ex) {
+            System.out
+                    .println("IOException occurred trying to read config/datastore.properties.\n");
+            ex.printStackTrace();
+        }
+        return dataSourceProps;
+    }
+    
+    public static DataSource extractDataSource(Properties props, String dsName) throws ClassNotFoundException {
+        String url=props.getProperty(dsName + ".url");
+        String user=props.getProperty(dsName + ".user");
+        String password=props.getProperty(dsName + ".password");
+        String driver=props.getProperty(dsName + ".driver");
+        Class.forName(props.getProperty(driver));
+        DriverManagerDataSource ds=new DriverManagerDataSource(url, user, password);
+        return ds;
+    }
+    
+    public static void registerDatasourcesFromFile(String propertyFile) throws ClassNotFoundException, NamingException {
+        Properties dataSourceProps = fetchProperties(propertyFile);
+        String[] propNames = ((String)dataSourceProps.get("datasource_names")).split("[ ,|]+");
+        Context context=getInitialContext();
+        for (int i=0; i<propNames.length; i++) {
+            DataSource ds=extractDataSource(dataSourceProps, propNames[i]);
+            context.bind("java:comp/env/" + propNames[i], ds);
+        }
     }
 
 }
