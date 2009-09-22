@@ -19,8 +19,8 @@ package org.pojava.lang;
 /**
  * The Processor interface is a generic interface for defining a callback.
  */
-public interface Processor {
+public interface Processor<T> {
 
-    <T> int process(T obj);
+    int process(T obj);
 
 }
