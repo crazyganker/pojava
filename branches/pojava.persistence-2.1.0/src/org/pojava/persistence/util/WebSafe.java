@@ -26,6 +26,11 @@ public class WebSafe {
     private XmlParser<Object> parser;
     private XmlSerializer serial;
 
+    /**
+     * Construct a WebSafe instance that encrypts/decrypts using the given key.
+     * @param key
+     * @throws InvalidKeyException
+     */
     public WebSafe(String key) throws InvalidKeyException {
         crypto=new Encryption(key);
         zipper=new Compression();
@@ -33,6 +38,11 @@ public class WebSafe {
         serial=new XmlSerializer();
     }
 
+    /**
+     * Construct a WebSafe instance that encrypts/decrypts using the given key.
+     * @param key
+     * @throws InvalidKeyException
+     */
     public WebSafe(SecretKey key) throws InvalidKeyException {
         crypto=new Encryption(key);
         zipper=new Compression();
@@ -40,6 +50,12 @@ public class WebSafe {
         serial=new XmlSerializer();
     }
     
+    /**
+     * Reconstitute a WebSafe string back into its original object form.
+     * @param webSafeString
+     * @return
+     * @throws DataFormatException
+     */
     Object stringToObject(String webSafeString) throws DataFormatException {
         byte[] encrypted=EncodingTool.base64Decode(webSafeString.toCharArray());
         byte[] zipped=crypto.decrypt(encrypted);
@@ -47,6 +63,11 @@ public class WebSafe {
         return parser.parse(xml);
     }
     
+    /**
+     * Convert an Object to a string of base64 characters (dropping trailing '=' chars).
+     * @param obj
+     * @return
+     */
     String objectToString(Object obj) {
         String xml=serial.toXml(obj);
         byte[] zipped=zipper.compress(xml.getBytes());
@@ -54,8 +75,8 @@ public class WebSafe {
         StringBuilder encoded=new StringBuilder(new String(EncodingTool.base64Encode(encrypted)));
         int len=encoded.length();
         // Base64 pads with '=', but Tomcat 6.0.14+ doesn't like '=' in cookie values.
-        // I haven't figured out what paragraph of rfc2109 or rfc2965 is driving that interpretation.
-        // Since they are easily derived, we'll just drop the '=' characters.
+        // I haven't figured out what paragraph of rfc2109 or rfc2965 is driving that interpretation,
+        // bit since they are easily derived, we'll just drop the '=' characters.
         while (--len>0 && encoded.charAt(len)=='=') {
             encoded.setLength(len);
         }
