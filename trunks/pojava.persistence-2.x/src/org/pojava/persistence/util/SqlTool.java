@@ -355,7 +355,7 @@ public class SqlTool {
                 props.getProperty(dsName + ".url"),
                 props.getProperty(dsName + ".user"),
                 props.getProperty(dsName + ".password"));
-        ctx.bind("java:/comp/env/" + dsName.trim(), ds);
+        ctx.bind("java:/comp/env/jdbc/" + dsName.trim(), ds);
         
     }
 
