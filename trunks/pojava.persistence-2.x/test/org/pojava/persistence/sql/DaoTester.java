@@ -21,6 +21,7 @@ public class DaoTester extends TestCase {
     private DatabaseTransaction trans = null;
 
     protected void setUp() throws Exception {
+        super.setUp();
         JNDIRegistry.getInitialContext();
         Properties dsp=SqlTool.fetchProperties("config/ds_test.properties");
         SqlTool.registerDataSource(dsp, "pojava_test");
