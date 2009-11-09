@@ -29,15 +29,13 @@ public class BooleanYNAdaptorTester extends TestCase {
             adaptor.inbound(new Binding(String.class, "invalid"));
             fail("Expecting ClassCastException.");
         } catch (ClassCastException ex) {
-            assertEquals("java.lang.String cannot be cast to java.lang.Integer", ex
-                    .getMessage());
+            assertTrue(ex.getMessage().startsWith("java.lang.String"));
         }
         try {
             adaptor.outbound(new Binding(String.class, "other"));
             fail("Expecting ClassCastException.");
         } catch (ClassCastException ex) {
-            assertEquals("java.lang.String cannot be cast to java.lang.Boolean", ex
-                    .getMessage());
+            assertTrue(ex.getMessage().startsWith("java.lang.String"));
         }
     }
 

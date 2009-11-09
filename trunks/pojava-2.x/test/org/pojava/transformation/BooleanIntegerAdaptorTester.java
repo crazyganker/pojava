@@ -24,8 +24,7 @@ public class BooleanIntegerAdaptorTester extends TestCase {
             adaptor.inbound(new Binding(String.class, "invalid"));
             fail("Expecting ClassCastException.");
         } catch (ClassCastException ex) {
-            assertEquals("java.lang.String cannot be cast to java.lang.Integer", ex
-                    .getMessage());
+            assertTrue(ex.getMessage().startsWith("java.lang.String"));
         }
     }
 
