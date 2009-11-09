@@ -3,9 +3,9 @@ package org.pojava.persistence.serial;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.pojava.datetime.DateTime;
@@ -302,7 +302,7 @@ public class XmlParser<T> implements ContentHandler {
                     objs[depth -1].put(key, null);
                 }
             } else {
-                if (types[depth-1]!=null && List.class.isAssignableFrom(types[depth-1])){
+                if (types[depth-1]!=null && Collection.class.isAssignableFrom(types[depth-1])){
                     key=Integer.valueOf(objs[depth-1].size());
                 }
                 objs[depth - 1].put(key, defs.construct(types[depth], objs[depth]));

@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -196,6 +197,19 @@ public class XmlDefs {
     }
 
     /**
+     * Helper to fill collection from a Map expecting <#,Object>
+     * @param col Collection
+     * @param params Sequential parameters
+     */
+    private void fillCollection(Collection<Object> col, Map<?,?> params) {
+        if (params != null) {
+            for (int i = 0; i < params.size(); i++) {
+                col.add(params.get(Integer.valueOf(i)));
+            }
+        }
+    }
+
+    /**
      * Construct an object using named parameters.
      * 
      * @param type
@@ -208,15 +222,19 @@ public class XmlDefs {
         SerialFactory factory = factories.get(type);
         try {
             if (factory == null) {
-                if (List.class.equals(type)) {
+                if (List.class.equals(type) || Collection.class.equals(type)) {
                     ArrayList list = new ArrayList();
-                    if (params != null) {
-                        for (int i = 0; i < params.size(); i++) {
-                            list.add(params.get(i));
-                        }
-                    }
+                    fillCollection(list, params);
                     newObj = list;
                     // TODO: Populate from map... embedded List?
+                } else if (Set.class.equals(type)) {
+                    HashSet set = new HashSet();
+                    fillCollection(set, params);
+                    newObj = set;
+                } else if (Collection.class.isAssignableFrom(type)) {
+                    Collection col = (Collection) type.newInstance();
+                    fillCollection(col, params);
+                    newObj = col;
                 } else {
                     newObj = type.newInstance();
                     Accessors accessors = ReflectionTool.accessors(type);
