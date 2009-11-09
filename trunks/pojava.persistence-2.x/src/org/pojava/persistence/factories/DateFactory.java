@@ -39,6 +39,9 @@ public class DateFactory<T> implements SerialFactory<T> {
                 }
             }
             if (params.length == 1) {
+                if (params[0]==null || params[0].toString().length()==0) {
+                    return null;
+                }
                 return new Date(Long.parseLong(params[0].toString()));
             }
         }
