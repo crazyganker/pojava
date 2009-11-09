@@ -6,12 +6,9 @@ import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.NClob;
 import java.sql.PreparedStatement;
-import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.SQLXML;
 import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Struct;
@@ -353,7 +350,7 @@ public class TransConnection implements Connection {
     /**
      * Unsupported. Included to compile under Java 1.6.
      */
-    public void setClientInfo(Properties properties) throws SQLClientInfoException {
+    public void setClientInfo(Properties properties) throws Exception {
         throw new UnsupportedOperationException();
     }
 
@@ -361,13 +358,6 @@ public class TransConnection implements Connection {
      * Unsupported. Included to compile under Java 1.6.
      */
     public Clob createClob() throws SQLException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public NClob createNClob() throws SQLException {
         throw new UnsupportedOperationException();
     }
 
@@ -402,13 +392,6 @@ public class TransConnection implements Connection {
     /**
      * Unsupported. Included to compile under Java 1.6.
      */
-    public SQLXML createSQLXML() throws SQLException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
     @SuppressWarnings("unchecked")
     public Object unwrap(Class arg0) throws SQLException {
         throw new UnsupportedOperationException();
@@ -425,13 +408,6 @@ public class TransConnection implements Connection {
      * Unsupported. Included to compile under Java 1.6.
      */
     public boolean isWrapperFor(Class<?> arg0) throws SQLException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported. Included to compile under Java 1.6.
-     */
-    public void setClientInfo(String name, String value) throws SQLClientInfoException {
         throw new UnsupportedOperationException();
     }
 

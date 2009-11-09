@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>pojava-persistence-2.0.1</name>
+	<name>pojava-persistence-2.1.1</name>
 	<comment></comment>
 	<projects>
-		<project>pojava-2.0.1</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.pojava.datetime.DateTime;
@@ -35,6 +36,8 @@ public class XmlParser<T> implements ContentHandler {
     private static final String CRIMSON_PARSER = "org.apache.crimson.parser.XMLReaderImpl";
     private static final String AELFRED_PARSER = "gnu.xml.aelfred2.XmlReader";
     private static final String PICCOLO_PARSER = "com.bluecast.xml.Piccolo";
+    private static final Integer ZERO = Integer.valueOf(0);
+    private static final Integer ONE = Integer.valueOf(1);
 
     private int depth = 0;
     private int size = 8;
@@ -213,62 +216,101 @@ public class XmlParser<T> implements ContentHandler {
         }
     }
 
+    private void giveParent(Object key, Object value) {
+        if ("obj".equals(key)) {
+            objs[depth - 1].put(Integer.valueOf(objs[depth - 1].size()), value);
+        } else {
+            objs[depth - 1].put(key, value);
+        }
+    }
+
     public void endElement(String uri, String localName, String name) throws SAXException {
         Object key;
-        // TODO: Address Map and Set collections
-        if (types[depth - 1] != null && types[depth - 1].isArray()) {
-            key = Integer.valueOf(1 + objs[depth - 1].size());
+        if (types[depth - 1] != null && types[depth - 1].isArray() && !"null".equals(localName)) {
+            key = Integer.valueOf(objs[depth - 1].size());
         } else {
             key = localName;
         }
         if ("null".equals(key)) {
             objs[depth - 1].put(key, null);
         } else if (defs.isValue(types[depth])) {
-            if (objs[depth] != null && objs[depth].containsKey("null")
+            // A value bean like Integer, Long, etc., is immediately constructed.
+            if (objs[depth] != null && objs[depth].containsKey(Integer.valueOf(0))
                     && buffers[depth].length() == 0) {
-                objs[depth - 1].put(key, null);
+                objs[depth - 1].put(key, objs[depth].get(Integer.valueOf(0)));
             } else {
-                Object[] params = new Object[1];
-                params[0] = buffers[depth].toString();
-                objs[depth - 1].put(key, defs.construct(types[depth], params));
+                if (objs[depth]!=null && objs[depth].containsKey("null")) {
+                    giveParent(key, null);
+                } else {
+                    Object[] params = new Object[1];
+                    params[0] = buffers[depth].toString();
+                    giveParent(key, defs.construct(types[depth], params));
+                }
             }
         } else if (types[depth] == null) {
+            // If type is null, then append null to parent list.
             objs[depth - 1].put(key, null);
         } else if (types[depth].isArray()) {
-            if (depth > 0 && types[depth - 1] != null
-                    && java.util.AbstractMap.class.isAssignableFrom(types[depth - 1])) {
-                Map<Object, Object> map = (Map<Object, Object>) objs[depth - 1];
-                for (Iterator<Object> it = objs[depth].values().iterator(); it.hasNext();) {
-                    Object mapKey = it.next();
-                    map.put(mapKey, it.next());
-                }
-            } else {
-                if (types[depth + 1] == null) {
-                    objs[depth - 1].put(key, null);
+            Object array;
+            if (objs[depth] == null) {
+                // Construct and populate an empty array.
+                array = Array.newInstance(types[depth].getComponentType(), 0);
+                if (types[depth - 1] == Object.class) {
+                    objs[depth - 1].put(ZERO, array);
                 } else {
-                    Object array = Array.newInstance(types[depth + 1], objs[depth].size());
-                    for (int i = 0; i < objs[depth].size(); i++) {
-                        Array.set(array, i, objs[depth].get(Integer.valueOf(1 + i)));
-                    }
                     objs[depth - 1].put(key, array);
                 }
-            }
-        } else {
-            if (!refValues.containsKey(fqprops[depth])) {
-                if (types[depth] == Object.class) {
-                    if (objs[depth].containsKey("obj")) {
-                        objs[depth - 1].put(key, objs[depth].get("obj"));
-                    } else if (!objs[depth].containsKey("null")) {
-                        objs[depth - 1].put(key, new Object());
-                    }
-                } else if (java.util.AbstractMap.class.isAssignableFrom(types[depth])) {
-                    objs[depth - 1].put(key, objs[depth]);
+            } else if (types[depth-1]!=null && Map.class.isAssignableFrom(types[depth-1])) {
+                // Assign an object pair to a Map entry
+                Map map;
+                if (objs[depth-1].containsKey(ZERO)) {
+                    map=(Map)objs[depth-1].get(ZERO);
                 } else {
-                    if (!objs[depth].containsKey("null")) {
-                        objs[depth - 1].put(key, defs.construct(types[depth], objs[depth]));
+                    map=new HashMap();
+                    objs[depth-1].put(ZERO, map);
+                }
+                if (objs[depth]!=null && objs[depth].containsKey(ZERO)) {
+                    map.put(objs[depth].get(ZERO), objs[depth].get(ONE));
+                }
+            } else {
+                // Construct and populate an array.
+                if (!objs[depth].containsKey("null")) {
+                    array = Array.newInstance(types[depth].getComponentType(), objs[depth]
+                            .size());
+                    for (int i = 0; i < objs[depth].size(); i++) {
+                        Array.set(array, i, objs[depth].get(Integer.valueOf(/* 1 + */i)));
+                    }
+                    if (types[depth - 1] == Object.class) {
+                        objs[depth - 1].put(ZERO, array);
+                    } else {
+                        objs[depth - 1].put(key, array);
                     }
                 }
             }
+        } else if (!refValues.containsKey(fqprops[depth])) {
+            if (types[depth] == Object.class) {
+                if (objs[depth] == null || objs[depth].size() == 0) {
+                    giveParent(key, new Object());
+                } else {
+                    giveParent(key, objs[depth].get(ZERO));
+                    objs[depth].clear();
+                }
+            } else if (java.util.AbstractMap.class.isAssignableFrom(types[depth])) {
+                objs[depth - 1].put(ZERO,objs[depth].get(ZERO));
+            } else if (objs[depth].containsKey("null")) {
+                if (Object.class.isAssignableFrom(types[depth])) {
+                    objs[depth -1].put(key, null);
+                }
+            } else {
+                if (types[depth-1]!=null && List.class.isAssignableFrom(types[depth-1])){
+                    key=Integer.valueOf(objs[depth-1].size());
+                }
+                objs[depth - 1].put(key, defs.construct(types[depth], objs[depth]));
+            }
+        }
+        if (objs[depth] != null) {
+            objs[depth].clear();
+            types[depth] = null;
         }
         depth--;
     }

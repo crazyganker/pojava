@@ -1,11 +1,14 @@
 package org.pojava.persistence.serial;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.pojava.datetime.DateTime;
+import org.pojava.persistence.examples.Person;
 import org.pojava.persistence.examples.Potpourri;
 
 public class XmlParserTester extends TestCase {
@@ -29,10 +32,20 @@ public class XmlParserTester extends TestCase {
     public void testPotpourri() throws Exception {
         String xml = ""
                 + "<obj class=\"org.pojava.persistence.examples.Potpourri\" mem=\"1\">\n"
-                + "  <d>86400000</d>\n" + "  <confused ref=\"1\"/>\n" + "  <five>5</five>\n"
-                + "  <dt>86400.0</dt>\n" + "  <bob>\n"
-                + "    <obj class=\"Long\">9876543210</obj>\n" + "  </bob>\n"
-                + "  <str>hello</str>\n" + "</obj>\n";
+                + "  <d>86400000</d>\n" 
+                + "  <confused ref=\"1\"/>\n" 
+                + "  <five>5</five>\n"
+                + "  <dt>86400.0</dt>\n"
+                + "  <bob>\n"
+                + "    <obj class=\"Long\">9876543210</obj>\n" 
+                + "  </bob>\n"
+                + "  <str>hello</str>\n"
+                + "  <list>\n"
+                + "    <obj class=\"Object\"/>\n"
+                + "    <obj class=\"Long\">123</obj>\n"
+                + "  </list>\n"
+                + "</obj>\n";
+        // System.out.println(xml);
         XmlParser<Potpourri> parser = new XmlParser<Potpourri>();
         Potpourri pot = parser.parse(xml);
         assertEquals(86400000, pot.getD().getTime());
@@ -41,16 +54,28 @@ public class XmlParserTester extends TestCase {
         assertEquals(86400000, pot.getDt().toMillis());
         assertEquals(new Long(9876543210L), (Long) pot.getBob());
         assertEquals("hello", pot.getStr());
+        assertEquals(2, pot.getList().size());
     }
 
     public void testPotpourri2() throws Exception {
-        String xml = "<obj class=\"org.pojava.persistence.examples.Potpourri\" mem=\"1\">\n"
-                + "  <d>86400000</d>\n" + "  <numbers>\n" + "    <e>1</e>\n" + "    <e>2</e>\n"
-                + "    <e>3</e>\n" + "  </numbers>\n" + "  <confused ref=\"1\"/>\n"
-                + "  <five>5</five>\n" + "  <dt>86400.0</dt>\n" + "  <bob>\n"
-                + "    <obj class=\"Long\">9876543210</obj>\n" + "  </bob>\n"
-                + "  <str>Hello</str>\n" + "</obj>\n";
+        StringBuffer sb=new StringBuffer();
+        sb.append("<obj class=\"org.pojava.persistence.examples.Potpourri\" mem=\"1\">\n");
+        sb.append("  <d>86400000</d>\n");
+        sb.append("  <numbers>\n");
+        sb.append("    <e>1</e>\n");
+        sb.append("    <e>2</e>\n");
+        sb.append("    <e>3</e>\n");
+        sb.append("  </numbers>\n");
+        sb.append("  <confused ref=\"1\"/>\n");
+        sb.append("  <five>5</five>\n");
+        sb.append("  <dt>86400.0</dt>\n");
+        sb.append("  <bob>\n");
+        sb.append("    <obj class=\"Long\">9876543210</obj>\n");
+        sb.append("  </bob>\n");
+        sb.append("  <str>Hello</str>\n");
+        sb.append("</obj>\n");
         XmlParser<Potpourri> parser = new XmlParser<Potpourri>();
+        String xml=sb.toString();
         Potpourri pot = parser.parse(xml);
         assertEquals(86400000, pot.getD().getTime());
         assertEquals(pot, pot.getConfused());
@@ -58,6 +83,7 @@ public class XmlParserTester extends TestCase {
         assertEquals(86400000, pot.getDt().toMillis());
         assertEquals(new Long(9876543210L), (Long) pot.getBob());
         assertEquals("Hello", pot.getStr());
+        assertEquals(3, pot.getNumbers().length);
     }
 
     /**
@@ -118,4 +144,29 @@ public class XmlParserTester extends TestCase {
         assertNull(pojo.getStr());
         assertEquals(0, pojo.getFive());
     }
+    
+    public void testList() {
+        Person p1=new Person();
+        Person p2=new Person();
+        Person p3=new Person();
+        p1.setName("One");
+        p2.setName("Two");
+        p3.setName("Three");
+        List<Person> list=new ArrayList<Person>();
+        list.add(p1);
+        list.add(p2);
+        list.add(p3);
+        Potpourri pot=new Potpourri();
+        pot.setList(list);
+        XmlDefs defs=new XmlDefs();
+        XmlSerializer serializer=new XmlSerializer(defs);
+        String xml = serializer.toXml(pot);
+        String objClass="<obj class=\"org.pojava.persistence.examples.Person\">\n";
+        // System.out.println(xml);        
+        assertTrue(xml.indexOf(objClass+"      <name>One</name>\n      <parent><null/>")>0);
+        assertTrue(xml.indexOf(objClass+"      <name>Two</name>\n      <parent><null/>")>0);
+        assertTrue(xml.indexOf(objClass+"      <name>Three</name>\n      <parent><null/>")>0);
+    }
+
 }
+

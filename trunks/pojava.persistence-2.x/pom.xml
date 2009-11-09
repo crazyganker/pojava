@@ -4,7 +4,7 @@
   <groupId>pojava</groupId>
   <artifactId>pojava-persistence</artifactId>
   <name>POJava Persistence Utility</name>
-  <version>2.1.0</version>
+  <version>2.1.1</version>
   <properties>
   	<source-compiler-version>5.0</source-compiler-version>
   	<output-directory>${basedir}/target/classes</output-directory>
@@ -130,7 +130,7 @@
       <dependency>
 		  <groupId>pojava</groupId> 
 		  <artifactId>pojava</artifactId> 
-		  <version>2.1.0</version>
+		  <version>2.1.1</version>
 	  </dependency>
    </dependencies>
 </project>

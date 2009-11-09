@@ -3,9 +3,11 @@ package org.pojava.persistence.serial;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -78,11 +80,10 @@ public class XmlDefs {
      * whatever the default is for that field (which works out well when the default is null).
      */
     private boolean omittingNulls = false;
-    
-    private boolean ignoringInvocationTargetException=false;
-    
-    private boolean ignoringIllegalAccessException=false;
 
+    private boolean ignoringInvocationTargetException = false;
+
+    private boolean ignoringIllegalAccessException = false;
 
     /**
      * Initialize XmlDefs with known factory mappings.
@@ -207,9 +208,20 @@ public class XmlDefs {
         SerialFactory factory = factories.get(type);
         try {
             if (factory == null) {
-                newObj = type.newInstance();
-                Accessors accessors = ReflectionTool.accessors(type);
-                ReflectionTool.populateFromMap(newObj, params, accessors.getSetters());
+                if (List.class.equals(type)) {
+                    ArrayList list = new ArrayList();
+                    if (params != null) {
+                        for (int i = 0; i < params.size(); i++) {
+                            list.add(params.get(i));
+                        }
+                    }
+                    newObj = list;
+                    // TODO: Populate from map... embedded List?
+                } else {
+                    newObj = type.newInstance();
+                    Accessors accessors = ReflectionTool.accessors(type);
+                    ReflectionTool.populateFromMap(newObj, params, accessors.getSetters());
+                }
                 return newObj;
             } else {
                 return factory.construct(type, params);
@@ -455,8 +467,8 @@ public class XmlDefs {
     }
 
     /**
-     * If true, then fields that throw InvocationTargetException are
-     * quietly ignored.
+     * If true, then fields that throw InvocationTargetException are quietly ignored.
+     * 
      * @return true or false
      */
     public boolean isIgnoringInvocationTargetException() {
@@ -464,16 +476,15 @@ public class XmlDefs {
     }
 
     /**
-     * If true, then fields that throw InvocationTargetException are
-     * quietly ignored.
+     * If true, then fields that throw InvocationTargetException are quietly ignored.
      */
     public void setIgnoringInvocationTargetException(boolean ignoringInvocationTargetException) {
         this.ignoringInvocationTargetException = ignoringInvocationTargetException;
     }
 
     /**
-     * If true, then fields that throw IllegalAccessException are
-     * quietly ignored.
+     * If true, then fields that throw IllegalAccessException are quietly ignored.
+     * 
      * @return true or false
      */
     public boolean isIgnoringIllegalAccessException() {
@@ -481,13 +492,13 @@ public class XmlDefs {
     }
 
     /**
-     * If true, then fields that throw IllegalAccessException are
-     * quietly ignored.
-     * @param ignoringIllegalAccessException true to quietly ignore exception.
+     * If true, then fields that throw IllegalAccessException are quietly ignored.
+     * 
+     * @param ignoringIllegalAccessException
+     *            true to quietly ignore exception.
      */
     public void setIgnoringIllegalAccessException(boolean ignoringIllegalAccessException) {
         this.ignoringIllegalAccessException = ignoringIllegalAccessException;
     }
 
-    
 }

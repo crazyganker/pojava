@@ -61,15 +61,16 @@ public class XmlSerializer {
             }
         }
         Class<?> type = pojo.getClass();
-        if (ReflectionTool.isBasic(type) || type.equals(Object.class)) {
+        if (ReflectionTool.isBasic(type) || type.equals(Object.class) || type.equals(Class.class)) {
             return;
         } else if (config.hasAccessors(type)) {
             Map<String, Method> getters = config.getAccessors(type).getGetters();
             for (Iterator<Entry<String, Method>> it = getters.entrySet().iterator(); it
                     .hasNext();) {
                 Entry<String, Method> entry = it.next();
-                String key = entry.getKey();
-                String property = ReflectionTool.propertyFor(key);
+                // String key = entry.getKey();
+                // String property = ReflectionTool.propertyFor(key);
+                String property = entry.getKey();
                 if (!config.isOmission(type, property)) {
                     try {
                         Object obj = entry.getValue().invoke(pojo, (Object[]) null);
@@ -408,18 +409,22 @@ public class XmlSerializer {
             Class<?> baseClass) {
         StringBuffer sb = new StringBuffer();
         int length = Array.getLength(pojo);
+        name = config.renamedJava(baseClass, name);
+        openTag(sb, name, attribs, depth);
+        sb.append('\n');
         if (length > 0) {
-            name = config.renamedJava(baseClass, name);
-            openTag(sb, name, attribs, depth);
-            sb.append('\n');
             for (int i = 0; i < length; i++) {
                 Object member = Array.get(pojo, i);
                 // Output array element
-                sb.append(toXml(member, "e", null, depth + 1, member.getClass()));
+                if (member==null) {
+                    sb.append(toXml(member, "e", null, depth + 1, null));
+                } else {
+                    sb.append(toXml(member, "e", null, depth + 1, member.getClass()));
+                }
             }
-            sb.append(config.indent(depth));
-            closeTag(sb, name);
         }
+        sb.append(config.indent(depth));
+        closeTag(sb, name);
         return sb.toString();
     }
 
@@ -449,6 +454,7 @@ public class XmlSerializer {
         }
         sb.append('\n');
         Class<?> type = pojo.getClass();
+        // TODO: if type is Class.class then handle as ENUM.
         try {
             Accessors accessors = config.getAccessors(type);
             Map<String, Method> getters = accessors.getGetters();

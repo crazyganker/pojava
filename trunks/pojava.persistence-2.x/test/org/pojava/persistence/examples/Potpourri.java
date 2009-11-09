@@ -1,6 +1,7 @@
 package org.pojava.persistence.examples;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,13 +17,14 @@ public class Potpourri {
     private int[] numbers; // ={ 1, 2, 3 };
     private Set<?> set;
     private Map<?, ?> map;
+    private List<?> list;
 
     public Potpourri() {
         // Currently, this is a requirement.
     }
 
     public Potpourri(String str, int five, Date d, DateTime dt, Object bob, Potpourri confused,
-            Set<?> set, Map<?, ?> map) {
+            Set<?> set, Map<?, ?> map, List<?> list) {
         this.str = str;
         this.five = five;
         this.d = d;
@@ -31,6 +33,7 @@ public class Potpourri {
         this.confused = confused;
         this.set = set;
         this.map = map;
+        this.list = list;
     }
 
     public void setStr(String str) {
@@ -104,5 +107,15 @@ public class Potpourri {
     public void setMap(Map<String, ?> map) {
         this.map = map;
     }
+
+    public List<?> getList() {
+        return list;
+    }
+
+    public void setList(List<?> list) {
+        this.list = list;
+    }
+    
+    
 
 }
