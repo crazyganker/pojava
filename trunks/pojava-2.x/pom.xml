@@ -4,7 +4,7 @@
   <groupId>pojava</groupId>
   <artifactId>pojava</artifactId>
   <name>POJava Utilities</name>
-  <version>2.1.0</version>
+  <version>2.1.1</version>
   <description>
   POJava is a simple, light-weight Java-based API for speeding
   application development. It showcases a versatile immutable 
