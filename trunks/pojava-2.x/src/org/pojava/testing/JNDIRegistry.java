@@ -115,16 +115,25 @@ public class JNDIRegistry {
     public static Properties fetchProperties(String propertyFile) {
         Properties dataSourceProps = new Properties();
         // override properties
+        FileInputStream in=null;
         try {
-            FileInputStream in = new FileInputStream(propertyFile);
+            in = new FileInputStream(propertyFile);
             dataSourceProps.load(in);
-            in.close();
         } catch (FileNotFoundException ex) {
             System.out.println("Could not find a property file named " + propertyFile);
         } catch (IOException ex) {
             System.out
                     .println("IOException occurred trying to read config/datastore.properties.\n");
             ex.printStackTrace();
+        } finally {
+            if (in!=null) {
+                try {
+                    in.close();
+                } catch (IOException ex) {
+                    System.out.println("IOException occurred trying to read config/datastore.properties.\n");
+                    ex.printStackTrace();
+                }
+            }
         }
         return dataSourceProps;
     }
