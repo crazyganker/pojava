@@ -385,7 +385,7 @@ public class XmlDefs {
      * @return
      */
     public String indent(int depth) {
-        while (pad.length() < depth) {
+        while (pad.length() < depth * padSize) {
             pad += pad;
         }
         return pad.substring(0, depth * padSize);
