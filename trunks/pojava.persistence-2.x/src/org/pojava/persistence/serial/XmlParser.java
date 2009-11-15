@@ -121,7 +121,7 @@ public class XmlParser<T> implements ContentHandler {
 
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
     }
-
+    
     public void startElement(String uri, String localName, String name, Attributes atts)
             throws SAXException {
         try {
@@ -287,6 +287,20 @@ public class XmlParser<T> implements ContentHandler {
                     }
                 }
             }
+        } else if (types[depth].isEnum()) {
+            try {
+                Class pc=types[depth];
+                if (Object.class.equals(types[depth-1])) {
+                    objs[depth-1].put(ZERO, Enum.valueOf(pc, buffers[depth].toString()));
+                } else {
+                    objs[depth-1].put(key, Enum.valueOf(pc, buffers[depth].toString()));
+                }
+            } catch (IllegalArgumentException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            System.out.println("well...");
+            // objs[depth-1]=XmlParser.deserialize(types[depth], buffers[depth].toString());
         } else if (!refValues.containsKey(fqprops[depth])) {
             if (types[depth] == Object.class) {
                 if (objs[depth] == null || objs[depth].size() == 0) {
