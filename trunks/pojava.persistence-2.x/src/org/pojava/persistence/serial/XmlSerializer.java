@@ -207,7 +207,7 @@ public class XmlSerializer {
             closeTag(sb, name);
             return sb.toString();
         }
-        if (ReflectionTool.isBasic(type)) {
+        if (ReflectionTool.isBasic(type) || type.isEnum()) {
             sb.append(config.indent(depth));
             sb.append(simpleElement(pojo, name, attribSb.toString()));
         } else if (type.equals(Object.class)) {
@@ -457,6 +457,7 @@ public class XmlSerializer {
         // TODO: if type is Class.class then handle as ENUM.
         try {
             Accessors accessors = config.getAccessors(type);
+            
             Map<String, Method> getters = accessors.getGetters();
             for (Iterator<Map.Entry<String, Method>> it = getters.entrySet().iterator(); it
                     .hasNext();) {
