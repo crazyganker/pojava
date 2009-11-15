@@ -10,6 +10,7 @@ import junit.framework.TestCase;
 import org.pojava.persistence.examples.Objet;
 import org.pojava.persistence.examples.Person;
 import org.pojava.persistence.examples.Potpourri;
+import org.pojava.persistence.examples.PrimaryColor;
 
 public class XmlRoundTripTester extends TestCase {
 
@@ -17,8 +18,8 @@ public class XmlRoundTripTester extends TestCase {
         XmlDefs defs = new XmlDefs();
         XmlSerializer serializer = new XmlSerializer(defs);
         String xml=serializer.toXml(obj);
-        XmlParser<Object> parser=new XmlParser<Object>(defs);
         // System.out.println(xml);
+        XmlParser<Object> parser=new XmlParser<Object>(defs);
         Object obj2=parser.parse(xml);
         String xml2=serializer.toXml(obj2);
         // System.out.println(xml2);
@@ -75,6 +76,13 @@ public class XmlRoundTripTester extends TestCase {
         Objet obj=new Objet();
         Object[] objs={null};
         obj.setMisc(objs);
+        roundTrip(obj);
+    }
+    
+    public void testObjetEnum() {
+        Objet obj=new Objet();
+        PrimaryColor color=PrimaryColor.BLUE;
+        obj.setMisc(color);
         roundTrip(obj);
     }
 
