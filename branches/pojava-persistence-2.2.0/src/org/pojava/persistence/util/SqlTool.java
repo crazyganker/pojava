@@ -21,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,6 +30,7 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -350,7 +353,24 @@ public class SqlTool {
      */
     public static void registerDataSource(Properties props, String dsName) throws NamingException, ClassNotFoundException {
         Context ctx = new InitialContext();
-        Class.forName(props.getProperty(dsName+".driver"));
+        try {
+            boolean isRegistered=false;
+            String driverClass=dsName+".driver";
+            Enumeration<Driver> drivers=DriverManager.getDrivers();
+            while (drivers.hasMoreElements()) {
+                Driver driver=drivers.nextElement();
+                if (driverClass.equals(driver.getClass().getName())) {
+                    isRegistered=true;
+                    break;
+                }
+            }
+            //TODO forName only if Driver is unregistered
+            if (!isRegistered) {
+                Class.forName(props.getProperty(dsName+".driver"));
+            }
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Could not register " + ex.getMessage());
+        }
         DataSource ds = new DriverManagerDataSource(
                 props.getProperty(dsName + ".url"),
                 props.getProperty(dsName + ".user"),
