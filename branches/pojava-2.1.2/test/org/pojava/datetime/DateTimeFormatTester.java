@@ -2,6 +2,8 @@ package org.pojava.datetime;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -19,11 +21,28 @@ public class DateTimeFormatTester extends TestCase {
         String fmt = "yyyy-MM-dd hh:mm:ss.SSSSSSSSS";
         assertEquals("2045-01-23 06:07:08.910111200", DateTimeFormat.format(fmt, dt));
     }
+    
+    public void testTimeZone() {
+        DateTime dt = new DateTime("2008-01-09 GMT-04:00");
+        assertEquals("-0400", DateTimeFormat.format("Z", dt, dt.timeZone()));
+        assertEquals("-04:00", DateTimeFormat.format("ZZ", dt, dt.timeZone()));
+    }
+    
+    public void testLocale() {
+        DateTime dt = new DateTime("2008-01-09 PST");
+        compareStatic("zzzz", dt, Locale.FRENCH);
+    }
 
     private void compareStatic(String fmt, DateTime dt) {
         Date date = dt.toDate();
         SimpleDateFormat sdf = new SimpleDateFormat(fmt);
         assertEquals(sdf.format(date), DateTimeFormat.format(fmt, dt));
+    }
+
+    private void compareStatic(String fmt, DateTime dt, Locale loc) {
+        Date date = dt.toDate();
+        SimpleDateFormat sdf = new SimpleDateFormat(fmt, loc);
+        assertEquals(sdf.format(date), DateTimeFormat.format(fmt, dt, TimeZone.getDefault(), loc));
     }
 
 }

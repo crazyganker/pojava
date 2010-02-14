@@ -1,7 +1,7 @@
 package org.pojava.datetime;
 
 /*
- Copyright 2008-09 John Pile
+ Copyright 2010 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -329,16 +330,19 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     }
 
     /**
-     * The toString method gives a sortable ISO 8601 date and time to nearest second in the same
-     * timezone as the system.
+     * By default, the toString method gives a sortable ISO 8601 date and time to nearest second
+     * in the same time zone as the system.  The default format can be redefined in DateTimeConfig.
      */
     public String toString() {
-        String str = DateTimeFormat.format(config().getDefaultDateFormat(), this);
+        String formatStr=config().getDefaultDateFormat();
+        String str = DateTimeFormat.format(formatStr, this, TimeZone.getDefault(), Locale.getDefault());
         if (this.systemDur.millis < DateTime.CE) {
-            return str + " BC";
-        } else {
-            return str;
+            char c=formatStr.charAt(formatStr.length()-1);
+            if (c!='g' && c!='G') {
+                return str + " BC";
+            }
         }
+        return str;
     }
 
     /**
@@ -348,7 +352,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * @return A formatted string version of the current DateTime.
      */
     public String toString(String format) {
-        return DateTimeFormat.format(format, this);
+        return DateTimeFormat.format(format, this, TimeZone.getDefault(), Locale.getDefault());
     }
 
     /**
@@ -359,10 +363,28 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * @return A string version of the this DateTime specified in local time.
      */
     public String toLocalString() {
-        return DateTimeFormat.format("yyyy-MM-dd HH:mm:ss", this, DateTimeConfig
-                .getTimeZone(this.timeZoneId));
+        String formatStr=config().getDefaultDateFormat();
+        String str = DateTimeFormat.format(formatStr, this, this.timeZone(), Locale.getDefault());
+        if (this.systemDur.millis < DateTime.CE) {
+            char c=formatStr.charAt(formatStr.length()-1);
+            if (c!='g' && c!='G') {
+                return str + " BC";
+            }
+        }
+        return str;
     }
-
+    
+    /**
+     * The toLocalString method provides a sortable ISO 8601 date and time to the nearest
+     * second, but is rendered from the perspective of the time zone ascribed to the DateTime
+     * object, regardless of the system's time zone.
+     * 
+     * @return A string version of the this DateTime specified in local time.
+     */
+    public String toLocalString(String format) {
+        return DateTimeFormat.format(format, this, this.timeZone(), Locale.getDefault());
+    }
+    
     /**
      * Add a fixed duration of time
      * 
@@ -545,7 +567,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         boolean hasYear = false, hasMonth = false, hasDay = false;
         boolean hasHour = false, hasMinute = false, hasSecond = false;
         boolean hasNanosecond = false, hasTimeZone = false, inDST = false;
-        int year = 0, month = 0, day = 0;
+        int year = 0, month = 0, day = 1;
         int hour = 0, minute = 0, second = 0, nanosecond = 0;
         String tzString = null;
         TimeZone tz = TimeZone.getDefault();
@@ -716,6 +738,14 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                         tzString = ref;
                     }
                     tz = TimeZone.getTimeZone(tzString);
+                    // Flag time zone offset numbers
+                    for (int part=parts.length-1; part>parts.length-3; part--) {
+                        if (integers[part]) {
+                            usedint[part]=true;
+                        } else {
+                            break;
+                        }
+                    }
                 }
                 hasTimeZone = true;
             }
@@ -723,7 +753,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         /**
          * Validate
          */
-        if (!hasYear || !hasMonth || !hasDay) {
+        if (!hasYear || !hasMonth) {
             throw new IllegalArgumentException(
                     "Could not determine Year, Month, and Day from '" + str + "'");
         }
@@ -746,6 +776,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         if (hasTimeZone) {
             returnDt = new DateTime(Tm.calcTime(year, 1 + month, day, hour, minute, second,
                     nanosecond / 1000000, tz));
+            returnDt.timeZoneId=tz.getID();
         } else {
             // Start with Pacific Standard Time (which observes DST)
             tz = TimeZone.getTimeZone("America/Los_Angeles");

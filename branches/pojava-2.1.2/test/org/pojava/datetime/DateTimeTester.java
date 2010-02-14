@@ -392,5 +392,10 @@ public class DateTimeTester extends TestCase {
         DateTime dt1 = new DateTime("20080109");
         assertEquals("2008-01-09 00:00:00", dt1.toString());
     }
-
+    
+    public void testFormat() {
+        DateTime dt = new DateTime("2010-02-14 03:00 EST");
+        assertEquals("-05:00 AD -0500 EST", dt.toLocalString("ZZ G Z z"));
+    }
+    
 }
