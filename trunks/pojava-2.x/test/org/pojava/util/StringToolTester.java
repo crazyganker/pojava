@@ -63,4 +63,20 @@ public class StringToolTester extends TestCase {
         // Pad does not truncate or trim.
         assertEquals("three ", StringTool.pad("three ", 3));
     }
+    
+    public void testTrue() {
+        assertEquals(true, StringTool.isTrue("Yes"));
+        assertEquals(true, StringTool.isTrue("y"));
+        assertEquals(true, StringTool.isTrue("True"));
+        assertEquals(true, StringTool.isTrue("t"));
+        assertEquals(true, StringTool.isTrue("1"));
+        assertEquals(false, StringTool.isTrue("No"));
+        assertEquals(false, StringTool.isTrue("n"));
+        assertEquals(false, StringTool.isTrue("False"));
+        assertEquals(false, StringTool.isTrue("f"));
+        assertEquals(false, StringTool.isTrue("0"));
+        assertEquals(false, StringTool.isTrue("z"));
+        assertEquals(false, StringTool.isTrue(""));
+        assertEquals(false, StringTool.isTrue(null));
+    }
 }

@@ -56,6 +56,18 @@ public class StringTool {
     }
 
     /**
+     * True if a string matches /^[tTyY1].*$/
+     * @param s
+     * @return true if string represents true
+     */
+    public static boolean isTrue(String s) {
+        if (s == null || s.length() == 0)
+            return false;
+        char c = s.charAt(0);
+        return c=='t' || c=='T' || c=='y' || c=='Y' || c=='1';
+    }
+
+    /**
      * True if a string has only digits in it.
      * 
      * @param s

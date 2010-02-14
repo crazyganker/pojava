@@ -1,9 +1,13 @@
 package org.pojava.datetime;
 
+import java.text.DateFormatSymbols;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 /*
- Copyright 2008-09 John Pile
+ Copyright 2010 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -25,12 +29,13 @@ import java.util.TimeZone;
  * "fractional second" so that, for example, nine consecutive "S" characters would represent
  * nanoseconds, while three "S" characters represent milliseconds. The upper-case "G" still
  * represents "BC" or "AD", but I added a lower-cased "g" to the format to use "BCE" or "CE".
+ * While "Z" still shows time zone offset as "-HHmm", "ZZ" will add a colon, as "-HH:mm".
  * 
  * Because it does not "compile" the format String, DateTimeFormat can provide a static method
  * with the same performance as a constructed object. It does allow a constructed object for
  * similar behavior to existing formatters, but there is no performance advantage in doing so.
- * In either case, this class is "almost" thread-safe, provided your application is not trying
- * to change the definition of TimeZone objects as you're using them.
+ * In either case, this class is thread-safe, provided your application is not trying to
+ * change the internals of Java's TimeZone object as you're using it.
  * 
  * It is important to understand that the default behavior is to format the output according to
  * the system's time zone. If you want to format the output according to the DateTime object's
@@ -48,16 +53,10 @@ import java.util.TimeZone;
  */
 public class DateTimeFormat {
 
-    private static final String[] mos = { "", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
-            "Aug", "Sep", "Oct", "Nov", "Dec" };
-    private static final String[] months = { "", "January", "February", "March", "April",
-            "May", "June", "July", "August", "September", "October", "November", "December" };
-    private static final String[] wes = { "", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-    private static final String[] weeks = { "", "Sunday", "Monday", "Tuesday", "Wednesday",
-            "Thursday", "Friday", "Saturday" };
     private static final int[] dom = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334,
             365 };
     private String template;
+    private static Map <Locale, DateFormatSymbols> symbols=new HashMap<Locale,DateFormatSymbols>();
 
     public DateTimeFormat(String template) {
         this.template = template;
@@ -80,27 +79,35 @@ public class DateTimeFormat {
     }
 
     public static String format(String template, DateTime dt, TimeZone tz) {
+        return format(template, dt, tz, Locale.getDefault());
+    }
+    
+    public static String format(String template, DateTime dt, TimeZone tz, Locale loc) {
         Tm tm = new Tm(dt, tz);
-        StringBuffer sb = new StringBuffer();
-        StringBuffer word = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
+        StringBuilder word = new StringBuilder();
         char[] fmt = template.toCharArray();
         char prior = fmt[0];
         word.append(prior);
+        if (!symbols.containsKey(loc)) {
+            symbols.put(loc, new DateFormatSymbols(loc));
+        }
+        DateFormatSymbols dfs=symbols.get(loc);
         for (int i = 1; i < fmt.length; i++) {
             if (fmt[i] == prior) {
                 word.append(prior);
             } else {
-                appendWord(sb, word, tm, dt);
+                appendWord(sb, word, tm, dt, tz, loc, dfs);
                 prior = fmt[i];
                 word.setLength(0);
                 word.append(prior);
             }
         }
-        appendWord(sb, word, tm, dt);
+        appendWord(sb, word, tm, dt, tz, loc, dfs);
         return sb.toString();
     }
 
-    private static void appendWord(StringBuffer sb, StringBuffer word, Tm tm, DateTime dt) {
+    private static void appendWord(StringBuilder sb, StringBuilder word, Tm tm, DateTime dt, TimeZone tz, Locale loc, DateFormatSymbols dfs) {
         char c = word.charAt(0);
         int len = word.length();
         switch (c) {
@@ -115,9 +122,9 @@ public class DateTimeFormat {
             break;
         case 'M':
             if (len > 3) {
-                sb.append(months[tm.getMonth()]);
+                sb.append(dfs.getMonths()[tm.getMonth()-1]);
             } else if (len == 3) {
-                sb.append(mos[tm.getMonth()]);
+                sb.append(dfs.getShortMonths()[tm.getMonth()-1]);
             } else if (len == 2) {
                 sb.append(zfill(tm.getMonth(), 2));
             } else {
@@ -140,13 +147,13 @@ public class DateTimeFormat {
             break;
         case 'E':
             if (len > 3) {
-                sb.append(weeks[tm.getWeekday()]);
+                sb.append(dfs.getWeekdays()[tm.getWeekday()-1]);
             } else {
-                sb.append(wes[tm.getWeekday()]);
+                sb.append(dfs.getShortWeekdays()[tm.getWeekday()-1]);
             }
             break;
         case 'a':
-            sb.append(tm.getHour() > 11 ? "PM" : "AM");
+            sb.append(dfs.getAmPmStrings()[tm.getHour() > 11 ? 1 : 0]);
             break;
         case 'H':
             if (len > 1) {
@@ -197,10 +204,14 @@ public class DateTimeFormat {
             sb.append(zfill(tm.getNanosecond(), 9).substring(0, len));
             break;
         case 'z':
-            sb.append(dt.timeZone().getDisplayName());
+            if (len>3) {
+                sb.append(dt.timeZone().getDisplayName(loc));
+            } else {
+                sb.append(tz.getDisplayName(tz.inDaylightTime(dt.toDate()), TimeZone.SHORT, loc));
+            }
             break;
         case 'Z':
-            int minutes = dt.timeZone().getOffset(dt.toMillis()) / 60000;
+            int minutes = tz.getOffset(dt.toMillis()) / 60000;
             if (minutes < 0) {
                 sb.append('-');
                 minutes = -minutes;
@@ -208,7 +219,18 @@ public class DateTimeFormat {
                 sb.append('+');
             }
             int hours = minutes / 60;
-            sb.append(zfill(hours * 100 + minutes, 4));
+            minutes -= hours * 60;
+            if (hours<10){
+                sb.append('0');
+            }
+            sb.append(hours);
+            if (len>1) {
+                sb.append(':');
+            }
+            if (minutes<10) {
+                sb.append('0');
+            }
+            sb.append(minutes);
             break;
         default:
             sb.append(word);
@@ -217,7 +239,7 @@ public class DateTimeFormat {
     }
 
     private static String zfill(int value, int size) {
-        StringBuffer zeros = new StringBuffer("000000000000");
+        StringBuilder zeros = new StringBuilder("000000000000");
         zeros.append(Integer.toString(value));
         return zeros.substring(zeros.length() - Math.min(zeros.length(), size));
     }
