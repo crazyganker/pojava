@@ -311,7 +311,7 @@ public class XmlParser<T> implements ContentHandler {
                 }
             } else if (Map.class.isAssignableFrom(types[depth])) {
                 objs[depth - 1].put(key,objs[depth].get(ZERO));
-            } else if (objs[depth].containsKey("null")) {
+            } else if (objs[depth]==null || objs[depth].containsKey("null")) {
                 if (Object.class.isAssignableFrom(types[depth])) {
                     objs[depth -1].put(key, null);
                 }
