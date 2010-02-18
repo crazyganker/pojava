@@ -34,4 +34,7 @@ public class DatabaseDriver implements Driver {
     public boolean jdbcCompliant() {
         return this.driver.jdbcCompliant();
     }
+    public Driver getDriver() {
+        return driver;
+    }
 }
