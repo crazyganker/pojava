@@ -48,6 +48,7 @@ import org.pojava.lang.UncheckedBinding;
 import org.pojava.persistence.processor.ResultSetProcessor;
 import org.pojava.persistence.processor.ResultSetToInt;
 import org.pojava.persistence.query.PreparedSql;
+import org.pojava.persistence.sql.DatabaseDriver;
 import org.pojava.persistence.sql.TableMap;
 import org.pojava.testing.DriverManagerDataSource;
 
@@ -237,15 +238,15 @@ public class SqlTool {
     }
 
     /**
-     * Close a prepared statement.
+     * Close a statement or prepared statement.
      * 
      * @param pstmt
      *            Prepared statement ready to be closed
      */
-    public static void close(PreparedStatement pstmt) {
+    public static void close(Statement stmt) {
         try {
-            if (pstmt != null) {
-                pstmt.close();
+            if (stmt != null) {
+                stmt.close();
             }
         } catch (SQLException ex) {
             throw new PersistenceException(ex.getMessage(), ex);
@@ -344,12 +345,11 @@ public class SqlTool {
     }
 
     /**
-     * Registers a property into the InitialContext. If the property starts with "jdbc/", then a group of properties are
-     * read to create and add a DataSource to the registry.
+     * Registers a DataSource into the InitialContext.
      *
      * @param props A Properties object pre-populated with data
      * @param dsName The name of the DataSource to register in JNDI.
-     * @throws NamingException
+     * @throws NamingException, ClassNotFoundException
      */
     public static void registerDataSource(Properties props, String dsName) throws NamingException, ClassNotFoundException {
         Context ctx = new InitialContext();
@@ -359,12 +359,14 @@ public class SqlTool {
             Enumeration<Driver> drivers=DriverManager.getDrivers();
             while (drivers.hasMoreElements()) {
                 Driver driver=drivers.nextElement();
-                if (driverClass.equals(driver.getClass().getName())) {
+                String listedClassName=driver.getClass().getName();
+                if (driverClass.equals(listedClassName) || "org.pojava.persistence.sql.DatabaseDriver".equals(listedClassName)) {
+                    DatabaseDriver dbd=(DatabaseDriver) driver;
+                    listedClassName=dbd.getDriver().getClass().getName();
                     isRegistered=true;
                     break;
                 }
             }
-            //TODO forName only if Driver is unregistered
             if (!isRegistered) {
                 Class.forName(props.getProperty(dsName+".driver"));
             }
