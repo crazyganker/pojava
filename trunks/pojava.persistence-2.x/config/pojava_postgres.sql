@@ -7,7 +7,7 @@ CREATE ROLE pojava LOGIN
   NOSUPERUSER NOINHERIT NOCREATEDB NOCREATEROLE;
 GRANT test_users TO pojava;
 
-CREATE TABLE dao_test
+CREATE TABLE type_test
 (
   test_id integer NOT NULL,
   test_bigint bigint,
@@ -28,7 +28,7 @@ CREATE TABLE dao_test
   CONSTRAINT dao_test_pkey PRIMARY KEY (test_id)
 )
 WITH (OIDS=FALSE);
-ALTER TABLE dao_test OWNER TO test_users;
-GRANT ALL ON TABLE dao_test TO test_users;
-GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER ON TABLE dao_test TO pojava;
+ALTER TABLE type_test OWNER TO test_users;
+GRANT ALL ON TABLE type_test TO test_users;
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER ON TABLE type_test TO pojava;
 

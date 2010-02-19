@@ -21,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,6 +30,7 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -45,6 +48,7 @@ import org.pojava.lang.UncheckedBinding;
 import org.pojava.persistence.processor.ResultSetProcessor;
 import org.pojava.persistence.processor.ResultSetToInt;
 import org.pojava.persistence.query.PreparedSql;
+import org.pojava.persistence.sql.DatabaseDriver;
 import org.pojava.persistence.sql.TableMap;
 import org.pojava.testing.DriverManagerDataSource;
 
@@ -234,15 +238,15 @@ public class SqlTool {
     }
 
     /**
-     * Close a prepared statement.
+     * Close a statement or prepared statement.
      * 
      * @param pstmt
      *            Prepared statement ready to be closed
      */
-    public static void close(PreparedStatement pstmt) {
+    public static void close(Statement stmt) {
         try {
-            if (pstmt != null) {
-                pstmt.close();
+            if (stmt != null) {
+                stmt.close();
             }
         } catch (SQLException ex) {
             throw new PersistenceException(ex.getMessage(), ex);
@@ -341,16 +345,34 @@ public class SqlTool {
     }
 
     /**
-     * Registers a property into the InitialContext. If the property starts with "jdbc/", then a group of properties are
-     * read to create and add a DataSource to the registry.
+     * Registers a DataSource into the InitialContext.
      *
      * @param props A Properties object pre-populated with data
      * @param dsName The name of the DataSource to register in JNDI.
-     * @throws NamingException
+     * @throws NamingException, ClassNotFoundException
      */
     public static void registerDataSource(Properties props, String dsName) throws NamingException, ClassNotFoundException {
         Context ctx = new InitialContext();
-        Class.forName(props.getProperty(dsName+".driver"));
+        try {
+            boolean isRegistered=false;
+            String driverClass=dsName+".driver";
+            Enumeration<Driver> drivers=DriverManager.getDrivers();
+            while (drivers.hasMoreElements()) {
+                Driver driver=drivers.nextElement();
+                String listedClassName=driver.getClass().getName();
+                if (driverClass.equals(listedClassName) || "org.pojava.persistence.sql.DatabaseDriver".equals(listedClassName)) {
+                    DatabaseDriver dbd=(DatabaseDriver) driver;
+                    listedClassName=dbd.getDriver().getClass().getName();
+                    isRegistered=true;
+                    break;
+                }
+            }
+            if (!isRegistered) {
+                Class.forName(props.getProperty(dsName+".driver"));
+            }
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Could not register " + ex.getMessage());
+        }
         DataSource ds = new DriverManagerDataSource(
                 props.getProperty(dsName + ".url"),
                 props.getProperty(dsName + ".user"),

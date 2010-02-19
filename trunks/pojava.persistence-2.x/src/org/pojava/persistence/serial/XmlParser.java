@@ -163,7 +163,7 @@ public class XmlParser<T> implements ContentHandler {
             fqprops[depth] = sb.toString();
             sb.setLength(0);
             if (!("obj".equals(localName))) {
-                if (java.util.AbstractMap.class.isAssignableFrom(types[depth - 1])) {
+                if (Map.class.isAssignableFrom(types[depth - 1])) {
                     types[depth] = Object[].class;
                 } else if (types[depth - 1].isArray()) {
                     types[depth] = types[depth - 1].getComponentType();
@@ -299,7 +299,7 @@ public class XmlParser<T> implements ContentHandler {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            System.out.println("well...");
+            // System.out.println("well...");
             // objs[depth-1]=XmlParser.deserialize(types[depth], buffers[depth].toString());
         } else if (!refValues.containsKey(fqprops[depth])) {
             if (types[depth] == Object.class) {
@@ -309,9 +309,9 @@ public class XmlParser<T> implements ContentHandler {
                     giveParent(key, objs[depth].get(ZERO));
                     objs[depth].clear();
                 }
-            } else if (java.util.AbstractMap.class.isAssignableFrom(types[depth])) {
-                objs[depth - 1].put(ZERO,objs[depth].get(ZERO));
-            } else if (objs[depth].containsKey("null")) {
+            } else if (Map.class.isAssignableFrom(types[depth])) {
+                objs[depth - 1].put(key,objs[depth].get(ZERO));
+            } else if (objs[depth]==null || objs[depth].containsKey("null")) {
                 if (Object.class.isAssignableFrom(types[depth])) {
                     objs[depth -1].put(key, null);
                 }
