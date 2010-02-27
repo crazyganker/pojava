@@ -88,13 +88,28 @@ public class DateTimeFormat {
         StringBuilder word = new StringBuilder();
         char[] fmt = template.toCharArray();
         char prior = fmt[0];
-        word.append(prior);
+        if (prior!='\'') {
+            word.append(prior);
+        }
         if (!symbols.containsKey(loc)) {
             symbols.put(loc, new DateFormatSymbols(loc));
         }
         DateFormatSymbols dfs=symbols.get(loc);
+        boolean isLiteral=(prior=='\'');
         for (int i = 1; i < fmt.length; i++) {
-            if (fmt[i] == prior) {
+            if (fmt[i]=='\'') {
+                if (prior=='\'') {
+                    sb.append('\'');
+                } else {
+                    appendWord(sb, word, tm, dt, tz, loc, dfs);
+                }
+                word.setLength(0);
+                prior = prior=='\'' ? ' ' : '\'';
+                isLiteral=!isLiteral;
+            } else if (isLiteral) {
+                sb.append(fmt[i]);
+                prior=fmt[i];
+            } else if (fmt[i] == prior) {
                 word.append(prior);
             } else {
                 appendWord(sb, word, tm, dt, tz, loc, dfs);
@@ -108,6 +123,9 @@ public class DateTimeFormat {
     }
 
     private static void appendWord(StringBuilder sb, StringBuilder word, Tm tm, DateTime dt, TimeZone tz, Locale loc, DateFormatSymbols dfs) {
+        if (word.length()==0) {
+            return;
+        }
         char c = word.charAt(0);
         int len = word.length();
         switch (c) {
