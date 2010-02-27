@@ -5,8 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TestHelper {
+    
+    private static Logger logger=Logger.getLogger("org.pojava.persistence.sql.TestHelper");
 
     /**
      * @return Instructions for setting up a DataSource.
@@ -49,9 +53,7 @@ public class TestHelper {
             System.out.println(TestHelper.setupInstructions());
             System.exit(0);
         } catch (IOException ex) {
-            System.out
-                    .println("IOException occurred trying to read config/datastore.properties.\n");
-            ex.printStackTrace();
+            logger.log(Level.WARNING, "IOException occurred trying to read config/datastore.properties.", ex);
         }
         return dataSourceProps;
     }
