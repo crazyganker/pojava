@@ -34,6 +34,8 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -48,7 +50,6 @@ import org.pojava.lang.UncheckedBinding;
 import org.pojava.persistence.processor.ResultSetProcessor;
 import org.pojava.persistence.processor.ResultSetToInt;
 import org.pojava.persistence.query.PreparedSql;
-import org.pojava.persistence.sql.DatabaseDriver;
 import org.pojava.persistence.sql.TableMap;
 import org.pojava.testing.DriverManagerDataSource;
 
@@ -63,6 +64,8 @@ import org.pojava.testing.DriverManagerDataSource;
  */
 public class SqlTool {
 
+    private static Logger logger = Logger.getLogger("org.pojava.persistence.util.SqlTool");
+    
     /**
      * Execute an insert/update/delete query returning row count.
      * 
@@ -320,74 +323,88 @@ public class SqlTool {
             throw pex;
         }
     }
-    
+
     public static void close(Connection conn) throws SQLException {
-        if (conn!=null) {
+        if (conn != null) {
             conn.close();
         }
     }
-    
+
     public static Properties fetchProperties(String propertyFile) {
         Properties dataSourceProps = new Properties();
         // override properties
+        FileInputStream in = null;
         try {
-            FileInputStream in = new FileInputStream(propertyFile);
+            in = new FileInputStream(propertyFile);
             dataSourceProps.load(in);
-            in.close();
         } catch (FileNotFoundException ex) {
-            System.out.println("Could not find a property file named " + propertyFile);
+            logger.log(Level.WARNING, "Could not find a property file named " + propertyFile, ex);
         } catch (IOException ex) {
-            System.out
-                    .println("IOException occurred trying to read config/datastore.properties.\n");
-            ex.printStackTrace();
+            logger.log(Level.WARNING, "IOException occurred trying to read config/datastore.properties.", ex);
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                logger.log(Level.WARNING, "IOException occurred trying to close config/datastore.properties.", ex);
+            }
         }
         return dataSourceProps;
     }
 
     /**
      * Registers a DataSource into the InitialContext.
-     *
-     * @param props A Properties object pre-populated with data
-     * @param dsName The name of the DataSource to register in JNDI.
-     * @throws NamingException, ClassNotFoundException
+     * 
+     * @param props
+     *            A Properties object pre-populated with data
+     * @param dsName
+     *            The name of the DataSource to register in JNDI.
+     * @throws NamingException
+     * @throws ClassNotFoundException
      */
-    public static void registerDataSource(Properties props, String dsName) throws NamingException, ClassNotFoundException {
+    public static void registerDataSource(Properties props, String dsName)
+            throws NamingException, ClassNotFoundException {
         Context ctx = new InitialContext();
         try {
-            boolean isRegistered=false;
-            String driverClass=dsName+".driver";
-            Enumeration<Driver> drivers=DriverManager.getDrivers();
+            boolean isRegistered = false;
+            String driverClass = dsName + ".driver";
+            Enumeration<Driver> drivers = DriverManager.getDrivers();
             while (drivers.hasMoreElements()) {
-                Driver driver=drivers.nextElement();
-                String listedClassName=driver.getClass().getName();
-                if (driverClass.equals(listedClassName) || "org.pojava.persistence.sql.DatabaseDriver".equals(listedClassName)) {
-                    DatabaseDriver dbd=(DatabaseDriver) driver;
-                    listedClassName=dbd.getDriver().getClass().getName();
-                    isRegistered=true;
+                Driver driver = drivers.nextElement();
+                String listedClassName = driver.getClass().getName();
+                if (driverClass.equals(listedClassName)
+                        || "org.pojava.persistence.sql.DatabaseDriver".equals(listedClassName)) {
+                    isRegistered = true;
                     break;
                 }
             }
             if (!isRegistered) {
-                Class.forName(props.getProperty(dsName+".driver"));
+                Class.forName(props.getProperty(dsName + ".driver"));
             }
         } catch (ClassNotFoundException ex) {
-            System.out.println("Could not register " + ex.getMessage());
+            logger.log(Level.WARNING, "Could not register " + ex.getMessage(), ex);
         }
-        DataSource ds = new DriverManagerDataSource(
-                props.getProperty(dsName + ".url"),
-                props.getProperty(dsName + ".user"),
-                props.getProperty(dsName + ".password"));
+        DataSource ds = new DriverManagerDataSource(props.getProperty(dsName + ".url"), props
+                .getProperty(dsName + ".user"), props.getProperty(dsName + ".password"));
         ctx.bind("java:/comp/env/jdbc/" + dsName.trim(), ds);
-        
+
     }
 
-    public static DataSource readDataSource(Properties props, String dsName) throws NamingException, ClassNotFoundException {
-        Class.forName(props.getProperty(dsName+".driver"));
-        DataSource ds = new DriverManagerDataSource(
-                props.getProperty(dsName + ".url"),
-                props.getProperty(dsName + ".user"),
-                props.getProperty(dsName + ".password"));
+    /**
+     * Read DataSource from a properties object
+     * @param props Properties collected from file
+     * @param dsName Name identifying DataSource
+     * @return DataSource
+     * @throws NamingException
+     * @throws ClassNotFoundException
+     */
+    public static DataSource readDataSource(Properties props, String dsName)
+            throws NamingException, ClassNotFoundException {
+        Class.forName(props.getProperty(dsName + ".driver"));
+        DataSource ds = new DriverManagerDataSource(props.getProperty(dsName + ".url"), props
+                .getProperty(dsName + ".user"), props.getProperty(dsName + ".password"));
         return ds;
     }
-    
+
 }
