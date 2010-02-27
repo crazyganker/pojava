@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.BufferedInputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The DataPump class was developed primarily for supporting Runtime.getRuntime().exec(...),
@@ -35,6 +37,9 @@ import java.io.BufferedReader;
  * @author John Pile
  */
 public class DataPump extends Thread {
+    
+    private static Logger logger = Logger.getLogger("org.pojava.util.SqlTool");
+
     /**
      * Source of data stream
      */
@@ -87,7 +92,7 @@ public class DataPump extends Thread {
                 DataPump.pump(in, textBuffer);
             }
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            logger.log(Level.WARNING, ex.getMessage(), ex);
             // Just eat the exception. You're in a secondary stream.
         }
     }

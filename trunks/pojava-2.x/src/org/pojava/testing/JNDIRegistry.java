@@ -21,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -37,6 +39,8 @@ import javax.sql.DataSource;
  * 
  */
 public class JNDIRegistry {
+    
+    private static Logger logger=Logger.getLogger("org.pojava.testing.JNDIRegistry");
 
     /**
      * Force use of the factory method
@@ -120,24 +124,28 @@ public class JNDIRegistry {
             in = new FileInputStream(propertyFile);
             dataSourceProps.load(in);
         } catch (FileNotFoundException ex) {
-            System.out.println("Could not find a property file named " + propertyFile);
+            logger.log(Level.WARNING, "Could not find a property file named " + propertyFile, ex);
         } catch (IOException ex) {
-            System.out
-                    .println("IOException occurred trying to read config/datastore.properties.\n");
-            ex.printStackTrace();
+            logger.log(Level.WARNING, "IOException occurred trying to read config/datastore.properties.", ex);
         } finally {
             if (in!=null) {
                 try {
                     in.close();
                 } catch (IOException ex) {
-                    System.out.println("IOException occurred trying to read config/datastore.properties.\n");
-                    ex.printStackTrace();
+                    logger.log(Level.WARNING, "IOException occurred trying to read config/datastore.properties.", ex);
                 }
             }
         }
         return dataSourceProps;
     }
-    
+
+    /**
+     * Extract a JDBC DataSource from a property object.
+     * @param props Properties retrieved from a property file
+     * @param dsName Name identifying a DataSource
+     * @return DataSource
+     * @throws ClassNotFoundException
+     */
     public static DataSource extractDataSource(Properties props, String dsName) throws ClassNotFoundException {
         String url=props.getProperty(dsName + ".url");
         String user=props.getProperty(dsName + ".user");
@@ -147,7 +155,13 @@ public class JNDIRegistry {
         DriverManagerDataSource ds=new DriverManagerDataSource(url, user, password);
         return ds;
     }
-    
+
+    /**
+     * Register JDBC DataSources from a property file
+     * @param propertyFile
+     * @throws ClassNotFoundException
+     * @throws NamingException
+     */
     public static void registerDatasourcesFromFile(String propertyFile) throws ClassNotFoundException, NamingException {
         Properties dataSourceProps = fetchProperties(propertyFile);
         String[] propNames = ((String)dataSourceProps.get("datasource_names")).split("[ ,|]+");

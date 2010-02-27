@@ -14,6 +14,8 @@ public class DateTimeFormatTester extends TestCase {
         compareStatic("y/M/d", dt);
         compareStatic("yyyyy/MMMMM/ddddd", dt);
         compareStatic("MM/dd/yyyy h:m:s.SSS", dt);
+        compareStatic("h 'o''clock' a", dt);
+        compareStatic("'o''xx' ''''", dt);
     }
 
     public void testUniqueFormats() {
