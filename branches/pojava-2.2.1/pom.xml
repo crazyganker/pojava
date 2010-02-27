@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>pojava</groupId>
+  <groupId>org.pojava</groupId>
   <artifactId>pojava</artifactId>
+  <packaging>jar</packaging>
   <name>POJava Utilities</name>
-  <version>2.2.0</version>
+  <version>2.2.1</version>
   <description>
   POJava is a simple, light-weight Java-based API for speeding
   application development. It showcases a versatile immutable 
   DateTime object capable of parsing free-form dates in multiple
   languages and formats, and a variety of effective utilities.
   </description>
+  <url>http://pojava.org</url>
   <properties>
   	<output-directory>${basedir}/target/classes</output-directory>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <scm>
-  	<url>http://code.google.com/p/pojava/source/browse/#svn/trunks/pojava.persistence-2.x</url>
+  	<url>http://code.google.com/p/pojava/source/browse/#svn/trunks/pojava-2.x</url>
+  	<connection>scm:svn:http://code.google.com/p/pojava/source/browse/#svn/trunks/pojava-2.x</connection>
   </scm>
   <build>
     <outputDirectory>target/classes</outputDirectory>
