@@ -112,7 +112,7 @@ public class XmlSerializer {
             for (Iterator<String> it = getters.keySet().iterator(); it.hasNext();) {
                 try {
                     Method meth = getters.get(it.next());
-                    walk(meth.invoke(pojo, (Object[]) null));
+                    walk((Object) meth.invoke(pojo, (Object[]) null));
                 } catch (InvocationTargetException ex1) {
                     throw new PersistenceException("Couldn't walk. " + ex1.toString(), ex1);
                 } catch (IllegalAccessException ex2) {
@@ -417,7 +417,7 @@ public class XmlSerializer {
                 Object member = Array.get(pojo, i);
                 // Output array element
                 if (member==null) {
-                    sb.append(toXml(member, "e", null, depth + 1, null));
+                    sb.append(toXml(null, "e", null, depth + 1, null));
                 } else {
                     sb.append(toXml(member, "e", null, depth + 1, member.getClass()));
                 }

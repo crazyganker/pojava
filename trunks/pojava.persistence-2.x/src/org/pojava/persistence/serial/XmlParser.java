@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.pojava.datetime.DateTime;
 import org.pojava.exception.PersistenceException;
@@ -30,6 +32,8 @@ import org.xml.sax.helpers.XMLReaderFactory;
  */
 @SuppressWarnings("unchecked")
 public class XmlParser<T> implements ContentHandler {
+    
+    private static Logger logger=Logger.getLogger("org.pojava.persistence.serial.XmlParser");
 
     private static final String SAX_DRIVER = "org.xml.sax.driver";
     private static final String XERCES_PARSER = "org.apache.xerces.parsers.SAXParser";
@@ -296,11 +300,8 @@ public class XmlParser<T> implements ContentHandler {
                     objs[depth-1].put(key, Enum.valueOf(pc, buffers[depth].toString()));
                 }
             } catch (IllegalArgumentException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                logger.log(Level.WARNING, e.getMessage(), e);
             }
-            // System.out.println("well...");
-            // objs[depth-1]=XmlParser.deserialize(types[depth], buffers[depth].toString());
         } else if (!refValues.containsKey(fqprops[depth])) {
             if (types[depth] == Object.class) {
                 if (objs[depth] == null || objs[depth].size() == 0) {
@@ -337,7 +338,7 @@ public class XmlParser<T> implements ContentHandler {
             Resolver resolver = new Resolver(objs[0].values().toArray()[0]);
             for (Iterator<String> it = refValues.keySet().iterator(); it.hasNext();) {
                 String ref = it.next();
-                String mem = refValues.get(ref).toString();
+                String mem = refValues.get(ref);
                 Object memObj = ReflectionTool.getNestedValue(mem, resolver);
                 try {
                     ReflectionTool.setNestedValue(ref, resolver, memObj);

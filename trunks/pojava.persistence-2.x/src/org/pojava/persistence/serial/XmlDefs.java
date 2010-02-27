@@ -1,5 +1,6 @@
 package org.pojava.persistence.serial;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.util.AbstractMap;
@@ -244,7 +245,11 @@ public class XmlDefs {
             } else {
                 return factory.construct(type, params);
             }
-        } catch (Exception ex) {
+        } catch (InstantiationException ex) {
+            throw new PersistenceException(ex.getMessage(), ex);
+        } catch (InvocationTargetException ex) {
+            throw new PersistenceException(ex.getMessage(), ex);
+        } catch (IllegalAccessException ex) {
             throw new PersistenceException(ex.getMessage(), ex);
         }
     }
