@@ -113,8 +113,8 @@ public class JNDIRegistry {
     /**
      * Fetch properties from a custom.properties file.
      * 
-     * @param propertyFile
-     * @return
+     * @param propertyFile file holding properties to retrieve
+     * @return Properties retrieved from file
      */
     public static Properties fetchProperties(String propertyFile) {
         Properties dataSourceProps = new Properties();

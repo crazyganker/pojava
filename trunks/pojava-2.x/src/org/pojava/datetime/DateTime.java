@@ -202,8 +202,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      *            Number of seconds since epoch (typically 1970-01-01)
      * @param nanos
      *            Nanosecond offset in range +/- 999999999
-     * @param tz
-     *            TimeZone
+     * @param tzId
+     *            TimeZone ID
      */
     public DateTime(long seconds, int nanos, String tzId) {
         this.systemDur = new Duration(seconds, nanos);
@@ -985,7 +985,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * The TimeZoneId tells what time zone from which the time originated.
      * 
-     * @return
+     * @return ID of this DateTime object's original time zone.
      */
     public String getTimeZoneId() {
         return this.timeZoneId;

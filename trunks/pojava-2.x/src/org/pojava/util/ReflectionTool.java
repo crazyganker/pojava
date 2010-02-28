@@ -61,7 +61,7 @@ public class ReflectionTool {
      * Return true if object is equivalent to a primitive type.
      * 
      * @param propClass
-     * @return
+     * @return true if class is primitive or an object equivalent
      */
     public static boolean isBasic(Class<?> propClass) {
         return propClass.isPrimitive() || propClass == String.class

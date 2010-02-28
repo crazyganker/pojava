@@ -231,6 +231,7 @@ public class EncodingTool {
      * @param chars
      *            array of packed characters in the set [01].
      * @return
+     *            binary array derived from zeros and ones
      */
     public static byte[] base2Decode(char[] chars) {
         if (chars.length % 8 != 0) {
