@@ -243,8 +243,8 @@ public class SqlTool {
     /**
      * Close a statement or prepared statement.
      * 
-     * @param pstmt
-     *            Prepared statement ready to be closed
+     * @param stmt
+     *            Statement or Prepared statement ready to be closed
      */
     public static void close(Statement stmt) {
         try {

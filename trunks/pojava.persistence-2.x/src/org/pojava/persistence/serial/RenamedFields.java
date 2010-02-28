@@ -28,8 +28,8 @@ public class RenamedFields {
     /**
      * Return true if a map entry exists for the given java name.
      * 
-     * @param javaName
-     * @return
+     * @param javaName reference
+     * @return true if a map entry exists for the given java name.
      */
     public boolean hasJavaName(String javaName) {
         return fromJavaName.containsKey(javaName);
@@ -38,8 +38,8 @@ public class RenamedFields {
     /**
      * Return true if a map entry exists for the given xml name.
      * 
-     * @param xmlName
-     * @return
+     * @param xmlName 
+     * @return true if a map entry exists for the given xml name.
      */
     public boolean hasXmlName(String xmlName) {
         return fromXmlName.containsKey(xmlName);
@@ -49,7 +49,7 @@ public class RenamedFields {
      * Return the xml name mapped to the given java name
      * 
      * @param javaName
-     * @return
+     * @return the tag used to represent the mapped property
      */
     public String xmlNameFor(String javaName) {
         return (String) fromJavaName.get(javaName);
@@ -59,7 +59,7 @@ public class RenamedFields {
      * Return the java name mapped to the given xml name
      * 
      * @param xmlName
-     * @return
+     * @return the property name mapped from the given tag
      */
     public String javaNameFor(String xmlName) {
         return (String) fromXmlName.get(xmlName);

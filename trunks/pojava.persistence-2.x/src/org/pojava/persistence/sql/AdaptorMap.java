@@ -14,13 +14,11 @@ import org.pojava.transformation.BindingAdaptor;
 public interface AdaptorMap<PROP, COL> {
 
     /**
-     * Choose an adaptor specific to a type and set of methods.
+     * Choose an adaptor specific to a getter method and class.
      * 
-     * @param parentType
-     *            a Java object
-     * @param getters
-     *            a drill-down from parent.to.property
-     * @param propClass
+     * @param getter
+     *            a method
+     * @param columnClass
      *            the type of the drilled-down property
      * @return BindingAdaptor satisfying that property
      */

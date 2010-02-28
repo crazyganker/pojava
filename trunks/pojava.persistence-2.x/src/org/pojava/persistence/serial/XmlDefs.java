@@ -281,7 +281,7 @@ public class XmlDefs {
      * Get the numeric serial ID of the reference object.
      * 
      * @param obj
-     * @return
+     * @return serial ID assigned by the serializer for this object
      */
     public Integer getReferenceId(Object obj) {
         return referenced.get(obj);
@@ -291,7 +291,7 @@ public class XmlDefs {
      * Determine if object has been serialized earlier in the stream.
      * 
      * @param obj
-     * @return
+     * @return true if object has already been serialized in the stream
      */
     public boolean isSerialized(Object obj) {
         return serialized.containsKey(obj);
@@ -305,7 +305,7 @@ public class XmlDefs {
      * </pre>
      * 
      * @param obj
-     * @return
+     * @return null if serializing, 0 if needing reference ID, or 1+ if providing reference ID
      */
     public Integer register(Object obj) {
         if (obj == null) {
@@ -341,6 +341,12 @@ public class XmlDefs {
         referenceId = 1;
     }
 
+    /**
+     * Rename registration
+     * @param type class containing property
+     * @param property java property to rename
+     * @param xmlName xml tag representing property
+     */
     public void rename(Class<?> type, String property, String xmlName) {
         RenamedFields rf;
         if (renamed.containsKey(type)) {
@@ -353,10 +359,10 @@ public class XmlDefs {
     }
 
     /**
-     * 
+     * Renamed version of tag
      * @param type
      * @param name
-     * @return
+     * @return java name from tag after renaming
      */
     public String renamedXml(Class<?> type, String name) {
         if (renamed.containsKey(type)) {
@@ -372,7 +378,7 @@ public class XmlDefs {
      * 
      * @param type
      * @param name
-     * @return
+     * @return java property renamed from xml tag
      */
     public String renamedJava(Class<?> type, String name) {
         if (renamed.containsKey(type)) {
@@ -387,7 +393,7 @@ public class XmlDefs {
      * Indent to the given depth.
      * 
      * @param depth
-     * @return
+     * @return pad characters meeting the given depth
      */
     public String indent(int depth) {
         while (pad.length() < depth * padSize) {
@@ -418,7 +424,7 @@ public class XmlDefs {
      * 
      * @param type
      * @param property
-     * @return
+     * @return true if a property was designated for omission from output
      */
     public boolean isOmission(Class<?> type, String property) {
         if (omissions.containsKey(type)) {
@@ -431,7 +437,7 @@ public class XmlDefs {
      * Generate (or retrieve from cache) properties for a given class.
      * 
      * @param type
-     * @return
+     * @return a map of getters and setters for this class
      */
     public Map<String, Class<?>> getProperties(Class<?> type) {
         Map<String, Class<?>> props = properties.get(type);
@@ -446,7 +452,7 @@ public class XmlDefs {
      * Return true if Accessors have been cached for this class.
      * 
      * @param type
-     * @return
+     * @return true if Accessors have been cached for this class.
      */
     public boolean hasAccessors(Class<? extends Object> type) {
         return accessors.containsKey(type);
@@ -456,7 +462,7 @@ public class XmlDefs {
      * Retrieve the cached accessors for this class.
      * 
      * @param type
-     * @return
+     * @return cached accessors for this type
      */
     public Accessors getAccessors(Class<?> type) {
         return accessors.get(type);
@@ -474,7 +480,7 @@ public class XmlDefs {
     /**
      * True if null values are omitted from serialized document.
      * 
-     * @return
+     * @return true if null values are omitted from xml document
      */
     public boolean isOmittingNulls() {
         return omittingNulls;

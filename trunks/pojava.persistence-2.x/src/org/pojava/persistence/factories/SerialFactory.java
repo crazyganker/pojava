@@ -16,7 +16,7 @@ public interface SerialFactory<T> {
      * 
      * @param type
      * @param params
-     * @return
+     * @return typed object constructed from parameters
      */
     T construct(Class<T> type, Object[] params);
 
@@ -25,15 +25,15 @@ public interface SerialFactory<T> {
      * 
      * @param type
      * @param params
-     * @return
+     * @return typed object constructed from mapped parameters
      */
-    Object construct(Class<T> type, Map<String, ?> params);
+    T construct(Class<T> type, Map<String, ?> params);
 
     /**
      * Serialize an object to XML.
      * 
      * @param obj
-     * @return
+     * @return xml string from object
      */
     String serialize(T obj);
 

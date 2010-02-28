@@ -95,7 +95,7 @@ public class DefaultAdaptorMap implements AdaptorMap<Object, Object> {
     /**
      * Return a reference to this reentrant class.
      * 
-     * @return
+     * @return a reference to this reentrant class
      */
     public static DefaultAdaptorMap getInstance() {
         return adaptorMap;

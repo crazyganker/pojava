@@ -126,14 +126,14 @@ public class XmlSerializer {
      * Convert an Object tree to XML.
      * 
      * @param obj
-     * @return
+     * @return XML produced from an object tree
      */
     public String toXml(Object obj) {
         walk(obj);
         config.resetRegistry();
         return toXml(obj, null, null, 0, null);
     }
-
+    
     /**
      * This performs the actual work of serializing to xml.
      * 

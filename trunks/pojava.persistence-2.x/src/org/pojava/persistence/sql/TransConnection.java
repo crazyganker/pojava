@@ -337,12 +337,16 @@ public class TransConnection implements Connection {
     /**
      * True if close will actually close the connection.
      * 
-     * @return
+     * @return true if close will actually close the underlying Connection
      */
     public boolean isCloseAllowed() {
         return closeAllowed;
     }
 
+    /**
+     * Set whether the underlying Connection is immediately closed by its close method.
+     * @param closeAllowed
+     */
     public void setCloseAllowed(boolean closeAllowed) {
         this.closeAllowed = closeAllowed;
     }
