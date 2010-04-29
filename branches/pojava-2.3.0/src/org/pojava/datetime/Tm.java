@@ -1,7 +1,7 @@
 package org.pojava.datetime;
 
 /*
- Copyright 2008-09 John Pile
+ Copyright 2008-10 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -60,6 +60,7 @@ public class Tm {
     private int second;
     private int nanosecond;
     private int weekday;
+    private TimeZone tz;
 
     /**
      * Populate year, month, day, hour, min, sec, nano from a DateTime
@@ -97,7 +98,7 @@ public class Tm {
      */
     private void initYeOlde(long millis) {
         // Taking the easy way out...
-        Calendar cal = new GregorianCalendar();
+        Calendar cal = new GregorianCalendar(this.tz);
         cal.setTimeInMillis(millis);
         this.year = cal.get(Calendar.YEAR);
         this.month = 1 + cal.get(Calendar.MONTH);
@@ -115,13 +116,16 @@ public class Tm {
      *            DateTime
      */
     private void init(DateTime dt, TimeZone timeZone) {
+        TimeZone defaultTz=TimeZone.getDefault();
+        if (timeZone==null) {
+            timeZone=defaultTz;
+        }
+        this.tz=timeZone;
         long millis = dt.toMillis();
-        long duration = millis - GREG_EPOCH;
+        // Compensate for difference between the system time zone and the recorded time zone
+        long duration = millis - GREG_EPOCH + timeZone.getOffset(dt.toMillis()) - defaultTz.getRawOffset();
         this.nanosecond = dt.getNanos();
         this.weekday = calcWeekday(millis, timeZone);
-        if (timeZone.inDaylightTime(dt.toDate())) {
-            duration += HOUR;
-        }
         if (millis < GREG_EPOCH) {
             initYeOlde(millis);
             return;
@@ -164,6 +168,7 @@ public class Tm {
                 month -= 12;
             }
         }
+        
     }
 
     /**
@@ -185,15 +190,48 @@ public class Tm {
         return (int) leftover;
     }
 
+    /**
+     * Determine "time" in milliseconds since epoch, UTC, as of the entered local time.
+     * 
+     * @param year calendar year
+     * @param month calendar month
+     * @param day calendar day
+     * @return time in milliseconds since epoch, UTC.
+     */
     public static long calcTime(int year, int month, int day) {
         return calcTime(year, month, day, 0, 0, 0, 0, TimeZone.getDefault());
     }
 
+    /**
+     * Determine "time" in milliseconds since epoch, UTC, as of the entered local time.
+     * 
+     * @param year calendar year
+     * @param month calendar month
+     * @param day calendar day
+     * @param hour
+     * @param min
+     * @param sec
+     * @param milli
+     * @return time in milliseconds since epoch, UTC.
+     */
     public static long calcTime(int year, int month, int day, int hour, int min, int sec,
             int milli) {
         return calcTime(year, month, day, hour, min, sec, milli, TimeZone.getDefault());
     }
 
+    /**
+     * Determine "time" in milliseconds since epoch, UTC, as of the given time zone provided.
+     * 
+     * @param year calendar year
+     * @param month calendar month
+     * @param day calendar day
+     * @param hour
+     * @param min
+     * @param sec
+     * @param milli
+     * @param tz time zone in which the date parts are given
+     * @return
+     */
     public static long calcTime(int year, int month, int day, int hour, int min, int sec,
             int milli, TimeZone tz) {
         long millis = GREG_EPOCH_UTC;

@@ -283,8 +283,15 @@ public class DateTimeTester extends TestCase {
         long start = System.currentTimeMillis();
         DateTime dt1 = new DateTime();
         DateTime dt2 = new DateTime("-1");
+        System.out.println("dt1=" + dt1.toString());
+        System.out.println("dt2=" + dt2.toString());
+        System.out.println("dt2+DAY=" + dt2.add(Duration.DAY).toString());
+        System.out.println("dt2.toMillis=" + dt2.toMillis());
+        System.out.println("dt2.add(DAY).toMillis=" + dt2.add(Duration.DAY).toMillis());
         long dur = System.currentTimeMillis() - start;
         long diff = dt2.add(Duration.DAY).toMillis() - dt1.toMillis();
+        System.out.println("dur=" + dur);
+        System.out.println("diff=" + diff);
         // The relative date "-1" represents 24hrs in past.
         // The values for dt1 and dt2 will be one day apart, plus some
         // small bit of extra time that elapsed between the two calculations.
@@ -396,6 +403,20 @@ public class DateTimeTester extends TestCase {
     public void testFormat() {
         DateTime dt = new DateTime("2010-02-14 03:00 EST");
         assertEquals("-05:00 AD -0500 EST", dt.toLocalString("ZZ G Z z"));
+    }
+    
+    public void testShift() {
+        Shift shift=new Shift("P5HT7M31S");
+        DateTime dt = new DateTime("2010-02-14 03:00 EST").shift(shift);
+        assertEquals("2010-02-14 08:07:31", dt.toLocalString());
+    }
+    
+    public void testNearDST() {
+        DateTime dt = new DateTime("2009-03-08 00:00 EST");
+        for (int i=0; i<8; i++) {
+            System.out.println(dt + " - " + dt.toLocalString());
+            dt=dt.add(Duration.HOUR);
+        }
     }
     
 }

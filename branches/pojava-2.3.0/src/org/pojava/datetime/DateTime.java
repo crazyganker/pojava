@@ -408,6 +408,10 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         return new DateTime(dur.getSeconds(), dur.getNanos(), this.timeZoneId);
     }
 
+    public DateTime add(CalendarUnit calUnit, int qty) {
+        return shift(calUnit, qty);
+    }
+
     /**
      * Add increments of any calendar time unit from a nanosecond to a century. This is
      * different from a Duration in that it will make adjustments to preserve non-linear values
@@ -418,7 +422,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      *            May be positive or negative.
      * @return Newly calculated DateTime object.
      */
-    public DateTime add(CalendarUnit calUnit, int qty) {
+    public DateTime shift(CalendarUnit calUnit, int qty) {
         /* Fixed durations */
         if (calUnit.compareTo(CalendarUnit.DAY) < 0) {
             if (calUnit == CalendarUnit.HOUR) {
@@ -459,6 +463,51 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         return new DateTime(cal.getTimeInMillis() / 1000, systemDur.getNanos(), this.timeZoneId);
     }
 
+    /**
+     * Shift this DateTime +/- a Shift offset.
+     * @param shift a pre-defined shift of various calendar time increments.
+     * @return a new DateTime offset by the values specified.
+     */
+    public DateTime shift(Shift shift) {
+        if (shift==null) {
+            return this;
+        }
+        Calendar cal = Calendar.getInstance(DateTimeConfig.getTimeZone(this.timeZoneId));
+        cal.setTimeInMillis(this.systemDur.millis);
+        if (shift.getYear()!=0) {
+            cal.add(Calendar.YEAR, shift.getYear());
+        }
+        if (shift.getMonth()!=0) {
+            cal.add(Calendar.MONTH, shift.getMonth());
+        }
+        if (shift.getWeek()!=0) {
+            cal.add(Calendar.DATE, shift.getWeek()*7);
+        }
+        if (shift.getDay()!=0) {
+            cal.add(Calendar.DATE, shift.getDay());
+        }
+        if (shift.getHour()!=0) {
+            cal.add(Calendar.HOUR, shift.getHour());
+        }
+        if (shift.getMinute()!=0) {
+            cal.add(Calendar.MINUTE, shift.getMinute());
+        }
+        if (shift.getSecond()!=0) {
+            cal.add(Calendar.SECOND, shift.getSecond());
+        }
+        return new DateTime(cal.getTimeInMillis()/1000, systemDur.getNanos()+shift.getNanosec(), cal.getTimeZone());
+    }
+
+    /**
+     * Shift this DateTime +/- a Shift offset specified as an ISO 8601 string.
+     *  
+     * @param iso8601 A string of format "P[#Y][#M][#D][T[#H][#M][#S[.#]]" holding a list of offsets.
+     * @return a new DateTime shifted by the specified amounts.
+     */
+    public DateTime shift(String iso8601) {
+        return this.shift(new Shift(iso8601));
+    }
+    
     /**
      * Return numeric day of week, usually Sun=1, Mon=2, ... , Sat=7;
      * 
