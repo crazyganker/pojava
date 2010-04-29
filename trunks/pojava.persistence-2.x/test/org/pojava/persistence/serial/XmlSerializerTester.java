@@ -24,6 +24,13 @@ public class XmlSerializerTester extends TestCase {
         assertEquals("<obj class=\"Integer\">42</obj>\n", xml);
     }
 
+    public void testDouble() {
+        Double d = new Double(123.456789);
+        XmlSerializer serializer = new XmlSerializer();
+        String xml = serializer.toXml(d);
+        assertEquals("<obj class=\"Double\">123.456789</obj>\n", xml);
+    }
+
     public void testString() {
         String hello = "Say \"hello\".";
         XmlSerializer serializer = new XmlSerializer();
@@ -165,13 +172,13 @@ public class XmlSerializerTester extends TestCase {
         list.add(new Object());
         list.add(new Integer(2));
         Potpourri pojo = new Potpourri("hello", 5, new Date(86400000), new DateTime(86400, 0),
-                bob, null, set, map, list);
+                bob, null, set, map, list, Double.valueOf(1.1));
         int[] numbers = { 1, 2, 3 };
         pojo.setNumbers(numbers);
         pojo.setConfused(pojo);
         XmlSerializer serializer = new XmlSerializer();
         String xml = serializer.toXml(pojo);
-        // System.out.println(xml);
+        System.out.println(xml);
         assertTrue(xml
                 .startsWith("<obj class=\"org.pojava.persistence.examples.Potpourri\" mem=\"1\">\n"));
         assertTrue(xml.indexOf("  <list>\n    <obj class=\"Object\"/>\n    <obj class=\"Integer\">2</obj>")>0);
@@ -185,9 +192,10 @@ public class XmlSerializerTester extends TestCase {
         assertTrue(xml.indexOf("  </set>\n") > 0);
         assertTrue(xml.indexOf("  <five>5</five>\n") > 0);
         assertTrue(xml.indexOf("  <dt>86400.0</dt>\n") > 0);
-        assertTrue(xml.indexOf("  <bob>\n" + "    <obj class=\"Long\">9876543210</obj>\n"
-                + "  </bob>\n") > 0);
+        assertTrue(xml.indexOf("  <bob>\n    <obj class=\"Long\">9876543210</obj>\n  </bob>\n") > 0);
         assertTrue(xml.indexOf("  <str>hello</str>\n") > 0);
+        assertTrue(xml.indexOf("  <dbl>1.1</dbl>\n") > 0);
+        assertTrue(xml.indexOf("  <dblPrim>1.1</dblPrim>\n") > 0);
         assertTrue(xml.indexOf("</obj>\n") > 0);
         // System.out.println(xml);
     }
@@ -210,6 +218,7 @@ public class XmlSerializerTester extends TestCase {
         Potpourri pojo = new Potpourri();
         XmlSerializer serializer = new XmlSerializer();
         String xml = serializer.toXml(pojo);
+        System.out.println(xml);
         assertTrue(xml.contains("<obj class=\"org.pojava.persistence.examples.Potpourri\">\n"));
         assertTrue(xml.contains("  <dt><null/></dt>\n"));
         assertTrue(xml.contains("  <d><null/></d>\n"));
@@ -220,6 +229,7 @@ public class XmlSerializerTester extends TestCase {
         assertTrue(xml.contains("  <set><null/></set>\n"));
         assertTrue(xml.contains("  <confused><null/></confused>\n"));
         assertTrue(xml.contains("  <map><null/></map>\n"));
+        assertTrue(xml.contains("  <dbl><null/></dbl>\n"));
         assertTrue(xml.contains("</obj>\n"));
     }
 
@@ -233,6 +243,7 @@ public class XmlSerializerTester extends TestCase {
         String xml = serializer.toXml(pojo);
         StringBuffer sb = new StringBuffer();
         sb.append("<obj class=\"org.pojava.persistence.examples.Potpourri\">\n");
+        sb.append("  <dblPrim>0.0</dblPrim>\n");
         sb.append("  <five>0</five>\n");
         sb.append("</obj>\n");
         assertEquals(sb.toString(), xml);
@@ -249,7 +260,7 @@ public class XmlSerializerTester extends TestCase {
         List<Object> list=new ArrayList<Object>();
         list.add(new Integer(2));
         Potpourri pojo = new Potpourri("hello", 5, new Date(86400000), new DateTime(86400, 0),
-                null, null, set, map, list);
+                null, null, set, map, list, 1.1);
         int[] numbers = { 1, 2, 3 };
         pojo.setNumbers(numbers);
         pojo.setConfused(pojo);
@@ -264,7 +275,7 @@ public class XmlSerializerTester extends TestCase {
 
     public void testRename() {
         Potpourri pojo = new Potpourri("hello", 5, new Date(86400000), new DateTime(86400, 0),
-                null, null, null, null, null);
+                null, null, null, null, null, 1.1);
         int[] numbers = { 1, 2, 3 };
         pojo.setNumbers(numbers);
         pojo.setConfused(pojo);
@@ -291,7 +302,9 @@ public class XmlSerializerTester extends TestCase {
         assertTrue(xml.indexOf("<datetime>") > 0);
         assertTrue(xml.indexOf("<date>") > 0);
         assertTrue(xml.indexOf("<string>") > 0);
+        assertTrue(xml.indexOf("<dbl>1.1</dbl>") > 0);
         assertTrue(xml.indexOf("<numberFive>5</numberFive>") > 0);
+       
     }
 
 

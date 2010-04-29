@@ -18,13 +18,15 @@ public class Potpourri {
     private Set<?> set;
     private Map<?, ?> map;
     private List<?> list;
+    private Double dbl;
+    private double dblPrim;
 
     public Potpourri() {
         // Currently, this is a requirement.
     }
 
     public Potpourri(String str, int five, Date d, DateTime dt, Object bob, Potpourri confused,
-            Set<?> set, Map<?, ?> map, List<?> list) {
+            Set<?> set, Map<?, ?> map, List<?> list, Double dbl) {
         this.str = str;
         this.five = five;
         this.d = d;
@@ -34,6 +36,8 @@ public class Potpourri {
         this.set = set;
         this.map = map;
         this.list = list;
+        this.dbl = dbl;
+        this.dblPrim = dbl.doubleValue();
     }
 
     public void setStr(String str) {
@@ -115,6 +119,23 @@ public class Potpourri {
     public void setList(List<?> list) {
         this.list = list;
     }
+
+    public Double getDbl() {
+        return dbl;
+    }
+
+    public void setDbl(Double dbl) {
+        this.dbl = dbl;
+    }
+
+    public double getDblPrim() {
+        return dblPrim;
+    }
+
+    public void setDblPrim(double dblPrim) {
+        this.dblPrim = dblPrim;
+    }
+
     
     
 
