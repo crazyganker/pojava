@@ -1,7 +1,9 @@
 package org.pojava.datetime;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -83,7 +85,6 @@ public class TmTester extends TestCase {
 			sb.append("ms, Calendar=");
 			sb.append(time2 - time1);
 			sb.append("ms.");
-			System.out.println(sb.toString());
 		}
 	}
 
@@ -110,7 +111,6 @@ public class TmTester extends TestCase {
 	public void testOldLeapDate() {
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(1204272059000L); // Feb 29
-		// System.out.println(new Date(cal.getTimeInMillis()));
 		Tm tm = new Tm(cal.getTimeInMillis());
 		assertEquals(cal.get(Calendar.DATE), tm.getDay());
 		assertEquals(1 + cal.get(Calendar.MONTH), tm.getMonth());
@@ -120,7 +120,6 @@ public class TmTester extends TestCase {
 		assertEquals(cal.get(Calendar.SECOND), tm.getSecond());
 
 		cal.setTimeInMillis(1204358460000L); // Mar 1
-		// System.out.println(cal.getTime().toString());
 		tm = new Tm(cal.getTimeInMillis());
 		assertEquals(cal.get(Calendar.DATE), tm.getDay());
 		assertEquals(1 + cal.get(Calendar.MONTH), tm.getMonth());
@@ -128,7 +127,46 @@ public class TmTester extends TestCase {
 		assertEquals(cal.get(Calendar.HOUR), tm.getHour());
 		assertEquals(cal.get(Calendar.MINUTE), tm.getMinute());
 		assertEquals(cal.get(Calendar.SECOND), tm.getSecond());
+	}
 
+	/**
+	 * One significance of these two choices is that one of the TimeZone values observes DST, and the other doesn't.
+	 */
+	public void testCalcDstSensitive() {
+	    calcDstSensitive(TimeZone.getTimeZone("EST"));
+        calcDstSensitive(TimeZone.getTimeZone("PST"));
+	}
+	
+	private void calcDstSensitive(TimeZone tz) {
+	    long DAY=1000*86400;
+	    long WEEK=DAY*7;
+	    int FEB=1;
+	    SimpleDateFormat fmt=new SimpleDateFormat("HH");
+	    fmt.setTimeZone(tz);
+	    Calendar cal=Calendar.getInstance();
+	    cal.setTimeZone(tz);
+	    for (int yr=1987; yr<2950; yr++) {
+	        cal.set(yr, FEB, 28, 0, 0);
+	        long time=cal.getTimeInMillis();
+	        cal.setTimeInMillis(time);
+	        
+	        // Compare hours of two pre-DST dates exactly 7 24hr periods apart.
+            assertEquals(fmt.format(new Date(time)),fmt.format(new Date(time+WEEK)));
+            // Compare a pre-DST hour to a post-DST hour.
+	        if (tz.getDSTSavings()==0) {
+	            assertEquals(fmt.format(new Date(time)),fmt.format(new Date(time+6*WEEK)));
+	        } else {
+                assertTrue(!fmt.format(new Date(time)).equals(fmt.format(new Date(time+6*WEEK))));	            
+	        }
+	        
+	        // We should expect identical behavior from the Tm object.
+	        assertEquals(new Tm(time,tz).getHour(), new Tm(time+WEEK,tz).getHour());
+            if (tz.getDSTSavings()==0) {
+                assertEquals((new Tm(time,tz).getHour()),new Tm(time+6*WEEK,tz).getHour());
+            } else {
+                assertTrue(new Tm(time,tz).getHour()!=new Tm(time+6*WEEK,tz).getHour());              
+            }
+	    }
 	}
 
 	public void testCalcTime() {
@@ -140,12 +178,9 @@ public class TmTester extends TestCase {
 			sb.append("-01-01");
 			long dtMillis = new DateTime(sb.toString()).toMillis();
 			long tmMillis = Tm.calcTime(yr, 1, 1);
-			if (dtMillis!=tmMillis) {
-				System.out.println(new Date(dtMillis).toString());
-				System.out.println(new Date(tmMillis).toString());
-			}
 			assertEquals(dtMillis, tmMillis);
 		}
 	}
+	
 
 }

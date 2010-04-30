@@ -3,7 +3,7 @@ package org.pojava.datetime;
 import java.io.Serializable;
 
 /*
- Copyright 2008-09 John Pile
+ Copyright 2008-10 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -76,6 +76,87 @@ public class Duration implements Comparable<Duration>, Serializable {
      */
     public Duration() {
         // Default is zero duration
+    }
+    
+    /**
+     * Constructor parsing from a string.
+     * @param duration String representation of a duration.
+     */
+    public Duration(String duration) {
+        char[] chars=duration.toCharArray();
+        double accum=0.0;
+        double tot=0.0;
+        double dec=1.0;
+        int sign=1;
+        // Weeks, days, hours, minutes, seconds, nanoseconds [wdhmsn]
+        for (int i=0; i<chars.length; i++) {
+            char c=chars[i];
+            if (c=='.') {
+                dec/=10;
+            } else if (c=='-') {
+                dec*=-1;
+            } else if (c>='0' && c<='9') {
+                if (dec==1) {
+                    accum=accum*10+sign*dec*(c-'0');
+                } else {
+                    accum+=sign*dec*(c-'0');
+                    dec/=10;                    
+                }
+            } else if (c=='w' || c=='W') {
+                if (accum!=0) {
+                    tot+=Duration.WEEK*accum;
+                    accum=0;
+                    dec=1;
+                    sign=1;
+                }
+            } else if (c=='d' || c=='D') {
+                if (accum!=0) {
+                    tot+=Duration.DAY*accum;
+                    accum=0;
+                    dec=1;
+                    sign=1;
+                }
+            } else if (c=='h' || c=='H') {
+                if (accum!=0) {
+                    tot+=Duration.HOUR*accum;
+                    accum=0;
+                    dec=1;
+                    sign=1;
+                }
+            } else if (c=='m' || c=='M' || c=='\'') {
+                if (accum!=0) {
+                    tot+=Duration.MINUTE*accum;
+                    accum=0;
+                    dec=1;
+                    sign=1;
+                }
+            } else if (c=='s' || c=='S' || c=='\"') {
+                if (accum!=0) {
+                    tot+=Duration.SECOND*accum;
+                    accum=0;
+                    dec=1;
+                    sign=1;
+                }
+            } else if (c=='n' || c=='N') {
+                if (accum!=0) {
+                    tot+=accum/Duration.NANOS_PER_MILLI;
+                    accum=0;
+                    dec=1;
+                    sign=1;
+                }
+            }
+        }
+        // tot is in whole and fractional milliseconds
+        if (tot>0) {
+            tot+=0.0000001;
+        } else {
+            tot-=0.0000001;
+        }
+        this.millis=(long)tot;
+        tot/=1000;
+        tot-=(long)tot;
+        tot*=1000;
+        this.nanos=(int)(tot*Duration.NANOS_PER_MILLI);
     }
 
     /**
@@ -218,5 +299,47 @@ public class Duration implements Comparable<Duration>, Serializable {
     public long getSeconds() {
         return millis / 1000 - (nanos < 0 ? 1 : 0);
     }
-
+    
+    /**
+     * Return a duration parsed from a string.
+     * Expected string is of regex format "(-?[0-9]*\.?[0-9]+ *['"wdhmsnWDHMSN][^-0-9.]*)+"
+     * @param str of format similar to "1h15m12s" or "8 weeks, 3.5 days" or [5'13"]
+     * @return a new Duration object
+     */
+    public static Duration parse(String str) {
+        Duration dur=new Duration(str);
+        return dur;
+    }
+    
+    private long extract(long ms, long interval, String label, StringBuilder sb) {
+        long unit=0;
+        unit=ms/interval;
+        sb.append(unit);
+        sb.append(label);
+        ms-=unit*interval;
+        return ms;
+    }
+    
+    public String toString() {
+        StringBuilder sb=new StringBuilder();
+        long ms=this.millis;
+        if (ms>Duration.DAY) {
+            ms=extract(ms, Duration.DAY, "d", sb);
+        }
+        if (ms>Duration.HOUR) {
+            ms=extract(ms, Duration.HOUR, "h", sb);
+        }
+        if (ms>Duration.MINUTE) {
+            ms=extract(ms, Duration.MINUTE, "m", sb);
+        }
+        if (ms>Duration.SECOND) {
+            ms=extract(ms, Duration.SECOND, "s", sb);
+        }
+        if (this.nanos>0) {
+            sb.append(this.nanos);
+            sb.append("n");
+        }
+        return sb.toString();
+    }
+    
 }

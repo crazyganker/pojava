@@ -271,7 +271,9 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      */
     public static TimeZone getTimeZone(String id) {
         TimeZone tz;
-        if (!tzCache.containsKey(id)) {
+        if (id==null) {
+            tz=TimeZone.getDefault();
+        } else if (!tzCache.containsKey(id)) {
             tz = TimeZone.getTimeZone(id);
             tzCache.put(id, tz);
         } else {
