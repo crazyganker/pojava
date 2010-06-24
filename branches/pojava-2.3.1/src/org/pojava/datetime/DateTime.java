@@ -827,8 +827,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                     nanosecond / 1000000, tz));
             returnDt.timeZoneId=tz.getID();
         } else {
-            // Start with Pacific Standard Time (which observes DST)
-            tz = TimeZone.getTimeZone("America/Los_Angeles");
+            tz = TimeZone.getDefault();
             returnDt = new DateTime(Tm.calcTime(year, 1 + month, day, hour, minute, second,
                     nanosecond / 1000000, tz));
             // Determine if date is in DST
