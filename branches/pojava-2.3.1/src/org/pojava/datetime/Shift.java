@@ -56,7 +56,7 @@ public class Shift {
             } else if (c == '-') {
                 sign = -1;
             } else if (c >= '0' && c <= '9') {
-                if (dec == 1) {
+                if (dec == 1.0) {
                     accum = accum * 10 + sign * dec * (c - '0');
                 } else {
                     accum += sign * dec * (c - '0');
