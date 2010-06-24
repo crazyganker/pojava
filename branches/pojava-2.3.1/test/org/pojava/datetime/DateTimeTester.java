@@ -7,14 +7,25 @@ import java.util.TimeZone;
 import junit.framework.TestCase;
 
 public class DateTimeTester extends TestCase {
+    
+    TimeZone localTz=TimeZone.getDefault();
 
     protected void setUp() throws Exception {
         super.setUp();
         DateTimeConfig.globalAmericanDateFormat();
+        TimeZone.setDefault(TimeZone.getTimeZone("EST"));
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
+        TimeZone.setDefault(localTz);
+    }
+    
+    public void testSteveZone() {
+        TimeZone.setDefault(TimeZone.getTimeZone("EST"));
+        assertEquals("Thu Jan 02 00:00:00 EST 2003", DateTime.parse("01/02/03").toDate().toString());
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+        assertEquals("Thu Jan 02 00:00:00 GMT 2003", DateTime.parse("01/02/03").toDate().toString());
     }
 
     /**
@@ -32,6 +43,7 @@ public class DateTimeTester extends TestCase {
     public void testTruncate() {
         DateTime dt = DateTime.parse("2008-08-08 03:02:01.123456789");
         String format = "yyyy-MM-dd HH:mm:ss.SSS";
+        assertEquals("2008-08-08 03:02:01", dt.truncate(CalendarUnit.NANOSECOND).toString());
         assertEquals("2008-08-08 03:02:01.123", dt.truncate(CalendarUnit.NANOSECOND).toString(
                 format));
         assertEquals("2008-08-08 03:02:01.123", dt.truncate(CalendarUnit.MICROSECOND).toString(
@@ -53,18 +65,18 @@ public class DateTimeTester extends TestCase {
         assertEquals("2000-01-01 00:00:00.000", dt.truncate(CalendarUnit.CENTURY).toString(
                 format));
         dt = new DateTime(-22222222); // Eight twos, Brutus? 1969-12-31
-        // 09:49:37.778
-        assertEquals("1969-12-31 09:49:37.778", dt.truncate(CalendarUnit.NANOSECOND).toString(
+        // 09:49:37.778 PST
+        assertEquals("1969-12-31 12:49:37.778", dt.truncate(CalendarUnit.NANOSECOND).toString(
                 format));
-        assertEquals("1969-12-31 09:49:37.778", dt.truncate(CalendarUnit.MICROSECOND).toString(
+        assertEquals("1969-12-31 12:49:37.778", dt.truncate(CalendarUnit.MICROSECOND).toString(
                 format));
-        assertEquals("1969-12-31 09:49:37.778", dt.truncate(CalendarUnit.MILLISECOND).toString(
+        assertEquals("1969-12-31 12:49:37.778", dt.truncate(CalendarUnit.MILLISECOND).toString(
                 format));
-        assertEquals("1969-12-31 09:49:37.000", dt.truncate(CalendarUnit.SECOND).toString(
+        assertEquals("1969-12-31 12:49:37.000", dt.truncate(CalendarUnit.SECOND).toString(
                 format));
-        assertEquals("1969-12-31 09:49:00.000", dt.truncate(CalendarUnit.MINUTE).toString(
+        assertEquals("1969-12-31 12:49:00.000", dt.truncate(CalendarUnit.MINUTE).toString(
                 format));
-        assertEquals("1969-12-31 09:00:00.000", dt.truncate(CalendarUnit.HOUR).toString(format));
+        assertEquals("1969-12-31 12:00:00.000", dt.truncate(CalendarUnit.HOUR).toString(format));
         assertEquals("1969-12-31 00:00:00.000", dt.truncate(CalendarUnit.DAY).toString(format));
         assertEquals("1969-12-28 00:00:00.000", dt.truncate(CalendarUnit.WEEK).toString(format));
         assertEquals("1969-12-01 00:00:00.000", dt.truncate(CalendarUnit.MONTH)
@@ -226,9 +238,9 @@ public class DateTimeTester extends TestCase {
         dt = new DateTime(d.toString());
         assertEquals(millis, dt.toMillis());
 
-        // A millisecond prior to the year 0001
-        millis = -62135740800001L;
-        assertEquals(millis, new DateTime("0001-01-01").toMillis() - 1);
+        // A millisecond prior to the year 0001 EST
+        millis = -62135751600001L;
+        assertEquals(millis, new DateTime("0001-01-01 EST").toMillis() - 1);
         assertEquals("0001-12-31 23:59:59 BC", new DateTime(millis).toString());
 
     }
@@ -283,15 +295,19 @@ public class DateTimeTester extends TestCase {
         long start = System.currentTimeMillis();
         DateTime dt1 = new DateTime();
         DateTime dt2 = new DateTime("-1");
+        /*
         System.out.println("dt1=" + dt1.toString());
         System.out.println("dt2=" + dt2.toString());
         System.out.println("dt2+DAY=" + dt2.add(Duration.DAY).toString());
         System.out.println("dt2.toMillis=" + dt2.toMillis());
         System.out.println("dt2.add(DAY).toMillis=" + dt2.add(Duration.DAY).toMillis());
+        */
         long dur = System.currentTimeMillis() - start;
         long diff = dt2.add(Duration.DAY).toMillis() - dt1.toMillis();
+        /*
         System.out.println("dur=" + dur);
         System.out.println("diff=" + diff);
+        */
         // The relative date "-1" represents 24hrs in past.
         // The values for dt1 and dt2 will be one day apart, plus some
         // small bit of extra time that elapsed between the two calculations.
@@ -412,9 +428,11 @@ public class DateTimeTester extends TestCase {
     }
     
     public void testNearDST() {
-        DateTime dt = new DateTime("2009-03-08 00:00 EST");
+        // EST observed on the 2nd Sunday in March
+        DateTime dt = new DateTime("2009-03-08 00:00 PST");
+        dt=dt.add(Duration.HOUR*-2);
         for (int i=0; i<8; i++) {
-            System.out.println(dt + " - " + dt.toLocalString());
+            // System.out.println(dt + " - " + dt.toLocalString());
             dt=dt.add(Duration.HOUR);
         }
     }
