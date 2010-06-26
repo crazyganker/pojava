@@ -48,7 +48,6 @@ public class Tm {
      * is always at the end of a year.
      */
     private static final long GREG_EPOCH_UTC = -11670912000000L;
-    private static final long GREG_EPOCH = new DateTime("1600-03-01").toMillis();
     /**
      * These are the results we're looking to populate.
      */
@@ -123,10 +122,10 @@ public class Tm {
         this.tz=timeZone;
         long millis = dt.toMillis();
         // Compensate for difference between the system time zone and the recorded time zone
-        long duration = millis - GREG_EPOCH + timeZone.getOffset(dt.toMillis()) - defaultTz.getRawOffset();
+        long duration = millis - GREG_EPOCH_UTC + timeZone.getOffset(dt.toMillis());
         this.nanosecond = dt.getNanos();
         this.weekday = calcWeekday(millis, timeZone);
-        if (millis < GREG_EPOCH) {
+        if (millis < GREG_EPOCH_UTC - defaultTz.getRawOffset()) {
             initYeOlde(millis);
             return;
         }
@@ -230,7 +229,7 @@ public class Tm {
      * @param sec
      * @param milli
      * @param tz time zone in which the date parts are given
-     * @return
+     * @return number of milliseconds since Epoch
      */
     public static long calcTime(int year, int month, int day, int hour, int min, int sec,
             int milli, TimeZone tz) {

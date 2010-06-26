@@ -40,7 +40,7 @@ public class Shift {
     /**
      * Constructor parsing from a string.
      * 
-     * @param duration
+     * @param iso8601
      *            String representation of a duration.
      */
     public Shift(String iso8601) {
@@ -56,7 +56,7 @@ public class Shift {
             } else if (c == '-') {
                 sign = -1;
             } else if (c >= '0' && c <= '9') {
-                if (dec == 1) {
+                if (dec == 1.0) {
                     accum = accum * 10 + sign * dec * (c - '0');
                 } else {
                     accum += sign * dec * (c - '0');
