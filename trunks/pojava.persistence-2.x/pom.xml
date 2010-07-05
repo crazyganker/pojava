@@ -5,7 +5,7 @@
 	<artifactId>persistence</artifactId>
 	<packaging>jar</packaging>
 	<name>POJava Persistence Utility</name>
-	<version>2.3.0</version>
+	<version>2.3.1</version>
 	<description>
 		POJava Persistence is a small library of tools used in the
 		persistence and retrieval of data to and from storage, such as to a
@@ -163,7 +163,7 @@
 		<dependency>
 			<groupId>org.pojava</groupId>
 			<artifactId>pojava</artifactId>
-			<version>2.3.0</version>
+			<version>2.3.1</version>
 		</dependency>
 	</dependencies>
 </project>
