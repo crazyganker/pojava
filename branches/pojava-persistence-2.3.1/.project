@@ -4,9 +4,9 @@
 		persistence and retrieval of data to and from storage, such as to a
 		database or XML document. It contains an ORM (Object Relational
 		Mapping) tool that supports use of existing beans and POJO&apos;s rather
-		than requiring POJO&apos;s to be instrumented to support a tool.</comment>
+		than requiring POJO&apos;s to be instrumented to support a tool. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
   <projects>
-    <project>pojava-persistence-2.3.0</project>
+    <project>pojava-2.3.1</project>
   </projects>
   <buildSpec>
     <buildCommand>
