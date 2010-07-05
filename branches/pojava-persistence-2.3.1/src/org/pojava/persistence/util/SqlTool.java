@@ -91,11 +91,16 @@ public class SqlTool {
      */
     public static int executeQuery(PreparedSql query, Connection conn,
             ResultSetProcessor processor) throws SQLException {
-        PreparedStatement pstmt = generatePreparedStatement(query, conn);
-        ResultSet rs = pstmt.executeQuery();
-        int result = processor.process(rs);
-        close(rs, pstmt);
-        return result;
+        PreparedStatement pstmt = null;
+        ResultSet rs=null;
+        try {
+            pstmt = generatePreparedStatement(query, conn);
+            rs = pstmt.executeQuery();
+            int result = processor.process(rs);
+            return result;
+        } finally {
+            close(rs, pstmt);
+        }
     }
 
     /**
