@@ -331,14 +331,16 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * By default, the toString method gives a sortable ISO 8601 date and time to nearest second
-     * in the same time zone as the system.  The default format can be redefined in DateTimeConfig.
+     * in the same time zone as the system. The default format can be redefined in
+     * DateTimeConfig.
      */
     public String toString() {
-        String formatStr=config().getDefaultDateFormat();
-        String str = DateTimeFormat.format(formatStr, this, TimeZone.getDefault(), Locale.getDefault());
+        String formatStr = config().getDefaultDateFormat();
+        String str = DateTimeFormat.format(formatStr, this, TimeZone.getDefault(), Locale
+                .getDefault());
         if (this.systemDur.millis < DateTime.CE) {
-            char c=formatStr.charAt(formatStr.length()-1);
-            if (c!='g' && c!='G') {
+            char c = formatStr.charAt(formatStr.length() - 1);
+            if (c != 'g' && c != 'G') {
                 return str + " BC";
             }
         }
@@ -363,17 +365,18 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * @return A string version of the this DateTime specified in local time.
      */
     public String toLocalString() {
-        String formatStr=config().getDefaultDateFormat();
-        String str = DateTimeFormat.format(formatStr, this, this.timeZone(), Locale.getDefault());
+        String formatStr = config().getDefaultDateFormat();
+        String str = DateTimeFormat.format(formatStr, this, this.timeZone(), Locale
+                .getDefault());
         if (this.systemDur.millis < DateTime.CE) {
-            char c=formatStr.charAt(formatStr.length()-1);
-            if (c!='g' && c!='G') {
+            char c = formatStr.charAt(formatStr.length() - 1);
+            if (c != 'g' && c != 'G') {
                 return str + " BC";
             }
         }
         return str;
     }
-    
+
     /**
      * The toLocalString method provides a sortable ISO 8601 date and time to the nearest
      * second, but is rendered from the perspective of the time zone ascribed to the DateTime
@@ -384,7 +387,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     public String toLocalString(String format) {
         return DateTimeFormat.format(format, this, this.timeZone(), Locale.getDefault());
     }
-    
+
     /**
      * Add a fixed duration of time
      * 
@@ -465,49 +468,54 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Shift this DateTime +/- a Shift offset.
-     * @param shift a pre-defined shift of various calendar time increments.
+     * 
+     * @param shift
+     *            a pre-defined shift of various calendar time increments.
      * @return a new DateTime offset by the values specified.
      */
     public DateTime shift(Shift shift) {
-        if (shift==null) {
+        if (shift == null) {
             return this;
         }
         Calendar cal = Calendar.getInstance(DateTimeConfig.getTimeZone(this.timeZoneId));
         cal.setTimeInMillis(this.systemDur.millis);
-        if (shift.getYear()!=0) {
+        if (shift.getYear() != 0) {
             cal.add(Calendar.YEAR, shift.getYear());
         }
-        if (shift.getMonth()!=0) {
+        if (shift.getMonth() != 0) {
             cal.add(Calendar.MONTH, shift.getMonth());
         }
-        if (shift.getWeek()!=0) {
-            cal.add(Calendar.DATE, shift.getWeek()*7);
+        if (shift.getWeek() != 0) {
+            cal.add(Calendar.DATE, shift.getWeek() * 7);
         }
-        if (shift.getDay()!=0) {
+        if (shift.getDay() != 0) {
             cal.add(Calendar.DATE, shift.getDay());
         }
-        if (shift.getHour()!=0) {
+        if (shift.getHour() != 0) {
             cal.add(Calendar.HOUR, shift.getHour());
         }
-        if (shift.getMinute()!=0) {
+        if (shift.getMinute() != 0) {
             cal.add(Calendar.MINUTE, shift.getMinute());
         }
-        if (shift.getSecond()!=0) {
+        if (shift.getSecond() != 0) {
             cal.add(Calendar.SECOND, shift.getSecond());
         }
-        return new DateTime(cal.getTimeInMillis()/1000, systemDur.getNanos()+shift.getNanosec(), cal.getTimeZone());
+        return new DateTime(cal.getTimeInMillis() / 1000, systemDur.getNanos()
+                + shift.getNanosec(), cal.getTimeZone());
     }
 
     /**
      * Shift this DateTime +/- a Shift offset specified as an ISO 8601 string.
-     *  
-     * @param iso8601 A string of format "P[#Y][#M][#D][T[#H][#M][#S[.#]]" holding a list of offsets.
+     * 
+     * @param iso8601
+     *            A string of format "P[#Y][#M][#D][T[#H][#M][#S[.#]]" holding a list of
+     *            offsets.
      * @return a new DateTime shifted by the specified amounts.
      */
     public DateTime shift(String iso8601) {
         return this.shift(new Shift(iso8601));
     }
-    
+
     /**
      * Return numeric day of week, usually Sun=1, Mon=2, ... , Sat=7;
      * 
@@ -710,13 +718,19 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                         continue;
                     }
                 }
-                if (!hasMonth && part < 13) {
+                if (!hasMonth) {
+                    if (part < 1 || part > 12) {
+                        throw new IllegalArgumentException("Invalid month parsed from [" + part + "].");
+                    }
                     month = part - 1;
                     hasMonth = true;
                     usedint[i] = true;
                     continue;
                 }
-                if (!hasDay && part < 32) {
+                if (!hasDay) {
+                    if (part < 1 || part > 31) {
+                        throw new IllegalArgumentException("Invalid day parsed from [" + part + "].");
+                    }
                     day = part;
                     hasDay = true;
                     usedint[i] = true;
@@ -736,13 +750,22 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                     usedint[i] = true;
                     continue;
                 }
-                if (!hasHour && part < 24) {
+                if (!hasDay || !hasYear) {
+                    throw new IllegalArgumentException("Unable to determine valid placement for parsed value [" + part + "].");
+                }
+                if (!hasHour) {
+                    if (part >= 24) {
+                        throw new IllegalArgumentException("Invalid hour parsed from [" + part + "].");
+                    }
                     hour = part;
                     hasHour = true;
                     usedint[i] = true;
                     continue;
                 }
-                if (!hasMinute && part < 60) {
+                if (!hasMinute) {
+                    if (part >= 60) {
+                        throw new IllegalArgumentException("Invalid minute parsed from [" + part + "].");
+                    }
                     minute = part;
                     hasMinute = true;
                     usedint[i] = true;
@@ -753,16 +776,22 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                     }
                     continue;
                 }
-                if (!hasSecond && part <= 60) {
-                    if (part < 60 || minute == 59 && hour == 23 && day >= 30
+                
+                if (!hasSecond) {
+                    if (part < 60 || part==60 && minute == 59 && hour == 23 && day >= 30
                             && (month == 11 || month == 5)) {
                         second = part;
                         hasSecond = true;
                         usedint[i] = true;
                         continue;
+                    } else {
+                        throw new IllegalArgumentException("Invalid second parsed from [" + part + "].");
                     }
                 }
-                if (!hasNanosecond && part < 1000000000) {
+                if (!hasNanosecond) {
+                    if (part >= 1000000000) {
+                        throw new IllegalArgumentException("Invalid nanosecond parsed from [" + part + "].");
+                    }
                     nanosecond = Integer.parseInt((parts[i] + "00000000").substring(0, 9));
                     hasNanosecond = true;
                     usedint[i] = true;
@@ -788,9 +817,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                     }
                     tz = TimeZone.getTimeZone(tzString);
                     // Flag time zone offset numbers
-                    for (int part=parts.length-1; part>parts.length-3; part--) {
+                    for (int part = parts.length - 1; part > parts.length - 3; part--) {
                         if (integers[part]) {
-                            usedint[part]=true;
+                            usedint[part] = true;
                         } else {
                             break;
                         }
@@ -825,7 +854,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         if (hasTimeZone) {
             returnDt = new DateTime(Tm.calcTime(year, 1 + month, day, hour, minute, second,
                     nanosecond / 1000000, tz));
-            returnDt.timeZoneId=tz.getID();
+            returnDt.timeZoneId = tz.getID();
         } else {
             tz = TimeZone.getDefault();
             returnDt = new DateTime(Tm.calcTime(year, 1 + month, day, hour, minute, second,

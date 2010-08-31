@@ -44,6 +44,15 @@ public class EncryptionTester extends TestCase {
         assertTrue(strKey.endsWith("=="));
     }
 
+    public void testGenerateAES256Key() {
+        SecretKey key = Encryption.generateAES256Key();
+        assertEquals("AES", key.getAlgorithm());
+        String strKey = Encryption.exportKey(key);
+        assertTrue(strKey.startsWith("AES "));
+        assertTrue(strKey.endsWith("="));
+        assertEquals(48, strKey.length()); // "AES " + (32/3) * 4
+    }
+
     public void testEncryptionStatic() throws Exception {
         // Retrieve the key from JNDI.
         String strKey = (String) JNDIRegistry.lookupEnv("testkey");
