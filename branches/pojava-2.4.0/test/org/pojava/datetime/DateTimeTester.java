@@ -7,8 +7,8 @@ import java.util.TimeZone;
 import junit.framework.TestCase;
 
 public class DateTimeTester extends TestCase {
-    
-    TimeZone localTz=TimeZone.getDefault();
+
+    TimeZone localTz = TimeZone.getDefault();
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -20,12 +20,17 @@ public class DateTimeTester extends TestCase {
         super.tearDown();
         TimeZone.setDefault(localTz);
     }
-    
+
+    /**
+     * Verifying fix of a bug reported as a patch in version 2.3.0
+     */
     public void testSteveZone() {
         TimeZone.setDefault(TimeZone.getTimeZone("EST"));
-        assertEquals("Thu Jan 02 00:00:00 EST 2003", DateTime.parse("01/02/03").toDate().toString());
+        assertEquals("Thu Jan 02 00:00:00 EST 2003", DateTime.parse("01/02/03").toDate()
+                .toString());
         TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-        assertEquals("Thu Jan 02 00:00:00 GMT 2003", DateTime.parse("01/02/03").toDate().toString());
+        assertEquals("Thu Jan 02 00:00:00 GMT 2003", DateTime.parse("01/02/03").toDate()
+                .toString());
     }
 
     /**
@@ -103,6 +108,9 @@ public class DateTimeTester extends TestCase {
         System.out.println(value);
     }
 
+    /**
+     * The Tm structure is another representation of time.
+     */
     public void testTm() {
         Tm tm = new Tm(new DateTime("1965-06-30 03:04:05.6789"));
         assertEquals(1965, tm.getYear());
@@ -271,6 +279,9 @@ public class DateTimeTester extends TestCase {
                 1).toString());
     }
 
+    /**
+     * Test whether DateTime calculates the same day of week that the Calendar class does.
+     */
     public void testDow() {
         long timer = System.currentTimeMillis();
         Tm tm = new Tm(timer);
@@ -296,18 +307,16 @@ public class DateTimeTester extends TestCase {
         DateTime dt1 = new DateTime();
         DateTime dt2 = new DateTime("-1");
         /*
-        System.out.println("dt1=" + dt1.toString());
-        System.out.println("dt2=" + dt2.toString());
-        System.out.println("dt2+DAY=" + dt2.add(Duration.DAY).toString());
-        System.out.println("dt2.toMillis=" + dt2.toMillis());
-        System.out.println("dt2.add(DAY).toMillis=" + dt2.add(Duration.DAY).toMillis());
-        */
+         * System.out.println("dt1=" + dt1.toString()); System.out.println("dt2=" +
+         * dt2.toString()); System.out.println("dt2+DAY=" + dt2.add(Duration.DAY).toString());
+         * System.out.println("dt2.toMillis=" + dt2.toMillis());
+         * System.out.println("dt2.add(DAY).toMillis=" + dt2.add(Duration.DAY).toMillis());
+         */
         long dur = System.currentTimeMillis() - start;
         long diff = dt2.add(Duration.DAY).toMillis() - dt1.toMillis();
         /*
-        System.out.println("dur=" + dur);
-        System.out.println("diff=" + diff);
-        */
+         * System.out.println("dur=" + dur); System.out.println("diff=" + diff);
+         */
         // The relative date "-1" represents 24hrs in past.
         // The values for dt1 and dt2 will be one day apart, plus some
         // small bit of extra time that elapsed between the two calculations.
@@ -392,6 +401,10 @@ public class DateTimeTester extends TestCase {
         }
     }
 
+    /**
+     * A European formatted date presents day before month, 
+     * where North America presents month before day.
+     */
     public void testEuropean() {
         DateTimeConfig.globalEuropeanDateFormat();
         DateTime dt1 = new DateTime("01/02/2003");
@@ -406,8 +419,8 @@ public class DateTimeTester extends TestCase {
     public void testEuropean2() {
         DateTimeConfig.globalEuropeanDateFormat();
         DateTime dt1 = new DateTime("01-07-2003");
-        String str=dt1.toDate().toString();
-        assertEquals("Tue Jul 01 00:00:00", str.subSequence(0,19));
+        String str = dt1.toDate().toString();
+        assertEquals("Tue Jul 01 00:00:00", str.subSequence(0, 19));
         DateTimeConfig.globalAmericanDateFormat();
     }
 
@@ -415,26 +428,134 @@ public class DateTimeTester extends TestCase {
         DateTime dt1 = new DateTime("20080109");
         assertEquals("2008-01-09 00:00:00", dt1.toString());
     }
-    
+
     public void testFormat() {
         DateTime dt = new DateTime("2010-02-14 03:00 EST");
         assertEquals("-05:00 AD -0500 EST", dt.toLocalString("ZZ G Z z"));
     }
-    
+
     public void testShift() {
-        Shift shift=new Shift("P5HT7M31S");
+        Shift shift = new Shift("P5HT7M31S");
         DateTime dt = new DateTime("2010-02-14 03:00 EST").shift(shift);
         assertEquals("2010-02-14 08:07:31", dt.toLocalString());
     }
-    
+
     public void testNearDST() {
         // EST observed on the 2nd Sunday in March
         DateTime dt = new DateTime("2009-03-08 00:00 PST");
-        dt=dt.add(Duration.HOUR*-2);
-        for (int i=0; i<8; i++) {
+        dt = dt.add(Duration.HOUR * -2);
+        for (int i = 0; i < 8; i++) {
             // System.out.println(dt + " - " + dt.toLocalString());
-            dt=dt.add(Duration.HOUR);
+            dt = dt.add(Duration.HOUR);
         }
     }
-    
+
+    public void testNonsenseMonth() {
+        try {
+            DateTime dt = new DateTime("2010-02-00");
+            fail("Expected IllegalArgumentException, not " + dt);
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.toString().contains("Invalid day parsed from [0]."));
+        }
+    }
+
+    public void testNonsenseDay() {
+        try {
+            DateTime dt = new DateTime("2010-01-32");
+            fail("Expected IllegalArgumentException, not " + dt);
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.toString().contains("Invalid day parsed from [32]"));
+        }
+    }
+
+    public void testNonsenseHour() {
+        try {
+            DateTime dt = new DateTime("17-Aug-2010 30:20:10");
+            fail("Expected IllegalArgumentException, not " + dt);
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.toString().contains("Invalid hour parsed from [30]."));
+        }
+    }
+
+    public void testNonsenseMinute() {
+        try {
+            DateTime dt = new DateTime("2010.04.30 8:61");
+            fail("Expected IllegalArgumentException, not " + dt);
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.toString().contains("Invalid minute parsed from [61]."));
+        }
+    }
+
+    public void testNonsenseSecond() {
+        try {
+            DateTime dt = new DateTime("20-Sep-2010 8:7:77");
+            fail("Expected IllegalArgumentException, not " + dt);
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.toString().contains("Invalid second parsed from [77]."));
+        }
+    }
+
+    public void testMissingYear() {
+        try {
+            DateTime dt = new DateTime("20-Sep");
+            fail("Expected IllegalArgumentException, not " + dt);
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.toString().contains("Could not determine Year, Month, and Day"));
+        }
+    }
+
+    /**
+     * Generate a bunch of dates of the format YYYY-MM-DD, where some are known to
+     * have invalid values, such as 0 or 13 for a month, 0 or 32 for a day.  Detect
+     * the validity of the dates by regex, then verify whether DateTime throws an
+     * exception when it should, and captures a valid date when it should. 
+     */
+    public void testBruteForceYYYYMMDD() {
+        DateTime dt;
+        for (int yr = 1990; yr < 2010; yr++) {
+            for (int mo = 0; mo <= 13; mo++) {
+                for (int da = 0; da <= 32; da++) {
+                    String strDate = yr + "-" + mo + "-" + da;
+                    if (strDate.matches("^[0-9]{4}-([1-9]|1[0-2])-([1-9]|[1-2][0-9]|3[01])$")) {
+                        if (strDate.matches("^[0-9]{4}-([469]|11)-31$")) {
+                            // Invalid Date
+                            try {
+                                dt=new DateTime(strDate);
+                                fail("Expected IllegalArgumentException in A.");
+                            } catch (IllegalArgumentException ex) {
+                                // System.out.println("A. " + strDate + " : " + ex.toString());
+                            }
+                        } else if (strDate.matches("^[0-9]{4}-2-3[01]$")) {
+                            // Invalid Date
+                            try {
+                                dt=new DateTime(strDate);
+                                fail("Expected IllegalArgumentException in B.");
+                            } catch (IllegalArgumentException ex) {
+                                // System.out.println("B. " + strDate + " : " + ex.toString());
+                            }
+                        } else if (yr % 4 != 0 && strDate.matches("^[0-9]{4}-2-29")) {
+                            // Invalid Date
+                            try {
+                                dt=new DateTime(strDate);
+                                fail("Expected IllegalArgumentException in C.");
+                            } catch (IllegalArgumentException ex) {
+                                // System.out.println("C. " + strDate + " : " + ex.toString());
+                            }
+                        } else {
+                            // Valid Date
+                            dt=new DateTime(strDate);
+                        }
+                    } else {
+                        // Invalid Date
+                        try {
+                            dt=new DateTime(strDate);
+                            fail("Expected IllegalArgumentException in D from " + strDate + ", not " + dt.toString());
+                        } catch (IllegalArgumentException ex) {
+                            // System.out.println("D. " + strDate + " : " + ex.toString());
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

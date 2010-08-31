@@ -1,7 +1,7 @@
 package org.pojava.util;
 
 /*
- Copyright 2008-09 John Pile
+ Copyright 2008-10 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -31,10 +31,11 @@ import org.pojava.exception.InconceivableException;
 
 /**
  * This utility provides a simple interface for encrypting and decrypting data using
- * high-quality encryption algorithms such as AES-128.
+ * high-quality encryption algorithms such as AES-128 and AES-256.  You will need to
+ * install the Java(TM) Cryptography Extension for encryption stronger than 128-bit.
  * 
- * It also provides a means of importing and exporting the cipher keys in a portable format, a
- * Base64 encoded string that can be stored anywhere you like.
+ * It also provides a means of importing and exporting the cipher keys in a portable 
+ * format, a Base64 encoded string that can be stored anywhere you like.
  * 
  * Example usage: <code>
  * String doc="This is the document to be encrypted.";
@@ -115,6 +116,24 @@ public class Encryption {
         try {
             KeyGenerator kgen = KeyGenerator.getInstance("AES");
             kgen.init(128); // 128 bit AES encryption
+            skey = kgen.generateKey();
+        } catch (NoSuchAlgorithmException ex) {
+            throw new InconceivableException("AES really should be available... "
+                    + ex.getMessage(), ex);
+        }
+        return skey;
+    }
+
+    /**
+     * This will generate a unique 256bit AES key each time it is called.
+     * 
+     * @return a newly generated 256 bit AES key
+     */
+    public static SecretKey generateAES256Key() {
+        SecretKey skey;
+        try {
+            KeyGenerator kgen = KeyGenerator.getInstance("AES");
+            kgen.init(256); // 256 bit AES encryption
             skey = kgen.generateKey();
         } catch (NoSuchAlgorithmException ex) {
             throw new InconceivableException("AES really should be available... "
