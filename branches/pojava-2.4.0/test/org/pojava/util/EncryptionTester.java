@@ -50,7 +50,6 @@ public class EncryptionTester extends TestCase {
         String strKey = Encryption.exportKey(key);
         assertTrue(strKey.startsWith("AES "));
         assertTrue(strKey.endsWith("="));
-        System.out.println(strKey);
         assertEquals(48, strKey.length()); // "AES " + (32/3) * 4
     }
 
