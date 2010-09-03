@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>pojava-2.3.1</name>
+	<name>pojava-2.4.0-SNAPSHOT</name>
 	<comment>POJava is a simple, light-weight Java-based API for speeding
   application development. It showcases a versatile immutable 
   DateTime object capable of parsing free-form dates in multiple
