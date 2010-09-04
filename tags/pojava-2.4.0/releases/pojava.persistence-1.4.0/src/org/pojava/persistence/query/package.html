@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+  @(#)package.html	1.00 2008/10/20
+  Copyright 2008 John Pile
+-->
+</head>
+<body bgcolor="white">
+<p>A Query, for purposes of this package, describes a set of selection
+criteria for a relational data model, regardless of whether it is, for
+example, from a SQL database.</p>
+<p>When using POJava, you'll notice that the DaoTool supports several
+methods ending in "ByQuery".  These methods are designed to support
+custom queries you create by extending AbstractQuery, which then support
+interfaces that translate those queries to one or more supporting
+persistence implementations, such as SQL, REST, WS*, Google Data API,
+or other API's such as one might use for an ESB.</p>
+<p>This package includes one such interface, PreparedSqlProvider, that
+is understood by methods in the DaoTool.  When properly implemented,
+your code will completely abstract its queries into classes serving a
+specific object type, such as WidgetQuery.class serving a Widget bean.
+The WidgetQuery can be used by a WidgetDao, which wraps any combination
+of methods from the DaoTool, plus any custom methods desired.</p> 
+</body>
+</html>
