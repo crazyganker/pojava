@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+  @(#)package.html	1.00 2008/10/20
+  Copyright 2008 John Pile
+-->
+</head>
+<body bgcolor="white">
+Objects that aid in unit testing-- currently, by providing an InitialContext normally
+created by your application server for JNDI.
+
+It is common for a DataSource to be retrieved from a JNDI registry.  The
+registry is usually configured by the application server, so that when your
+unit tests are running standalone, there is no JNDI registry.  This package addresses
+that problem by creating an in-memory mockup of JNDI that your unit tests can
+have at.
+
+Example: <code>
+context=JNDIRegistry.getInitialContext();
+Class.forName("org.postgresql.Driver");
+DataSource ds=new DriverManagerDataSource("jdbc:postgresql://localhost:5432/postgres", "pojava", "popojava");
+context.S		
+</code>
+</body>
+</html>
