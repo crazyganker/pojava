@@ -141,6 +141,6 @@
     <scm>
         <connection>scm:svn:http://pojava.googlecode.com/svn/releases/pojava-2.4.0/tags/pojava-2.4.0</connection>
         <developerConnection>scm:svn:https://pojava.googlecode.com/svn/releases/pojava-2.4.0/tags/pojava-2.4.0</developerConnection>
-        <url>scm:svn:http://pojava.googlecode.com/svn/releases/pojava-2.4.0/tags/pojava-2.4.0</url>
+        <url>scm:svn:http://pojava.googlecode.com/svn</url>
     </scm>
 </project>
