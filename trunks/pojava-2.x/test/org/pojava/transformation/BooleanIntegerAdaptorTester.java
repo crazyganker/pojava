@@ -16,7 +16,7 @@ public class BooleanIntegerAdaptorTester extends TestCase {
         assertEquals(remote.getObj(), adaptedOut.getObj());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void testDirtyCase() {
         BindingAdaptor<Boolean, Integer> adaptor = new BooleanIntegerAdaptor();
         try {
