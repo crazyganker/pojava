@@ -47,7 +47,7 @@ public class EncodingTool {
      * @param src
      * @return Base-64 encoded string
      */
-    public static char[] base64Encode(byte[] src) {
+    public static String base64Encode(byte[] src) {
         int unpadded = (src.length * 8 + 5) / 6;
         int padding = 4 - (unpadded % 4);
         int d = 0;
@@ -73,7 +73,7 @@ public class EncodingTool {
         while (padding > 0) {
             encoded[unpadded + --padding] = '=';
         }
-        return encoded;
+        return new String(encoded);
     }
 
     /**

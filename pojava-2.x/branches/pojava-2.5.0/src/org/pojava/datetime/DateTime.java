@@ -270,7 +270,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                 break;
             }
         }
-        if (idx < min) {
+        if (idx < min || idx > max) {
             return null;
         }
         c = chars[idx];
@@ -694,6 +694,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                     usedint[i] = true;
                 }
             }
+        }
+        if (hasYear && year==0) {
+        	throw new IllegalArgumentException("Invalid zero year parsed.");
         }
         // One more scan for Date.toString() style
         if (!hasYear && str.endsWith("T " + parts[parts.length - 1])) {

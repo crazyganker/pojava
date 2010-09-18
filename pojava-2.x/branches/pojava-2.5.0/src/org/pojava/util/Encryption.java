@@ -51,6 +51,7 @@ import org.pojava.exception.InconceivableException;
  * @author John Pile
  * 
  */
+@Deprecated /* Use EncryptionTool instead */
 public class Encryption {
 
     /**

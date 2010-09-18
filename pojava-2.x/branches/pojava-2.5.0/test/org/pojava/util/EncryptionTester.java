@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import org.pojava.testing.JNDIRegistry;
 
+@SuppressWarnings("deprecation")
 public class EncryptionTester extends TestCase {
 
     private static final String TEST_KEY = "AES EgNhNcv0E/QYrWso04LreA==";
@@ -36,7 +37,7 @@ public class EncryptionTester extends TestCase {
         return sb.toString();
     }
 
-    public void testGenerateAES128Key() {
+	public void testGenerateAES128Key() {
         SecretKey key = Encryption.generateAES128Key();
         assertEquals("AES", key.getAlgorithm());
         String strKey = Encryption.exportKey(key);

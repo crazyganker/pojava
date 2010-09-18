@@ -45,7 +45,7 @@ public class EncodingToolTester extends TestCase {
             for (int j = 0; j < i; j++) {
                 sb.append(j);
             }
-            char[] encoded = EncodingTool.base64Encode(sb.toString().getBytes());
+            String encoded = EncodingTool.base64Encode(sb.toString().getBytes());
             String decoded = new String(EncodingTool.base64Decode(encoded));
             assertEquals(sb.toString(), decoded);
         }
@@ -53,7 +53,7 @@ public class EncodingToolTester extends TestCase {
     
     public void testBase64Negative() {
         byte[] raw={-28, -120};
-        char[] encoded=EncodingTool.base64Encode(raw);
+        String encoded=EncodingTool.base64Encode(raw);
         byte[] decoded=EncodingTool.base64Decode(encoded);
         assertEquals(raw[0], decoded[0]);
     }

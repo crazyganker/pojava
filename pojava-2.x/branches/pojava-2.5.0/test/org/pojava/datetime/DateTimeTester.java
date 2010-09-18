@@ -558,4 +558,36 @@ public class DateTimeTester extends TestCase {
             }
         }
     }
+    
+    /**
+     * Problem statement contributed by sereende, bug fixed in version 2.5.0
+     * @throws Exception
+     */
+    public void testPuncDate() throws Exception {
+    	DateTime dt=new DateTime("August 30, 2010?");
+    	assertNotNull(dt);
+    }
+    
+    /** 
+     * Problem statement contributed by pstanar, bug fixed in version 2.5.0
+     * @throws Exception
+     */
+    public void testZeroYear() throws Exception {
+    	try {
+    		DateTime dt=new DateTime("0000-01-02");
+    		fail("Year is 1+ BC or 1+ AD, but never 0.  DateTime parsed: " + dt);
+    	} catch (IllegalArgumentException ex) {
+    		// good
+    	}
+    }
+    
+    /**
+     * Detect time before date.
+     * @throws Exception
+     */
+    public void testTimeFirst() throws Exception {
+   		DateTime dt=new DateTime("2:53 pm, January 26, 1969");
+   		System.out.println(dt);
+    }
+
 }
