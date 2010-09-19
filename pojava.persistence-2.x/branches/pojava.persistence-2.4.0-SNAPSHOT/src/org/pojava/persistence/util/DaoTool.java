@@ -316,13 +316,12 @@ public class DaoTool {
      * @param query
      * @return a List of objects matching the query.
      */
-    @SuppressWarnings("unchecked")
     public static final <T> List<T> listByQuery(Connection conn, TableMap<T> map, SqlQuery query) {
         validateParamsQuery(map, query, "listByQuery");
         try {
             PreparedSql sql = query.generatePreparedSql(map.sqlSelect());
-            List<T> list = new ArrayList();
-            ResultSetToList<T> processor = new ResultSetToList(map, list);
+            List<T> list = new ArrayList<T>();
+            ResultSetToList<T> processor = new ResultSetToList<T>(map, list);
             SqlTool.executeQuery(sql, conn, processor);
             return list;
         } catch (SQLException ex) {

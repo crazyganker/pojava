@@ -63,7 +63,7 @@ public class FieldMap<POJO, PROP, COL> {
      * @param tableMap
      */
     @SuppressWarnings("unchecked")
-    public FieldMap(String property, String fieldName, boolean isKeyField,
+	public FieldMap(String property, String fieldName, boolean isKeyField,
             Class<COL> columnClass, TableMap<POJO> tableMap) throws NoSuchMethodException {
         Class<POJO> parentType = tableMap.getJavaClass();
         this.property = property;
@@ -92,7 +92,7 @@ public class FieldMap<POJO, PROP, COL> {
      */
     @SuppressWarnings("unchecked")
     public FieldMap(String property, String fieldName, boolean isKeyField,
-            TableMap<POJO> tableMap, Class<COL> columnClass, AdaptorMap adaptorMap)
+            TableMap<POJO> tableMap, Class<COL> columnClass, AdaptorMap<PROP,COL> adaptorMap)
             throws NoSuchMethodException {
         Class<POJO> parentType = tableMap.getJavaClass();
         this.property = property;
@@ -245,7 +245,7 @@ public class FieldMap<POJO, PROP, COL> {
      * @param obj
      * @throws SQLException
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void setPropertyValue(ResultSet rs, int column, Object obj) throws SQLException {
         Object value = rs.getObject(column);
         if (this.adaptor != null) {

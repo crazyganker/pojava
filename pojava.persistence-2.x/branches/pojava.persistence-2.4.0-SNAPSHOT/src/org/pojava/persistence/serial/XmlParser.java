@@ -266,11 +266,11 @@ public class XmlParser<T> implements ContentHandler {
                 }
             } else if (types[depth-1]!=null && Map.class.isAssignableFrom(types[depth-1])) {
                 // Assign an object pair to a Map entry
-                Map map;
+                Map<Object, Object> map;
                 if (objs[depth-1].containsKey(ZERO)) {
-                    map=(Map)objs[depth-1].get(ZERO);
+                    map=(Map<Object, Object>)objs[depth-1].get(ZERO);
                 } else {
-                    map=new HashMap();
+                    map=new HashMap<Object, Object>();
                     objs[depth-1].put(ZERO, map);
                 }
                 if (objs[depth]!=null && objs[depth].containsKey(ZERO)) {
@@ -293,7 +293,7 @@ public class XmlParser<T> implements ContentHandler {
             }
         } else if (types[depth].isEnum()) {
             try {
-                Class pc=types[depth];
+            	@SuppressWarnings("rawtypes")Class pc=types[depth];
                 if (Object.class.equals(types[depth-1])) {
                     objs[depth-1].put(ZERO, Enum.valueOf(pc, buffers[depth].toString()));
                 } else {

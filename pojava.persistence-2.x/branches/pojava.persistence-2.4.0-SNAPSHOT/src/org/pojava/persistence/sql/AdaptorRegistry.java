@@ -14,9 +14,9 @@ import org.pojava.transformation.BindingAdaptor;
  */
 public class AdaptorRegistry {
 
-    private static Map<Method, BindingAdaptor<?, ?>> adaptorMap = new HashMap<Method, BindingAdaptor<?, ?>>();
+    private static Map<Method, BindingAdaptor<?,?>> adaptorMap = new HashMap<Method, BindingAdaptor<?, ?>>();
 
-    public static void put(Method method, BindingAdaptor<?, ?> adaptor) {
+    public static void put(Method method, BindingAdaptor<?,?> adaptor) {
         adaptorMap.put(method, adaptor);
     }
 

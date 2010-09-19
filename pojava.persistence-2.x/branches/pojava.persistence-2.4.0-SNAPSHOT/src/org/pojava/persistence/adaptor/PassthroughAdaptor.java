@@ -9,21 +9,24 @@ import org.pojava.transformation.BindingAdaptor;
  * @author John Pile
  * 
  */
-@SuppressWarnings("unchecked")
-public class PassthroughAdaptor extends BindingAdaptor {
-    public Binding inbound(Binding inBinding) {
+public class PassthroughAdaptor<I,O> extends BindingAdaptor<I,O> {
+    @SuppressWarnings("unchecked")
+	public Binding<I> inbound(@SuppressWarnings("rawtypes") Binding inBinding) {
         return inBinding;
     }
 
-    public Binding outbound(Binding outBinding) {
+    @SuppressWarnings("unchecked")
+	public Binding<O> outbound(@SuppressWarnings("rawtypes") Binding outBinding) {
         return outBinding;
     }
 
-    public Class inboundType() {
-        return Object.class;
+    @SuppressWarnings("unchecked")
+	public Class<I> inboundType() {
+        return (Class<I>) Object.class;
     }
 
-    public Class outboundType() {
-        return Object.class;
+    @SuppressWarnings("unchecked")
+	public Class<O> outboundType() {
+        return (Class<O>) Object.class;
     }
 }

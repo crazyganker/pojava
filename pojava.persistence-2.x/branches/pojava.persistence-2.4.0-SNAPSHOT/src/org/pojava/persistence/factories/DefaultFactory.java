@@ -12,8 +12,7 @@ import org.pojava.util.EncodingTool;
  * @author John Pile
  * 
  */
-@SuppressWarnings("unchecked")
-public class DefaultFactory implements SerialFactory {
+public class DefaultFactory implements SerialFactory<Object> {
 
     /**
      * Interpret a Boolean value from a String.
@@ -38,7 +37,7 @@ public class DefaultFactory implements SerialFactory {
     /**
      * Construct an object.
      */
-    public Object construct(Class type, Object[] values) {
+    public Object construct(@SuppressWarnings("rawtypes")Class type, Object[] values) {
         if (values == null || values.length != 1) {
             throw new PersistenceException(
                     "The DefaultConstructor only accepts an array of one String.", null);
@@ -113,7 +112,7 @@ public class DefaultFactory implements SerialFactory {
     /**
      * Construct an object based on mapped parameters.
      */
-    public Object construct(Class type, Map params) {
+    public Object construct(@SuppressWarnings("rawtypes")Class type, @SuppressWarnings("rawtypes")Map params) {
         if (params.containsKey("value")) {
             Object[] values = { params.get("value") };
             return construct(type, values);

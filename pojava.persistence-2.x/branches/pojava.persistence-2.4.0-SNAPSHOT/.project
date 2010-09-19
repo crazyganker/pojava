@@ -6,7 +6,7 @@
 		Mapping) tool that supports use of existing beans and POJO&apos;s rather
 		than requiring POJO&apos;s to be instrumented to support a tool. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
   <projects>
-    <project>pojava-2.3.1</project>
+    <project>pojava-2.5.0</project>
   </projects>
   <buildSpec>
     <buildCommand>
