@@ -33,9 +33,10 @@ import org.pojava.transformation.BindingAdaptor;
  * @author John Pile
  * 
  */
-public class DefaultAdaptorMap implements AdaptorMap<Object, Object> {
+public class DefaultAdaptorMap<I,O> implements AdaptorMap<I,O> {
 
-    private static final PassthroughAdaptor DEFAULT_ADAPTOR = new PassthroughAdaptor();
+    @SuppressWarnings("rawtypes")
+	private static final PassthroughAdaptor DEFAULT_ADAPTOR = new PassthroughAdaptor();
     private static final IntegerAdaptor INTEGER_ADAPTOR = new IntegerAdaptor();
     private static final LongAdaptor LONG_ADAPTOR = new LongAdaptor();
     private static final CharAdaptor CHAR_ADAPTOR = new CharAdaptor();
@@ -48,14 +49,14 @@ public class DefaultAdaptorMap implements AdaptorMap<Object, Object> {
     private static final DateTimeSqlAdaptor DATETIMESQL_ADAPTOR = new DateTimeSqlAdaptor();
     private static final BooleanAdaptor BOOLEAN_ADAPTOR = new BooleanAdaptor();
 
-    private static final DefaultAdaptorMap adaptorMap = new DefaultAdaptorMap();
+    private static final DefaultAdaptorMap<?, ?> adaptorMap = new DefaultAdaptorMap<Object, Object>();
 
     /**
      * Select an adaptor based on a variety of possible criteria.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public BindingAdaptor chooseAdaptor(Method method, Class columnClass) {
-        BindingAdaptor adaptor;
+        BindingAdaptor<?, ?> adaptor;
 
         if (AdaptorRegistry.containsKey(method)) {
             return AdaptorRegistry.get(method);
@@ -97,7 +98,7 @@ public class DefaultAdaptorMap implements AdaptorMap<Object, Object> {
      * 
      * @return a reference to this reentrant class
      */
-    public static DefaultAdaptorMap getInstance() {
+    public static DefaultAdaptorMap<?, ?> getInstance() {
         return adaptorMap;
     }
 }

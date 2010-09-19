@@ -233,11 +233,10 @@ public class SqlTool {
      * @param dsName
      * @return TableMap retrieved from database MetaData
      */
-    @SuppressWarnings("unchecked")
-    public static TableMap<?> autoGenerateTableMap(Class<?> javaClass, String tableName,
+    public static <POJO> TableMap<POJO> autoGenerateTableMap(Class<POJO> javaClass, String tableName,
             String dsName) {
         try {
-            TableMap<?> tableMap = new TableMap(javaClass, tableName, dsName);
+            TableMap<POJO> tableMap = new TableMap<POJO>(javaClass, tableName, dsName);
             tableMap.autoBind();
             return tableMap;
         } catch (SQLException ex) {

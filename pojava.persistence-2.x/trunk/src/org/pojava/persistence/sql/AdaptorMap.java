@@ -18,10 +18,10 @@ public interface AdaptorMap<PROP, COL> {
      * 
      * @param getter
      *            a method
-     * @param columnClass
+     * @param propertyClass
      *            the type of the drilled-down property
      * @return BindingAdaptor satisfying that property
      */
-    public BindingAdaptor<PROP, COL> chooseAdaptor(Method getter, Class<COL> columnClass);
+    public BindingAdaptor<PROP, COL> chooseAdaptor(Method getter, Class<PROP> propertyClass);
 
 }

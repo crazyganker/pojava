@@ -134,8 +134,8 @@ public class TableMap<POJO> {
      * @param rsMeta
      * @throws SQLException
      */
-    @SuppressWarnings("unchecked")
-    private void autoBind(Connection conn, ResultSetMetaData rsMeta) throws SQLException {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	private void autoBind(Connection conn, ResultSetMetaData rsMeta) throws SQLException {
         Set<String> primaryKeys = primaryKeys(conn);
         int cols = rsMeta.getColumnCount();
         for (int i = 0; i < cols; i++) {
@@ -221,10 +221,9 @@ public class TableMap<POJO> {
      * @param columnClass
      * @throws NoSuchMethodException
      */
-    @SuppressWarnings("unchecked")
     public void addFieldMap(String property, String fieldName, boolean isKeyField,
-            Class columnClass) throws NoSuchMethodException {
-        addFieldMap(new FieldMap(property, fieldName, isKeyField, columnClass, this));
+            Class<Object> columnClass) throws NoSuchMethodException {
+        addFieldMap(new FieldMap<POJO, Object, Object>(property, fieldName, isKeyField, columnClass, this));
     }
 
     /**
@@ -236,10 +235,9 @@ public class TableMap<POJO> {
      * @param adaptor
      * @throws NoSuchMethodException
      */
-    @SuppressWarnings("unchecked")
     public void addFieldMap(String property, String fieldName, boolean isKeyField,
-            BindingAdaptor adaptor) throws NoSuchMethodException {
-        addFieldMap(new FieldMap(property, fieldName, isKeyField, adaptor, this));
+            BindingAdaptor<Object, Object> adaptor) throws NoSuchMethodException {
+        addFieldMap(new FieldMap<POJO, Object, Object>(property, fieldName, isKeyField, adaptor, this));
     }
 
     /**
@@ -327,7 +325,7 @@ public class TableMap<POJO> {
      * @param bean
      * @return SQL insert statement
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public BoundString sqlInsert(POJO bean) {
         BoundString bs = new BoundString();
         bs.append("INSERT INTO ");
@@ -360,7 +358,7 @@ public class TableMap<POJO> {
      * @param bean
      * @return SQL update statement
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public BoundString sqlUpdate(POJO bean) {
         BoundString bs = new BoundString();
         bs.append("UPDATE ");
