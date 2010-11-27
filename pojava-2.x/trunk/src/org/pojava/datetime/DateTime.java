@@ -801,11 +801,13 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                     continue;
                 }
             } else if (!integers[i]) {
-                if (hasHour && parts[i].equals("PM")) {
-                    if (hour >= 0 && hour < 12) {
-                        hour += 12;
-                    }
-                }
+            	if (hasHour) {
+            		if (parts[i].equals("PM") && hour >= 0 && hour < 12) {
+            			hour += 12;
+            		} else if (parts[i].equals("AM") && hour==12) {
+            			hour = 0;
+            		}
+            	}
             }
             // Typical formats are "Region/City, PST, Z, GMT+8, PST8PDT,
             // GMT-0800, GMT-08:00"
