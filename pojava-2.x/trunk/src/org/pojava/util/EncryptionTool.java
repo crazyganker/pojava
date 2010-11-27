@@ -119,7 +119,7 @@ public class EncryptionTool {
     /**
      * Decrypt a message.
      * 
-     * @param encrypted message
+     * @param message encrypted message
      * @param keyString a string of the format 'ALG base64key'
      * @return A decrypted byte array.
      * @throws GeneralSecurityException 
@@ -147,7 +147,7 @@ public class EncryptionTool {
     /**
      * Decrypt a message.
      * 
-     * @param encrypted message
+     * @param message encrypted message
      * @param keyString a string of the format 'ALG base64key'
      * @param ivps Initialization Value
      * @return A decrypted byte array.
@@ -160,7 +160,7 @@ public class EncryptionTool {
     /**
      * Generate an IvParameterSpec from a binary MD5 hash of a string.
      * @param hashMe
-     * @return
+     * @return IvParameterSpec
      */
     public static IvParameterSpec md5IvParameterSpec(String hashMe) {
     	byte[] iv=HashingTool.md5Hash(hashMe).getBytes();

@@ -587,7 +587,21 @@ public class DateTimeTester extends TestCase {
      */
     public void testTimeFirst() throws Exception {
    		DateTime dt=new DateTime("2:53 pm, January 26, 1969");
-   		System.out.println(dt);
+   		assertEquals("1969-01-26 14:53:00", dt.toString());
+    }
+    
+    /**
+     * Support accent aigu on déc and fév.
+     * @throws Exception
+     */
+    public void testAccentAigu() throws Exception {
+    	DateTime dt=new DateTime("30-déc.-2009 11:47:19");
+    	assertEquals("2009-12-30 11:47:19", dt.toString());
+    	dt=new DateTime("28-fév.-2010 11:47:19");
+    	assertEquals("2010-02-28 11:47:19", dt.toString());
+    	String s="28-f" + '\u00c9' + "v.-2010 11:47:19";
+    	dt=new DateTime(s);
+    	assertEquals("2010-02-28 11:47:19", dt.toString());
     }
 
 }
