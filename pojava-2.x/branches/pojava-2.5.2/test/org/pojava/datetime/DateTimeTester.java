@@ -603,5 +603,10 @@ public class DateTimeTester extends TestCase {
     	dt=new DateTime(s);
     	assertEquals("2010-02-28 11:47:19", dt.toString());
     }
+    
+    public void test12am() throws Exception {
+    	DateTime dt=new DateTime("06-11-2009, 12:01 am");
+    	assertEquals("2009-06-11 00:01:00", dt.toString());
+    }
 
 }
