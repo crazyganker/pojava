@@ -607,6 +607,18 @@ public class DateTimeTester extends TestCase {
     public void test12am() throws Exception {
     	DateTime dt=new DateTime("06-11-2009, 12:01 am");
     	assertEquals("2009-06-11 00:01:00", dt.toString());
+    	dt=new DateTime("06-11-2009, 12:01:01 am");
+    	assertEquals("2009-06-11 00:01:01", dt.toString());
+    	dt=new DateTime("06-11-2009, 12:01:01.002 am");
+    	assertEquals("2009-06-11 00:01:01", dt.toString());
+    	dt=new DateTime("06-11-2009, 12:01:01am");
+    	assertEquals("2009-06-11 00:01:01", dt.toString());
+    	dt=new DateTime("06-11-2009, 12:01:01.002am");
+    	assertEquals("2009-06-11 00:01:01", dt.toString());
+    	dt=new DateTime("06-11-2009, 12:01am");
+    	assertEquals("2009-06-11 00:01:00", dt.toString());
+    	dt=new DateTime("06-11-2009, 12AM");
+    	assertEquals("2009-06-11 00:00:00", dt.toString());
     }
 
 }
