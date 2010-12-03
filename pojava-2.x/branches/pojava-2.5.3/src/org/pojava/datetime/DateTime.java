@@ -772,14 +772,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                     minute = part;
                     hasMinute = true;
                     usedint[i] = true;
-                    if (parts[i].endsWith("PM")) {
-                        if (hasHour && hour >= 0 && hour < 12) {
-                            hour += 12;
-                        }
-                    }
                     continue;
-                }
-                
+                }                
                 if (!hasSecond) {
                     if (part < 60 || part==60 && minute == 59 && hour == 23 && day >= 30
                             && (month == 11 || month == 5)) {
@@ -795,19 +789,11 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                     if (part >= 1000000000) {
                         throw new IllegalArgumentException("Invalid nanosecond parsed from [" + part + "].");
                     }
-                    nanosecond = Integer.parseInt((parts[i] + "00000000").substring(0, 9));
+                    nanosecond = Integer.parseInt((parts[i].split("[^0-9]+")[0] + "00000000").substring(0, 9));
                     hasNanosecond = true;
                     usedint[i] = true;
                     continue;
                 }
-            } else if (!integers[i]) {
-            	if (hasHour) {
-            		if (parts[i].equals("PM") && hour >= 0 && hour < 12) {
-            			hour += 12;
-            		} else if (parts[i].equals("AM") && hour==12) {
-            			hour = 0;
-            		}
-            	}
             }
             // Typical formats are "Region/City, PST, Z, GMT+8, PST8PDT,
             // GMT-0800, GMT-08:00"
@@ -833,6 +819,20 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                 hasTimeZone = true;
             }
         }
+        /**
+         * Adjust 12AM and 1-11PM.
+         */
+        for (int i=0; i<parts.length; i++) {
+        	if (parts[i].endsWith("M")) {
+        		String part=parts[i];
+            	if (part.endsWith("PM") && hour > 0 && hour < 12) {
+            		hour += 12;
+            	} else if (part.endsWith("AM") && hour==12) {
+            		hour = 0;
+            	}
+        	}
+        }
+        
         /**
          * Validate
          */
