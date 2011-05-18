@@ -9,13 +9,6 @@ public class JNDIRegistryTester extends TestCase {
 
     public void testInitialContext() throws Exception {
         Context ctx = new InitialContext();
-        // TODO: invalidate the InitialContext so it doesn't pre-exist from
-        // other test cases.
-        /*
-         * try { ctx.bind("example", "broken"); fail("This test assumes an InitialContext not to
-         * exist."); } catch (NoInitialContextException ex) { // Here's the problem }
-         */
-        // Here's the solution
         Context workingCtx = JNDIRegistry.getInitialContext();
         ctx = new InitialContext();
         assertEquals(null, ctx.lookup("example"));
