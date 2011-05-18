@@ -18,6 +18,7 @@ package org.pojava.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * This tool runs an external program through your OS, and stuffs the results from stdout and
@@ -60,6 +61,76 @@ public class ProcessTool {
      * This method runs an executable, capturing its output from stdout and stderr into
      * StringBuffers.
      * 
+     * @param cmdarray
+     *            Executable plus arguments
+     * @param out
+     *            OutputStream to pass stdout of process.
+     * @param stderr
+     *            StringBuffer to hold stderr of process.
+     * @throws IOException
+     * @throws InterruptedException
+     * @return integer return value of process executed
+     */
+    public static int exec(String[] cmdarray, OutputStream out, 
+            StringBuffer stderr) throws IOException, InterruptedException {
+        Process process = Runtime.getRuntime().exec(cmdarray);
+        DataPump errCapture = new DataPump(process.getErrorStream(), stderr);
+        errCapture.start();
+        DataPump outCapture = new DataPump(process.getInputStream(), out);
+        outCapture.start();
+        return process.waitFor();
+    }
+
+    /**
+     * This method runs an executable, capturing its output from stdout and stderr into
+     * StringBuffers.
+     * 
+     * @param cmdarray
+     *            Executable plus arguments
+     * @param stdout
+     *            StringBuffer to pass stdout of process.
+     * @param stderr
+     *            StringBuffer to hold stderr of process.
+     * @throws IOException
+     * @throws InterruptedException
+     * @return integer return value of process executed
+     */
+    public static int exec(String[] cmdarray, StringBuffer stdout, 
+            StringBuffer stderr) throws IOException, InterruptedException {
+        Process process = Runtime.getRuntime().exec(cmdarray);
+        DataPump errCapture = new DataPump(process.getErrorStream(), stderr);
+        errCapture.start();
+        DataPump outCapture = new DataPump(process.getInputStream(), stdout);
+        outCapture.start();
+        return process.waitFor();
+    }
+
+    
+    /**
+     * This method runs an executable, capturing its output from stdout and stderr into
+     * StringBuffers.
+     * 
+     * @param command
+     *            Executable plus arguments
+     * @param out
+     *            OutputStream to pass stdout of process.
+     * @param stderr
+     *            StringBuffer to hold stderr of process.
+     * @throws IOException
+     * @throws InterruptedException
+     * @return integer return value of process executed
+     */
+    public static int exec(String command, OutputStream out, 
+            StringBuffer stderr) throws IOException, InterruptedException {
+    	String[] cmd=StringTool.parseCommand(command);
+    	return exec(cmd, out, stderr);
+    }
+
+    
+    /**
+     * This method runs an executable, capturing its output from stdout and stderr into
+     * StringBuffers.
+     * 
      * @param command
      *            Command to execute
      * @param stdout
@@ -72,12 +143,8 @@ public class ProcessTool {
      */
     public static int exec(String command, StringBuffer stdout, StringBuffer stderr)
             throws IOException, InterruptedException {
-        Process process = Runtime.getRuntime().exec(command);
-        DataPump errCapture = new DataPump(process.getErrorStream(), stderr);
-        errCapture.start();
-        DataPump outCapture = new DataPump(process.getInputStream(), stdout);
-        outCapture.start();
-        return process.waitFor();
+    	String[] cmd=StringTool.parseCommand(command);
+    	return exec(cmd, stdout, stderr);
     }
 
 }
