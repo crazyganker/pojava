@@ -79,4 +79,33 @@ public class StringToolTester extends TestCase {
         assertEquals(false, StringTool.isTrue(""));
         assertEquals(false, StringTool.isTrue(null));
     }
+    
+    public void testParseCommand() {
+    	String[] cmd=StringTool.parseCommand("useradd \"Joshua Timothy\"");
+    	assertEquals("useradd", cmd[0]);
+    	assertEquals("Joshua Timothy", cmd[1]);
+    	cmd=StringTool.parseCommand("promote \"Jacob  Andrew\" to  Captain");
+    	assertEquals("promote", cmd[0]);
+    	assertEquals("Jacob  Andrew", cmd[1]);
+    	assertEquals("to", cmd[2]);
+    	assertEquals("Captain", cmd[3]);
+    	cmd=StringTool.parseCommand("promote 'Jacob's [sic] dog to Captain");
+    	assertEquals("promote", cmd[0]);
+    	assertEquals("Jacobs", cmd[1]);
+    	assertEquals("[sic]", cmd[2]);
+    	assertEquals("dog", cmd[3]);
+    	assertEquals("to", cmd[4]);
+    	assertEquals("Captain", cmd[5]);
+    	cmd=StringTool.parseCommand("promote \"Jacob's dog\" to Captain");
+    	assertEquals("promote", cmd[0]);
+    	assertEquals("Jacob's dog", cmd[1]);
+    	assertEquals("to", cmd[2]);
+    	assertEquals("Captain", cmd[3]);
+    	try {
+    		cmd=StringTool.parseCommand("My shell wouldn't tolerate this");
+    		fail("Uncaught open single quote.");
+    	} catch (IllegalArgumentException ex) {
+    		assertEquals("Unclosed quotes in argument.", ex.getMessage());
+    	}
+    }
 }

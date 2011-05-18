@@ -1,5 +1,7 @@
 package org.pojava.util;
 
+import java.util.ArrayList;
+
 /*
  Copyright 2008-09 John Pile
 
@@ -239,4 +241,50 @@ public class StringTool {
         }
         return sb.toString();
     }
+    
+    /**
+     * Convert a shell command to an equivalent String array.
+     * 
+     * @param cmd Command including parameters.
+     * @return String array parsed from cmd.
+     */
+    public static String[] parseCommand(String cmd) {
+    	ArrayList<String> list=new ArrayList<String>();
+    	StringBuffer sb=new StringBuffer();
+    	char[] chars=cmd.toCharArray();
+    	boolean isLiteral=false;
+    	char litchar=' ';
+		String[] command={};
+		for (int i=0; i<chars.length; i++) {
+    		char c=chars[i];
+    		if (isLiteral) {
+    			if (c==litchar) {
+    				isLiteral=false;
+    			} else {
+    				sb.append(c);
+    			}
+    		} else {
+    			if (c=='\'' || c=='\"') {
+    				isLiteral=true;
+    				litchar=c;
+    			} else if (c==' ') {
+    				if (sb.length()>0) {
+	    				list.add(sb.toString());
+	    				sb.setLength(0);
+    				}
+    			} else {
+    				sb.append(c);
+    			}
+    		}
+    	}
+		if (sb.length()>0) {
+			list.add(sb.toString());
+			sb.setLength(0);
+		}
+		if (isLiteral) {
+			throw new IllegalArgumentException("Unclosed quotes in argument.");
+		}
+		return list.toArray(command);
+    }
+
 }
