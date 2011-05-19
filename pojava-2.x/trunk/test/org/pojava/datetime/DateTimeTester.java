@@ -591,13 +591,13 @@ public class DateTimeTester extends TestCase {
     }
     
     /**
-     * Support accent aigu on déc and fév.
+     * Support accent aigu on dï¿½c and fï¿½v.
      * @throws Exception
      */
     public void testAccentAigu() throws Exception {
-    	DateTime dt=new DateTime("30-déc.-2009 11:47:19");
+    	DateTime dt=new DateTime("30-dÃ©c.-2009 11:47:19");
     	assertEquals("2009-12-30 11:47:19", dt.toString());
-    	dt=new DateTime("28-fév.-2010 11:47:19");
+    	dt=new DateTime("28-fÃ©v.-2010 11:47:19");
     	assertEquals("2010-02-28 11:47:19", dt.toString());
     	String s="28-f" + '\u00c9' + "v.-2010 11:47:19";
     	dt=new DateTime(s);
