@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 import org.pojava.exception.ReflectionException;
@@ -101,11 +102,11 @@ public class ReflectionTool {
             String name = method.getName();
             if (name.startsWith("get")) {
                 if (!name.equals("getClass")) {
-                    String shortName = name.substring(3, 4).toLowerCase() + name.substring(4);
+                    String shortName = name.substring(3, 4).toLowerCase(Locale.ENGLISH) + name.substring(4);
                     map.put(shortName, method.getReturnType());
                 }
             } else if (name.startsWith("is")) {
-                String shortName = name.substring(2, 3).toLowerCase() + name.substring(3);
+                String shortName = name.substring(2, 3).toLowerCase(Locale.ENGLISH) + name.substring(3);
                 map.put(shortName, method.getReturnType());
             }
         }
