@@ -63,6 +63,9 @@ public class Duration implements Comparable<Duration>, Serializable {
      */
     public static final long WEEK = 7L * DAY;
 
+    /**
+     * 1 ms = 1 million nanoseconds
+     */
     private static final int NANOS_PER_MILLI = 1000000;
 
     /** Non-leap Milliseconds since an epoch */
@@ -94,55 +97,49 @@ public class Duration implements Comparable<Duration>, Serializable {
             if (c=='.') {
                 dec/=10;
             } else if (c=='-') {
-                dec*=-1;
+            	sign=-1;
             } else if (c>='0' && c<='9') {
-                if (dec==1.0) {
+                if (Math.abs(dec)>0.5) {
                     accum=accum*10+sign*dec*(c-'0');
                 } else {
                     accum+=sign*dec*(c-'0');
-                    dec/=10;                    
+                    dec/=10;                
                 }
             } else if (c=='w' || c=='W') {
                 if (accum!=0) {
                     tot+=Duration.WEEK*accum;
                     accum=0;
                     dec=1;
-                    sign=1;
                 }
             } else if (c=='d' || c=='D') {
                 if (accum!=0) {
                     tot+=Duration.DAY*accum;
                     accum=0;
                     dec=1;
-                    sign=1;
                 }
             } else if (c=='h' || c=='H') {
                 if (accum!=0) {
                     tot+=Duration.HOUR*accum;
                     accum=0;
                     dec=1;
-                    sign=1;
                 }
             } else if (c=='m' || c=='M' || c=='\'') {
                 if (accum!=0) {
                     tot+=Duration.MINUTE*accum;
                     accum=0;
                     dec=1;
-                    sign=1;
                 }
             } else if (c=='s' || c=='S' || c=='\"') {
                 if (accum!=0) {
                     tot+=Duration.SECOND*accum;
                     accum=0;
                     dec=1;
-                    sign=1;
                 }
             } else if (c=='n' || c=='N') {
                 if (accum!=0) {
                     tot+=accum/Duration.NANOS_PER_MILLI;
                     accum=0;
                     dec=1;
-                    sign=1;
                 }
             }
         }
@@ -174,6 +171,8 @@ public class Duration implements Comparable<Duration>, Serializable {
 
     /**
      * Seconds + nanos pair will always be adjusted so that nanos is positive.
+     * It's a strange arrangement, but useful when representing time as an
+     * offset of Epoch, where a negative value usually represents a positive year.
      * 
      * @param seconds
      * @param nanos
@@ -311,6 +310,14 @@ public class Duration implements Comparable<Duration>, Serializable {
         return dur;
     }
     
+    /**
+     * Helper to build out a duration string
+     * @param ms milliseconds remaining
+     * @param interval number of milliseconds per discrete chunk
+     * @param label character representing chunk size (w,d,h,m,s)
+     * @param sb current duration on which to append
+     * @return ms remaining
+     */
     private long extract(long ms, long interval, String label, StringBuilder sb) {
         long unit=0;
         unit=ms/interval;
@@ -320,9 +327,18 @@ public class Duration implements Comparable<Duration>, Serializable {
         return ms;
     }
     
+    /**
+     * Output duration as a string.
+     */
     public String toString() {
         StringBuilder sb=new StringBuilder();
         long ms=this.millis;
+        int ns=this.nanos;
+        if (ms<0 || (ms==0 && ns<0)) {
+        	sb.append("-");
+        	ms*=-1;
+        	ns*=-1;
+        }
         if (ms>Duration.DAY) {
             ms=extract(ms, Duration.DAY, "d", sb);
         }
@@ -333,10 +349,11 @@ public class Duration implements Comparable<Duration>, Serializable {
             ms=extract(ms, Duration.MINUTE, "m", sb);
         }
         if (ms>Duration.SECOND) {
-            ms=extract(ms, Duration.SECOND, "s", sb);
+        	// Findbugs complains of "dead store" if assigned to ms here
+            extract(ms, Duration.SECOND, "s", sb);
         }
-        if (this.nanos>0) {
-            sb.append(this.nanos);
+        if (ns>0) {
+            sb.append(ns);
             sb.append("n");
         }
         return sb.toString();
