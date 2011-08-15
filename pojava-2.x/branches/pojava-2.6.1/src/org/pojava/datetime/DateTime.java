@@ -611,7 +611,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         if (str == null) {
             return null;
         }
-        str = str.trim().toUpperCase().replace('\u00c9', 'E');;
+        str = str.trim().toUpperCase(Locale.ENGLISH).replace('\u00c9', 'E');;
         if (str.length() == 0) {
             throw new NullPointerException("Cannot parse time from empty string.");
         }
