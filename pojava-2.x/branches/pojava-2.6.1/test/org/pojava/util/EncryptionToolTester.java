@@ -8,13 +8,13 @@ public class EncryptionToolTester extends TestCase {
 
 	public void testGenerateAES256WithCBCKeyString() throws Exception {
         String keyString = EncryptionTool.generateAES256WithCBCKeyString();
-        System.out.println(keyString);
+        // System.out.println(keyString);
         assertTrue(keyString.matches("^AES/CBC/PKCS5Padding [A-Za-z0-9+/]{43}=$"));
     }
 
 	public void testGenerateAES128WithCBCKeyString() throws Exception {
         String keyString = EncryptionTool.generateAES128WithCBCKeyString();
-        System.out.println(keyString);
+        // System.out.println(keyString);
         assertTrue(keyString.matches("^AES/CBC/PKCS5Padding [A-Za-z0-9+/]{22}==$"));
     }
 	
