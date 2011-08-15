@@ -43,7 +43,8 @@ import javax.naming.NamingException;
  * other way around.
  * 
  * 
- * @author jpile
+ * @author John Pile
+ * @deprecated As of 2.6.1 moving to pojava.persistence-2.6.0
  * 
  */
 public class TestingContext implements Context {

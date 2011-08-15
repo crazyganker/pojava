@@ -36,6 +36,7 @@ import javax.sql.DataSource;
  * inside an application context.
  * 
  * @author John Pile
+ * @deprecated As of 2.6.1 moving to pojava.persistence-2.6.0
  * 
  */
 public class JNDIRegistry {

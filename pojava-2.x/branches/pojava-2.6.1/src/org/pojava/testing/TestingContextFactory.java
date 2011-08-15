@@ -26,6 +26,7 @@ import javax.naming.spi.InitialContextFactory;
  * Factory class for instantiating an InitialContext for unit testing.
  * 
  * @author John Pile
+ * @deprecated As of 2.6.1 moving to pojava.persistence-2.6.0
  * 
  */
 public class TestingContextFactory implements InitialContextFactory {
