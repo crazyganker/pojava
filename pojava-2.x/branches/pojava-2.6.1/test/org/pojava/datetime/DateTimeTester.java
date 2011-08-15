@@ -591,7 +591,7 @@ public class DateTimeTester extends TestCase {
     }
     
     /**
-     * Support accent aigu on d�c and f�v.
+     * Support accent aigu on déc and fév.
      * @throws Exception
      */
     public void testAccentAigu() throws Exception {
