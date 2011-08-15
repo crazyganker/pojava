@@ -56,7 +56,7 @@ public class Shift {
             } else if (c == '-') {
                 sign = -1;
             } else if (c >= '0' && c <= '9') {
-                if (dec == 1.0) {
+                if (dec >= 1.0) {
                     accum = accum * 10 + sign * dec * (c - '0');
                 } else {
                     accum += sign * dec * (c - '0');
@@ -68,28 +68,28 @@ public class Shift {
                 if (accum != 0) {
                     shiftYears(accum);
                     accum=0;
-                    dec = 1;
+                    dec = 1.0;
                     sign = 1;
                 }
             } else if (c == 'W') {
                 if (accum != 0) {
                     shiftWeeks(accum);
                     accum=0;
-                    dec = 1;
+                    dec = 1.0;
                     sign = 1;
                 }
             } else if (c == 'D') {
                 if (accum != 0) {
                     shiftDays(accum);
                     accum = 0;
-                    dec = 1;
+                    dec = 1.0;
                     sign = 1;
                 }
             } else if (c == 'H') {
                 if (accum != 0) {
                     shiftHours(accum);
                     accum = 0;
-                    dec = 1;
+                    dec = 1.0;
                     sign = 1;
                 }
             } else if (c == 'M') {
@@ -100,14 +100,14 @@ public class Shift {
                         shiftMinutes(accum);
                     }
                     accum = 0;
-                    dec = 1;
+                    dec = 1.0;
                     sign = 1;
                 }
             } else if (c == 'S') {
                 if (accum != 0) {
                     shiftSeconds(accum);
                     accum = 0;
-                    dec = 1;
+                    dec = 1.0;
                     sign = 1;
                 }
             }
