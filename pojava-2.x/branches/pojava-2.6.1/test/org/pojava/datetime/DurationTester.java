@@ -68,4 +68,11 @@ public class DurationTester extends TestCase {
         assertEquals("7d12h15m16s445999300n", d1.toString());
         assertEquals("1d5s", d2.toString());
     }
+    
+    public void testNegative() {
+    	assertEquals("-5h", new Duration("-5h").toString());
+    	assertEquals("-12h20m24s", new Duration("-12.34h").toString());
+    	assertEquals("-1n", new Duration("-1ns").toString());
+    	assertEquals("-3m3n", new Duration("-3m3n").toString());
+    }
 }
