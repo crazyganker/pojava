@@ -1,5 +1,7 @@
 package org.pojava.util;
 
+import java.security.InvalidKeyException;
+
 import javax.crypto.spec.IvParameterSpec;
 
 import junit.framework.TestCase;
@@ -39,11 +41,15 @@ public class EncryptionToolTester extends TestCase {
 	public void testEncryptionWithGeneratedAES256Key() throws Exception {
 		String orig = "Shh. We go IPO next week!";
 		String keyString = EncryptionTool.generateAES256WithCBCKeyString();
-		byte[] frozen=EncryptionTool.encrypt(orig.getBytes(), keyString);
-		assertEquals(32, frozen.length);
-		byte[] thawed=EncryptionTool.decrypt(frozen, keyString);
-		String dest = new String(thawed);
-		assertEquals(orig, dest);
+		try {
+			byte[] frozen=EncryptionTool.encrypt(orig.getBytes(), keyString);
+			assertEquals(32, frozen.length);
+			byte[] thawed=EncryptionTool.decrypt(frozen, keyString);
+			String dest = new String(thawed);
+			assertEquals(orig, dest);
+		} catch (InvalidKeyException ex) {
+			throw new IllegalStateException("InvalidKeyException thrown: Add JCE to your JDK to support AES256", ex);
+		}
 	}
 	
 	/**
