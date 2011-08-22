@@ -27,6 +27,7 @@ import javax.sql.DataSource;
  * DriverManagerDataSource provides a simple DataSource object useful for unit testing.
  * 
  * @author John Pile
+ * @deprecated As of 2.6.1 moving to pojava.persistence-2.6.0
  * 
  */
 public class DriverManagerDataSource implements DataSource {
