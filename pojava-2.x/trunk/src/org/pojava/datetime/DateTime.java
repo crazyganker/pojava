@@ -611,9 +611,20 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         if (str == null) {
             return null;
         }
-        str = str.trim().toUpperCase().replace('\u00c9', 'E');;
+        // Normalize the string a bit
+        str = str.trim().toUpperCase(Locale.ENGLISH).replace('\u00c9', 'E');
         if (str.length() == 0) {
             throw new NullPointerException("Cannot parse time from empty string.");
+        }
+        if (str.indexOf('T')>0) {
+        	// Replace a T separator with a space separator.
+        	str=str.replaceFirst("([0-9])T([0-9])", "$1 $2");
+        }
+        if (str.matches(".*[0-9][A-Z].*")) {
+        	// Expand dates that use number-to-alpha as implied separator
+        	// Chars DMY are reserved for day, month, year relative dates
+        	str=str.replaceAll("([0-9])(Z|[A-Y]{2})", "$1 $2");
+        	str=str.replaceAll("([A-Z]{3})([0-9])", "$1 $2");
         }
         Tm tm = new Tm(System.currentTimeMillis());
         if (str.charAt(0) == '+' || str.charAt(0) == '-') {
@@ -621,6 +632,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         }
         String[] parts = partsPattern.split(str);
         boolean isYearFirst = false;
+        boolean guessedYear = false;
         boolean hasYear = false, hasMonth = false, hasDay = false;
         boolean hasHour = false, hasMinute = false, hasSecond = false;
         boolean hasNanosecond = false, hasTimeZone = false, inDST = false;
@@ -703,6 +715,16 @@ public class DateTime implements Serializable, Comparable<DateTime> {
             year = Integer.parseInt(parts[parts.length - 1]);
             hasYear = true;
             usedint[usedint.length - 1] = true;
+        }
+        if (!hasYear) {
+        	/* Remove time and alpha */
+        	String masked=str.replaceAll("[0-9]+:[0-9:]+|[a-zA-Z]+", "");
+        	if (masked.matches("^\\s*[0-9]+\\s*$")) {
+        		/* No year given.  We'll use this year and test for Dec/Jan at end. */
+        		year=thisYear;
+        		hasYear=true;
+        		guessedYear=true;
+        	}        	
         }
         // Assign integers to remaining slots in order
         for (int i = 0; i < parts.length; i++) {
@@ -906,6 +928,18 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                     tz = TimeZone.getTimeZone(config.getTzMap().get(
                             Integer.toString(offsetHours)));
                 }
+            }
+            /* If we must assume the year, we'll also assume that on January 1
+             * a December 31 reference means "yesterday" and on December 31 a
+			 * January 1 reference means "tomorrow".
+             */
+            if (guessedYear) {
+            	if (month==11 && day==31 && tm.getMonth()==1 && tm.getDay()==1) {
+            		year--;
+            	}
+            	if (month==0 && day==1 && tm.getMonth()==12 && tm.getDay()==31) {
+            		year++;
+            	}
             }
             returnDt = new DateTime(Tm.calcTime(year, 1 + month, day, hour, minute, second,
                     nanosecond / 1000000, tz));
