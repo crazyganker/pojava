@@ -80,7 +80,7 @@ public class StringToolTester extends TestCase {
         assertEquals(false, StringTool.isTrue(null));
     }
     
-    public void testParseCommand() {
+    public void testParseCommandQuotes() {
     	String[] cmd=StringTool.parseCommand("useradd \"Joshua Timothy\"");
     	assertEquals("useradd", cmd[0]);
     	assertEquals("Joshua Timothy", cmd[1]);
@@ -89,7 +89,10 @@ public class StringToolTester extends TestCase {
     	assertEquals("Jacob  Andrew", cmd[1]);
     	assertEquals("to", cmd[2]);
     	assertEquals("Captain", cmd[3]);
-    	cmd=StringTool.parseCommand("promote 'Jacob's [sic] dog to Captain");
+    }
+    
+    public void testParseCommandApostrophes() {
+    	String[] cmd=StringTool.parseCommand("promote 'Jacob's [sic] dog to Captain");
     	assertEquals("promote", cmd[0]);
     	assertEquals("Jacobs", cmd[1]);
     	assertEquals("[sic]", cmd[2]);
@@ -107,5 +110,11 @@ public class StringToolTester extends TestCase {
     	} catch (IllegalArgumentException ex) {
     		assertEquals("Unclosed quotes in argument.", ex.getMessage());
     	}
+    }
+    
+    public void testParseCommandBacktics() {
+    	String[] cmd=StringTool.parseCommand("dir poj-`date +%d`.log");
+    	assertEquals("dir", cmd[0]);
+    	assertEquals("poj-`date +%d`.log", cmd[1]);
     }
 }
