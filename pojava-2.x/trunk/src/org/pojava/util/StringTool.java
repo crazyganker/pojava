@@ -260,13 +260,19 @@ public class StringTool {
     		if (isLiteral) {
     			if (c==litchar) {
     				isLiteral=false;
+    				if (c=='`') {
+    					sb.append(c);
+    				}
     			} else {
     				sb.append(c);
     			}
     		} else {
-    			if (c=='\'' || c=='\"') {
+    			if (c=='\'' || c=='\"' || c=='`') {
     				isLiteral=true;
     				litchar=c;
+    				if (c=='`') {
+    					sb.append(c);
+    				}
     			} else if (c==' ') {
     				if (sb.length()>0) {
 	    				list.add(sb.toString());
