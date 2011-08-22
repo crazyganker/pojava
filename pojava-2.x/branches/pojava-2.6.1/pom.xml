@@ -24,9 +24,9 @@
 		<compiler-version>1.5</compiler-version>
 	</properties>
 	<scm>
-		<connection>scm:svn:http://code.google.com/p/pojava/source/browse/#svn/trunks/pojava-2.x</connection>
-		<developerConnection>scm:svn:http://code.google.com/p/pojava/source/browse/#svn/trunks/pojava-2.x</developerConnection>
-		<url>http://code.google.com/p/pojava/source/browse/#svn/trunks/pojava-2.x</url>
+		<connection>scm:svn:http://code.google.com/p/pojava/source/browse/#svn/pojava-2.x/trunk</connection>
+		<developerConnection>scm:svn:http://code.google.com/p/pojava/source/browse/#svn/pojava-2.x/trunk</developerConnection>
+		<url>http://code.google.com/p/pojava/source/browse/#svn/pojava-2.x/trunk</url>
 	</scm>
 	<build>
 		<outputDirectory>target/classes</outputDirectory>
@@ -60,7 +60,7 @@
 					<execution>
 						<id>attach-sources</id>
 						<goals>
-							<goal>jar</goal>
+							<goal>jar-no-fork</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -102,7 +102,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.0</version>
+                <version>1.3</version>
                 <executions>
                     <execution>
                         <phase>verify</phase>
