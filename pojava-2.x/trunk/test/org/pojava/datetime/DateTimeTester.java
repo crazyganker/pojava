@@ -620,5 +620,40 @@ public class DateTimeTester extends TestCase {
     	dt=new DateTime("06-11-2009, 12AM");
     	assertEquals("2009-06-11 00:00:00", dt.toString());
     }
+    
+    public void testNoYear() throws Exception {
+    	DateTime dt;
+    	dt=new DateTime("06 Aug 01:23:45");
+    	String year=new DateTime().toString("yyyy");
+    	assertEquals(year+"-08-06 01:23:45", dt.toString());
+    }
+    
+    /** Verify fix of bug discovered by Mike Smith
+      * Parsing of dates with T separator.
+      * @since 2.6.1
+      */
+    public void testTSeparator() throws Exception {
+    	String dateTimeStringIn="1969-01-20T18:00:03.928223333";
+    	String newPattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    	DateTime parsedDateString = new DateTime(dateTimeStringIn);
+    	String outputDateTime = (DateTimeFormat.format(newPattern, parsedDateString));
+    	assertEquals("1969-01-20T18:00:03.928Z", outputDateTime);
+    }
+    
+    public void testCrammedZ() throws Exception {
+    	String dts1="1969-01-20T18:00:03.928Z";
+    	String dts2="1969-01-20 18:00:03.928 Z";
+    	DateTime dt1=new DateTime(dts1);
+    	DateTime dt2=new DateTime(dts2);
+    	assertEquals(dt1, dt2);
+    }
+    
+    public void testCrammedOther() throws Exception {
+    	String dts1="27AUG2011PST";
+    	String dts2="27-AUG-2011 PST";
+    	DateTime dt1=new DateTime(dts1);
+    	DateTime dt2=new DateTime(dts2);
+    	assertEquals(dt1, dt2);
+    }
 
 }
