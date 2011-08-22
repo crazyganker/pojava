@@ -22,7 +22,7 @@ public class BooleanYNAdaptorTester extends TestCase {
      * How will the system cope if type-checking is suppressed so an invalid type can be
      * inserted?
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"unchecked"})
     public void testDirtyCase() {
         BindingAdaptor adaptor = new BooleanIntegerAdaptor();
         try {
