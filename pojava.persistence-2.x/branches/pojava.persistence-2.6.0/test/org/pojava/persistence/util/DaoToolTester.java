@@ -11,17 +11,17 @@ import org.pojava.persistence.examples.Mock;
 import org.pojava.persistence.examples.TypeTest;
 import org.pojava.persistence.examples.TypeTestDao;
 import org.pojava.persistence.examples.TypeTestQuery;
+import org.pojava.persistence.jndi.DriverManagerDataSource;
+import org.pojava.persistence.jndi.JNDIRegistry;
 import org.pojava.persistence.sql.DatabaseCache;
 import org.pojava.persistence.sql.DatabaseTransaction;
 import org.pojava.persistence.sql.TableMap;
 import org.pojava.persistence.sql.TestHelper;
-import org.pojava.testing.DriverManagerDataSource;
-import org.pojava.testing.JNDIRegistry;
 
 public class DaoToolTester extends TestCase {
 
     private static final Class<TypeTest> JAVA_CLASS = TypeTest.class;
-    private static final String TABLE_NAME = "dao_test";
+    private static final String TABLE_NAME = "type_test";
     private static final String DS_NAME = "pojava_test";
     private DatabaseTransaction trans = null;
     private TableMap<TypeTest> MAP = null;
