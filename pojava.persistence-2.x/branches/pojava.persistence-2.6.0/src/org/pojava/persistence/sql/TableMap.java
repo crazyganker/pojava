@@ -134,7 +134,7 @@ public class TableMap<POJO> {
      * @param rsMeta
      * @throws SQLException
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
 	private void autoBind(Connection conn, ResultSetMetaData rsMeta) throws SQLException {
         Set<String> primaryKeys = primaryKeys(conn);
         int cols = rsMeta.getColumnCount();
@@ -325,7 +325,7 @@ public class TableMap<POJO> {
      * @param bean
      * @return SQL insert statement
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     public BoundString sqlInsert(POJO bean) {
         BoundString bs = new BoundString();
         bs.append("INSERT INTO ");
@@ -358,7 +358,7 @@ public class TableMap<POJO> {
      * @param bean
      * @return SQL update statement
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     public BoundString sqlUpdate(POJO bean) {
         BoundString bs = new BoundString();
         bs.append("UPDATE ");

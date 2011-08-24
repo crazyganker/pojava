@@ -245,7 +245,7 @@ public class FieldMap<POJO, PROP, COL> {
      * @param obj
      * @throws SQLException
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     public void setPropertyValue(ResultSet rs, int column, Object obj) throws SQLException {
         Object value = rs.getObject(column);
         if (this.adaptor != null) {
