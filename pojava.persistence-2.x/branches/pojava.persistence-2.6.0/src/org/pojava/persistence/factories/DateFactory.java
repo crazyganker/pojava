@@ -18,7 +18,7 @@ public class DateFactory<T> implements SerialFactory<T> {
      * Construct a java.util.Date object.
      */
     @SuppressWarnings("unchecked")
-    public Object construct(@SuppressWarnings("rawtypes") Class type, Object[] params) {
+    public Object construct(Class type, Object[] params) {
         if (Date.class.isAssignableFrom(type)) {
             if (type == Timestamp.class) {
                 Timestamp ts;
@@ -52,7 +52,7 @@ public class DateFactory<T> implements SerialFactory<T> {
      * Construct a java.util.Date object.
      */
     @SuppressWarnings("unchecked")
-    public Object construct(@SuppressWarnings("rawtypes") Class type, @SuppressWarnings("rawtypes") Map params) {
+    public Object construct(Class type, Map params) {
         if (Date.class.isAssignableFrom(type)) {
             long time = 0;
             if (params.containsKey("time")) {

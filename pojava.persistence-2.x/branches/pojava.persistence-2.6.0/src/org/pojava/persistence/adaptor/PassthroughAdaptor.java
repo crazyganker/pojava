@@ -11,12 +11,12 @@ import org.pojava.transformation.BindingAdaptor;
  */
 public class PassthroughAdaptor<I,O> extends BindingAdaptor<I,O> {
     @SuppressWarnings("unchecked")
-	public Binding<I> inbound(@SuppressWarnings("rawtypes") Binding inBinding) {
+	public Binding<I> inbound(Binding inBinding) {
         return inBinding;
     }
 
     @SuppressWarnings("unchecked")
-	public Binding<O> outbound(@SuppressWarnings("rawtypes") Binding outBinding) {
+	public Binding<O> outbound(Binding outBinding) {
         return outBinding;
     }
 
