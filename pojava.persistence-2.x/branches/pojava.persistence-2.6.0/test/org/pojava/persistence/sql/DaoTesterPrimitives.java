@@ -17,8 +17,8 @@ import org.pojava.persistence.examples.PrimitiveTest;
 import org.pojava.persistence.examples.PrimitiveTestDao;
 import org.pojava.persistence.examples.TypeTestDao;
 import org.pojava.persistence.examples.TypeTestQuery;
-import org.pojava.testing.DriverManagerDataSource;
-import org.pojava.testing.JNDIRegistry;
+import org.pojava.persistence.jndi.DriverManagerDataSource;
+import org.pojava.persistence.jndi.JNDIRegistry;
 import org.pojava.util.StringTool;
 
 public class DaoTesterPrimitives extends TestCase {

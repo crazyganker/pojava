@@ -12,8 +12,8 @@ import org.pojava.persistence.examples.Mock;
 import org.pojava.persistence.examples.TypeTest;
 import org.pojava.persistence.examples.TypeTestDao;
 import org.pojava.persistence.examples.TypeTestQuery;
+import org.pojava.persistence.jndi.JNDIRegistry;
 import org.pojava.persistence.util.SqlTool;
-import org.pojava.testing.JNDIRegistry;
 import org.pojava.util.StringTool;
 
 public class DaoTester extends TestCase {

@@ -12,8 +12,8 @@ import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 
-import org.pojava.testing.DriverManagerDataSource;
-import org.pojava.testing.JNDIRegistry;
+import org.pojava.persistence.jndi.DriverManagerDataSource;
+import org.pojava.persistence.jndi.JNDIRegistry;
 import org.pojava.util.StringTool;
 
 public class DatabaseCacheTester extends TestCase {
@@ -71,7 +71,7 @@ public class DatabaseCacheTester extends TestCase {
         Connection conn = null;
         try {
             conn = ds.getConnection();
-            PreparedStatement ps = conn.prepareStatement("select * from dao_test");
+            PreparedStatement ps = conn.prepareStatement("select * from type_test");
             ResultSet daoTest = ps.executeQuery();
             ResultSetMetaData dtMeta = daoTest.getMetaData();
             if (DEBUG) {
