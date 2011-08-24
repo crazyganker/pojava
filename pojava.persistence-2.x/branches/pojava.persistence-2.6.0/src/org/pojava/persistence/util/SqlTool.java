@@ -47,11 +47,11 @@ import org.pojava.exception.InitializationException;
 import org.pojava.exception.PersistenceException;
 import org.pojava.lang.BoundString;
 import org.pojava.lang.UncheckedBinding;
+import org.pojava.persistence.jndi.DriverManagerDataSource;
 import org.pojava.persistence.processor.ResultSetProcessor;
 import org.pojava.persistence.processor.ResultSetToInt;
 import org.pojava.persistence.query.PreparedSql;
 import org.pojava.persistence.sql.TableMap;
-import org.pojava.testing.DriverManagerDataSource;
 
 /**
  * Utilities for performing SQL tasks. POJava keeps things simple by using prepared statements.
