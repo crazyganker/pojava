@@ -190,7 +190,7 @@ public class XmlDefs {
      */
     @SuppressWarnings("unchecked")
     public Object construct(Class<?> type, Object[] params) {
-    	@SuppressWarnings("rawtypes")SerialFactory factory = factories.get(type);
+    	SerialFactory factory = factories.get(type);
         if (factory == null) {
             factory = defaultFactory;
         }
@@ -218,22 +218,22 @@ public class XmlDefs {
      * @return constructed Object
      */
     @SuppressWarnings("unchecked")
-    public Object construct(@SuppressWarnings("rawtypes")Class type, @SuppressWarnings("rawtypes") Map params) {
+    public Object construct(Class type,  Map params) {
         Object newObj;
         SerialFactory<?> factory = factories.get(type);
         try {
             if (factory == null) {
                 if (List.class.equals(type) || Collection.class.equals(type)) {
-                	@SuppressWarnings("rawtypes")ArrayList list = new ArrayList();
+                	ArrayList list = new ArrayList();
                     fillCollection(list, params);
                     newObj = list;
                     // TODO: Populate from map... embedded List?
                 } else if (Set.class.equals(type)) {
-                	@SuppressWarnings("rawtypes")HashSet set = new HashSet();
+                	HashSet set = new HashSet();
                     fillCollection(set, params);
                     newObj = set;
                 } else if (Collection.class.isAssignableFrom(type)) {
-                	@SuppressWarnings("rawtypes")Collection col = (Collection) type.newInstance();
+                	Collection col = (Collection) type.newInstance();
                     fillCollection(col, params);
                     newObj = col;
                 } else {

@@ -293,7 +293,7 @@ public class XmlParser<T> implements ContentHandler {
             }
         } else if (types[depth].isEnum()) {
             try {
-            	@SuppressWarnings("rawtypes")Class pc=types[depth];
+            	Class pc=types[depth];
                 if (Object.class.equals(types[depth-1])) {
                     objs[depth-1].put(ZERO, Enum.valueOf(pc, buffers[depth].toString()));
                 } else {
