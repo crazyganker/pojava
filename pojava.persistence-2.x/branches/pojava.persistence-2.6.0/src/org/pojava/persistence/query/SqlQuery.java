@@ -1,5 +1,7 @@
 package org.pojava.persistence.query;
 
+import java.util.Locale;
+
 import org.pojava.lang.BoundString;
 
 /**
@@ -135,7 +137,7 @@ public class SqlQuery extends AbstractQuery implements PreparedSqlProvider {
         bs.append(" ");
         bs.append(sql);
         if (sqlOrderBy != null && sqlOrderBy.trim().length() > 0) {
-            String verify = sqlOrderBy.toUpperCase().replace('\t', ' ').trim();
+            String verify = sqlOrderBy.toUpperCase(Locale.ENGLISH).replace('\t', ' ').trim();
             if (verify.startsWith("ORDER BY ")) {
                 bs.append(" ");
             } else {
