@@ -92,7 +92,7 @@ public class WebSafe {
         String xml=serial.toXml(obj);
         byte[] zipped=zipper.compress(xml.getBytes());
         byte[] encrypted=EncryptionTool.encrypt(zipped, key);
-        StringBuilder encoded=new StringBuilder(new String(EncodingTool.base64Encode(encrypted)));
+        StringBuilder encoded=new StringBuilder(EncodingTool.base64Encode(encrypted));
         int len=encoded.length();
         // Base64 pads with '=', but Tomcat 6.0.14+ doesn't like '=' in cookie values.
         // I haven't figured out what paragraph of rfc2109 or rfc2965 is driving that interpretation.
@@ -114,7 +114,7 @@ public class WebSafe {
         String xml=serial.toXml(obj);
         byte[] zipped=zipper.compress(xml.getBytes());
         byte[] encrypted=EncryptionTool.encrypt(zipped, key, ivps);
-        StringBuilder encoded=new StringBuilder(new String(EncodingTool.base64Encode(encrypted)));
+        StringBuilder encoded=new StringBuilder(EncodingTool.base64Encode(encrypted));
         int len=encoded.length();
         // Base64 pads with '=', but Tomcat 6.0.14+ doesn't like '=' in cookie values.
         // I haven't figured out what paragraph of rfc2109 or rfc2965 is driving that interpretation.
