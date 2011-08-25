@@ -35,7 +35,8 @@ import org.pojava.transformation.BindingAdaptor;
  */
 public class DefaultAdaptorMap<I,O> implements AdaptorMap<I,O> {
 
-    @SuppressWarnings("rawtypes")
+    
+	@SuppressWarnings("unchecked")
 	private static final PassthroughAdaptor DEFAULT_ADAPTOR = new PassthroughAdaptor();
     private static final IntegerAdaptor INTEGER_ADAPTOR = new IntegerAdaptor();
     private static final LongAdaptor LONG_ADAPTOR = new LongAdaptor();
@@ -54,8 +55,8 @@ public class DefaultAdaptorMap<I,O> implements AdaptorMap<I,O> {
     /**
      * Select an adaptor based on a variety of possible criteria.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public BindingAdaptor chooseAdaptor(Method method, Class columnClass) {
+    @SuppressWarnings("unchecked")
+	public BindingAdaptor chooseAdaptor(Method method, Class columnClass) {
         BindingAdaptor<?, ?> adaptor;
 
         if (AdaptorRegistry.containsKey(method)) {
