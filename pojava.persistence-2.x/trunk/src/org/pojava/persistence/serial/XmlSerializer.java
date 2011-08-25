@@ -95,10 +95,10 @@ public class XmlSerializer {
             }
         } else if (java.util.AbstractMap.class.isAssignableFrom(type)) {
             Map<?, ?> map = (Map<?, ?>) pojo;
-            for (Iterator<?> mapIter = map.keySet().iterator(); mapIter.hasNext();) {
-                Object mapKey = mapIter.next();
-                walk(mapKey);
-                walk(map.get(mapKey));
+            for (Iterator<?> mapIter = map.entrySet().iterator(); mapIter.hasNext();) {
+            	Map.Entry<?, ?> entry=(Map.Entry<?, ?>)mapIter.next();
+                walk(entry.getKey());
+                walk(entry.getValue());
             }
         } else if (type.isArray()) {
             int length = Array.getLength(pojo);
