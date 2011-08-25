@@ -37,7 +37,8 @@ public class DefaultFactory implements SerialFactory<Object> {
     /**
      * Construct an object.
      */
-    public Object construct(@SuppressWarnings("rawtypes")Class type, Object[] values) {
+    @SuppressWarnings("unchecked")
+	public Object construct(Class type, Object[] values) {
         if (values == null || values.length != 1) {
             throw new PersistenceException(
                     "The DefaultConstructor only accepts an array of one String.", null);
@@ -112,7 +113,8 @@ public class DefaultFactory implements SerialFactory<Object> {
     /**
      * Construct an object based on mapped parameters.
      */
-    public Object construct(@SuppressWarnings("rawtypes")Class type, @SuppressWarnings("rawtypes")Map params) {
+    @SuppressWarnings("unchecked")
+	public Object construct(Class type, Map params) {
         if (params.containsKey("value")) {
             Object[] values = { params.get("value") };
             return construct(type, values);

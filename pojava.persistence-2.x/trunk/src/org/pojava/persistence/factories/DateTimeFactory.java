@@ -17,7 +17,7 @@ public class DateTimeFactory<T> implements SerialFactory<T> {
      * Construct a DateTime object from a parameter array.
      */
     @SuppressWarnings("unchecked")
-    public Object construct(@SuppressWarnings("rawtypes")Class type, Object[] params) {
+    public Object construct(Class type, Object[] params) {
         DateTime dt = null;
         if (type == DateTime.class) {
             if (params.length == 1) {
@@ -41,7 +41,7 @@ public class DateTimeFactory<T> implements SerialFactory<T> {
      * Costruct an object from mapped parameters.
      */
     @SuppressWarnings("unchecked")
-    public Object construct(@SuppressWarnings("rawtypes")Class type, @SuppressWarnings("rawtypes")Map params) {
+    public Object construct(Class type, Map params) {
         if (type == DateTime.class) {
             if (params.containsKey("seconds")) {
                 long seconds = ((Long) params.get("seconds")).longValue();
