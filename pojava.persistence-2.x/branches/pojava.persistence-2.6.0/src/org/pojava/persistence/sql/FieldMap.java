@@ -268,7 +268,7 @@ public class FieldMap<POJO, PROP, COL> {
      * @return Array of (often only one) getters drilling down to a property.
      */
     public Method[] getGetters() {
-        return getters;
+        return this.getters;
     }
 
     /**
