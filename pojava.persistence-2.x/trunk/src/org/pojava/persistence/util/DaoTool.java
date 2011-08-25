@@ -105,7 +105,8 @@ public class DaoTool {
      * @param obj
      * @param action
      */
-    private static final <T> void validateParams(TableMap<T> map, T obj, String action) {
+    @SuppressWarnings("unchecked")
+	private static final <T> void validateParams(TableMap<T> map, T obj, String action) {
         if (obj == null) {
             StringBuffer msg = new StringBuffer();
             msg.append("Cannot perform ");
