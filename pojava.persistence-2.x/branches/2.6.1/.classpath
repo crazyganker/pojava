@@ -1,0 +1,10 @@
+<classpath>
+  <classpathentry kind="src" path="test" output="target/test-classes"/>
+  <classpathentry kind="src" path="src"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/3.8.2/junit-3.8.2.jar" sourcepath="M2_REPO/junit/junit/3.8.2/junit-3.8.2-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/mysql/mysql-connector-java/5.1.10/mysql-connector-java-5.1.10.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/pojava/pojava/2.6.1/pojava-2.6.1.jar" sourcepath="M2_REPO/org/pojava/pojava/2.6.1/pojava-2.6.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/postgresql/postgresql/8.4-701.jdbc3/postgresql-8.4-701.jdbc3.jar"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+</classpath>
