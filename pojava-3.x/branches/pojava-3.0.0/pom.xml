@@ -21,7 +21,7 @@
 	<properties>
 		<output-directory>${basedir}/target/classes</output-directory>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<compiler-version>1.5</compiler-version>
+		<compiler-version>1.6</compiler-version>
 	</properties>
 	<scm>
 		<connection>scm:svn:http://code.google.com/p/pojava/source/browse/#svn/pojava-3.x/trunk</connection>

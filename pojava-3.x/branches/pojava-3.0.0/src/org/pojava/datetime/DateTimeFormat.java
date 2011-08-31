@@ -223,7 +223,7 @@ public class DateTimeFormat {
             break;
         case 'z':
             if (len>3) {
-                sb.append(dt.timeZone().getDisplayName(loc));
+                sb.append(TimeZone.getTimeZone(dt.getTimeZoneID()).getDisplayName(loc));
             } else {
                 sb.append(tz.getDisplayName(tz.inDaylightTime(dt.toDate()), TimeZone.SHORT, loc));
             }

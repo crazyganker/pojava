@@ -102,11 +102,11 @@ public class ReflectionTool {
             String name = method.getName();
             if (name.startsWith("get")) {
                 if (!name.equals("getClass")) {
-                    String shortName = name.substring(3, 4).toLowerCase(Locale.ENGLISH) + name.substring(4);
+                    String shortName = name.substring(3, 4).toLowerCase(Locale.getDefault()) + name.substring(4);
                     map.put(shortName, method.getReturnType());
                 }
             } else if (name.startsWith("is")) {
-                String shortName = name.substring(2, 3).toLowerCase(Locale.ENGLISH) + name.substring(3);
+                String shortName = name.substring(2, 3).toLowerCase(Locale.getDefault()) + name.substring(3);
                 map.put(shortName, method.getReturnType());
             }
         }

@@ -8,7 +8,21 @@ import java.util.TimeZone;
 import junit.framework.TestCase;
 
 public class DateTimeFormatTester extends TestCase {
-
+	
+	TimeZone origTimeZone;
+	
+	public void setUp() {
+		origTimeZone=TimeZone.getDefault();
+		TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
+		DateTimeConfig config=DateTimeConfig.getGlobalDefault();
+		config.setInputTimeZone(TimeZone.getDefault());
+		config.setOutputTimeZone(TimeZone.getDefault());
+	}
+	
+	public void tearDown() {
+		TimeZone.setDefault(origTimeZone);
+	}
+	
     public void testCommonFormats() {
         DateTime dt = new DateTime("1/23/45 6:7:8.9101112");
         compareStatic("y/M/d", dt);
@@ -25,12 +39,15 @@ public class DateTimeFormatTester extends TestCase {
     }
     
     public void testTimeZone() {
+    	
         DateTime dt = new DateTime("2008-01-09 GMT-04:00");
-        assertEquals("-0400", DateTimeFormat.format("Z", dt, dt.timeZone()));
-        assertEquals("-04:00", DateTimeFormat.format("ZZ", dt, dt.timeZone()));
+        assertEquals("-0400", DateTimeFormat.format("Z", dt, TimeZone.getTimeZone(dt.getTimeZoneID())));
+        assertEquals("-04:00", DateTimeFormat.format("ZZ", dt, TimeZone.getTimeZone(dt.getTimeZoneID())));
     }
     
     public void testLocale() {
+    	TimeZone.setDefault(TimeZone.getTimeZone("PST"));
+    	DateTimeConfig.getGlobalDefault().setOutputTimeZone(TimeZone.getDefault());
         DateTime dt = new DateTime("2008-01-09 PST");
         compareStatic("zzzz", dt, Locale.FRENCH);
     }

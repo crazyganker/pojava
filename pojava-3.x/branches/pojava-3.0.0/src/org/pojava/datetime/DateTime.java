@@ -101,14 +101,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     private static final long CE = -62135740800000L; // 0001-01-01;
 
     /**
-     * Default time zone is determined by system
-     */
-    protected String timeZoneId;
-
-    /**
      * Config contains info specific to zoning and formatting.
      */
-    protected DateTimeConfig config;
+    protected IDateTimeConfig config;
 
     /**
      * System time is a lazy calculation of milliseconds from Unix epoch 1970-01-01 00:00:00,
@@ -117,14 +112,26 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      */
     protected Duration systemDur = null;
 
-    private static final Pattern partsPattern = Pattern.compile("[^A-Z0-9]+");
+    private static final Pattern partsPattern = Pattern.compile("[^A-Z0-9_]+");
+    
+    protected String timeZoneID = null;
 
     /**
      * Default constructor gives current time to millisecond.
      */
     public DateTime() {
+        this.config=DateTimeConfig.getGlobalDefault();
+        this.timeZoneID=config.getInputTimeZone().getID();
         this.systemDur = new Duration(System.currentTimeMillis());
-        this.timeZoneId = TimeZone.getDefault().getID();
+    }
+
+    /**
+     * Default constructor gives current time to millisecond.
+     */
+    public DateTime(IDateTimeConfig config) {
+        this.config=config;
+        this.timeZoneID=config.getInputTimeZone().getID();
+        this.systemDur = new Duration(System.currentTimeMillis());
     }
 
     /**
@@ -134,36 +141,33 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      *            time
      */
     public DateTime(long millis) {
+        this.config=DateTimeConfig.getGlobalDefault();
+        this.timeZoneID=config.getInputTimeZone().getID();
         this.systemDur = new Duration(millis);
-        this.timeZoneId = TimeZone.getDefault().getID();
     }
 
     /**
      * DateTime constructed from time in milliseconds since epoch.
      * 
      * @param millis
-     *            Number of milliseconds since epoch
-     * @param tz
-     *            Time Zone held by DateTime
+     *            time
      */
-    public DateTime(long millis, TimeZone tz) {
+    public DateTime(long millis, TimeZone defaultTz) {
+        this.config=DateTimeConfig.getGlobalDefault();
+        this.timeZoneID=defaultTz.getID();
         this.systemDur = new Duration(millis);
-        if (tz != null) {
-            this.timeZoneId = tz.getID();
-        }
     }
 
     /**
      * DateTime constructed from time in milliseconds since epoch.
      * 
      * @param millis
-     *            Number of milliseconds since epoch
-     * @param tzId
-     *            ID of Time Zone held by DateTime
+     *            time
      */
-    public DateTime(long millis, String tzId) {
+    public DateTime(long millis, IDateTimeConfig config) {
+        this.config=config;
+        this.timeZoneID=config.getInputTimeZone().getID();
         this.systemDur = new Duration(millis);
-        this.timeZoneId = tzId;
     }
 
     /**
@@ -175,6 +179,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      *            Nanosecond offset in range +/- 999999999
      */
     public DateTime(long seconds, int nanos) {
+        this.timeZoneID=config.getInputTimeZone().getID();
         this.systemDur = new Duration(seconds, nanos);
     }
 
@@ -185,14 +190,13 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      *            Number of seconds since epoch (typically 1970-01-01)
      * @param nanos
      *            Nanosecond offset in range +/- 999999999
-     * @param tz
-     *            TimeZone
+     * @param config
+     *            IDateTimeConfig describing parser configs
      */
-    public DateTime(long seconds, int nanos, TimeZone tz) {
+    public DateTime(long seconds, int nanos, IDateTimeConfig config) {
+    	this.config = config;
+        this.timeZoneID=config.getInputTimeZone().getID();
         this.systemDur = new Duration(seconds, nanos);
-        if (tz != null) {
-            this.timeZoneId = tz.getID();
-        }
     }
 
     /**
@@ -202,14 +206,10 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      *            Number of seconds since epoch (typically 1970-01-01)
      * @param nanos
      *            Nanosecond offset in range +/- 999999999
-     * @param tzId
-     *            TimeZone ID
      */
-    public DateTime(long seconds, int nanos, String tzId) {
+    public DateTime(long seconds, int nanos, TimeZone defaultTz) {
+        this.timeZoneID=defaultTz.getID();
         this.systemDur = new Duration(seconds, nanos);
-        if (tzId != null) {
-            this.timeZoneId = tzId;
-        }
     }
 
     /**
@@ -218,13 +218,52 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * @param str
      */
     public DateTime(String str) {
+    	this.config=DateTimeConfig.getGlobalDefault();
+        this.timeZoneID=config.getInputTimeZone().getID();
         if (str == null) {
             this.systemDur = new Duration(System.currentTimeMillis());
             return;
         }
         DateTime dt = parse(str);
         this.systemDur = dt.systemDur;
-        this.timeZoneId = dt.timeZoneId;
+        this.timeZoneID=dt.timeZoneID;
+    }
+
+    /**
+     * DateTime constructed from a string using global defaults.
+     * 
+     * @param str
+     */
+    public DateTime(String str, TimeZone defaultTz) {
+    	this.config=DateTimeConfig.getGlobalDefault();
+    	if (defaultTz==null) {
+    		this.timeZoneID=config.getInputTimeZone().getID();
+    	} else {
+    		this.timeZoneID=defaultTz.getID();
+    	}
+        if (str == null) {
+            this.systemDur = new Duration(System.currentTimeMillis());
+            return;
+        }
+        DateTime dt = parse(str);
+        this.systemDur = dt.systemDur;
+        this.timeZoneID=dt.timeZoneID;
+    }
+
+    /**
+     * DateTime constructed from a string using configuration rules.
+     * 
+     * @param str
+     */
+    public DateTime(String str, IDateTimeConfig config) {
+    	this.config=config;
+        this.timeZoneID=config.getInputTimeZone().getID();
+        if (str == null) {
+            this.systemDur = new Duration(System.currentTimeMillis());
+            return;
+        }
+        DateTime dt = parse(str, config);
+        this.systemDur = dt.systemDur;
     }
 
     /**
@@ -233,6 +272,19 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * @param ts
      */
     public DateTime(Timestamp ts) {
+    	this.config=DateTimeConfig.getGlobalDefault();
+        this.timeZoneID=config.getInputTimeZone().getID();
+        this.systemDur = new Duration(ts.getTime() / 1000, ts.getNanos());
+    }
+
+    /**
+     * DateTime constructed from a Timestamp includes nanos.
+     * 
+     * @param ts
+     */
+    public DateTime(Timestamp ts, IDateTimeConfig config) {
+    	this.config=config;
+        this.timeZoneID=config.getInputTimeZone().getID();
         this.systemDur = new Duration(ts.getTime() / 1000, ts.getNanos());
     }
 
@@ -258,7 +310,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         }
         while (idx >= min) {
             c = chars[idx];
-            if (c >= 'A' && c <= 'Z' || c == '/' || c >= '0' && c <= '9') {
+            if (c >= 'A' && c <= 'Z' || c == '_' || c == '/' || c >= '0' && c <= '9') {
                 idx--;
             } else {
                 ++idx;
@@ -317,7 +369,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * @return this DateTime truncated and converted to a java.util.Date object.
      */
     public Date toDate() {
-        return new Date(this.systemDur.toMillis());
+    	return new Date(this.systemDur.toMillis());
     }
 
     /**
@@ -325,19 +377,29 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * 
      * @return this TimeZone.
      */
-    public TimeZone timeZone() {
-        return DateTimeConfig.getTimeZone(this.timeZoneId);
+    public String getTimeZoneID() {
+        return timeZoneID;
+    }
+
+    /**
+     * By default, the toString method gives a sortable ISO 8601 date and time to nearest second
+     * in a pre-determined time zone.
+     */
+    public String toString() {
+    	return toString(config.getOutputTimeZone());
     }
 
     /**
      * By default, the toString method gives a sortable ISO 8601 date and time to nearest second
      * in the same time zone as the system. The default format can be redefined in
      * DateTimeConfig.
+	 *
+     * @param timeZone The TimeZone in which that DateTime instant is displayed.
+     * @return A String representation of the DateTime in a given time zone.
      */
-    public String toString() {
+    public String toString(TimeZone timeZone) {
         String formatStr = config().getDefaultDateFormat();
-        String str = DateTimeFormat.format(formatStr, this, TimeZone.getDefault(), Locale
-                .getDefault());
+        String str=toString(formatStr, timeZone);
         if (this.systemDur.millis < DateTime.CE) {
             char c = formatStr.charAt(formatStr.length() - 1);
             if (c != 'g' && c != 'G') {
@@ -346,6 +408,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         }
         return str;
     }
+
 
     /**
      * Return a String according to the provided format.
@@ -357,24 +420,16 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         return DateTimeFormat.format(format, this, TimeZone.getDefault(), Locale.getDefault());
     }
 
+
     /**
-     * The toLocalString method provides a sortable ISO 8601 date and time to the nearest
-     * second, but is rendered from the perspective of the time zone ascribed to the DateTime
-     * object, regardless of the system's time zone.
+     * Return a String according to the provided format.
      * 
-     * @return A string version of the this DateTime specified in local time.
+     * @param format
+     * @param timeZone The timeZone in which the output is displayed.
+     * @return A formatted string version of the current DateTime.
      */
-    public String toLocalString() {
-        String formatStr = config().getDefaultDateFormat();
-        String str = DateTimeFormat.format(formatStr, this, this.timeZone(), Locale
-                .getDefault());
-        if (this.systemDur.millis < DateTime.CE) {
-            char c = formatStr.charAt(formatStr.length() - 1);
-            if (c != 'g' && c != 'G') {
-                return str + " BC";
-            }
-        }
-        return str;
+    public String toString(String format, TimeZone timeZone) {
+        return DateTimeFormat.format(format, this, timeZone, Locale.getDefault());
     }
 
     /**
@@ -385,7 +440,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * @return A string version of the this DateTime specified in local time.
      */
     public String toLocalString(String format) {
-        return DateTimeFormat.format(format, this, this.timeZone(), Locale.getDefault());
+        return DateTimeFormat.format(format, this, TimeZone.getTimeZone(this.timeZoneID), Locale.getDefault());
     }
 
     /**
@@ -396,7 +451,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      */
     public DateTime add(Duration dur) {
         Duration calcDur = dur.add(this.getSeconds(), this.getNanos());
-        return new DateTime(calcDur.getSeconds(), calcDur.getNanos(), this.timeZoneId);
+        return new DateTime(calcDur.getSeconds(), calcDur.getNanos(), this.config);
     }
 
     /**
@@ -408,7 +463,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      */
     public DateTime add(long milliseconds) {
         Duration dur = this.systemDur.add(milliseconds);
-        return new DateTime(dur.getSeconds(), dur.getNanos(), this.timeZoneId);
+        return new DateTime(dur.getSeconds(), dur.getNanos(), this.config);
     }
 
     public DateTime add(CalendarUnit calUnit, int qty) {
@@ -448,7 +503,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
             }
         }
         /* Calendar periods (same time, different day) */
-        Calendar cal = Calendar.getInstance(DateTimeConfig.getTimeZone(this.timeZoneId));
+        Calendar cal = Calendar.getInstance(this.config.getInputTimeZone());
         cal.setTimeInMillis(this.systemDur.millis);
         if (calUnit == CalendarUnit.DAY) {
             cal.add(Calendar.DATE, qty);
@@ -463,7 +518,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         } else if (calUnit == CalendarUnit.CENTURY) {
             cal.add(Calendar.YEAR, 100 * qty);
         }
-        return new DateTime(cal.getTimeInMillis() / 1000, systemDur.getNanos(), this.timeZoneId);
+        return new DateTime(cal.getTimeInMillis() / 1000, systemDur.getNanos(), this.config);
     }
 
     /**
@@ -477,7 +532,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         if (shift == null) {
             return this;
         }
-        Calendar cal = Calendar.getInstance(DateTimeConfig.getTimeZone(this.timeZoneId));
+        Calendar cal = Calendar.getInstance(config.getInputTimeZone());
         cal.setTimeInMillis(this.systemDur.millis);
         if (shift.getYear() != 0) {
             cal.add(Calendar.YEAR, shift.getYear());
@@ -501,7 +556,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
             cal.add(Calendar.SECOND, shift.getSecond());
         }
         return new DateTime(cal.getTimeInMillis() / 1000, systemDur.getNanos()
-                + shift.getNanosec(), cal.getTimeZone());
+                + shift.getNanosec(), config);
     }
 
     /**
@@ -527,7 +582,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         // Adding epoch DOW shifts us into phase with start of week.
         long offset = config().getEpochDOW() * Duration.DAY + 52 * Duration.WEEK * 2000;
         leftover = offset + this.toMillis()
-                + DateTimeConfig.getTimeZone(this.timeZoneId).getOffset(this.toMillis());
+                + config.getOutputTimeZone().getOffset(this.toMillis());
         leftover %= Duration.WEEK;
         leftover /= Duration.DAY;
         // Convert from zero to one based
@@ -612,7 +667,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
             return null;
         }
         // Normalize the string a bit
-        str = str.trim().toUpperCase(Locale.ENGLISH).replace('\u00c9', 'E');
+        str = str.trim().toUpperCase(Locale.getDefault()).replace('\u00c9', 'E');
         if (str.length() == 0) {
             throw new NullPointerException("Cannot parse time from empty string.");
         }
@@ -639,7 +694,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         int year = 0, month = 0, day = 1;
         int hour = 0, minute = 0, second = 0, nanosecond = 0;
         String tzString = null;
-        TimeZone tz = TimeZone.getDefault();
+        TimeZone tz = config.getInputTimeZone();
         int thisYear = tm.getYear();
         int centuryTurn = thisYear - (thisYear % 100);
         // Build a table describing which fields are integers.
@@ -652,9 +707,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         // First, scan for text month
         for (int i = 0; i < parts.length; i++) {
             if (!integers[i] && parts[i].length() > 2) {
-                Object[] langs = config.getSupportedLanguages();
+                String[] langs = config.getSupportedLanguages();
                 for (int lang = 0; lang < langs.length; lang++) {
-                    String[] mos = DateTimeConfig.LANGUAGE_MONTHS.get((String) langs[lang]);
+                    String[] mos = config.getLanguageMonths(langs[lang]);
                     int mo = StringTool.indexedStartMatch(mos, parts[i]);
                     if (mo >= 0) {
                         month = mo;
@@ -822,7 +877,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
             if (!hasTimeZone) {
                 tzString = tzParse(str);
                 if (tzString == null || "PM".equals(tzString) || "AM".equals(tzString)) {
-                    tz = TimeZone.getDefault();
+                    tz = config.getInputTimeZone();
                 } else {
                     String ref = (String) config.getTzMap().get(tzString);
                     if (ref != null) {
@@ -880,12 +935,10 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         DateTime returnDt;
         if (hasTimeZone) {
             returnDt = new DateTime(Tm.calcTime(year, 1 + month, day, hour, minute, second,
-                    nanosecond / 1000000, tz));
-            returnDt.timeZoneId = tz.getID();
+                    nanosecond / 1000000, tz), tz);
         } else {
-            tz = TimeZone.getDefault();
             returnDt = new DateTime(Tm.calcTime(year, 1 + month, day, hour, minute, second,
-                    nanosecond / 1000000, tz));
+                    nanosecond / 1000000, tz), tz);
             // Determine if date is in DST
             if (tz.inDaylightTime(new Date(returnDt.toMillis()))) {
                 inDST = true;
@@ -929,6 +982,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                             Integer.toString(offsetHours)));
                 }
             }
+            returnDt.timeZoneID=tz.getID();
             /* If we must assume the year, we'll also assume that on January 1
              * a December 31 reference means "yesterday" and on December 31 a
 			 * January 1 reference means "tomorrow".
@@ -963,45 +1017,45 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                 trim = this.systemDur.millis % Duration.MINUTE;
                 if (trim < 0)
                     trim += Duration.MINUTE;
-                return new DateTime(this.systemDur.millis - trim, this.timeZoneId);
+                return new DateTime(this.systemDur.millis - trim, this.config);
             }
             if (unit == CalendarUnit.SECOND) {
                 trim = this.systemDur.millis % Duration.SECOND;
                 if (trim < 0)
                     trim += Duration.SECOND;
-                return new DateTime(this.systemDur.millis - trim, this.timeZoneId);
+                return new DateTime(this.systemDur.millis - trim, this.config);
             }
             if (unit == CalendarUnit.MILLISECOND) {
-                return new DateTime(this.systemDur.millis, this.timeZoneId);
+                return new DateTime(this.systemDur.millis, this.config);
             }
             if (unit == CalendarUnit.MICROSECOND) {
                 int nanotrim = this.systemDur.nanos % 1000000;
                 if (nanotrim < 0)
                     nanotrim += 1000000;
                 return new DateTime(this.getSeconds(), this.systemDur.nanos - nanotrim,
-                        this.timeZoneId);
+                        this.config);
             }
-            return new DateTime(this.systemDur.millis, this.timeZoneId);
+            return new DateTime(this.systemDur.millis, this.config);
         }
         // Shift to same time of day at Rose line
         long calcTime = this.systemDur.millis
-                + DateTimeConfig.getTimeZone(this.timeZoneId).getOffset(this.systemDur.millis);
+                + config.getOutputTimeZone().getOffset(this.systemDur.millis);
         // Truncate and shift back to local time
         if (unit == CalendarUnit.HOUR) {
             trim = calcTime % Duration.HOUR;
             if (trim < 0)
                 trim += Duration.HOUR;
             calcTime -= trim;
-            calcTime -= DateTimeConfig.getTimeZone(this.timeZoneId).getOffset(calcTime);
-            return new DateTime(calcTime, this.timeZoneId);
+            calcTime -= config.getInputTimeZone().getOffset(calcTime);
+            return new DateTime(calcTime, this.config);
         }
         if (unit == CalendarUnit.DAY) {
             trim = calcTime % Duration.DAY;
             if (trim < 0)
                 trim += Duration.DAY;
             calcTime -= trim;
-            calcTime -= DateTimeConfig.getTimeZone(this.timeZoneId).getOffset(calcTime);
-            return new DateTime(calcTime, this.timeZoneId);
+            calcTime -= config.getOutputTimeZone().getOffset(calcTime);
+            return new DateTime(calcTime, this.config);
         }
         if (unit == CalendarUnit.WEEK) {
             if (config == null) {
@@ -1009,8 +1063,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
             }
             long dow = ((calcTime / Duration.DAY) + config.getEpochDOW()) % 7;
             calcTime -= (calcTime % Duration.DAY + Duration.DAY * dow);
-            calcTime -= DateTimeConfig.getTimeZone(this.timeZoneId).getOffset(calcTime);
-            return new DateTime(calcTime, this.timeZoneId);
+            calcTime -= config.getOutputTimeZone().getOffset(calcTime);
+            return new DateTime(calcTime, this.config);
         }
         Tm tm = new Tm(this.systemDur.millis);
         if (unit == CalendarUnit.MONTH) {
@@ -1091,20 +1145,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * 
      * @return the global DateTimeConfig object used by DateTime.
      */
-    public DateTimeConfig config() {
-        if (config == null) {
-            config = DateTimeConfig.getGlobalDefault();
-        }
+    public IDateTimeConfig config() {
         return config;
-    }
-
-    /**
-     * The TimeZoneId tells what time zone from which the time originated.
-     * 
-     * @return ID of this DateTime object's original time zone.
-     */
-    public String getTimeZoneId() {
-        return this.timeZoneId;
     }
 
 }

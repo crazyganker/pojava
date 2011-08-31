@@ -17,6 +17,7 @@ package org.pojava.datetime;
  */
 
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * This interface defines methods essential for global configuration of the DateTime object.
@@ -46,6 +47,22 @@ public interface IDateTimeConfig {
      * 
      * @return Array of supported language refs.
      */
-    public Object[] getSupportedLanguages();
+    public String[] getSupportedLanguages();
+    
+    /**
+     * List of languages with months registered for a DateTimeConfig 
+     * 
+     * @param language
+     * @return
+     */
+    public String[] getLanguageMonths(String language);
+    
+    public TimeZone getInputTimeZone();
 
+    public TimeZone getOutputTimeZone();
+
+	public int getEpochDOW();
+
+	public String getDefaultDateFormat();
+	
 }
