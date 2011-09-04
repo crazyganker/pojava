@@ -72,6 +72,7 @@ public class DateTimeFormat {
      * @param dt
      * 		Format the given DateTime value to a String
      * @return
+     * 		Formatted output
      */
     public String format(DateTime dt) {
         return format(this.template, dt);
@@ -82,6 +83,7 @@ public class DateTimeFormat {
      * @param millis
      * 		Format the given millis value to a String
      * @return
+     * 		Formatted output
      */
     public String format(long millis) {
         return format(this.template, new DateTime(millis));
@@ -93,6 +95,7 @@ public class DateTimeFormat {
      * @param millis
      * 		Format the given millis value to a String
      * @return
+     * 		Formatted output
      */
     public static String format(String template, long millis) {
         return format(template, new DateTime(millis));
@@ -104,6 +107,7 @@ public class DateTimeFormat {
      * @param dt
      * 		Format the given DateTime value to a String
      * @return
+     * 		Formatted output
      */
     public static String format(String template, DateTime dt) {
         return format(template, dt, dt.config().getOutputTimeZone());
@@ -117,6 +121,7 @@ public class DateTimeFormat {
      * @param tz
      * 		TimeZone for which the output is displayed
      * @return
+     * 		Formatted output
      */
     public static String format(String template, DateTime dt, TimeZone tz) {
         return format(template, dt, tz, dt.config().getLocale());
@@ -132,8 +137,9 @@ public class DateTimeFormat {
      * @param locale
      * 		Locale governing language of non-numeric output
      * @return
+     * 		Formatted output
      */
-    public static String format(String template, DateTime dt, TimeZone tz, Locale loc) {
+    public static String format(String template, DateTime dt, TimeZone tz, Locale locale) {
         Tm tm = new Tm(dt, tz);
         StringBuilder sb = new StringBuilder();
         StringBuilder word = new StringBuilder();
@@ -142,17 +148,17 @@ public class DateTimeFormat {
         if (prior!='\'') {
             word.append(prior);
         }
-        if (!symbols.containsKey(loc)) {
-            symbols.put(loc, new DateFormatSymbols(loc));
+        if (!symbols.containsKey(locale)) {
+            symbols.put(locale, new DateFormatSymbols(locale));
         }
-        DateFormatSymbols dfs=symbols.get(loc);
+        DateFormatSymbols dfs=symbols.get(locale);
         boolean isLiteral=(prior=='\'');
         for (int i = 1; i < fmt.length; i++) {
             if (fmt[i]=='\'') {
                 if (prior=='\'') {
                     sb.append('\'');
                 } else {
-                    appendWord(sb, word, tm, dt, tz, loc, dfs);
+                    appendWord(sb, word, tm, dt, tz, locale, dfs);
                 }
                 word.setLength(0);
                 prior = prior=='\'' ? ' ' : '\'';
@@ -163,13 +169,13 @@ public class DateTimeFormat {
             } else if (fmt[i] == prior) {
                 word.append(prior);
             } else {
-                appendWord(sb, word, tm, dt, tz, loc, dfs);
+                appendWord(sb, word, tm, dt, tz, locale, dfs);
                 prior = fmt[i];
                 word.setLength(0);
                 word.append(prior);
             }
         }
-        appendWord(sb, word, tm, dt, tz, loc, dfs);
+        appendWord(sb, word, tm, dt, tz, locale, dfs);
         return sb.toString();
     }
 
@@ -180,10 +186,10 @@ public class DateTimeFormat {
      * @param tm 
      * @param dt DateTime
      * @param tz TimeZone
-     * @param loc Locale
+     * @param locale Locale
      * @param dfs DateFormatSymbols
      */
-    private static void appendWord(StringBuilder sb, StringBuilder word, Tm tm, DateTime dt, TimeZone tz, Locale loc, DateFormatSymbols dfs) {
+    private static void appendWord(StringBuilder sb, StringBuilder word, Tm tm, DateTime dt, TimeZone tz, Locale locale, DateFormatSymbols dfs) {
         if (word.length()==0) {
             return;
         }
@@ -284,9 +290,9 @@ public class DateTimeFormat {
             break;
         case 'z':
             if (len>3) {
-                sb.append(dt.timeZone().getDisplayName(loc));
+                sb.append(dt.timeZone().getDisplayName(locale));
             } else {
-                sb.append(tz.getDisplayName(tz.inDaylightTime(dt.toDate()), TimeZone.SHORT, loc));
+                sb.append(tz.getDisplayName(tz.inDaylightTime(dt.toDate()), TimeZone.SHORT, locale));
             }
             break;
         case 'Z':
@@ -322,6 +328,7 @@ public class DateTimeFormat {
      * @param value Numeric value
      * @param size Width of zero-fill
      * @return
+     * 		Zero-filled representation of number
      */
     private static String zfill(int value, int size) {
         StringBuilder zeros = new StringBuilder("000000000000");
@@ -333,6 +340,7 @@ public class DateTimeFormat {
      * Number leap days in tm's year
      * @param tm
      * @return
+     * 		Number of leap days (zero or one) in given year
      */
     private static int leapDays(Tm tm) {
         if (tm.getMonth() < 3) {

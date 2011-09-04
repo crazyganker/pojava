@@ -73,8 +73,8 @@ public class Tm {
 
     /**
      * Constructor
-     * @param Populate year, month, day, hour, min, sec, nano from a DateTime
-     * @param Assert the time zone under which those values are sampled.
+     * @param dt Populate year, month, day, hour, min, sec, nano from a DateTime
+     * @param tz Assert the time zone under which those values are sampled.
      */
     public Tm(DateTime dt, TimeZone tz) {
         init(dt, tz);
@@ -358,7 +358,7 @@ public class Tm {
     /**
      * Returns millisecond fraction of second between 0 and 999999.
      * 
-     * @return Millisecond fractino of second.
+     * @return Millisecond fraction of second.
      */
     public int getMillisecond() {
         return nanosecond / 1000000;

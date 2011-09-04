@@ -237,7 +237,7 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
     /**
      * Set the default date format.
      * 
-     * @param defaultDateFormat
+     * @param dateTimeFormat
      * 		Set the default format of the DateTime toString() output
      */
     public void setFormat(String dateTimeFormat) {
@@ -341,8 +341,8 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
 	}
 
 	/**
-	 * @return Default TimeZone for parser.
 	 * @param inputTimeZone
+	 * 		TimeZone under which parsed date/time is assumed if unspecified
 	 */
 	public void setInputTimeZone(TimeZone inputTimeZone) {
 		this.inputTimeZone = inputTimeZone;

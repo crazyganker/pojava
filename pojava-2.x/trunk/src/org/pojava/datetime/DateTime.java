@@ -492,7 +492,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Add +/- a block of time to a date in it's OutputTimeZone.
      * @param calUnit
      * @param qty
-     * @return
+     * @return recalculated DateTime
      */
     public DateTime add(CalendarUnit calUnit, int qty) {
         return shift(calUnit, qty);
