@@ -9,7 +9,7 @@
 	<artifactId>pojava</artifactId>
 	<packaging>jar</packaging>
 	<name>POJava Utilities</name>
-	<version>2.6.1</version>
+	<version>2.7.0</version>
 	<description>
 		POJava is a simple, light-weight Java-based API for data
 		processing and development.  It includes an immutable

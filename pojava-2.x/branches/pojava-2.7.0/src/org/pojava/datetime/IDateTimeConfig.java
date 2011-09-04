@@ -16,7 +16,9 @@ package org.pojava.datetime;
  limitations under the License.
  */
 
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * This interface defines methods essential for global configuration of the DateTime object.
@@ -47,5 +49,21 @@ public interface IDateTimeConfig {
      * @return Array of supported language refs.
      */
     public Object[] getSupportedLanguages();
+
+    public String[] getMonthArray(String langAbbr);
+    
+    public TimeZone getInputTimeZone();
+    
+    public TimeZone getOutputTimeZone();
+    
+    public Locale getLocale();
+    
+    public String getFormat();
+    
+    public int getEpochDOW();
+    
+    public TimeZone lookupTimeZone(String str);
+    
+	public boolean isUnspecifiedCenturyAlwaysInPast();
 
 }
