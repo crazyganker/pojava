@@ -68,7 +68,7 @@ public class Tm {
      *            DateTime object
      */
     public Tm(DateTime dt) {
-        init(dt, TimeZone.getDefault());
+        init(dt, dt.timeZone());
     }
 
     public Tm(DateTime dt, TimeZone tz) {
@@ -82,11 +82,16 @@ public class Tm {
      *            Date/Time in UTC assuming the default time zone.
      */
     public Tm(long millis) {
-        init(new DateTime(millis), TimeZone.getDefault());
+    	DateTimeConfig config=DateTimeConfig.getGlobalDefault();
+        init(new DateTime(millis, config), config.getOutputTimeZone());
     }
 
     public Tm(long millis, TimeZone tz) {
-        init(new DateTime(millis), tz);
+    	DateTimeConfig config=DateTimeConfig.getGlobalDefault().clone();
+    	if (tz!=null) {
+    		config.setOutputTimeZone(tz);
+    	}
+        init(new DateTime(millis, config), tz);
     }
 
     /**
@@ -115,9 +120,8 @@ public class Tm {
      *            DateTime
      */
     private void init(DateTime dt, TimeZone timeZone) {
-        TimeZone defaultTz=TimeZone.getDefault();
         if (timeZone==null) {
-            timeZone=defaultTz;
+            timeZone=dt.config().getInputTimeZone();
         }
         this.tz=timeZone;
         long millis = dt.toMillis();
@@ -125,7 +129,7 @@ public class Tm {
         long duration = millis - GREG_EPOCH_UTC + timeZone.getOffset(dt.toMillis());
         this.nanosecond = dt.getNanos();
         this.weekday = calcWeekday(millis, timeZone);
-        if (millis < GREG_EPOCH_UTC - defaultTz.getRawOffset()) {
+        if (millis < GREG_EPOCH_UTC - this.tz.getRawOffset()) {
             initYeOlde(millis);
             return;
         }
@@ -198,7 +202,8 @@ public class Tm {
      * @return time in milliseconds since epoch, UTC.
      */
     public static long calcTime(int year, int month, int day) {
-        return calcTime(year, month, day, 0, 0, 0, 0, TimeZone.getDefault());
+    	DateTimeConfig config=DateTimeConfig.getGlobalDefault();
+        return calcTime(year, month, day, 0, 0, 0, 0, config.getOutputTimeZone());
     }
 
     /**
@@ -215,7 +220,8 @@ public class Tm {
      */
     public static long calcTime(int year, int month, int day, int hour, int min, int sec,
             int milli) {
-        return calcTime(year, month, day, hour, min, sec, milli, TimeZone.getDefault());
+    	DateTimeConfig config=DateTimeConfig.getGlobalDefault();
+        return calcTime(year, month, day, hour, min, sec, milli, config.getOutputTimeZone());
     }
 
     /**

@@ -26,8 +26,8 @@ public class DateTimeFormatTester extends TestCase {
     
     public void testTimeZone() {
         DateTime dt = new DateTime("2008-01-09 GMT-04:00");
-        assertEquals("-0400", DateTimeFormat.format("Z", dt, dt.timeZone()));
-        assertEquals("-04:00", DateTimeFormat.format("ZZ", dt, dt.timeZone()));
+        assertEquals("-0800", DateTimeFormat.format("Z", dt, dt.timeZone()));
+        assertEquals("-08:00", DateTimeFormat.format("ZZ", dt, dt.timeZone()));
     }
     
     public void testLocale() {

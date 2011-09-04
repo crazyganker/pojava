@@ -75,11 +75,11 @@ public class DateTimeFormat {
     }
 
     public static String format(String template, DateTime dt) {
-        return format(template, dt, TimeZone.getDefault());
+        return format(template, dt, dt.config().getOutputTimeZone());
     }
 
     public static String format(String template, DateTime dt, TimeZone tz) {
-        return format(template, dt, tz, Locale.getDefault());
+        return format(template, dt, tz, dt.config().getLocale());
     }
     
     public static String format(String template, DateTime dt, TimeZone tz, Locale loc) {
@@ -165,9 +165,9 @@ public class DateTimeFormat {
             break;
         case 'E':
             if (len > 3) {
-                sb.append(dfs.getWeekdays()[tm.getWeekday()-1]);
+                sb.append(dfs.getWeekdays()[tm.getWeekday()]);
             } else {
-                sb.append(dfs.getShortWeekdays()[tm.getWeekday()-1]);
+                sb.append(dfs.getShortWeekdays()[tm.getWeekday()]);
             }
             break;
         case 'a':

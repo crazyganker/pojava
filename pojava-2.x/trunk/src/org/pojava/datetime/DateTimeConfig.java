@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -49,6 +50,8 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      * Month or vice versa.
      */
     private boolean isDmyOrder = false;
+    
+    private boolean isUnspecifiedCenturyAlwaysInPast = false;
 
     /**
      * The 1970-01-01 epoch started on a Thursday. If Sunday is the start of a week, then this
@@ -59,9 +62,16 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
     /**
      * The default date format used for DateTime.toString();
      */
-    private String defaultDateFormat = "yyyy-MM-dd HH:mm:ss";
+    private String format = "yyyy-MM-dd HH:mm:ss";
 
     private String defaultJdbcFormat = "yyyy-MM-dd HH:mm:ss.SSS";
+    
+    private TimeZone inputTimeZone = TimeZone.getDefault();
+
+    private TimeZone outputTimeZone = TimeZone.getDefault();
+    
+    private Locale locale = Locale.getDefault();
+
 
     /**
      * <p>
@@ -80,15 +90,15 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      * }
      * </pre>
      */
-    private static Map<String, String> tzMap = new HashMap<String, String>();
+    private Map<String, String> tzMap = new HashMap<String, String>();
     static {
-        tzMap.put("Z", "UTC");
+        globalDefault.tzMap.put("Z", "UTC");
     }
 
-    private static final Map<String, TimeZone> tzCache = new HashMap<String, TimeZone>();
+    private final Map<String, TimeZone> tzCache = new HashMap<String, TimeZone>();
     static {
         TimeZone tz = TimeZone.getDefault();
-        tzCache.put(tz.getID(), tz);
+        globalDefault.tzCache.put(tz.getID(), tz);
     }
 
     private static final String[] MONTHS_EN_ENG = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
@@ -103,12 +113,16 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
     /**
      * LANGUAGE_MONTHS maps a language to a string array of 12 calendar month prefixes.
      */
-    public static final Map<String, String[]> LANGUAGE_MONTHS = new HashMap<String, String[]>();
+    public final Map<String, String[]> LANGUAGE_MONTHS = new HashMap<String, String[]>();
     static {
-        LANGUAGE_MONTHS.put("DE", MONTHS_DE_GER);
-        LANGUAGE_MONTHS.put("EN", MONTHS_EN_ENG);
-        LANGUAGE_MONTHS.put("FR", MONTHS_FR_FRE);
-        LANGUAGE_MONTHS.put("ES", MONTHS_ES_SPA);
+    	globalDefault.LANGUAGE_MONTHS.put("DE", MONTHS_DE_GER);
+    	globalDefault.LANGUAGE_MONTHS.put("EN", MONTHS_EN_ENG);
+    	globalDefault.LANGUAGE_MONTHS.put("FR", MONTHS_FR_FRE);
+    	globalDefault.LANGUAGE_MONTHS.put("ES", MONTHS_ES_SPA);
+    }
+    
+    public String[] getMonthArray(String langAbbr) {
+    	return LANGUAGE_MONTHS.get(langAbbr);
     }
 
     /**
@@ -116,12 +130,12 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      * checked against calendar names. You can increase performance of the parser by ordering or
      * removing entries.
      */
-    public static final List<String> SUPPORTED_LANGUAGES = new ArrayList<String>();
+    public final List<String> SUPPORTED_LANGUAGES = new ArrayList<String>();
     static {
-        SUPPORTED_LANGUAGES.add("EN");
-        SUPPORTED_LANGUAGES.add("ES");
-        SUPPORTED_LANGUAGES.add("FR");
-        SUPPORTED_LANGUAGES.add("DE");
+    	globalDefault.SUPPORTED_LANGUAGES.add("EN");
+    	globalDefault.SUPPORTED_LANGUAGES.add("ES");
+    	globalDefault.SUPPORTED_LANGUAGES.add("FR");
+    	globalDefault.SUPPORTED_LANGUAGES.add("DE");
     }
 
     /**
@@ -156,7 +170,7 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      * @param tzMap
      */
     public void addTzMap(Map<String, String> tzMap) {
-        DateTimeConfig.tzMap.putAll(tzMap);
+        tzMap.putAll(tzMap);
     }
 
     /**
@@ -212,8 +226,8 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      * 
      * @return A format string for dates.
      */
-    public String getDefaultDateFormat() {
-        return defaultDateFormat;
+    public String getFormat() {
+        return format;
     }
 
     /**
@@ -221,8 +235,28 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      * 
      * @param defaultDateFormat
      */
+    public void setFormat(String dateTimeFormat) {
+        this.format = dateTimeFormat;
+    }
+
+    /**
+     * Get the default date format.
+     * 
+     * @return A format string for dates.
+     * @deprecated use getFormat()
+     */
+    public String getDefaultDateFormat() {
+        return format;
+    }
+
+    /**
+     * Set the default date format.
+     * 
+     * @param defaultDateFormat
+     * @deprecated use setFormat(...)
+     */
     public void setDefaultDateFormat(String defaultDateFormat) {
-        this.defaultDateFormat = defaultDateFormat;
+        this.format = defaultDateFormat;
     }
 
     /**
@@ -247,7 +281,7 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      * Get an array of supported languages.
      */
     public Object[] getSupportedLanguages() {
-        return SUPPORTED_LANGUAGES.toArray();
+    	return SUPPORTED_LANGUAGES.toArray();
     }
 
     /**
@@ -259,7 +293,24 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      *            a TimeZone object
      */
     public static void addTimeZone(String id, TimeZone tz) {
-        tzCache.put(id, tz);
+        globalDefault.tzCache.put(id, tz);
+    }
+    
+    public TimeZone lookupTimeZone(String id) {
+        TimeZone tz;
+        if (id==null) {
+            tz = this.inputTimeZone;
+        } else if (!tzCache.containsKey(id)) {
+            tz = TimeZone.getTimeZone(id);
+            if (tz==null) {
+            	throw new IllegalArgumentException("Invalid (or unregistered) Time Zone: " + id);
+            } else {
+            	tzCache.put(id, tz);
+            }
+        } else {
+            tz = (TimeZone) tzCache.get(id);
+        }
+        return tz;    	
     }
 
     /**
@@ -268,17 +319,54 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      * @param id
      *            name of time zone to fetch
      * @return TimeZone object
+     * @deprecated use config.lookupTimeZone(id)
      */
     public static TimeZone getTimeZone(String id) {
-        TimeZone tz;
-        if (id==null) {
-            tz=TimeZone.getDefault();
-        } else if (!tzCache.containsKey(id)) {
-            tz = TimeZone.getTimeZone(id);
-            tzCache.put(id, tz);
-        } else {
-            tz = (TimeZone) tzCache.get(id);
-        }
-        return tz;
+    	return DateTimeConfig.globalDefault.lookupTimeZone(id);
+    }
+
+	public TimeZone getInputTimeZone() {
+		return inputTimeZone;
+	}
+
+	public void setInputTimeZone(TimeZone inputTimeZone) {
+		this.inputTimeZone = inputTimeZone;
+	}
+
+	public TimeZone getOutputTimeZone() {
+		return outputTimeZone;
+	}
+
+	public void setOutputTimeZone(TimeZone outputTimeZone) {
+		this.outputTimeZone = outputTimeZone;
+	}
+
+	public Locale getLocale() {
+		return locale;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+		    
+	public boolean isUnspecifiedCenturyAlwaysInPast() {
+		return isUnspecifiedCenturyAlwaysInPast;
+	}
+
+	public void setUnspecifiedCenturyAlwaysInPast(
+			boolean isUnspecifiedCenturyAlwaysInPast) {
+		this.isUnspecifiedCenturyAlwaysInPast = isUnspecifiedCenturyAlwaysInPast;
+	}
+
+	public DateTimeConfig clone() {
+    	DateTimeConfig dtc=new DateTimeConfig();
+    	dtc.setFormat(this.format);
+    	dtc.setDefaultJdbcFormat(this.defaultJdbcFormat);
+    	dtc.setDmyOrder(this.isDmyOrder);
+    	dtc.setEpochDOW(this.epochDOW);
+    	dtc.setInputTimeZone(this.inputTimeZone);
+    	dtc.setLocale(this.locale);
+    	dtc.setOutputTimeZone(this.outputTimeZone);
+    	return dtc;
     }
 }
