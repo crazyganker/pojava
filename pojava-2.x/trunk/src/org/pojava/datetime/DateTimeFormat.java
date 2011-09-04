@@ -58,30 +58,81 @@ public class DateTimeFormat {
     private String template;
     private static Map <Locale, DateFormatSymbols> symbols=new HashMap<Locale,DateFormatSymbols>();
 
+    /**
+     * 
+     * @param template
+     * 		Format specifier
+     */
     public DateTimeFormat(String template) {
         this.template = template;
     }
 
+    /**
+     * 
+     * @param dt
+     * 		Format the given DateTime value to a String
+     * @return
+     */
     public String format(DateTime dt) {
         return format(this.template, dt);
     }
 
+    /**
+     * 
+     * @param millis
+     * 		Format the given millis value to a String
+     * @return
+     */
     public String format(long millis) {
         return format(this.template, new DateTime(millis));
     }
 
+    /**
+     * @param template
+     * 		Template under which the output is formatted
+     * @param millis
+     * 		Format the given millis value to a String
+     * @return
+     */
     public static String format(String template, long millis) {
         return format(template, new DateTime(millis));
     }
 
+    /**
+     * @param template
+     * 		Template under which the output is formatted
+     * @param dt
+     * 		Format the given DateTime value to a String
+     * @return
+     */
     public static String format(String template, DateTime dt) {
         return format(template, dt, dt.config().getOutputTimeZone());
     }
 
+    /**
+     * @param template
+     * 		Template under which the output is formatted
+     * @param dt
+     * 		Format the given DateTime value to a String
+     * @param tz
+     * 		TimeZone for which the output is displayed
+     * @return
+     */
     public static String format(String template, DateTime dt, TimeZone tz) {
         return format(template, dt, tz, dt.config().getLocale());
     }
     
+    /**
+     * @param template
+     * 		Template under which the output is formatted
+     * @param dt
+     * 		Format the given DateTime value to a String
+     * @param tz
+     * 		TimeZone for which the output is displayed
+     * @param locale
+     * 		Locale governing language of non-numeric output
+     * @return
+     */
     public static String format(String template, DateTime dt, TimeZone tz, Locale loc) {
         Tm tm = new Tm(dt, tz);
         StringBuilder sb = new StringBuilder();
@@ -122,6 +173,16 @@ public class DateTimeFormat {
         return sb.toString();
     }
 
+    /**
+     * 
+     * @param sb Whole output string
+     * @param word Individual word being added
+     * @param tm 
+     * @param dt DateTime
+     * @param tz TimeZone
+     * @param loc Locale
+     * @param dfs DateFormatSymbols
+     */
     private static void appendWord(StringBuilder sb, StringBuilder word, Tm tm, DateTime dt, TimeZone tz, Locale loc, DateFormatSymbols dfs) {
         if (word.length()==0) {
             return;
@@ -256,12 +317,23 @@ public class DateTimeFormat {
         }
     }
 
+    /**
+     * Zero-Fill
+     * @param value Numeric value
+     * @param size Width of zero-fill
+     * @return
+     */
     private static String zfill(int value, int size) {
         StringBuilder zeros = new StringBuilder("000000000000");
         zeros.append(Integer.toString(value));
         return zeros.substring(zeros.length() - Math.min(zeros.length(), size));
     }
 
+    /**
+     * Number leap days in tm's year
+     * @param tm
+     * @return
+     */
     private static int leapDays(Tm tm) {
         if (tm.getMonth() < 3) {
             return 0;

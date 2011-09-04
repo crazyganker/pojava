@@ -152,6 +152,7 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      * Set true if parser should interpret dates as DD/MM/YYYY instead of MM/DD/YYYY.
      * 
      * @param isDmyOrder
+     * 		Resolve ambiguity of whether ##/##/YYYY is MM/DD or DD/YY.
      */
     public void setDmyOrder(boolean isDmyOrder) {
         this.isDmyOrder = isDmyOrder;
@@ -185,6 +186,7 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      * Reset the global default to a different DateTimeConfig object.
      * 
      * @param globalDefault
+     * 		Set this DateTimeConfig instance as the global default.
      */
     public static void setGlobalDefault(DateTimeConfig globalDefault) {
         DateTimeConfig.globalDefault = globalDefault;
@@ -202,6 +204,8 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
 
     /**
      * Set the day of week offset on the epoch date.
+     * @param epochDOW
+     * 		Set the numeric day of week on the date of the epoch. 
      */
     public void setEpochDOW(int epochDOW) {
         this.epochDOW = epochDOW;
@@ -234,6 +238,7 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      * Set the default date format.
      * 
      * @param defaultDateFormat
+     * 		Set the default format of the DateTime toString() output
      */
     public void setFormat(String dateTimeFormat) {
         this.format = dateTimeFormat;
@@ -295,7 +300,10 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
     public static void addTimeZone(String id, TimeZone tz) {
         globalDefault.tzCache.put(id, tz);
     }
-    
+
+    /**
+     * Lookup the TimeZone, including custom time zones.
+     */
     public TimeZone lookupTimeZone(String id) {
         TimeZone tz;
         if (id==null) {
@@ -325,39 +333,72 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
     	return DateTimeConfig.globalDefault.lookupTimeZone(id);
     }
 
+    /**
+     * @return Input TimeZone default for parser.
+     */
 	public TimeZone getInputTimeZone() {
 		return inputTimeZone;
 	}
 
+	/**
+	 * @return Default TimeZone for parser.
+	 * @param inputTimeZone
+	 */
 	public void setInputTimeZone(TimeZone inputTimeZone) {
 		this.inputTimeZone = inputTimeZone;
 	}
 
+	/**
+	 * @return  Default TimeZone for DateTime.toString formatter.
+	 */
 	public TimeZone getOutputTimeZone() {
 		return outputTimeZone;
 	}
 
+	/**
+	 * @param outputTimeZone
+	 * 		Default TimeZone for DateTime.toString formatter.
+	 */
 	public void setOutputTimeZone(TimeZone outputTimeZone) {
 		this.outputTimeZone = outputTimeZone;
 	}
 
+	/**
+	 * Locale under which toString words are translated
+	 */
 	public Locale getLocale() {
 		return locale;
 	}
 
+	/**
+	 * 
+	 * @param locale
+	 * 		Locale under which toString words are translated
+	 */
 	public void setLocale(Locale locale) {
 		this.locale = locale;
 	}
-		    
+
+	/**
+	 * @return
+	 * 		When true, a date missing century is always assumed to be a past date
+	 */
 	public boolean isUnspecifiedCenturyAlwaysInPast() {
 		return isUnspecifiedCenturyAlwaysInPast;
 	}
 
+	/**
+	 * @param isUnspecifiedCenturyAlwaysInPast
+	 * 		When true, a date missing century is always assumed to be a past date
+	 */
 	public void setUnspecifiedCenturyAlwaysInPast(
 			boolean isUnspecifiedCenturyAlwaysInPast) {
 		this.isUnspecifiedCenturyAlwaysInPast = isUnspecifiedCenturyAlwaysInPast;
 	}
 
+	/**
+	 * Return a clone of this DateTimeConfig
+	 */
 	public DateTimeConfig clone() {
     	DateTimeConfig dtc=new DateTimeConfig();
     	dtc.setFormat(this.format);

@@ -240,6 +240,8 @@ public class Duration implements Comparable<Duration>, Serializable {
     /**
      * Return relative comparison between two Durations.
      * 
+     * @param other
+     * 		Duration to compare to
      * @return -1, 0, or 1 of left compared to right.
      */
     public int compareTo(Duration other) {

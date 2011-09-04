@@ -114,6 +114,10 @@ public class Shift {
         }
     }
 
+    /**
+     * Shift by whole number of years
+     * @param accum
+     */
     public void shiftYears(double accum) {
         if (accum >= 1.0 || accum <= -1.0) {
             year += (long) accum;
@@ -124,6 +128,10 @@ public class Shift {
         }
     }
     
+    /**
+     * Shift by whole number of months
+     * @param accum
+     */
     public void shiftMonths(double accum) {
         if (accum >= 1.0 || accum <= -1.0) {
             month += (long) accum;
@@ -134,6 +142,10 @@ public class Shift {
         }
     }
     
+    /**
+     * Shift by whole number of weeks
+     * @param accum
+     */
     public void shiftWeeks(double accum) {
         if (accum >= 1.0 || accum <= -1.0) {
             week += (long) accum;
@@ -144,6 +156,10 @@ public class Shift {
         }
     }
 
+    /**
+     * 
+     * @param accum
+     */
     public void shiftDays(double accum) {
         if (accum >= 1.0 || accum <= -1.0) {
             day += (long) accum;

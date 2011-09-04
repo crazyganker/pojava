@@ -71,6 +71,11 @@ public class Tm {
         init(dt, dt.timeZone());
     }
 
+    /**
+     * Constructor
+     * @param Populate year, month, day, hour, min, sec, nano from a DateTime
+     * @param Assert the time zone under which those values are sampled.
+     */
     public Tm(DateTime dt, TimeZone tz) {
         init(dt, tz);
     }
@@ -86,6 +91,11 @@ public class Tm {
         init(new DateTime(millis, config), config.getOutputTimeZone());
     }
 
+    /**
+     * Constructor
+     * @param millis Millis since epoch
+     * @param tz TimeZone under which the date is assumed
+     */
     public Tm(long millis, TimeZone tz) {
     	DateTimeConfig config=DateTimeConfig.getGlobalDefault().clone();
     	if (tz!=null) {
@@ -117,7 +127,9 @@ public class Tm {
      * Calculate date parts.
      * 
      * @param dt
-     *            DateTime
+     *          DateTime
+     * @param timeZone
+     * 			TimeZone
      */
     private void init(DateTime dt, TimeZone timeZone) {
         if (timeZone==null) {
@@ -177,6 +189,8 @@ public class Tm {
     /**
      * Return numeric day of week, usually Sun=1, Mon=2, ... , Sat=7;
      * 
+     * @param millis
+     * @param timeZone
      * @return Numeric day of week, usually Sun=1, Mon=2, ... , Sat=7. See DateTimeConfig.
      */
     public static int calcWeekday(long millis, TimeZone timeZone) {

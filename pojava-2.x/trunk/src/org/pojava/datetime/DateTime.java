@@ -229,8 +229,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      *            Number of seconds since epoch (typically 1970-01-01)
      * @param nanos
      *            Nanosecond offset in range +/- 999999999
-     * @param tzId
-     *            Override the output time zone
+     * @param config
+     *            Provide custom configuration options
      */
     public DateTime(long seconds, int nanos, IDateTimeConfig config) {
     	this.config = config;
@@ -256,6 +256,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * DateTime constructed from a string using global defaults.
      * 
      * @param str
+     * 		String to parse
+     * @param config
+     * 		Custom configuration options
      */
     public DateTime(String str, IDateTimeConfig config) {
     	this.config = config;
@@ -271,6 +274,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * DateTime constructed from a Timestamp includes nanos.
      * 
      * @param ts
+     * 		Timestamp
      */
     public DateTime(Timestamp ts) {
     	config();
@@ -281,6 +285,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Derive a time zone descriptor from the right side of the date/time string.
      * 
      * @param str
+     * 		String to parse date/time
      * @return
      */
     private static final String tzParse(String str) {
@@ -330,6 +335,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Compare two DateTime objects to determine ordering.
      * 
+     * @param other
+     * 		DateTime to compare to this
      * @return -1, 0, or 1 based on comparison to another DateTime.
      */
     public int compareTo(DateTime other) {
@@ -374,6 +381,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * By default, the toString method gives a sortable ISO 8601 date and time to nearest second
      * in the same time zone as the system. The default format can be redefined in
      * DateTimeConfig.
+     * @return
+     * 		DateTime using the default config options
      */
     public String toString() {
         String formatStr = config().getFormat();
@@ -401,6 +410,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Return a String according to the provided format.
      * 
      * @param format
+     * @param tz
+     * 		Show formatted date & time at the given TimeZone
      * @return A formatted string version of the current DateTime.
      */
     public String toString(String format, TimeZone tz) {
@@ -411,10 +422,14 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Return a String according to the provided format.
      * 
      * @param format
+     * @param tz
+     * 		Show formatted date & time at the given TimeZone
+     * @param locale
+     * 		Display date words like month or day of week in a given language.
      * @return A formatted string version of the current DateTime.
      */
-    public String toString(String format, TimeZone tz, Locale loc) {
-        return DateTimeFormat.format(format, this, tz, loc);
+    public String toString(String format, TimeZone tz, Locale locale) {
+        return DateTimeFormat.format(format, this, tz, locale);
     }
 
     /**
@@ -442,6 +457,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * second, but is rendered from the perspective of the time zone ascribed to the DateTime
      * object, regardless of the system's time zone.
      * 
+     * @param format
      * @return A string version of the this DateTime specified in local time.
      * @deprecated
      */
@@ -472,6 +488,12 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         return new DateTime(dur.getSeconds(), dur.getNanos(), config());
     }
 
+    /**
+     * Add +/- a block of time to a date in it's OutputTimeZone.
+     * @param calUnit
+     * @param qty
+     * @return
+     */
     public DateTime add(CalendarUnit calUnit, int qty) {
         return shift(calUnit, qty);
     }
@@ -600,6 +622,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Parse a time reference that fits in a single word. Supports: YYYYMMDD, [+-]D, [0-9]+Y
      * 
      * @param str
+     * 		Date/Time string to be parsed.
+	 * @param config
+	 * 		Configuration parameters governing parsing and presentation.
      * @return New DateTime interpreted from string.
      */
     private static DateTime parseRelativeDate(String str, IDateTimeConfig config) {
@@ -654,6 +679,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Interpret a DateTime from a String using global defaults.
      * 
      * @param str
+     * 		Date/Time string to be parsed.
+     * 
      * @return New DateTime interpreted from string.
      */
     public static DateTime parse(String str) {
@@ -665,7 +692,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Interpret a DateTime from a String.
      * 
      * @param str
-     * @param config
+     * 		Date/Time string to be parsed.
+	 * @param config
+	 * 		Configuration parameters governing parsing and presentation.
      * @return New DateTime interpreted from string according to alternate rules.
      */
     public static DateTime parse(String str, IDateTimeConfig config) {
@@ -939,6 +968,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * CalendarUnit.(WEEK|DAY|HOUR|MINUTE|SECOND|MILLISECOND)
      * 
      * @param unit
+     * 		Unit of time to which new DateTime will be truncated.
      * @return A newly calculated DateTime.
      */
     public DateTime truncate(CalendarUnit unit) {
@@ -1044,6 +1074,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * This compares a DateTime with another DateTime.
      * 
      * @param dateTime
+     * 		DateTime to which this DateTime will be compared.
      * @return True if DateTime values represent the same point in time.
      */
     public boolean equals(Object dateTime) {
