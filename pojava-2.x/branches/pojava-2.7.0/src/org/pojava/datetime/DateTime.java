@@ -229,8 +229,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      *            Number of seconds since epoch (typically 1970-01-01)
      * @param nanos
      *            Nanosecond offset in range +/- 999999999
-     * @param tzId
-     *            Override the output time zone
+     * @param config
+     *            Configuration parameters for parser and formatter
      */
     public DateTime(long seconds, int nanos, IDateTimeConfig config) {
     	this.config = config;
@@ -256,6 +256,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * DateTime constructed from a string using global defaults.
      * 
      * @param str
+     * 			  Date/Time string to parse
+     * @param config
+     *            Configuration parameters for parser and formatter
      */
     public DateTime(String str, IDateTimeConfig config) {
     	this.config = config;
@@ -330,6 +333,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Compare two DateTime objects to determine ordering.
      * 
+     * @param other
+     *            DateTime being compared
      * @return -1, 0, or 1 based on comparison to another DateTime.
      */
     public int compareTo(DateTime other) {
@@ -401,6 +406,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Return a String according to the provided format.
      * 
      * @param format
+     * @param tz
+     *            TimeZone in which output is presented
      * @return A formatted string version of the current DateTime.
      */
     public String toString(String format, TimeZone tz) {
@@ -411,10 +418,14 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Return a String according to the provided format.
      * 
      * @param format
+     * @param tz
+     *            TimeZone in which output is presented
+     * @param locale
+     *            Locale in which output is presented
      * @return A formatted string version of the current DateTime.
      */
-    public String toString(String format, TimeZone tz, Locale loc) {
-        return DateTimeFormat.format(format, this, tz, loc);
+    public String toString(String format, TimeZone tz, Locale locale) {
+        return DateTimeFormat.format(format, this, tz, locale);
     }
 
     /**
@@ -600,6 +611,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Parse a time reference that fits in a single word. Supports: YYYYMMDD, [+-]D, [0-9]+Y
      * 
      * @param str
+     * 		Date to parse
+     * @param config
+     * 		Config parameters affecting parser and formatter
      * @return New DateTime interpreted from string.
      */
     private static DateTime parseRelativeDate(String str, IDateTimeConfig config) {
@@ -668,7 +682,6 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * @param config
      * @return New DateTime interpreted from string according to alternate rules.
      */
-    //TODO: Evaluate handling of TimeZones.
     public static DateTime parse(String str, IDateTimeConfig config) {
         if (str == null) {
             return null;
@@ -887,18 +900,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                 }
             }
         }
-        // Typical formats are "Region/City, PST, Z, GMT+8, PST8PDT,
-        // GMT-0800, GMT-08:00"
-        // Flag time zone offset numbers
-        /*
-        for (int part = parts.length - 1; part > parts.length - 3; part--) {
-            if (integers[part]) {
-                usedint[part] = true;
-            } else {
-                break;
-            }
-        }
-        */
+
         /**
          * Adjust 12AM and 1-11PM.
          */
@@ -938,80 +940,13 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         DateTime returnDt = new DateTime(Tm.calcTime(year, 1 + month, day, hour, minute, second,
                 nanosecond / 1000000, tz), config);
         if (isTwoDigitYear && config.isUnspecifiedCenturyAlwaysInPast()) {
-        	if (returnDt.getSeconds()*1000<System.currentTimeMillis()) {
+        	if (returnDt.getSeconds()*1000 > System.currentTimeMillis()) {
         		returnDt=returnDt.shift(CalendarUnit.CENTURY, -1);
         	}
         }
         
         returnDt.systemDur.nanos = nanosecond;
         return returnDt;
-        /*
-        // Determine if date is in DST (millis would've been a nicer param)
-        if (tz.inDaylightTime(new Date(returnDt.toMillis()))) {
-            inDST = true;
-        }
-        StringBuffer sb = new StringBuffer(8);
-
-        if (tzString != null) {
-            char[] tzChars = tzString.toCharArray();
-            char c = tzChars[0];
-            //
-            // GMT-7 and +07:00 mean the same thing, as do GMT+7 and -07:00. This is a weird
-            // POSIX requirement, but predictable.
-            //
-            boolean isNeg = false;
-            boolean isTz = false;
-            if (c == '+' || c == '-') {
-                isNeg = (c == '-');
-                isTz = true;
-            } else {
-                if (tzString.indexOf("00") == -1) {
-                    isNeg = tzString.indexOf('+') >= 0;
-                }
-            }
-            if (isTz) {
-                for (int i = 0; i < tzChars.length; i++) {
-                    c = tzChars[i];
-                    if (c >= '0' && c <= '9') {
-                        sb.append(c);
-                    }
-                }
-                int offsetHours = Integer.parseInt(sb.toString());
-                if (offsetHours > 100) {
-                    offsetHours /= 100;
-                }
-                if (isNeg) {
-                    offsetHours = -offsetHours;
-                }
-                if (inDST) {
-                    offsetHours--;
-                }
-                tz = TimeZone.getTimeZone(config.getTzMap().get(
-                        Integer.toString(offsetHours)));
-            }
-        }
-        // If we must assume the year, we'll also assume that on January 1
-        // a December 31 reference means "yesterday" and on December 31 a
-		// January 1 reference means "tomorrow".
-        //
-        if (guessedYear) {
-        	if (month==11 && day==31 && tm.getMonth()==1 && tm.getDay()==1) {
-        		year--;
-        	}
-        	if (month==0 && day==1 && tm.getMonth()==12 && tm.getDay()==31) {
-        		year++;
-        	}
-        }
-        returnDt = new DateTime(Tm.calcTime(year, 1 + month, day, hour, minute, second,
-                nanosecond / 1000000, tz), config);
-        if (isTwoDigitYear && config.isUnspecifiedCenturyAlwaysInPast()) {
-        	if (returnDt.getSeconds()*1000<System.currentTimeMillis()) {
-        		returnDt=returnDt.shift(CalendarUnit.CENTURY, -1);
-        	}
-        }
-        returnDt.systemDur.nanos = nanosecond;
-        return returnDt;
-        */
     }
 
     /**

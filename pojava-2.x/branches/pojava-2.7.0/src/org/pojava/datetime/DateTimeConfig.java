@@ -32,7 +32,7 @@ import java.util.TimeZone;
  * @author John Pile
  * 
  */
-public class DateTimeConfig implements IDateTimeConfig, Serializable {
+public class DateTimeConfig implements IDateTimeConfig, Serializable, Cloneable {
 
     /**
      * Compulsory serial ID.
@@ -367,6 +367,7 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
     	dtc.setInputTimeZone(this.inputTimeZone);
     	dtc.setLocale(this.locale);
     	dtc.setOutputTimeZone(this.outputTimeZone);
+    	dtc.setUnspecifiedCenturyAlwaysInPast(this.isUnspecifiedCenturyAlwaysInPast);
     	return dtc;
     }
 }
