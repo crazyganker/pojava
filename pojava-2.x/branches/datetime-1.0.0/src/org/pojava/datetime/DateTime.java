@@ -23,8 +23,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-import org.pojava.util.StringTool;
-
 /**
  * <p>
  * DateTime provides an immutable representation of Date and Time to the nearest nanosecond. You
@@ -424,45 +422,24 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * @param format
      * @param tz
      * 		Show formatted date & time at the given TimeZone
+     * @return A formatted string version of the current DateTime.
+     */
+    public String toString(TimeZone tz) {
+        return DateTimeFormat.format(config().getFormat(), this, tz, config().getLocale());
+    }
+
+   /**
+     * Return a String according to the provided format.
+     * 
+     * @param format
+     * @param tz
+     * 		Show formatted date & time at the given TimeZone
      * @param locale
      * 		Display date words like month or day of week in a given language.
      * @return A formatted string version of the current DateTime.
      */
     public String toString(String format, TimeZone tz, Locale locale) {
         return DateTimeFormat.format(format, this, tz, locale);
-    }
-
-    /**
-     * The toLocalString method provides a sortable ISO 8601 date and time to the nearest
-     * second, but is rendered from the perspective of the time zone ascribed to the DateTime
-     * object, regardless of the system's time zone.
-     * 
-     * @return A string version of the this DateTime specified in local time.
-     * @deprecated
-     */
-    public String toLocalString() {
-        String formatStr = config().getFormat();
-        String str = DateTimeFormat.format(formatStr, this, config().getOutputTimeZone(), config().getLocale());
-        if (this.systemDur.millis < DateTime.CE) {
-            char c = formatStr.charAt(formatStr.length() - 1);
-            if (c != 'g' && c != 'G') {
-                return str + " BC";
-            }
-        }
-        return str;
-    }
-
-    /**
-     * The toLocalString method provides a sortable ISO 8601 date and time to the nearest
-     * second, but is rendered from the perspective of the time zone ascribed to the DateTime
-     * object, regardless of the system's time zone.
-     * 
-     * @param format
-     * @return A string version of the this DateTime specified in local time.
-     * @deprecated
-     */
-    public String toLocalString(String format) {
-        return DateTimeFormat.format(format, this, this.timeZone(), Locale.getDefault());
     }
 
     /**
@@ -630,7 +607,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     private static DateTime parseRelativeDate(String str, IDateTimeConfig config) {
         char firstChar = str.charAt(0);
         char lastChar = str.charAt(str.length() - 1);
-        if (str.length() == 8 && StringTool.onlyDigits(str)) {
+        if (str.length() == 8 && ParseTool.onlyDigits(str)) {
             // YYYYMMDD
             StringBuffer sb = new StringBuffer(str.substring(0, 4));
             sb.append('/');
@@ -641,7 +618,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         }
         DateTime dt = new DateTime();
         if ((firstChar == '+' || firstChar == '-') && lastChar >= '0' && lastChar <= '9') {
-            if (StringTool.onlyDigits(str.substring(1))) {
+            if (ParseTool.onlyDigits(str.substring(1))) {
                 int offset = (new Integer((firstChar == '+') ? str.substring(1) : str))
                         .intValue();
                 return dt.add(CalendarUnit.DAY, offset);
@@ -660,13 +637,13 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                     .length() - 1);
             // ^[+-][0-9]+$
             if (firstChar == '+') {
-                if (StringTool.onlyDigits(inner)) {
+                if (ParseTool.onlyDigits(inner)) {
                     int offset = (new Integer(inner)).intValue();
                     return dt.add(unit, offset);
                 }
             }
             if (firstChar == '-' || firstChar >= '0' && firstChar <= '9') {
-                if (StringTool.isInteger(inner)) {
+                if (ParseTool.isInteger(inner)) {
                     int innerVal = (new Integer(inner)).intValue();
                     return dt.add(unit, innerVal);
                 }
@@ -742,7 +719,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         boolean[] integers = new boolean[parts.length];
         boolean[] usedint = new boolean[parts.length];
         for (int i = 0; i < parts.length; i++) {
-            if (StringTool.startsWithDigit(parts[i]))
+            if (ParseTool.startsWithDigit(parts[i]))
                 integers[i] = true;
         }
         // First, scan for text month
@@ -751,7 +728,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                 Object[] langs = config.getSupportedLanguages();
                 for (int lang = 0; lang < langs.length; lang++) {
                     String[] mos = config.getMonthArray((String) langs[lang]);
-                    int mo = StringTool.indexedStartMatch(mos, parts[i]);
+                    int mo = ParseTool.indexedStartMatch(mos, parts[i]);
                     if (mo >= 0) {
                         month = mo;
                         hasMonth = true;
@@ -769,21 +746,21 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                 if (!hasYear && (parts[i].length() == 4 || parts[i].length() == 5)) {
                     char c = parts[i].charAt(parts[i].length() - 1);
                     if (c >= '0' && c <= '9') {
-                        year = StringTool.parseIntFragment(parts[i]);
+                        year = ParseTool.parseIntFragment(parts[i]);
                         hasYear = true;
                         usedint[i] = true;
                         isYearFirst = (i == 0);
                         // If integer is to the immediate left of year, use now.
                         if (config.isDmyOrder()) {
                             if (!hasMonth && i > 0 && integers[i - 1] && !usedint[i - 1]) {
-                                month = StringTool.parseIntFragment(parts[i - 1]);
+                                month = ParseTool.parseIntFragment(parts[i - 1]);
                                 month--;
                                 hasMonth = true;
                                 usedint[i - 1] = true;
                             }
                         } else {
                             if (!hasDay && i > 0 && integers[i - 1] && !usedint[i - 1]) {
-                                day = StringTool.parseIntFragment(parts[i - 1]);
+                                day = ParseTool.parseIntFragment(parts[i - 1]);
                                 hasDay = true;
                                 usedint[i - 1] = true;
                             }
@@ -825,7 +802,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         // Assign integers to remaining slots in order
         for (int i = 0; i < parts.length; i++) {
             if (integers[i] && !usedint[i]) {
-                int part = StringTool.parseIntFragment(parts[i]);
+                int part = ParseTool.parseIntFragment(parts[i]);
                 if (!hasDay && part < 32 && config.isDmyOrder()) {
                     /*
                      * If one sets the isDmyOrder to true in DateTimeConfig, then this will
@@ -1111,14 +1088,4 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         return this.config;
     }
 
-    /**
-     * The TimeZoneId tells what time zone the toString output will present.
-     * 
-     * @return ID of this DateTime object's original time zone.
-     * @deprecated After parse, only config determines output.
-     */
-    public String getTimeZoneId() {
-        return config.getOutputTimeZone().getID();
-    }
-
-}
+ }

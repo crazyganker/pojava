@@ -346,11 +346,6 @@ public class DateTimeTester extends TestCase {
         assertTrue(diff <= dur);
     }
 
-    public void testToLocalString() {
-        DateTime dt = new DateTime("Jan 26, 1969");
-        assertEquals("1969-01-26 00:00:00", dt.toLocalString());
-    }
-
     /**
      * It is always prudent to verify that your examples actually work :)
      */

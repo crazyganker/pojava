@@ -1,4 +1,4 @@
-package org.pojava.util;
+package org.pojava.datetime;
 
 import java.util.ArrayList;
 
@@ -22,7 +22,7 @@ import java.util.ArrayList;
  * A set of methods for performing string manipulation, mostly to support internal needs without
  * requiring external libraries.
  */
-public class StringTool {
+public class ParseTool {
 
     /**
      * Returns a zero-based offset if the left-most characters of str match all of the
