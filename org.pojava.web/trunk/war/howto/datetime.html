@@ -1,0 +1,128 @@
+<html>
+<head>
+<title>POJava HOWTO: DateTime</title>
+<LINK REL="stylesheet" HREF="/style/pojava.css" TYPE="text/css"
+	MEDIA=screen />
+</head>
+<body>
+<h1>HOWTO use POJava DateTime</h1>
+<p>DateTime is a class used for parsing, storing, and manipulating
+Date and Time. It provides a number of advances over Java's Date object,
+including immutability, nanosecond precision, and calculation functions
+such as "add" and "truncate". It can parse dates and times without
+requiring a specific format, and has integrated formatting into its
+toString() output to make custom formatting simple and elegant.</p>
+<p>DateTime has excellent support for business use cases involving
+multiple time zones, locales and formats.  Default behaviors can be
+customized globally, for a set of dates sharing a common isolated
+configuration, or catered to individual instances.</p>
+
+<h3>Parsing Flexibility</h3>
+<p>DateTime will correctly parse precise date and time from the following
+strings without specifying any formats.  
+</p>
+<ul>
+<li>1/26/69</li>
+<li>January 26, 1969 at 3:21 PM</li>
+<li>26-jan-1969 at 3:21:00.123 pm</li>
+<li>1969-01-26 15:21:00.123456 PM PST</li>
+<li>le 26.1.1969</li>
+</ul>
+
+<h3>It supports European or American ordering of month and day</h3>
+<pre>
+DateTimeConfig.globalEuropeanDateFormat();
+DateTime dt1=new DateTime("01/02/2003");
+DateTimeConfig.globalAmericanDateFormat();
+DateTime dt2=new DateTime("02/01/2003");
+assertEquals(dt1, dt2);
+</pre>
+
+<h2>How do I work with this DateTime class?</h2>
+<p>Working with DateTime is both easy and powerful. It's designed so
+that simple tasks are simple and difficult tasks are possible. While
+mostly intuitive, it helps to understand a few basic concepts.</p>
+<ol class="defs">
+	<li><em>Internal Representation</em>
+	<p>A DateTime represents an instant in time in UTC (Universal Time,
+	Coordinated), informally GMT or Zulu time. You can select the time
+	zone, format, and locale (language) of displayed or printed output.</p>
+	<li><em>Relationship with DateTimeConfig</em>
+	<p>Every DateTime value is associated with a DateTimeConfig object.
+	That object holds several variables affecting how DateTime will perform
+	during input, processing, and output of values. When unspecified, the
+	static DateTimeConfig.globalDefault is used. You can specify a time
+	zone or locale in the constructor to override the default. In that
+	case, a cloned copy of the DateTimeConfig is associated and those
+	values are substituted in that config object.</p>
+	</li>
+	<li><em>Input Rules</em>
+	<p>The config.inputTimeZone determines the default time zone
+	assumed for an input string when no time zone is specified in the
+	string itself. The DateTime object will use that time zone to calculate
+	the internal UTC representation of that instant in time. For activities
+	after that initial parse the original time zone is ignored and all
+	outputs are based on config.outputTimeZone.<br></br>
+	</p>
+	<p>European and American formatting of dates can be a source of
+	ambiguity, as one may interpret the date 01/02/2003 as February 1, and
+	the other as January 2. You can choose whether the parser interprets
+	such dates in Day/Month/Year order or Month/Day/Year order by setting
+	the value config.dmyOrder to true or false. Two digit years are also
+	ambiguous. By default, POJava treats such dates as 80 years in the past
+	and 20 years into the future. When a date to parse is known to always
+	be in the past, such as a date of birth, you can set the value
+	config.unspecifiedCenturyAlwaysInPast to true to map 2-digit years to
+	the past 100 years.</p>
+	</li>
+	<li><em>Processing Rules</em>
+	<p>The config.outputTimeZone is used for DateTime calculations. For
+	example, if a date was parsed from a string specifying "GMT" as the
+	time zone, and the config.OutputTimeZone was set to the "PST" time
+	zone, then the DateTime's truncate(CalendarUnit.Day) would round down
+	to midnight as of the PST time zone. The original config is transferred
+	to the newly calculated DateTime.</p>
+	</li>
+	<li><em>Output Rules</em>
+	<p>The config.outputTimeZone, config.locale, and config.format
+	values determine the appearance of the toString() output.
+	OutputTimeZone affects what date and hour is displayed for that instant
+	in time. The locale affects the presentation of word values such as
+	month names or days of the week.</p>
+	</li>
+</ol>
+<h2>Some Examples of DateTime in Use</h2>
+<h3>Basic Parsing in Default Time Zone</h3>
+<pre>
+String date="26-Feb-2020 9:43:17 pm";
+DateTime dt=new DateTime(date);
+System.out.println(dt.toString());
+</pre>
+
+<h3>Conversion of UTC to Eastern Standard Time</h3>
+One method is by overriding the toString output.
+<pre>
+String utc="2011/12/13T14:15:16Z";
+DateTime dt=new DateTime(utc);
+System.out.println(dt.toString("yyyy-MM-dd HH:mm:ss z", TimeZone.getTimeZone("EST"));
+</pre>
+Another method is to predefine the expected time zones in the global configuration.
+<pre>
+String utc="2011/12/13T14:15:16Z";
+DateTimeConfig config=DateTimeConfig.getGlobalDefault();
+config.setOutputTimeZone(TimeZone.getTimeZone("EST"));
+DateTime dt=new DateTime(utc);
+System.out.println(dt.toString());
+</pre>
+A third method is to use a custom configuration.
+<pre>
+String utc="2011/12/13T14:15:16Z";
+DateTimeConfig config=DateTimeConfig.getGlobalDefault().clone();
+config.setOutputTimeZone(TimeZone.getTimeZone("EST"));
+DateTime dt=new DateTime(utc, config);
+System.out.println(dt.toString());
+</pre>
+
+
+</body>
+</html>

@@ -1,0 +1,4 @@
+org.pojava.persistence.examples
+org.pojava.persistence.serial
+org.pojava.persistence.sql
+org.pojava.persistence.util

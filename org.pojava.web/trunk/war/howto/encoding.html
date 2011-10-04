@@ -1,0 +1,165 @@
+<html>
+<head>
+<title>POJava Howto: Encoding</title>
+<LINK REL="stylesheet" HREF="/style/pojava.css" TYPE="text/css" MEDIA=screen />
+</head>
+<body>
+<h1>HOWTO Use Encoding</h1>
+<p>The Encoding class in POJava is for the type of encoding used to represent binary data in a more
+portable format.  It currently includes Base64 and Hexadecimal encoding and decoding.  Hexadecimal
+is familiar even to new programmers, while Base64 is only a little less so.  Both encoding methods 
+use a fixed set of characters to represent a sequence of bits.  The main difference between the two is
+that Hexadecimal characters each represent 4 bits, and Base64 characters each represent 6 bits.</p>
+<p>Encoding and decoding data in either format using POJava is simple.  Here is an example.</p>
+<pre>
+// Encoding
+String str="This is the data I wish to encode.";
+char[] encoded=EncodingTool.base64Encode(str.getBytes());
+
+// Decoding
+String decoded=EncodingTool.base64Decode(encoded);
+assertEquals(str, decoded);
+</pre>
+If your encoded Base64 content contains spaces and carriage returns, you can pass it as a String
+to the base64Decode method and it will ignore the whitespace in the String.  Passing in a byte
+array will prompt a more strict interpretation of allowed characters.
+<pre>
+String encodedString=new String(encoded);
+String decoded=EncodingTool.base64Decode(encoded);
+</pre>
+<h2>Reversibility</h2>
+Both Base64 and Hexadecimal encodings are reversible without any loss of data.  Both represent an
+exact sequence of ones and zeros.
+<h2>Portability</h2>
+<p>The notion of portability implies that there are places where pure binary data can't go without
+some sort of conversion.  Where might this happen?  I've seen Hexadecimal encoding used most frequently
+on a computer screen.  Some byte values of a character set represent unviewable values like null, 
+backspace, clear or down, so displaying a memory or packet dump of raw data often uses hexadecimal
+instead.  Base64 is frequently associated with printable documents, like MIME-encoded e-mails or
+with binary data stored in an XML or HTML document.</p>
+<h2>Hexadecimal Encoding</h2>
+<p>Hexadecimal encoding takes a series of bytes, and represents each sequence of 4 bits with
+an individual character.  The ASCII characters '0' through '9' map to the first ten bit combinations,
+and the characters 'A' - 'F' represent the last six, adding up to all 16 possible combinations.</p>
+
+<table class="encoding">
+<tr>
+<td style="padding-right: 20px"><table>
+<tr><th>Bits</th><th>Dec</th><th>Hex</th></tr>
+<tr><td>0000</td><td>0</td><td>0</td></tr>
+<tr><td>0001</td><td>1</td><td>1</td></tr>
+<tr><td>0010</td><td>2</td><td>2</td></tr>
+<tr><td>0011</td><td>3</td><td>3</td></tr>
+<tr><td>0100</td><td>4</td><td>4</td></tr>
+<tr><td>0101</td><td>5</td><td>5</td></tr>
+<tr><td>0110</td><td>6</td><td>6</td></tr>
+<tr><td>0111</td><td>7</td><td>7</td></tr>
+</table></td>
+<td><table>
+<tr><th>Bits</th><th>Dec</th><th>Hex</th></tr>
+<tr><td>1000</td><td>8</td><td>8</td></tr>
+<tr><td>1001</td><td>9</td><td>9</td></tr>
+<tr><td>1010</td><td>10</td><td>A</td></tr>
+<tr><td>1011</td><td>11</td><td>B</td></tr>
+<tr><td>1100</td><td>12</td><td>C</td></tr>
+<tr><td>1101</td><td>13</td><td>D</td></tr>
+<tr><td>1110</td><td>14</td><td>E</td></tr>
+<tr><td>1111</td><td>15</td><td>F</td></tr>
+</table></td>
+</tr>
+</table>
+
+<h2>Base64 Encoding</h2>
+<p>Base64 converts a sequence of bytes into a sequence of characters, each representing
+six bits.  Each sequence of three unencoded bytes will fall neatly into a sequence of four
+encoded characters, each representing the same twenty-four bits.</p>
+If the sequence of bytes to encode doesn't fall evenly into three bytes at a time, the remaining bytes
+are still sequenced into four encoded characters.  Equals signs are used to represent the filler portion
+that will not be decoded into the original data.  Depending on the length of the original data, the 
+encoded characters may end in zero, one or two equals signs. 
+<table class="encoding">
+<tr>
+<td style="padding-right: 20px"><table>
+<tr><th>Bits</th><th>Dec</th><th>Base64</th></tr>
+<tr><td>000000</td><td>0</td><td>A</td></tr>
+<tr><td>000001</td><td>1</td><td>B</td></tr>
+<tr><td>000010</td><td>2</td><td>C</td></tr>
+<tr><td>000011</td><td>3</td><td>D</td></tr>
+<tr><td>000100</td><td>4</td><td>E</td></tr>
+<tr><td>000101</td><td>5</td><td>F</td></tr>
+<tr><td>000110</td><td>6</td><td>G</td></tr>
+<tr><td>000111</td><td>7</td><td>H</td></tr>
+<tr><td>001000</td><td>8</td><td>I</td></tr>
+<tr><td>001001</td><td>9</td><td>J</td></tr>
+<tr><td>001010</td><td>10</td><td>K</td></tr>
+<tr><td>001011</td><td>11</td><td>L</td></tr>
+<tr><td>001100</td><td>12</td><td>M</td></tr>
+<tr><td>001101</td><td>13</td><td>N</td></tr>
+<tr><td>001110</td><td>14</td><td>O</td></tr>
+<tr><td>001111</td><td>15</td><td>P</td></tr>
+</table></td>
+<td style="padding-right: 20px"><table>
+<tr><th>Bits</th><th>Dec</th><th>Base64</th></tr>
+<tr><td>010000</td><td>16</td><td>Q</td></tr>
+<tr><td>010001</td><td>17</td><td>R</td></tr>
+<tr><td>010010</td><td>18</td><td>S</td></tr>
+<tr><td>010011</td><td>19</td><td>T</td></tr>
+<tr><td>010100</td><td>20</td><td>U</td></tr>
+<tr><td>010101</td><td>21</td><td>V</td></tr>
+<tr><td>010110</td><td>22</td><td>W</td></tr>
+<tr><td>010111</td><td>23</td><td>X</td></tr>
+<tr><td>011000</td><td>24</td><td>Y</td></tr>
+<tr><td>011001</td><td>25</td><td>Z</td></tr>
+<tr><td>011010</td><td>26</td><td>a</td></tr>
+<tr><td>011011</td><td>27</td><td>b</td></tr>
+<tr><td>011100</td><td>28</td><td>c</td></tr>
+<tr><td>011101</td><td>29</td><td>d</td></tr>
+<tr><td>011110</td><td>30</td><td>e</td></tr>
+<tr><td>011111</td><td>31</td><td>f</td></tr>
+</table></td>
+
+
+<td style="padding-right: 20px"><table>
+<tr><th>Bits</th><th>Dec</th><th>Base64</th></tr>
+<tr><td>100000</td><td>32</td><td>g</td></tr>
+<tr><td>100001</td><td>33</td><td>h</td></tr>
+<tr><td>100010</td><td>34</td><td>i</td></tr>
+<tr><td>100011</td><td>35</td><td>j</td></tr>
+<tr><td>100100</td><td>36</td><td>k</td></tr>
+<tr><td>100101</td><td>37</td><td>l</td></tr>
+<tr><td>100110</td><td>38</td><td>m</td></tr>
+<tr><td>100111</td><td>39</td><td>n</td></tr>
+<tr><td>101000</td><td>40</td><td>o</td></tr>
+<tr><td>101001</td><td>41</td><td>p</td></tr>
+<tr><td>101010</td><td>42</td><td>q</td></tr>
+<tr><td>101011</td><td>43</td><td>r</td></tr>
+<tr><td>101100</td><td>44</td><td>s</td></tr>
+<tr><td>101101</td><td>45</td><td>t</td></tr>
+<tr><td>101110</td><td>46</td><td>u</td></tr>
+<tr><td>101111</td><td>47</td><td>v</td></tr>
+</table></td>
+<td style="pdding-right: 20px"><table>
+<tr><th>Bits</th><th>Dec</th><th>Base64</th></tr>
+<tr><td>110000</td><td>48</td><td>w</td></tr>
+<tr><td>110001</td><td>49</td><td>x</td></tr>
+<tr><td>110010</td><td>50</td><td>y</td></tr>
+<tr><td>110011</td><td>51</td><td>z</td></tr>
+<tr><td>110100</td><td>52</td><td>0</td></tr>
+<tr><td>110101</td><td>53</td><td>1</td></tr>
+<tr><td>110110</td><td>54</td><td>2</td></tr>
+<tr><td>110111</td><td>55</td><td>3</td></tr>
+<tr><td>111000</td><td>56</td><td>4</td></tr>
+<tr><td>111001</td><td>57</td><td>5</td></tr>
+<tr><td>111010</td><td>58</td><td>6</td></tr>
+<tr><td>111011</td><td>59</td><td>7</td></tr>
+<tr><td>111100</td><td>60</td><td>8</td></tr>
+<tr><td>111101</td><td>61</td><td>9</td></tr>
+<tr><td>111110</td><td>62</td><td>+</td></tr>
+<tr><td>111111</td><td>63</td><td>/</td></tr>
+</table></td>
+</tr>
+</table>
+<h2>Encoding is not Encryption</h2>
+<p>Even though a person cannot easily interpret Base64 encoded content without the aid of a computer,
+one should not confuse it with encryption.  Base64 offers no privacy.  It is not weak encryption--
+it is simply a representation of data in a more portable format.</p>

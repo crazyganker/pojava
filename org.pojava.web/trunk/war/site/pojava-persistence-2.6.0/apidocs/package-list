@@ -1,0 +1,8 @@
+org.pojava.persistence.adaptor
+org.pojava.persistence.factories
+org.pojava.persistence.jndi
+org.pojava.persistence.processor
+org.pojava.persistence.query
+org.pojava.persistence.serial
+org.pojava.persistence.sql
+org.pojava.persistence.util
