@@ -1,0 +1,231 @@
+<html>
+<head>
+<title>POJava Howto: DAO</title>
+<LINK REL="stylesheet" HREF="/style/pojava.css" TYPE="text/css" MEDIA="screen" />
+</head>
+<body>
+<h1>HOWTO Create a DAO</h1>
+<p>A DAO is a Data Access Object.  The DAO should seamlessly separate your business layer from your
+choice of storage implementation.  Your business layer requests of the DAO to perform a set of 
+persistence actions for a type of object using a database or other datastore.  The business layer
+doesn't need to know or care how it's being stored or accessed.  The DAO, on the other hand, should
+be free to handle any implementation details necessary to efficiently process requests.</p>
+
+<p>Using POJava, a DAO will define a TableMap describing mappings between a bean and its storage.
+The DAO presents a set of methods for supporting each of the actions you want to support.  For
+example, one DAO may support a full suite of actions such as find, insert, delete, update, updateInsert,
+passiveInsert, countByQuery, deleteByQuery, listByQuery, and processByQuery.  Another may want only 
+read-only actions like fetch and listByQuery.  The DaoTool provides a generic set of actions suitable
+for use by your own custom DAO objects-- most of your methods can be simple one-liners passing-through
+to DaoTool methods.</p>
+
+<p>Here's an example:</p>
+
+<p>We'll start with a simple database table definition.</p>
+<h3>DDL for contacts table</h3>
+<pre>
+CREATE TABLE contacts (
+  contact_id integer NOT NULL,
+  full_name varchar(50),
+  phone_num bigint,
+  dob date,
+  CONSTRAINT contacts_pkey PRIMARY KEY (contact_id)
+)
+</pre>
+
+<p>Given that, we'll define a bean to match it.  All the getters and setters can be auto-generated
+for us by Eclipse (or other IDE), but we'll augment one of them.  We don't care at what time of day
+our contacts were born, so we'll just truncate the time portion off of the DateTime in the setter
+to keep it simple when retrieving values.  This isn't necessary, but can be helpful.</p>
+<h3>Contacts bean</h3>
+<pre>
+package your.custom.bean;
+import org.pojava.datetime.DateTime;
+public class Contact {
+    private int contactId;  // Use Integer if preferred
+    private String fullName;
+    private long phoneNum; // Use Long if preferred
+    private DateTime dob;
+    // Generate getters and setters...
+
+    public void DateTime setDob(DateTime dob) {
+        this.dob = dob==null ? null : dob.truncate(CalendarUnit.DAY);
+    }
+}
+</pre>
+
+<p>Both the bean and the table are defined, and the bean property names are camel-cased versions
+of the matching field names of the table.  While not a requirement, this naming facilitates automated
+binding of the fields, which we'll address a bit later.  If your DAO will operate on lists of data,
+such as listByQuery or deleteByQuery operations, then you'll need to define a ContactQuery object
+to represent the query criteria specific to Contacts.</p>
+<p>The ContactQuery will extend SqlQuery to provide some helper methods and variables.  You will
+provide the criteria upon which you might want to apply an operation.  Do so in a way that does not
+require your business layer to know anything about the persistence layer.  It should describe
+criteria in terms of Objects and Properties, not Tables and Fields.  At some future date, you may
+switch from an Oracle database to a PostgreSQL database, or from a MySQL database to a repository
+based on the Google Data API.  In all cases, you want your business-facing "for{Criteria}" methods
+to look the same, and internally support whatever datastore-facing interfaces you need to support
+your chosen storage implementation.  For just ordinary SQL, this is very simple.  Here is an
+example.</p>
+
+<h3>Query object for Contacts</h3>
+<pre>
+package your.custom.query;
+import org.pojava.datetime.DateTime;
+import org.pojava.datetime.Tm;
+import org.pojava.persistence.query.SqlQuery;
+
+/**
+ * This example Query demonstrates a simple class for supporting
+ * queries.  You write custom for{SomeCriteria} queries, and within them do
+ * whatever is necessary to support your persistence-facing interfaces, which
+ * in this case, is the PreparedSqlProvider interface inherited by SqlQuery.
+ * 
+ * @author John Pile
+ *
+ */
+public class ContactQuery extends SqlQuery {
+
+    public ContactQuery forAll() {
+        super.sql.clear();
+        return this;
+    }
+
+    public ContactQuery forBirthMonth(DateTime sameMonth) {
+        Tm tm=new Tm(sameMonth);
+        // I verified support for the EXTRACT function in Oracle, PostgreSQL, and MySQL
+	 // If you required support for those servers and for Informix, you could do something
+        // like this:
+        try {
+            String platform=DatabaseCache.getDataSourceMetadata(ContactDao.DS_NAME).getPlatform();
+            if (platform.toUpper().indexOf("INFORMIX")>=0) {
+                super.whereAnd("MONTH(dob)=?");
+            } else {
+                super.whereAnd("EXTRACT (MONTH FROM dob)=?");
+            }
+        } catch (SQLException ex) {
+            throw new PersistenceException("Failure to determine platform: " + ex.getMessage(), ex);
+        }
+        super.addBinding(Integer.class, new Integer(tm.getMonth()));
+        return this;
+    }
+    
+}
+</pre>
+
+Here is how a simple DAO may be configured.</p>
+<h3>ContactDao</h3>
+<pre>
+package your.custom.dao;
+
+import java.util.List;
+
+import your.custom.bean.Contact;
+import org.pojava.persistence.query.SqlQuery;
+import org.pojava.persistence.sql.ConnectionSource;
+import org.pojava.persistence.sql.DatabaseCache;
+import org.pojava.persistence.sql.DatabaseTransaction;
+import org.pojava.persistence.sql.TableMap;
+import org.pojava.persistence.util.DaoTool;
+
+public class ContactDao {
+    public static final Class JAVA_CLASS = Contact.class;
+    public static final String TABLE_NAME = "contacts";
+    public static final String DS_NAME = "custom";
+
+    private static final TableMap MAP = newTableMap();
+
+    public static TableMap newTableMap() {
+        TableMap tableMap = DatabaseCache.getTableMap(JAVA_CLASS, TABLE_NAME, DS_NAME);
+        return tableMap;
+    }
+
+    public static Contact find(ConnectionSource connector, int contactId) throws SQLException {
+        // Populate the key fields of a bean
+        Contact obj=new Contact();
+        obj.setContactId(contactId);
+        // DaoTool.find knows to search database based on the provided key fields
+        return (Contact) DaoTool.find(connector.getConnection(DS_NAME), MAP, obj);
+    }
+
+    public static List listByQuery(ConnectionSource connector, ContactQuery query) throws SQLException {
+        return DaoTool.listByQuery(connector.getConnection(DS_NAME), MAP, query);
+    }
+    
+    public static int deleteByQuery(ConnectionSource connector, ContactQuery query) throws SQLException {
+        return DaoTool.deleteByQuery(connector.getConnection(DS_NAME), MAP, query);
+    }
+    
+    public static int insert(ConnectionSource connector, Contact obj) throws SQLException {
+        return DaoTool.insert(connector.getConnection(DS_NAME), MAP, obj);
+    }
+
+
+}
+</pre>
+
+<p>As you can see, the creation of a DAO is simple, even repetitive.  (Ever build code from
+templates?)  If you want to add more actions, you just add methods wrapping DaoTool methods
+and cast them to your own object type.  Once you have your DAO made, using it is even simpler.</p>
+<p>This first scenario depicts typical usage.  You begin a transaction and rollback if a problem
+occurs.
+</p>
+<h3>Using a Transaction</h3>
+<pre>
+...
+DatabaseTransaction trans=new DatabaseTransaction();
+try {
+  ContactDao.insert(trans, new Contact(1001, "John Smith", 9165551001, new DateTime("1957-03-06"));
+  trans.commit();
+} catch (SQLException ex) {
+  trans.rollback();
+}
+</pre>
+
+<p>Here's a scenario using a transaction for a test case.  The transaction deletes
+all rows, then inserts a custom set of objects into the database.  It performs its tests, then
+rolls back the transaction, so the original data is preserved, and the new data isn't added.</p>
+<h3>Business layer specifies its own transaction.</h3>
+<pre>
+. . .
+private Contact newContact(int id, String name, long phone, String dob) {
+    Contact contact=new Contact();
+    contact.setContactId(id);
+    contact.setFullName(name);
+    contact.setPhoneNum(phone);
+    contact.setDob(new DateTime(dob));
+    return contact;
+}
+
+public void testBirthMonthQuery() throws Exception {
+    ContactQuery query=new ContactQuery().forBirthMonth(new DateTime("2008-03-01"));
+    DatabaseTransaction trans=new DatabaseTransaction();
+    try {
+        ContactDao.deleteByQuery(trans, new ContactQuery().forAll());
+        ContactDao.insert(trans, newContact(1001, "John Smith", 9165551001, "1957-03-06"));
+        ContactDao.insert(trans, newContact(1002, "Mary Jones", 9165551002, "1963-03-31"));
+        ContactDao.insert(trans, newContact(1003, "Jane Gonzolez", 9165551003, "1960-04-04"));
+        list=DaoTool.listByQuery(trans, MAP, query);
+        assertEquals(2, list.size());
+        // Because we don't commit, the inserted records are never visible to others.
+    } finally {
+        trans.rollback();
+    }
+}
+. . .        
+</pre>
+<h3>Footnotes</h3>
+<p>Remember back in the DAO section, I said I would address the topic of automated binding?  The
+"binding" refers to a mapping of one abstract representation of an object into another.  When
+they are "bound", the mappings are more concrete.  This field value maps to this property, that field
+maps to this one, etc.</p>
+<p>Your DAO can (and one can argue, should) specify each individual mapping field by field.  If
+you aren't using a code-generator, then that can be a tedious task.  If you name your bean
+properties to match the field names of your tables, then POJava can derive the bindings for
+you by using reflection to learn the property type, and using metadata provided by the database
+to learn the field type, and a rules engine to select the best type-to-type mapping.  This takes
+a small amount of processing time the first time it is run, after which the binding is already
+cached.</p>
+</body>
+</html>

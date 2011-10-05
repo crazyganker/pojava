@@ -1,0 +1,38 @@
+<html>
+<head>
+<title>POJava Howto: JNDIRegistry</title>
+<LINK REL="stylesheet" HREF="/style/pojava.css" TYPE="text/css" MEDIA="screen" />
+</head>
+<body>
+<h1>HOWTO Use JNDIRegistry</h1>
+<p>POJava's JNDIRegistry is useful for simulating the InitialContext normally provided by an application server, but not normally available
+to your unit tests.</p>
+<h3>Without POJava...</h3>
+<pre>
+    Context ctx = new InitialContext();
+    ctx.bind("example", "oops");
+    // The above line throws a NoInitialContextException
+    assertEquals("oops", ctx.lookup("example"));
+</pre>
+
+<h3>With POJava...</h3>
+<pre>
+    // Establish a test-friendly context
+    Context newCtx = JNDIRegistry.getInitialContext();
+    newCtx.bind("example", "alt");
+
+    // In the code you're testing, InitialContext now works as designed.
+    Context ctx = new InitialContext();
+    assertEquals("alt", ctx.lookup("example"));
+</pre>
+
+<h2>Better Test Coverage</h2>
+<p>JNDI is a protocol for Java to access named resources through a managed directory service.  One common implementation
+of JNDI is a registry provided by a J2EE application server, such as Tomcat, to hold system-managed resources such as
+JDBC DataSources or system global variables.  When accessing these resources in your J2EE app, you typically just construct
+a new instance of InitialContext and use it to lookup values added by your Context.  When running your JUnit tests, the
+InitialContext is not populated, inviting all sorts of workarounds-- many of which leave gaps in your code coverage.</p>
+<p>POJava addresses the issue by enabling the unit test environment to create and populate a local JNDI registry.  Your unit
+tests can populate the registry as you expect from your operating environment, allowing you more complete test coverage.</p>
+</body>
+</html>

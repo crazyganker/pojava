@@ -1,0 +1,35 @@
+<html>
+<head>
+<title>POJava Howto: Compression</title>
+<LINK REL="stylesheet" HREF="/style/pojava.css" TYPE="text/css" MEDIA="screen" />
+</head>
+<body>
+<h1>HOWTO Use Compression</h1>
+<p>POJava provides a simplified interface for compressing data using Java's java.util.zip package.</p>
+<p>This document will demonstrate the use of the org.pojava.util Compression class to compress and
+decompress data.</p>
+<h2>Compression</h2>
+<p>Compression in general is the transformation of data into a useful form using a fewer number of bytes.
+This Compression class, in particular, deals with reversible compression, where compressed data is converted into a sequence
+of bytes for storage or transfer that must be decompressed before it is used.  You can contrast this with compression of an
+image or sound by degrading quality to reduce the size.</p>
+<p>POJava's Compression class is useful for the compression of a sequence of bytes.  It is pure compression of data.  It knows nothing about files, directories, or the like.  It is, however, useful for reducing the size of data or serialized objects for
+storage or transfer.</p>
+<p>It accepts an array of bytes as input and outputs an array of bytes as a result, which is typically a smaller array than was
+input.</p>
+<pre>
+byte[] original="This, is, some, example, data, that, could, be, compressed.".getBytes();
+Compression compressor=new Compression();
+byte[] compressed=compressor.compress(original);
+</pre>
+<h2>Decompression</h2>
+<p>Decompression is performed using the same utility.  The result will decompress to exactly the same byte array as was originally compressed.</p>
+<pre>
+byte[] decompressed=compressor.decompress(compressed);
+System.out.println(new String(decompressed));
+</pre>
+<h2>Applications of Compression</h2>
+One useful application of this compression object is the storage of more data in a client cookie.  There is often a limit placed
+on browser cookies of 4 kilobytes of data.  Achieving this task shows how POJava tools can be useful in combination.  Take a POJO, serialize it to XML, compress the XML, encrypt the results, and Base64-encode that byte array into a String for storage in a cookie.  Upon retrieving it, you reverse the process.  Base64-decode the cookie, decrypt it, decompress it to XML, then parse it back into the original POJO.
+</body>
+</html>

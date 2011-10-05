@@ -1,0 +1,194 @@
+<html>
+<head>
+<title>POJava Howto: DAO</title>
+<LINK REL="stylesheet" HREF="/style/pojava.css" TYPE="text/css" MEDIA="screen" />
+</head>
+<body>
+<h1>Data Access Objects</h1>
+<p>Persistence is a generalization describing the storage of data for later retrieval.</p>
+<p>POJava Persistence was written to provide a practical set of tools to facilitate the 
+creation of your own persistence layer-- the pattern you use to handle the common task of 
+storage and retrieval-- in a simple but efficient manner.</p>
+<p>Most of POJava Persistence is centered around persistence to JDBC-supported SQL databases.
+The model used, however, is quite conducive to other types of storage.  When using POJava
+Persistence, you will be building a pattern involving four objects, a DAO, a Query, a POJO,
+and a Transaction.</p>
+<table>
+<tr><th>Class</th><th>Description</th></tr>
+<tr><td>DAO</td><td>The Data Access Object, or DAO, performs the essential translation
+between Java objects and storage.  The DAO should be able to do whatever is needed to
+interact with the storage medium (e.g. the database).  POJava defines a map	between a
+result set and an object and uses the DAO to perform the work implied in that mapping.</td></tr>
+<tr><td>Query</td><td>The Query describes a set of searching/sorting criteria to be applied
+to any DAO methods that operate on lists of data.  While the internals of the query will likely
+perform implementation-specific tasks, literally constructing SQL fragments when directed
+toward a SQL-based DAO, the interface presented to the business layer should be free of even
+a hint of implementation-specific code.  In other words, users of your Query object will not
+be able to tell whether it's used against a SQL database or not.</td></tr>
+<tr><td>POJO</td><td>When retrieving data, the DAO will construct and populate a POJO or POJO
+list.</td></tr>
+<tr><td>Transaction</td><td>The Transaction is used to provide atomicity to a set of storage
+instructions.  For example, if you are persisting a set of objects into two completely
+different databases, a Transaction can provide a simple means of either committing, or backing
+out of, both databases at once.  Similarly, even writing to multiple tables in the same
+database can use a Transaction to succeed or fail your requests in an all-or-none fashion.</td></tr>
+</table>
+<h2>A Simple Example</h2>
+<p>We'll start with a simple database table definition.</p>
+<h3>DDL for contacts table</h3>
+<pre>
+CREATE TABLE contacts (
+  contact_id integer NOT NULL,
+  full_name varchar(50),
+  phone_num bigint,
+  dob date,
+  CONSTRAINT contacts_pkey PRIMARY KEY (contact_id)
+)
+</pre>
+
+<p>You'll need a pojo to match it.  We'll camel-case the field-names and auto-generate the default
+getters and setters.</p>
+<h3>Contacts bean</h3>
+<pre>
+package your.custom.bean;
+import org.pojava.datetime.DateTime;
+public class Contact {
+    private int contactId;  // Use Integer if preferred
+    private String fullName;
+    private long phoneNum; // Use Long if preferred
+    private DateTime dob;
+    public Contact() {};
+    public Contact(int id, String name, long phone, DateTime dob) {
+      this.contactId=id;
+      this.fullName=name;
+      this.phoneNum=phone;
+      this.dob=dob;
+    }
+    // Generate getters and setters...
+    . . .
+}
+</pre>
+
+
+<h3>Query object for Contacts</h3>
+This query object will search for a name fragment.  Note that it is resistent to SQL Injection.
+When I create a Query method, I like to use the pattern "for{BusinessCriteria}" and return "this".
+It allows me to chain multiple critera together, like 'forName("Bob").forHairColor("Black")'.
+Much like a bean, the current version of this object is not meant to be immutable.
+<pre>
+public class ContactQuery extends SqlQuery {
+
+    public ContactQuery forAll() {
+        super.sql.clear();
+        return this;
+    }
+
+    public ContactQuery forPartialname(String fragment) {
+        StringBuilder sb=new StringBuilder(fragment);
+        if (sb.length>0 && sb.charAt(0)<>'%') {
+            sb.insert(0,'%');
+        }
+        if (sb.length>0 && sb.charAt(sb.length-1)<>'%')) {
+            sb.append('%');
+        }
+        super.whereAnd("full_name like ?");
+	 super.addBinding(String.class, sb.toString());
+        return this;
+    }
+    
+}
+</pre>
+
+
+<h3>Transaction</h3>
+Before we tie it all together, I'll describe the DatabaseTransaction object.  You are probably 
+already familiar with a Java Connection's ability to commit or roll back multiple sets of 
+instructions.  This DatabaseTransaction object orchestrates one or more connections so that they
+all commit or roll back at the same time as a group.  Unlike the other two objects described
+above, you do not need to provide your own unique Transaction-derived class.  It requires no
+customization.  The DatabaseTransaction extends ConnectionSource, and will manage the Connection
+objects as needed.
+
+Not much to see, here.
+<pre>
+DatabaseTransaction trans=new DatabaseTransaction();
+</pre>
+
+<h3>The DAO</h3>
+The DAO is where all the work happens.  Each DAO interacts directly with a data store.  It defines
+a map between the retrieved data and a POJO, and can produce native SQL from a Query and/or a POJO.
+Note that this example uses static methods.  Creating a non-static Dao that is constructed before
+calling its methods is just as easy.
+
+<pre>
+public class ContactDao {
+
+	private static final Class JAVA_CLASS = Contact.class;
+	private static final String TABLE_NAME = "contact";
+	private static final String DS_NAME = "mydata";
+
+	private static final TableMap MAP = newTableMap();
+
+	public static TableMap newTableMap() {
+		TableMap tableMap = DatabaseCache.getTableMap(JAVA_CLASS, TABLE_NAME,
+				DS_NAME);
+		return tableMap;
+	}
+
+	public static int insert(ConnectionSource connector, Contact obj)
+			throws SQLException {
+		return DaoTool.insert(connector.getConnection(DS_NAME), MAP, obj);
+	}
+
+	public static int update(ConnectionSource connector, Contact obj)
+			throws SQLException {
+		return DaoTool.update(connector.getConnection(DS_NAME), MAP, obj);
+	}
+
+	public static int delete(ConnectionSource connector, Contact obj)
+			throws SQLException {
+		return DaoTool.delete(connector.getConnection(DS_NAME), MAP, obj);
+	}
+
+	public static TypeTest find(ConnectionSource connector, Contact obj)
+			throws SQLException {
+		return (TypeTest) DaoTool.find(connector.getConnection(DS_NAME), MAP,
+				obj);
+	}
+
+	public static List listByQuery(ConnectionSource connector, ContactQuery query)
+			throws SQLException {
+		return DaoTool
+				.listByQuery(connector.getConnection(DS_NAME), MAP, query);
+	}
+
+	public static int deleteByQuery(ConnectionSource connector, ContactQuery query)
+			throws SQLException {
+		return DaoTool.deleteByQuery(connector.getConnection(DS_NAME), MAP,
+				query);
+	}
+
+	public static int countByQuery(ConnectionSource connector, ContactQuery query)
+			throws SQLException {
+		return DaoTool.countByQuery(connector.getConnection(DS_NAME), MAP,
+				query);
+	}
+}
+</pre>
+
+<h3>Using All Four Objects Together</h3>
+Once you have your objects in place-- in a library, for example-- using them in your
+business layer is a snap.
+<pre>
+DatabaseTransaction trans=new DatabaseTransaction();
+try {
+  Contact contact=new Contact(1001, "John Smith", 9165551001, new DateTime("1957-03-06"));
+  ContactDao.insert(trans, contact);
+  trans.commit();
+} catch (SQLException ex) {
+  trans.rollback();
+}
+</pre>
+
+</body>
+</html>
