@@ -6,10 +6,10 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.pojava</groupId>
-	<artifactId>pojava</artifactId>
+	<artifactId>transform</artifactId>
 	<packaging>jar</packaging>
 	<name>POJava Utilities</name>
-	<version>2.7.0</version>
+	<version>1.0.0</version>
 	<description>
 		POJava is a simple, light-weight Java-based API for data
 		processing and development.  It includes an immutable
@@ -148,6 +148,11 @@
 		</license>
 	</licenses>
 	<dependencies>
+		<dependency>
+			<groupId>org.pojava</groupId>
+			<artifactId>datetime</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
