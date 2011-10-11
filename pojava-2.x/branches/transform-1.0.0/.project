@@ -6,7 +6,7 @@
 		languages and formats, and a variety of utilities for data
 		transformation. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
   <projects>
-    <project>org.pojava.web</project>
+    <project>datetime</project>
   </projects>
   <buildSpec>
     <buildCommand>
