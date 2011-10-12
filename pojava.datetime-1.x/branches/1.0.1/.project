@@ -1,0 +1,23 @@
+<projectDescription>
+  <name>datetime</name>
+  <comment>POJava DateTime is a simple, light-weight library for parsing and processing dates and times.
+		It can parse free-form dates in multiple languages and formats.  It provides enhancements for
+		business use, such as date math, time zone conversion and variable precision formatting. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
+  <projects/>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.wst.common.project.facet.core.builder</name>
+    </buildCommand>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+    <buildCommand>
+      <name>org.maven.ide.eclipse.maven2Builder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.maven.ide.eclipse.maven2Nature</nature>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+    <nature>org.eclipse.wst.common.project.facet.core.nature</nature>
+  </natures>
+</projectDescription>
