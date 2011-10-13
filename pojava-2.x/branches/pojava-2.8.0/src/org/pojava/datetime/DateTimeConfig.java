@@ -32,7 +32,7 @@ import java.util.TimeZone;
  * @author John Pile
  * 
  */
-public class DateTimeConfig implements IDateTimeConfig, Serializable {
+public class DateTimeConfig implements IDateTimeConfig, Serializable, Cloneable {
 
     /**
      * Compulsory serial ID.
@@ -72,6 +72,7 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
     
     private Locale locale = Locale.getDefault();
 
+    private String bcPrefix = "-";
 
     /**
      * <p>
@@ -162,7 +163,7 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      * @return a Map of time zones recognized by DateTime.
      */
     public Map<String, String> getTzMap() {
-        return tzMap;
+        return this.tzMap;
     }
 
     /**
@@ -171,7 +172,7 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
      * @param tzMap
      */
     public void addTzMap(Map<String, String> tzMap) {
-        tzMap.putAll(tzMap);
+        this.tzMap.putAll(tzMap);
     }
 
     /**
@@ -245,26 +246,6 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
     }
 
     /**
-     * Get the default date format.
-     * 
-     * @return A format string for dates.
-     * @deprecated use getFormat()
-     */
-    public String getDefaultDateFormat() {
-        return format;
-    }
-
-    /**
-     * Set the default date format.
-     * 
-     * @param defaultDateFormat
-     * @deprecated use setFormat(...)
-     */
-    public void setDefaultDateFormat(String defaultDateFormat) {
-        this.format = defaultDateFormat;
-    }
-
-    /**
      * Get the default JDBC date format.
      * 
      * @return the default format desired for JDBC.
@@ -319,18 +300,6 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
             tz = (TimeZone) tzCache.get(id);
         }
         return tz;    	
-    }
-
-    /**
-     * Fetch a registered time zone by name
-     * 
-     * @param id
-     *            name of time zone to fetch
-     * @return TimeZone object
-     * @deprecated use config.lookupTimeZone(id)
-     */
-    public static TimeZone getTimeZone(String id) {
-    	return DateTimeConfig.globalDefault.lookupTimeZone(id);
     }
 
     /**
@@ -396,10 +365,23 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable {
 		this.isUnspecifiedCenturyAlwaysInPast = isUnspecifiedCenturyAlwaysInPast;
 	}
 
+	public String getBcPrefix() {
+		return bcPrefix;
+	}
+
+	public void setBcPrefix(String bcPrefix) {
+		this.bcPrefix = bcPrefix;
+	}
+
 	/**
 	 * Return a clone of this DateTimeConfig
 	 */
 	public DateTimeConfig clone() {
+		try {
+			super.clone();
+		} catch (CloneNotSupportedException ex) {
+			// Not strictly needed
+		}
     	DateTimeConfig dtc=new DateTimeConfig();
     	dtc.setFormat(this.format);
     	dtc.setDefaultJdbcFormat(this.defaultJdbcFormat);
