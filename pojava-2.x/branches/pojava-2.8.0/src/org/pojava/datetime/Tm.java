@@ -48,6 +48,7 @@ public class Tm {
      * is always at the end of a year.
      */
     private static final long GREG_EPOCH_UTC = -11670912000000L;
+    private static final long START_OF_AD = -62135740800000L;
     /**
      * These are the results we're looking to populate.
      */
@@ -121,6 +122,9 @@ public class Tm {
         this.minute = cal.get(Calendar.MINUTE);
         this.second = cal.get(Calendar.SECOND);
         this.weekday = cal.get(Calendar.DAY_OF_WEEK);
+        if (millis<START_OF_AD) {
+        	year=-year;
+        }
     }
 
     /**
