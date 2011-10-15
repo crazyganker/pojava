@@ -31,6 +31,39 @@ public class DurationTester extends TestCase {
         assertEquals(3, d1.add(d2).toMillis());
     }
 
+    public void testAddBig() {
+        Duration d1 = new Duration(1,999999999);
+        Duration d2 = new Duration(2,1000000002);
+        Duration d3 = d1.add(d2);
+        assertEquals(5, d3.getSeconds());
+        assertEquals(1, d3.getNanos());
+    }
+
+    /***
+     * 1 ns + 1000000000 ns - 1000000 ns = 999000001 ns
+     */
+    public void testNanoNegative() {
+        Duration d1 = new Duration(11,1);
+        Duration d2 = d1.add(-1);
+        assertEquals(10, d2.getSeconds());
+        assertEquals(999000001, d2.getNanos());
+    }
+
+    public void testNanoNegative2() {
+        Duration d1 = new Duration(0,-1);
+        Duration d2 = d1.add(-1);
+        assertEquals(-1, d2.getSeconds());
+        assertEquals(998999999, d2.getNanos());
+    }
+    
+    public void testBigNano() {
+    	Duration d1 = new Duration(0,1123456789);
+    	Duration d2 = new Duration(0,-1123456789);
+    	assertEquals(1, d1.getSeconds());
+    	assertEquals(-2, d2.getSeconds());
+    	assertEquals(876543211, d2.getNanos());
+    }
+
     public void testDefaultConstructor() {
         Duration d1 = new Duration(0);
         Duration d2 = new Duration();
@@ -39,6 +72,12 @@ public class DurationTester extends TestCase {
     
     public void testParseCramped() {
         Duration d1 = new Duration("5h6m7s");
+        Duration d2 = new Duration().add(Duration.HOUR*5+Duration.MINUTE*6+Duration.SECOND*7);
+        assertTrue(d1.equals(d2));
+    }
+
+    public void testParseCrampedStatic() {
+        Duration d1 = Duration.parse("5h6m7s");
         Duration d2 = new Duration().add(Duration.HOUR*5+Duration.MINUTE*6+Duration.SECOND*7);
         assertTrue(d1.equals(d2));
     }
@@ -75,4 +114,5 @@ public class DurationTester extends TestCase {
     	assertEquals("-1n", new Duration("-1ns").toString());
     	assertEquals("-3m3n", new Duration("-3m3n").toString());
     }
+    
 }

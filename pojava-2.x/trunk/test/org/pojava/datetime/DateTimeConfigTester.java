@@ -1,5 +1,6 @@
 package org.pojava.datetime;
 
+import java.util.HashMap;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
@@ -78,5 +79,22 @@ public class DateTimeConfigTester extends TestCase {
     	DateTime dtc=new DateTime("2011-08-31 04:31:32", config);
         // OutputTimeZone determines zone for which local time is displayed.
     	assertEquals("[2011-08-30 4:01:32 PM]", dtc.toString("[yyyy-MM-dd h:mm:ss a]", TimeZone.getTimeZone("PST")));
+    }
+    
+    public void testTzMap() {
+    	DateTimeConfig dtc=config.clone();
+    	HashMap<String,String> tzMap=new HashMap<String,String>();
+    	tzMap.put("CST", "America/Central");
+    	dtc.addTzMap(tzMap);
+    	assertEquals("America/Central", dtc.getTzMap().get("CST"));
+    }
+    
+    public void testUnspecifiedCenturyAlwaysInPast() {
+    	DateTimeConfig dtc=DateTimeConfig.getGlobalDefault().clone();
+    	dtc.setUnspecifiedCenturyAlwaysInPast(true);
+    	// DateTimeConfig.setGlobalDefault(dtc);
+    	assertEquals(new DateTime("4/15/1980"), new DateTime("4/15/80"));
+    	dtc.setUnspecifiedCenturyAlwaysInPast(false);
+    	assertTrue(new DateTime("4/15/1980").toString()!=new DateTime("4/15/80").toString());
     }
 }

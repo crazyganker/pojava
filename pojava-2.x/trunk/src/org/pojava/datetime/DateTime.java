@@ -96,11 +96,6 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     private static final int NOV = 10;
 
     /**
-     * CE is Common Era, Current Era, or Christian Era, a.k.a. AD.
-     */
-    private static final long CE = -62135740800000L; // 0001-01-01;
-
-    /**
      * Config contains info specific to zoning and formatting.
      */
     protected IDateTimeConfig config;
@@ -244,10 +239,6 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      */
     public DateTime(String str) {
     	this.config = DateTimeConfig.getGlobalDefault();
-        if (str == null) {
-            this.systemDur = new Duration(System.currentTimeMillis());
-            return;
-        }
         DateTime dt = parse(str, config);
         this.systemDur = dt.systemDur;
     }
@@ -262,10 +253,6 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      */
     public DateTime(String str, IDateTimeConfig config) {
     	this.config = config;
-        if (str == null) {
-            this.systemDur = new Duration(System.currentTimeMillis());
-            return;
-        }
         DateTime dt = parse(str, config);
         this.systemDur = dt.systemDur;
     }
@@ -320,12 +307,6 @@ public class DateTime implements Serializable, Comparable<DateTime> {
             return null;
         }
         c = chars[idx];
-        if ((c == '-' || c == '+') && idx > 0) {
-            if (chars[idx] == ' ' || chars[idx] == '\t') {
-                return str.substring(idx);
-            }
-            return null;
-        }
         if (c >= 'A' && c <= 'Z') {
             return str.substring(idx);
         }
@@ -387,12 +368,6 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     public String toString() {
         String formatStr = config().getFormat();
         String str = DateTimeFormat.format(formatStr, this, config.getOutputTimeZone(), config.getLocale());
-        if (this.systemDur.millis < DateTime.CE) {
-            char c = formatStr.charAt(formatStr.length() - 1);
-            if (c != 'g' && c != 'G') {
-                return str + " BC";
-            }
-        }
         return str;
     }
 
@@ -422,6 +397,29 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Return a String according to the provided format.
      * 
      * @param format
+     * @param locale
+     * 		Show formatted date & time at the given TimeZone
+     * @return A formatted string version of the current DateTime.
+     */
+    public String toString(String format, Locale locale) {
+        return DateTimeFormat.format(format, this, this.timeZone(), locale);
+    }
+
+    /**
+     * Return a String according to the provided format.
+     * 
+     * @param tz
+     * 		Show formatted date & time at the given TimeZone
+     * @return A formatted string version of the current DateTime.
+     */
+    public String toString(TimeZone tz) {
+        return DateTimeFormat.format(config().getFormat(), this, tz, config().getLocale());
+    }
+
+   /**
+     * Return a String according to the provided format.
+     * 
+     * @param format
      * @param tz
      * 		Show formatted date & time at the given TimeZone
      * @param locale
@@ -430,39 +428,6 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      */
     public String toString(String format, TimeZone tz, Locale locale) {
         return DateTimeFormat.format(format, this, tz, locale);
-    }
-
-    /**
-     * The toLocalString method provides a sortable ISO 8601 date and time to the nearest
-     * second, but is rendered from the perspective of the time zone ascribed to the DateTime
-     * object, regardless of the system's time zone.
-     * 
-     * @return A string version of the this DateTime specified in local time.
-     * @deprecated
-     */
-    public String toLocalString() {
-        String formatStr = config().getFormat();
-        String str = DateTimeFormat.format(formatStr, this, config().getOutputTimeZone(), config().getLocale());
-        if (this.systemDur.millis < DateTime.CE) {
-            char c = formatStr.charAt(formatStr.length() - 1);
-            if (c != 'g' && c != 'G') {
-                return str + " BC";
-            }
-        }
-        return str;
-    }
-
-    /**
-     * The toLocalString method provides a sortable ISO 8601 date and time to the nearest
-     * second, but is rendered from the perspective of the time zone ascribed to the DateTime
-     * object, regardless of the system's time zone.
-     * 
-     * @param format
-     * @return A string version of the this DateTime specified in local time.
-     * @deprecated
-     */
-    public String toLocalString(String format) {
-        return DateTimeFormat.format(format, this, this.timeZone(), Locale.getDefault());
     }
 
     /**
@@ -630,15 +595,6 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     private static DateTime parseRelativeDate(String str, IDateTimeConfig config) {
         char firstChar = str.charAt(0);
         char lastChar = str.charAt(str.length() - 1);
-        if (str.length() == 8 && StringTool.onlyDigits(str)) {
-            // YYYYMMDD
-            StringBuffer sb = new StringBuffer(str.substring(0, 4));
-            sb.append('/');
-            sb.append(str.substring(4, 2));
-            sb.append('/');
-            sb.append(str.substring(6));
-            return parse(sb.toString(), config);
-        }
         DateTime dt = new DateTime();
         if ((firstChar == '+' || firstChar == '-') && lastChar >= '0' && lastChar <= '9') {
             if (StringTool.onlyDigits(str.substring(1))) {
@@ -667,7 +623,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
             }
             if (firstChar == '-' || firstChar >= '0' && firstChar <= '9') {
                 if (StringTool.isInteger(inner)) {
-                    int innerVal = (new Integer(inner)).intValue();
+                	String offset=firstChar == '-' ? "-" + inner : inner;
+                    int innerVal = (new Integer(offset)).intValue();
                     return dt.add(unit, innerVal);
                 }
             }
@@ -698,17 +655,33 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * @return New DateTime interpreted from string according to alternate rules.
      */
     public static DateTime parse(String str, IDateTimeConfig config) {
+        boolean isYearFirst = false;
+
+        // boolean guessedYear = false;
+        boolean isTwoDigitYear = false;
+
+        boolean hasYear = false, hasMonth = false, hasDay = false;
+        boolean hasHour = false, hasMinute = false, hasSecond = false;
+        boolean hasNanosecond = false;
+        boolean isBC = false;
+
+        if (config==null) {
+        	config=DateTimeConfig.getGlobalDefault().clone();
+        }
         if (str == null) {
-            return null;
+        	return new DateTime(System.currentTimeMillis(), config);
         }
         // Normalize the string a bit
         str = str.trim().toUpperCase(config.getLocale()).replace('\u00c9', 'E');
         if (str.length() == 0) {
-            throw new NullPointerException("Cannot parse time from empty string.");
+            throw new IllegalArgumentException("Cannot parse DateTime from empty string.");
         }
         if (str.indexOf('T')>0) {
         	// Replace a T separator with a space separator.
         	str=str.replaceFirst("([0-9])T([0-9])", "$1 $2");
+        }
+        if (str.charAt(0) == '+' || str.charAt(0) == '-') {
+            return parseRelativeDate(str, config);
         }
         if (str.matches(".*([0-9][A-Z]|[A-Z][0-9]).*")) {
         	// Expand dates that use number-to-alpha as implied separator
@@ -720,20 +693,13 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         if ("AM".equals(tzString) || "PM".equals(tzString)) {
         	tzString=null;
         }
+        if ("BC".equals(tzString) || "BCE".equals(tzString)) {
+        	tzString=null;
+        	isBC=true;
+        }
         TimeZone tz=config.lookupTimeZone(tzString);
         Tm tm = new Tm(System.currentTimeMillis(), tz);
-        if (str.charAt(0) == '+' || str.charAt(0) == '-') {
-            return parseRelativeDate(str, config);
-        }
         String[] parts = partsPattern.split(str);
-        boolean isYearFirst = false;
-
-        // boolean guessedYear = false;
-        boolean isTwoDigitYear = false;
-
-        boolean hasYear = false, hasMonth = false, hasDay = false;
-        boolean hasHour = false, hasMinute = false, hasSecond = false;
-        boolean hasNanosecond = false;
         int year = 0, month = 0, day = 1;
         int hour = 0, minute = 0, second = 0, nanosecond = 0;
         int thisYear = tm.getYear();
@@ -951,10 +917,13 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                 throw new IllegalArgumentException("No month has " + day + " days in it.");
             }
         }
+        if (isBC && year>=0) {
+        	year=-year+1;
+        }
         DateTime returnDt = new DateTime(Tm.calcTime(year, 1 + month, day, hour, minute, second,
                 nanosecond / 1000000, tz), config);
         if (isTwoDigitYear && config.isUnspecifiedCenturyAlwaysInPast()) {
-        	if (returnDt.getSeconds()*1000<System.currentTimeMillis()) {
+        	if (returnDt.getSeconds()*1000>System.currentTimeMillis()) {
         		returnDt=returnDt.shift(CalendarUnit.CENTURY, -1);
         	}
         }
@@ -1111,14 +1080,4 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         return this.config;
     }
 
-    /**
-     * The TimeZoneId tells what time zone the toString output will present.
-     * 
-     * @return ID of this DateTime object's original time zone.
-     * @deprecated After parse, only config determines output.
-     */
-    public String getTimeZoneId() {
-        return config.getOutputTimeZone().getID();
-    }
-
-}
+ }

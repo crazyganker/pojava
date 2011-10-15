@@ -52,9 +52,11 @@ import java.util.TimeZone;
  * 
  */
 public class DateTimeFormat {
-
-    private static final int[] dom = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334,
-            365 };
+		
+    /**
+     * CE is Common Era, Current Era, or Christian Era, a.k.a. AD.
+     */
+    private static final int[] dom = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
     private String template;
     private static Map <Locale, DateFormatSymbols> symbols=new HashMap<Locale,DateFormatSymbols>();
 
@@ -152,13 +154,14 @@ public class DateTimeFormat {
             symbols.put(locale, new DateFormatSymbols(locale));
         }
         DateFormatSymbols dfs=symbols.get(locale);
+						        String bcPrefix=(template.indexOf('g')<0 && template.indexOf('G')<0) ? dt.config().getBcPrefix() : "";
         boolean isLiteral=(prior=='\'');
         for (int i = 1; i < fmt.length; i++) {
             if (fmt[i]=='\'') {
                 if (prior=='\'') {
                     sb.append('\'');
                 } else {
-                    appendWord(sb, word, tm, dt, tz, locale, dfs);
+                    appendWord(sb, word, tm, dt, tz, locale, dfs, bcPrefix);
                 }
                 word.setLength(0);
                 prior = prior=='\'' ? ' ' : '\'';
@@ -169,13 +172,13 @@ public class DateTimeFormat {
             } else if (fmt[i] == prior) {
                 word.append(prior);
             } else {
-                appendWord(sb, word, tm, dt, tz, locale, dfs);
+                appendWord(sb, word, tm, dt, tz, locale, dfs, bcPrefix);
                 prior = fmt[i];
                 word.setLength(0);
                 word.append(prior);
             }
         }
-        appendWord(sb, word, tm, dt, tz, locale, dfs);
+        appendWord(sb, word, tm, dt, tz, locale, dfs, bcPrefix);
         return sb.toString();
     }
 
@@ -189,7 +192,7 @@ public class DateTimeFormat {
      * @param locale Locale
      * @param dfs DateFormatSymbols
      */
-    private static void appendWord(StringBuilder sb, StringBuilder word, Tm tm, DateTime dt, TimeZone tz, Locale locale, DateFormatSymbols dfs) {
+    private static void appendWord(StringBuilder sb, StringBuilder word, Tm tm, DateTime dt, TimeZone tz, Locale locale, DateFormatSymbols dfs, String appendBC) {
         if (word.length()==0) {
             return;
         }
@@ -203,7 +206,16 @@ public class DateTimeFormat {
             sb.append(tm.getYear() < 0 ? "BC" : "AD");
             break;
         case 'y':
-            sb.append(zfill(tm.getYear(), Math.max(2, len)));
+            if (tm.getYear()<0) {
+            	sb.append(appendBC);
+            }
+            if (len<3) {
+            	sb.append(zfill(tm.getYear()%100, 2));
+            } else if (len==3) {
+            	sb.append(zfill(tm.getYear()%1000, 3));
+            } else {
+            	sb.append(zfill(tm.getYear(), len));
+            }
             break;
         case 'M':
             if (len > 3) {
@@ -216,21 +228,21 @@ public class DateTimeFormat {
                 sb.append(tm.getMonth());
             }
             break;
-        case 'D':
+        case 'D': // Day in Year
             if (len > 1) {
-                sb.append(zfill(dom[tm.getMonth()] + tm.getDay() + leapDays(tm), len));
+                sb.append(zfill(dom[tm.getMonth()-1] + tm.getDay() + leapDays(tm), len));
             } else {
-                sb.append(dom[tm.getMonth()] + tm.getDay() + leapDays(tm));
+                sb.append(dom[tm.getMonth()-1] + tm.getDay() + leapDays(tm));
             }
             break;
-        case 'd':
+        case 'd': // Day in Month
             if (len > 1) {
                 sb.append(zfill(tm.getDay(), len));
             } else {
                 sb.append(tm.getDay());
             }
             break;
-        case 'E':
+        case 'E': // 
             if (len > 3) {
                 sb.append(dfs.getWeekdays()[tm.getWeekday()]);
             } else {
@@ -248,42 +260,24 @@ public class DateTimeFormat {
             }
             break;
         case 'k':
-            if (len > 1) {
-                sb.append(zfill(1 + tm.getHour(), len));
-            } else {
-                sb.append(1 + tm.getHour());
-            }
+        	int hr_k=tm.getHour()==0 ? 24 : tm.getHour();
+        	sb.append(len > 1 ? zfill(hr_k, len) : hr_k);
             break;
         case 'K':
-            if (len > 1) {
-                sb.append(zfill(tm.getHour() % 12, len));
-            } else {
-                sb.append(tm.getHour() % 12);
-            }
+        	int hr_K=tm.getHour() % 12;
+        	sb.append(len > 1 ? zfill(hr_K, len) : hr_K);
             break;
         case 'h':
-            int hr = tm.getHour() % 12;
-            if (hr == 0)
-                hr = 12;
-            if (len > 1) {
-                sb.append(zfill(hr, len));
-            } else {
-                sb.append(hr);
-            }
+            int hr_h = tm.getHour() % 12;
+            if (hr_h == 0)
+                hr_h = 12;
+            sb.append(len > 1 ? zfill(hr_h, len) : hr_h);
             break;
         case 'm':
-            if (len > 1) {
-                sb.append(zfill(tm.getMinute(), len));
-            } else {
-                sb.append(tm.getMinute());
-            }
+        	sb.append(len > 1 ? zfill(tm.getMinute(), len) : tm.getMinute());
             break;
         case 's':
-            if (len > 1) {
-                sb.append(zfill(tm.getSecond(), len));
-            } else {
-                sb.append(tm.getSecond());
-            }
+        	sb.append(len > 1 ? zfill(tm.getSecond(), len) : tm.getSecond());
             break;
         case 'S':
             sb.append(zfill(tm.getNanosecond(), 9).substring(0, len));
@@ -317,6 +311,18 @@ public class DateTimeFormat {
             }
             sb.append(minutes);
             break;
+        case 'F': // Day of week in month (e.g. 3rd Tuesday)
+        	sb.append(zfill(1 + (tm.getDay()-1)/7, len));
+        	break;
+        case 'w': // Week in year
+            Tm thu_w=new Tm(dt.add(CalendarUnit.DAY, tm.getWeekday()==1 ? -3 : 5-tm.getWeekday()));
+            int dayInYear=dom[thu_w.getMonth()-1] + thu_w.getDay() + leapDays(thu_w);
+            sb.append(zfill(1+(dayInYear-1)/7, len));
+        	break;
+        case 'W': // Week in month
+            Tm thu_W=new Tm(dt.add(CalendarUnit.DAY, tm.getWeekday()==1 ? -3 : 5-tm.getWeekday()));
+        	sb.append(zfill(1 + (thu_W.getDay()-1)/7, len));
+        	break;
         default:
             sb.append(word);
             break;
@@ -331,8 +337,16 @@ public class DateTimeFormat {
      * 		Zero-filled representation of number
      */
     private static String zfill(int value, int size) {
+    	if (value<0) value*=-1;
+    	String str=Integer.toString(value);
         StringBuilder zeros = new StringBuilder("000000000000");
-        zeros.append(Integer.toString(value));
+        if (str.length()>size) {
+        	return str;
+        }
+        while (zeros.length()+str.length()<size) {
+        	zeros.append(zeros.toString());
+        }
+        zeros.append(str);
         return zeros.substring(zeros.length() - Math.min(zeros.length(), size));
     }
 

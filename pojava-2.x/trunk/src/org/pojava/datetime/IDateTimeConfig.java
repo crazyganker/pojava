@@ -60,6 +60,8 @@ public interface IDateTimeConfig {
     
     public String getFormat();
     
+    public String getBcPrefix();
+    
     public int getEpochDOW();
     
     public TimeZone lookupTimeZone(String str);

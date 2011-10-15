@@ -115,7 +115,7 @@ public class Shift {
     }
 
     /**
-     * Shift by whole number of years
+     * Shift by number of years
      * @param accum
      */
     public void shiftYears(double accum) {
@@ -152,7 +152,9 @@ public class Shift {
             accum -= (long) accum;
         }
         if (accum != 0) {
-            shiftHours(accum * 7);
+            shiftDays(accum * 7);
+        } else {
+        	settleContents();
         }
     }
 
@@ -167,6 +169,8 @@ public class Shift {
         }
         if (accum != 0) {
             shiftHours(accum * 24);
+        } else {
+        	settleContents();
         }
     }
 
@@ -177,6 +181,8 @@ public class Shift {
         }
         if (accum != 0) {
             shiftMinutes(accum * MPH);
+        } else {
+        	settleContents();
         }
     }
     
@@ -187,6 +193,8 @@ public class Shift {
         }
         if (accum != 0) {
             shiftSeconds(accum * SPM);
+        } else {
+        	settleContents();
         }
     }
     
@@ -199,6 +207,7 @@ public class Shift {
             accum += (accum < 0 ? -0.0000000005 : 0.0000000005);
             nanosec += (long)(accum * 1000000000);
         }
+    	settleContents();
     }
 
     private void settleContents() {
@@ -216,6 +225,22 @@ public class Shift {
             long calchour = minute / MPH;
             hour += calchour;
             minute -= calchour * MPH;
+        }
+        while (day<0 && week>0) {
+        	week--;
+        	day+=7;
+        }
+        while (minute<0 && hour>0) {
+        	hour--;
+        	minute+=60;
+        }
+        while (second<0 && minute>0) {
+        	minute--;
+        	second+=60;
+        }
+        while (nanosec<0 && second>0) {
+        	second--;
+        	nanosec+=1000000000;
         }
     }
 

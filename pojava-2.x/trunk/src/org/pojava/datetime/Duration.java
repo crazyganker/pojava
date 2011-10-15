@@ -163,10 +163,11 @@ public class Duration implements Comparable<Duration>, Serializable {
      */
     public Duration(long millis) {
         this.millis = millis;
-        if (millis < 0)
-            this.nanos = 1000000000 + (int) (millis % SECOND) * NANOS_PER_MILLI;
+        int calcNanos=(int) (millis % SECOND) * NANOS_PER_MILLI;
+        if (calcNanos<0)
+            this.nanos = 1000000000 + calcNanos;
         else
-            this.nanos = (int) (millis % SECOND) * NANOS_PER_MILLI;
+            this.nanos = calcNanos;
     }
 
     /**
@@ -211,13 +212,6 @@ public class Duration implements Comparable<Duration>, Serializable {
     public Duration add(long milliseconds) {
         Duration d = new Duration(this.toMillis() + milliseconds);
         d.nanos += this.nanos % 1000000;
-        if (d.nanos > 1000000000) {
-            d.nanos -= 1000000000;
-            d.millis += 1000;
-        } else if (d.nanos < 0) {
-            d.nanos += 1000000000;
-            d.millis -= 1000;
-        }
         return d;
     }
 

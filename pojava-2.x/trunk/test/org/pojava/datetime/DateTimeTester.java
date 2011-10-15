@@ -1,7 +1,9 @@
 package org.pojava.datetime;
 
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
@@ -173,6 +175,7 @@ public class DateTimeTester extends TestCase {
         assertEquals("3055-06-14 02:03:04.123", dtNew.toString(format));
     }
 
+    /*
     public void XtestChart() {
         // Known leap seconds
         System.out.println(DateTime.parse("1972-07-01").toMillis());
@@ -205,6 +208,7 @@ public class DateTimeTester extends TestCase {
             System.out.println(ids[i]);
         }
     }
+    */
 
     public void testLanguages() {
         // English
@@ -259,7 +263,7 @@ public class DateTimeTester extends TestCase {
         // A millisecond prior to the year 0001 EST
         millis = -62135751600001L;
         assertEquals(millis, new DateTime("0001-01-01 EST").toMillis() - 1);
-        assertEquals("0001-12-31 23:59:59 BC", new DateTime(millis).toString());
+        assertEquals("-0001-12-31 23:59:59", new DateTime(millis).toString());
 
     }
 
@@ -346,9 +350,16 @@ public class DateTimeTester extends TestCase {
         assertTrue(diff <= dur);
     }
 
-    public void testToLocalString() {
-        DateTime dt = new DateTime("Jan 26, 1969");
-        assertEquals("1969-01-26 00:00:00", dt.toLocalString());
+    public void testRelativeDateMinusD() {
+        long start = System.currentTimeMillis();
+        DateTime dt1 = new DateTime();
+        DateTime dt2 = new DateTime("-2D");
+        long dur = System.currentTimeMillis() - start;
+        long diff = dt2.add(-2*Duration.DAY).toMillis() - dt1.toMillis();
+        // The relative date "-2D" represents 48hrs in past.
+        // The values for dt1 and dt2 will be one day apart, plus some
+        // small bit of extra time that elapsed between the two calculations.
+        assertTrue(diff <= dur);
     }
 
     /**
@@ -453,7 +464,19 @@ public class DateTimeTester extends TestCase {
         DateTime dt = new DateTime("2010-02-14 03:00 EST").shift(shift);
         assertEquals("2010-02-14 08:07:31", dt.toString());
     }
+    
+    public void testShift2() {
+    	DateTime dt=new DateTime("2011-03-04").shift(new Shift("1Y1M1W1D"));
+    	assertEquals("2012", dt.toString("yyyy"));
+    	assertEquals("04", dt.toString("MM"));
+    	assertEquals("12", dt.toString("dd"));
+    }
 
+    public void testShift3() {
+        DateTime dt = new DateTime("2010-02-14 03:00 EST").shift("P5HT7M31S");
+        assertEquals("2010-02-14 08:07:31", dt.toString());
+    }
+    
     public void testNearDST() {
         // EST observed on the 2nd Sunday in March
         DateTime dt = new DateTime("2009-03-08 00:00 PST");
@@ -689,5 +712,190 @@ public class DateTimeTester extends TestCase {
     	assertEquals("Tue", dt.add(CalendarUnit.DAY,5).toString("E"));
     	assertEquals("Wed", dt.add(CalendarUnit.DAY,6).toString("E"));
     }
+    
+    public void testDocs() throws Exception {
+    	String sample="2011-12-13T14:15:16 PST";
+    	DateTime dt=new DateTime(sample);
+    	assertEquals("2011-12-13 14:15:16 PST", dt.toString("yyyy-MM-dd HH:mm:ss z", TimeZone.getDefault()));
+    }
+    
+    public void testConstructorMT() {
+    	DateTime dt=new DateTime(0, "GMT");
+    	assertEquals(0, dt.getSeconds());
+    }
 
+    public void testConstructorSN() {
+    	DateTime dt=new DateTime(123, 456);
+    	assertEquals(123, dt.getSeconds());
+    	assertEquals(456, dt.getNanos());
+    }
+
+    public void testConstructorSNT() {
+    	DateTime dt=new DateTime(123, 456, TimeZone.getTimeZone("IST"));
+    	assertEquals(123, dt.getSeconds());
+    	assertEquals(456, dt.getNanos());
+    	assertEquals("IST", dt.toString("z"));
+    }
+
+    public void testConstructorSNTs() {
+    	DateTime dt=new DateTime(123, 456, "IST");
+    	assertEquals(123, dt.getSeconds());
+    	assertEquals(456, dt.getNanos());
+    	assertEquals("IST", dt.toString("z"));
+    }
+    
+    public void testConstructorNullStr() {
+    	long start=System.currentTimeMillis();
+    	String nullString=null;
+    	DateTime dt=new DateTime(nullString);
+    	long end=System.currentTimeMillis();
+    	assertTrue(start/1000 <= dt.getSeconds());
+    	assertTrue(1+end/1000 >= dt.getSeconds());
+    }
+
+    public void testConstructorNullStrI() {
+    	long start=System.currentTimeMillis();
+    	String nullString=null;
+    	DateTimeConfig dtc=DateTimeConfig.getGlobalDefault().clone();
+    	DateTime dt=new DateTime(nullString, dtc);
+    	long end=System.currentTimeMillis();
+    	assertTrue(start/1000 <= dt.getSeconds());
+    	assertTrue(1+end/1000 >= dt.getSeconds());
+    }
+    
+    public void testConstructorTs() {
+    	Timestamp ts=new Timestamp(12345);
+    	ts.setNanos(233322235);
+    	DateTime dt=new DateTime(ts);
+    	assertEquals(12, dt.getSeconds());
+    	assertEquals(233322235, dt.getNanos());
+    	assertEquals(ts, dt.toTimestamp());
+    }
+    
+    public void testCompareToNull() {
+    	DateTime dt=new DateTime();
+    	try {
+    		DateTime dtNull=null;
+    		dt.compareTo(dtNull);
+    		fail("Expecting NullPointerException");
+    	} catch (NullPointerException ex) {
+    		assertTrue(ex.getMessage().contains("to null"));
+    	}
+    }
+    
+    public void testToStringTz() {
+    	DateTime dt=new DateTime("2020-02-20 15:30 GMT");
+    	assertEquals("2020-02-20 21:00:00", dt.toString(TimeZone.getTimeZone("IST")));
+    }
+
+    public void testToStringFmtTzLoc() {
+    	DateTime dt=new DateTime("2020-02-20 15:30 GMT");
+    	String fmt="yyyy MMM Z";
+    	TimeZone tz=TimeZone.getTimeZone("IST");
+    	Locale loc=Locale.FRANCE;
+    	assertEquals("2020 févr. +0530", dt.toString(fmt, tz, loc));
+    }
+    
+    public void testParseYYYYMMDD() {
+    	DateTime dt1=new DateTime("2011-03-28");
+    	DateTime dt2=new DateTime("20110328");
+    	assertEquals(dt1, dt2);
+    }
+    
+    public void testRelativeYearMinus() {
+    	DateTime dt1=new DateTime();
+    	DateTime dt2=new DateTime("-1Y");
+    	Tm tm1=new Tm(dt1);
+    	Tm tm2=new Tm(dt2);
+    	assertEquals(tm1.getYear(), tm2.getYear()+1);
+    }
+
+    public void testRelativeYearPlus() {
+    	DateTime dt1=new DateTime();
+    	DateTime dt2=new DateTime("+1Y");
+    	Tm tm1=new Tm(dt1);
+    	Tm tm2=new Tm(dt2);
+    	assertEquals(tm1.getYear(), tm2.getYear()-1);
+    }
+
+    public void testRelativeYearBad() {
+    	try {
+    		new DateTime("-1Y2");
+    		fail("Expected IllegalArgumentException");
+    	} catch (IllegalArgumentException ex) {
+    		assertTrue(ex.getMessage().contains("not parse"));
+    	}
+    }
+
+    public void testRelativeMonthMinus() {
+    	DateTime dt1=new DateTime();
+    	DateTime dt2=new DateTime("-1M");
+    	Tm tm1=new Tm(dt1);
+    	Tm tm2=new Tm(dt2);
+    	if (tm1.getMonth()==1) {
+    		assertEquals(12, tm2.getMonth());
+    	} else {
+    		assertEquals(tm1.getMonth(), tm2.getMonth()+1);
+    	}
+    }
+
+    public void testRelativeMonthPlus() {
+    	DateTime dt1=new DateTime();
+    	DateTime dt2=new DateTime("+1M");
+    	Tm tm1=new Tm(dt1);
+    	Tm tm2=new Tm(dt2);
+    	if (tm1.getMonth()==12) {
+    		assertEquals(1, tm2.getMonth());
+    	} else {
+    		assertEquals(tm1.getMonth(), tm2.getMonth()-1);
+    	}
+    }
+
+    public void testConstructorNullWithConfig() {
+		DateTimeConfig dtc=DateTimeConfig.getGlobalDefault().clone();
+		String str=null;
+		long before=System.currentTimeMillis()/1000;
+		DateTime dt=new DateTime(str, dtc);
+		long after=System.currentTimeMillis()/1000;
+		assertTrue(before<=dt.getSeconds());
+		assertTrue(after>=dt.getSeconds());
+    }
+    
+    public void testConstructorBlank() {
+    	try {
+    		new DateTime("");
+    		fail("Expected IllegalArgumentException");
+    	} catch (IllegalArgumentException ex) {
+    		assertTrue(ex.getMessage().contains("Cannot parse"));
+    	}
+    }
+    
+    public void testConstructorBlankConfig() {
+    	try {
+    		DateTimeConfig dtc=null;
+    		new DateTime("", dtc);
+    		fail("Expected IllegalArgumentException");
+    	} catch (IllegalArgumentException ex) {
+    		assertTrue(ex.getMessage().contains("Cannot parse"));
+    	}    	
+    }
+    
+    public void testParseNull() {
+    	DateTimeConfig dtc=DateTimeConfig.getGlobalDefault();
+    	String str=null;
+    	long before=System.currentTimeMillis()/1000;
+    	DateTime dt1=DateTime.parse(str);
+    	DateTime dt2=DateTime.parse(str, dtc);
+    	long after=System.currentTimeMillis()/1000;
+    	assertTrue(before<=dt1.getSeconds());
+    	assertTrue(before<=dt2.getSeconds());
+    	assertTrue(after>=dt1.getSeconds());
+    	assertTrue(after>=dt2.getSeconds());
+    }
+    
+    public void testHashCode() {
+    	DateTime dt=new DateTime();
+    	assertTrue(0!=dt.hashCode());
+    }
+    
 }
