@@ -1,0 +1,50 @@
+<html>
+<head>
+<title>POJava HOWTO: DateTime Formatting</title>
+<LINK REL="stylesheet" HREF="/style/pojava.css" TYPE="text/css"
+	MEDIA=screen />
+</head>
+<body>
+<h1>HOWTO format dates using POJava DateTime</h1>
+<p>The DateTime class is used for parsing, storing, and manipulating
+Date and Time. It also incorporates the ability to format dates in its
+toString output in a couple of ways.</p>
+
+<h3>toString("custom_format")</h3>
+<p>By default, DateTime will use the format defined in its associated
+DateTimeConfig.  You can override this format by specifying a custom
+format as a parameter.  Here's an example:  
+</p>
+<pre>
+DateTime dt=new DateTime("2011-10-05");
+system.out.println(dt.toString("yyyy-MM-dd"));
+</pre>
+<h2>Format specifiers</h2>
+<p>The formatting options behave the same as the SimpleDateFormat provided
+in the Java language, with a few exceptions.</p>
+<table class="grid">
+<tr><td><B>Format character</B></td><td><B>Java behavior</B></td><td><B>POJava behavior</B></td></tr>
+<tr><td>g</td><td>Unsupported</td><td>Scientific Era Designator CE/BCE</td></tr>
+<tr><td>G</td><td>Era Designator</td><td>Same</td></tr>
+<tr><td>M</td><td>Month in Year</td><td>Same</td></tr>
+<tr><td>y</td><td>Year</td><td>Same</td></tr>
+<tr><td>d</td><td>Day in Month</td><td>Same</td></tr>
+<tr><td>D</td><td>Day in Year</td><td>Same</td></tr>
+<tr><td>E</td><td>Day in Week</td><td>Same</td></tr>
+<tr><td>a</td><td>Am/Pm Marker</td><td>Same</td></tr>
+<tr><td>h</td><td>Hour in am/pm 1-12</td><td>Same</td></tr>
+<tr><td>H</td><td>Hour in Day 0-23</td><td>Same</td></tr>
+<tr><td>k</td><td>Hour in Day 1-24</td><td>Same</td></tr>
+<tr><td>K</td><td>Hour in am/pm 0-11</td><td>Same</td></tr>
+<tr><td>m</td><td>Minute in Hour</td><td>Same</td></tr>
+<tr><td>s</td><td>Second in Minute</td><td>Same</td></tr>
+<tr><td>S</td><td>Millisecond</td><td>Fractional Second</td></tr>
+<tr><td>z</td><td>General Time Zone</td><td>Same</td></tr>
+<tr><td>Z</td><td>RFC 822 Time Zone</td><td>Same</td></tr>
+<tr><td>F</td><td>Day of Week in Month</td><td>Same</td></tr>
+<tr><td>w</td><td>Week in Year</td><td>Same</td></tr>
+<tr><td>W</td><td>Week in Month</td><td>Same</td></tr>
+</table>
+
+</body>
+</html>

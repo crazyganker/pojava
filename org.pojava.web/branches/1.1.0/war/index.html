@@ -3,32 +3,53 @@
 <title>POJava</title>
 <LINK REL="stylesheet" HREF="/style/pojava.css" TYPE="text/css" MEDIA="screen" />
 <body>
-<img src="img/pojava7.png">
+<img src="img/pojava7.png" />
 <h3>What is POJava?</h3>
-<p>POJava is a very light-weight utility library providing a practical assortment of data transformations.
-Its goal is to provide a foundation for POJO-based handling of data with no dependencies and no alterations
-required of the POJO itself.  The base jar, POJava, provides common functions for string and binary conversions,
-such as compression, encryption, and encoding, and other tools for accessing, validating, and altering data
-such as date manipulation, reflection, external process invocation, and language binding.</p>
-<p>A key strength of the base POJava library is its handling of dates and times.  Its immutable DateTime object parses dates
-from text in multiple languages and formats down to nanosecond precision.  It can perform date math, such as truncating
-to a whole time period, or adding a period to a date, or performing multiple in-line operations.  It's really easy to use.</p>
-<p>The POJava Persistence jar layers additional support for database-to-object (ORM) and object-to-xml
-exchanges in both directions.  It depends only on POJava, so it also has a very small footprint.
-</p>
+<p>POJava is a set of small light-weight Java libraries addressing common business-oriented
+software development needs.  Each of the currently three libraries is designed with some
+guiding principles in mind:  Keep it small and simple.  Avoid unnecessary dependencies.
+</p><p>
+POJava gets its name from "Plain Old Java".  Like "Plain Old Telephone Service" or "Plain
+Old XML", it's pretty basic stuff.  Here's how it's organized.
+<table class="grid">
+<tr>
+  <th>POJava Utility</th>
+  <td>This base jar provides common functions for string and binary conversions,
+such as compression, encryption, and encoding.  It also includes tools for accessing,
+validating, and altering data using reflection, external process invocation, and language
+binding.  It currently also supports the DateTime package, which is being spun off into
+its own project POJava DateTime.
+</td>
+</tr><tr>
+  <th>POJava DateTime</th>
+  <td>The DateTime library provides an immutable object, "DateTime", intended to improve upon
+  Java's native Date, Timestamp, Calendar, and SimpleDateFormat classes.  DateTime's
+  most prominent feature is its ability to parse dates and times from a wide variety of
+  formats and languages.  DateTime is a business-oriented library, intentionally very small, but
+  easily supporting time zone conversions, American or European ordering of month and day, 
+  ISO8601 dates, relative dates and date-based math.  It also provides integrated formatting
+  with built-in extensions such as a choice of fractional seconds to any length rather than
+  just milliseconds, and a choice of BC/AD vs. BCE/CE to describe eras. 
+  </td>
+</tr>
+<tr>
+  <th>POJava Persistence</th>
+  <td>This library provides database-to-object (ORM) and object-to-xml conversions in both
+  directions.  It depends only on POJava, so it also has a very small footprint.
+  </td>
+</tr>
+</table>
+
 <h2>What's new and cool in POJava?</h2>
-<p>As of version 2.7.0, POJava's DateTime class switched switched from relying on
-the TimeZone.getDefault() static to determine a time zone, to using a combination
-of InputTimeZone and OutputTimeZone stored in an IDateTimeConfig, and allowing
-a custom IDateTimeConfig to be specified.  The DateTimeConfig class was updated to
-support this as well, providing a singleton version of itself as a global default,
-and a quick means of creating and customizing clones.  The end result is that 
-DateTime can be more easily used for sites offering independent services using 
-multiple time zones for multiple customers.</p>
+<p>POJava's DateTime class was recently moved into its own library.  This will keep it focused on
+one well-defined task, supporting business use of Date and Time.  Keeping it separate
+helps ensure that it stays small in the future (under 32K with no dependencies!) and keeps
+it safely away from concerns such as whether encryption is supported and in what countries.
+</p>
 <h2>Generated Documentation</h2>
 <table>
 <tr>
-<td><a href="/site/pojava-2.7.0/">POJava 2.7.0</a> <a href="/site/pojava-2.7.0/apidocs/">JavaDocs</a></td>
+<td><a href="/site/pojava-2.8.0/">POJava 2.8.0</a> <a href="/site/pojava-2.8.0/apidocs/">JavaDocs</a></td>
 <td>POJava provides utilities for managing data using simple POJOs (Plain Old Java Objects).</td>
 </tr>
 <tr>
@@ -39,14 +60,22 @@ deserialization to simplify the conversion of your objects into a portable form.
 </tr>
 </table>
 <h2>Hand-written Documentation</h2>
-<h3>How to use POJava for...</h3>
+<h3>How to use POJava DateTime...</h3>
+<table>
+<tr>
+  <td><a href="/howto/datetime.html">Date and Time</a>
+  <td>Easily parse freeform text Date and Time in multiple languages and formats.</td>
+</tr><tr>
+  <td><a href="/howto/format.html">Format Date and Time Output</a>
+  <td>Output DateTime values using your own custom formats.</td>
+</tr>
+
+</table>
+<h3>How to use POJava Utilities...</h3>
 <table>
 <tr>
   <td><a href="/howto/compression.html">Compression</a></td>
-  <td>Using Zip compression to fit more into the same space.</td>
-</tr><tr>
-  <td><a href="/howto/datetime.html">Date and Time</a>
-  <td>Easily parse freeform text Date and Time in multiple languages and formats.</td>
+  <td>Use Zip compression to fit more into the same space.</td>
 </tr><tr>
   <td><a href="/howto/encoding.html">Number Base Encoding</a>
   <td>Base-64 or Hex-encode your binary data for document portability.</td>
@@ -55,11 +84,11 @@ deserialization to simplify the conversion of your objects into a portable form.
   <td>Use JNDIRegistry to populate a test-friendly InitialContext.</td>
 </tr><tr>
   <td><a href="/howto/process.html">Running External Programs</a>
-  <td>Use the ProcessTool to reliably execute external programs, capturing both stdout and stderr.</td>
+  <td>Use the ProcessTool to more safely execute external programs, capturing both 
+  stdout and stderr in separate threads.</td>
 </tr><tr>
   <td><a href="/howto/encryption.html">Encryption</a>
-  <td>Encrypt and decrypt your data using government-approved AES-128 encryption (and other
-supported encryption methods).</td>
+  <td>Encrypt and decrypt your data using AES encryption and simple key management.</td>
 </tr>
 </table>
 <table>
