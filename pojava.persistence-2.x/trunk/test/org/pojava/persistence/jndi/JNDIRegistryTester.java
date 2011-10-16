@@ -1,13 +1,20 @@
 package org.pojava.persistence.jndi;
 
+import java.io.IOException;
+import java.util.Properties;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
-
-import org.pojava.persistence.jndi.JNDIRegistry;
 
 import junit.framework.TestCase;
 
 public class JNDIRegistryTester extends TestCase {
+	
+	@Override
+	protected void setUp() throws Exception {
+		JNDIRegistry.getInitialContext();
+		super.setUp();
+	}
 
     public void testInitialContext() throws Exception {
         Context ctx = new InitialContext();
@@ -21,6 +28,12 @@ public class JNDIRegistryTester extends TestCase {
         workingCtx.bind("example", "same");
         assertEquals("same", ctx.lookup("example"));
         assertEquals("same", workingCtx.lookup("example"));
+    }
+    
+    public void testBind() throws Exception {
+    	Context ctx = new InitialContext();
+        ctx.bind("java:comp/env/something", "test");
+        assertEquals("test", ctx.lookup("java:comp/env/something"));
     }
 
     public void testInitialContextFactory() throws Exception {
@@ -111,6 +124,43 @@ public class JNDIRegistryTester extends TestCase {
             // expected
         }
 
+    }
+
+    public void testFetchPropertiesNoFile() throws Exception {
+    	try {
+    		JNDIRegistry.fetchProperties("nofile.txt");
+    	} catch (IOException ex) {
+    		assertTrue(ex.getMessage().contains("nofile.txt"));
+    	}
+    }
+
+    public void testFetchProperties() throws Exception {
+        Properties props=JNDIRegistry.fetchProperties("config/ds_test.properties");
+        assertEquals(5, props.size());
+    }
+
+    public void testExtractDataSource() throws Exception {
+        Properties props=JNDIRegistry.fetchProperties("config/ds_test.properties");
+        DriverManagerDataSource ds=(DriverManagerDataSource) JNDIRegistry.extractDataSource(props, "pojava_test");
+        assertEquals("pojava", ds.user);
+        assertEquals("popojava", ds.password);
+        assertEquals("jdbc:postgresql://localhost:5432/postgres", ds.url);
+    }
+
+    public void testDataSourceFromFile() throws Exception {
+    	JNDIRegistry.registerDatasourcesFromFile("config/ds_test.properties");
+    	DriverManagerDataSource ds=(DriverManagerDataSource)JNDIRegistry.lookupDataSource("pojava_test");
+    	assertEquals("pojava", ds.user);
+        assertEquals("popojava", ds.password);
+        assertEquals("jdbc:postgresql://localhost:5432/postgres", ds.url);
+    }
+    
+    public void testLookups() throws Exception {
+    	Context ctx=new InitialContext();
+    	String value="value";
+    	ctx.bind("java:comp/env/example", value);
+    	assertEquals(value, JNDIRegistry.lookupEnv("example"));
+    	assertEquals(value, JNDIRegistry.lookupFullyQualified("java:comp/env/example"));
     }
 
 }

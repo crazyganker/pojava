@@ -1,7 +1,7 @@
 package org.pojava.persistence.jndi;
 
 /*
- Copyright 2008-09 John Pile
+ Copyright 2008-11 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.pojava.persistence.jndi;
  */
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -116,23 +115,19 @@ public class JNDIRegistry {
      * @param propertyFile file holding properties to retrieve
      * @return Properties retrieved from file
      */
-    public static Properties fetchProperties(String propertyFile) {
+    public static Properties fetchProperties(String propertyFile) throws IOException {
         Properties dataSourceProps = new Properties();
         // override properties
         FileInputStream in=null;
         try {
             in = new FileInputStream(propertyFile);
             dataSourceProps.load(in);
-        } catch (FileNotFoundException ex) {
-            logger.log(Level.WARNING, "Could not find a property file named " + propertyFile, ex);
-        } catch (IOException ex) {
-            logger.log(Level.WARNING, "IOException occurred trying to read config/datastore.properties.", ex);
         } finally {
             if (in!=null) {
                 try {
                     in.close();
                 } catch (IOException ex) {
-                    logger.log(Level.WARNING, "IOException occurred trying to read config/datastore.properties.", ex);
+                    logger.log(Level.WARNING, "IOException occurred trying to read " + propertyFile, ex);
                 }
             }
         }
@@ -151,7 +146,7 @@ public class JNDIRegistry {
         String user=props.getProperty(dsName + ".user");
         String password=props.getProperty(dsName + ".password");
         String driver=props.getProperty(dsName + ".driver");
-        Class.forName(props.getProperty(driver));
+        Class.forName(driver);
         DriverManagerDataSource ds=new DriverManagerDataSource(url, user, password);
         return ds;
     }
@@ -162,13 +157,17 @@ public class JNDIRegistry {
      * @throws ClassNotFoundException
      * @throws NamingException
      */
-    public static void registerDatasourcesFromFile(String propertyFile) throws ClassNotFoundException, NamingException {
+    public static void registerDatasourcesFromFile(String propertyFile) throws ClassNotFoundException, NamingException, IOException {
         Properties dataSourceProps = fetchProperties(propertyFile);
-        String[] propNames = ((String)dataSourceProps.get("datasource_names")).split("[ ,|]+");
-        Context context=getInitialContext();
+        String propNamesCSV=(String)dataSourceProps.get("datasource_names");
+        if (propNamesCSV==null) {
+        	throw new IllegalStateException("No datasource_names property found in propertyFile: " + propertyFile);
+        }
+        String[] propNames = propNamesCSV.split("[ ,|]+");
+        Context context=JNDIRegistry.getInitialContext();
         for (int i=0; i<propNames.length; i++) {
             DataSource ds=extractDataSource(dataSourceProps, propNames[i]);
-            context.bind("java:comp/env/" + propNames[i], ds);
+            context.bind("java:comp/env/jdbc/" + propNames[i], ds);
         }
     }
 

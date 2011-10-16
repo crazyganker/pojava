@@ -149,4 +149,13 @@ public class DatabaseCacheTester extends TestCase {
 
     }
 
+    public void testDataSourceMetaData() throws Exception {
+    	JNDIRegistry.getInitialContext();
+    	JNDIRegistry.registerDatasourcesFromFile("config/ds_test.properties");
+    	DataSource ds=DatabaseCache.getDataSource("pojava_test");
+    	assertTrue(ds!=null);
+    	DataSourceMetadata dsm=DatabaseCache.getDataSourceMetadata("pojava_test");
+    	assertTrue(dsm.getDriverName().contains("Native"));
+    	assertEquals("PostgreSQL", dsm.getPlatform());
+    }
 }

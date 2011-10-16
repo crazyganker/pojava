@@ -142,6 +142,13 @@ public class XmlSerializerTester extends TestCase {
         assertEquals("<obj class=\"java.sql.Timestamp\">-86400.877</obj>\n", xml);
     }
 
+    public void testDateTime() {
+    	DateTime dt = new DateTime(-86400123);
+        XmlSerializer serializer = new XmlSerializer();
+        String xml = serializer.toXml(dt);
+        assertEquals("<obj class=\"DateTime\">-86400.877</obj>\n", xml);
+    }
+    
     /**
      * Objects that are not traditional POJO's pose some interesting challenges. The DTO
      * pattern, for example, might define an immutable object with a big constructor and no
