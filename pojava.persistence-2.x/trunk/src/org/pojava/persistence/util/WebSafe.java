@@ -30,7 +30,7 @@ public class WebSafe {
 
     /**
      * Construct a web-safe with a keyString (see EncryptionTool) 
-     * @param key
+     * @param keyString base64-encrypted key used to encrypt contents
      * @throws InvalidKeyException
      */
     public WebSafe(String keyString) throws InvalidKeyException {
