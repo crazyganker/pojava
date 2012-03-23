@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  */
 public class DataPump extends Thread {
     
-    private static Logger logger = Logger.getLogger("org.pojava.util.SqlTool");
+    private static Logger logger = Logger.getLogger("org.pojava.util.DataPump");
 
     /**
      * Source of data stream
