@@ -43,18 +43,23 @@ public class StringToolTester extends TestCase {
     public void testCamelFromUnderscore() {
         assertEquals("iAmACamel", StringTool.camelFromUnderscore("i_am_a_camel"));
         assertEquals("iAmACamel", StringTool.camelFromUnderscore("I_am_a_Camel"));
+        assertEquals("iAte_naan", StringTool.camelFromUnderscore("i_ate__naan"));
+        assertEquals("server_1", StringTool.camelFromUnderscore("server_1"));
+        assertEquals("underDog", StringTool.camelFromUnderscore("under_dog"));
+        assertEquals("a1AndA2", StringTool.camelFromUnderscore("a1_and_a2"));
     }
 
     public void testUnderscoreFromCamel() {
+        assertEquals("i_am_a_camel", StringTool.underscoreFromCamel("iAmACamel"));
+        assertEquals("i_ate__naan", StringTool.underscoreFromCamel("iAte_naan"));
+        assertEquals("server_1", StringTool.underscoreFromCamel("server_1"));
         assertEquals("under_dog", StringTool.underscoreFromCamel("underDog"));
         assertEquals("a1_and_a2", StringTool.underscoreFromCamel("a1AndA2"));
     }
 
     public void testStripWhitespace() {
-        assertEquals(
-                "Vapidfoxpawszipquicklyundermybrightjar.",
-                StringTool
-                        .stripWhitespace("   \tVapid fox paws\tzip quickly \t \tunder my bright jar .\n\n "));
+        assertEquals("Vapidfoxpawszipquicklyundermybrightjar.",
+                StringTool.stripWhitespace("   \tVapid fox paws\tzip quickly \t \tunder my bright jar .\n\n "));
     }
 
     public void testPad() {
@@ -63,7 +68,7 @@ public class StringToolTester extends TestCase {
         // Pad does not truncate or trim.
         assertEquals("three ", StringTool.pad("three ", 3));
     }
-    
+
     public void testTrue() {
         assertEquals(true, StringTool.isTrue("Yes"));
         assertEquals(true, StringTool.isTrue("y"));
@@ -79,42 +84,42 @@ public class StringToolTester extends TestCase {
         assertEquals(false, StringTool.isTrue(""));
         assertEquals(false, StringTool.isTrue(null));
     }
-    
+
     public void testParseCommandQuotes() {
-    	String[] cmd=StringTool.parseCommand("useradd \"Joshua Timothy\"");
-    	assertEquals("useradd", cmd[0]);
-    	assertEquals("Joshua Timothy", cmd[1]);
-    	cmd=StringTool.parseCommand("promote \"Jacob  Andrew\" to  Captain");
-    	assertEquals("promote", cmd[0]);
-    	assertEquals("Jacob  Andrew", cmd[1]);
-    	assertEquals("to", cmd[2]);
-    	assertEquals("Captain", cmd[3]);
+        String[] cmd = StringTool.parseCommand("useradd \"Joshua Timothy\"");
+        assertEquals("useradd", cmd[0]);
+        assertEquals("Joshua Timothy", cmd[1]);
+        cmd = StringTool.parseCommand("promote \"Jacob  Andrew\" to  Captain");
+        assertEquals("promote", cmd[0]);
+        assertEquals("Jacob  Andrew", cmd[1]);
+        assertEquals("to", cmd[2]);
+        assertEquals("Captain", cmd[3]);
     }
-    
+
     public void testParseCommandApostrophes() {
-    	String[] cmd=StringTool.parseCommand("promote 'Jacob's [sic] dog to Captain");
-    	assertEquals("promote", cmd[0]);
-    	assertEquals("Jacobs", cmd[1]);
-    	assertEquals("[sic]", cmd[2]);
-    	assertEquals("dog", cmd[3]);
-    	assertEquals("to", cmd[4]);
-    	assertEquals("Captain", cmd[5]);
-    	cmd=StringTool.parseCommand("promote \"Jacob's dog\" to Captain");
-    	assertEquals("promote", cmd[0]);
-    	assertEquals("Jacob's dog", cmd[1]);
-    	assertEquals("to", cmd[2]);
-    	assertEquals("Captain", cmd[3]);
-    	try {
-    		cmd=StringTool.parseCommand("My shell wouldn't tolerate this");
-    		fail("Uncaught open single quote.");
-    	} catch (IllegalArgumentException ex) {
-    		assertEquals("Unclosed quotes in argument.", ex.getMessage());
-    	}
+        String[] cmd = StringTool.parseCommand("promote 'Jacob's [sic] dog to Captain");
+        assertEquals("promote", cmd[0]);
+        assertEquals("Jacobs", cmd[1]);
+        assertEquals("[sic]", cmd[2]);
+        assertEquals("dog", cmd[3]);
+        assertEquals("to", cmd[4]);
+        assertEquals("Captain", cmd[5]);
+        cmd = StringTool.parseCommand("promote \"Jacob's dog\" to Captain");
+        assertEquals("promote", cmd[0]);
+        assertEquals("Jacob's dog", cmd[1]);
+        assertEquals("to", cmd[2]);
+        assertEquals("Captain", cmd[3]);
+        try {
+            cmd = StringTool.parseCommand("My shell wouldn't tolerate this");
+            fail("Uncaught open single quote.");
+        } catch (IllegalArgumentException ex) {
+            assertEquals("Unclosed quotes in argument.", ex.getMessage());
+        }
     }
-    
+
     public void testParseCommandBacktics() {
-    	String[] cmd=StringTool.parseCommand("dir poj-`date +%d`.log");
-    	assertEquals("dir", cmd[0]);
-    	assertEquals("poj-`date +%d`.log", cmd[1]);
+        String[] cmd = StringTool.parseCommand("dir poj-`date +%d`.log");
+        assertEquals("dir", cmd[0]);
+        assertEquals("poj-`date +%d`.log", cmd[1]);
     }
 }
