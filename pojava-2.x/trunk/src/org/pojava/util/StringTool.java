@@ -19,15 +19,13 @@ import java.util.ArrayList;
  */
 
 /**
- * A set of methods for performing string manipulation, mostly to support internal needs without
- * requiring external libraries.
+ * A set of methods for performing string manipulation, mostly to support internal needs without requiring external libraries.
  */
 public class StringTool {
 
     /**
-     * Returns a zero-based offset if the left-most characters of str match all of the
-     * characters of any member of list.
-     * 
+     * Returns a zero-based offset if the left-most characters of str match all of the characters of any member of list.
+     *
      * @param list
      * @param str
      * @return -1 if no match, else indexed offset
@@ -44,64 +42,71 @@ public class StringTool {
 
     /**
      * True if a string matches /^[-]?[0-9]+$/
-     * 
+     *
      * @param s
      * @return true if string is numeric
      */
     public static boolean isInteger(String s) {
-        if (s == null || s.length() == 0)
+        if (s == null || s.length() == 0) {
             return false;
+        }
         char c = s.charAt(0);
-        if (s.length() == 1)
+        if (s.length() == 1) {
             return c >= '0' && c <= '9';
+        }
         return (c == '-' || c >= '0' && c <= '9') && onlyDigits(s.substring(1));
     }
 
     /**
      * True if a string matches /^[tTyY1].*$/
+     *
      * @param s
      * @return true if string represents true
      */
     public static boolean isTrue(String s) {
-        if (s == null || s.length() == 0)
+        if (s == null || s.length() == 0) {
             return false;
+        }
         char c = s.charAt(0);
-        return c=='t' || c=='T' || c=='y' || c=='Y' || c=='1';
+        return c == 't' || c == 'T' || c == 'y' || c == 'Y' || c == '1';
     }
 
     /**
      * True if a string has only digits in it.
-     * 
+     *
      * @param s
      * @return true if string is composed of only digits.
      */
     public static boolean onlyDigits(String s) {
-        if (s == null || s.length() == 0)
+        if (s == null || s.length() == 0) {
             return false;
+        }
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            if (c < '0' || c > '9')
+            if (c < '0' || c > '9') {
                 return false;
+            }
         }
         return true;
     }
 
     /**
      * True if a string starts with a digit.
-     * 
+     *
      * @param s
      * @return true if string starts with a digit.
      */
     public static boolean startsWithDigit(String s) {
-        if (s == null || s.length() == 0)
+        if (s == null || s.length() == 0) {
             return false;
+        }
         char c = s.charAt(0);
         return (c >= '0' && c <= '9');
     }
 
     /**
      * Parse an integer from left-to-right until non-digit reached
-     * 
+     *
      * @param str
      * @return first integer greedily matched from a string
      */
@@ -133,7 +138,7 @@ public class StringTool {
 
     /**
      * Capitalize the first character of a String.
-     * 
+     *
      * @param str
      * @return Capitalize the first character.
      */
@@ -145,56 +150,52 @@ public class StringTool {
 
     /**
      * Convert strings of this_style to thisStyle.
-     * 
+     *
      * @param str
      * @return camelCase from underscored_words
      */
     public static String camelFromUnderscore(String str) {
-        if (str == null)
-            return null;
-        StringBuffer sb = new StringBuffer();
-        char[] a = str.toCharArray();
-        boolean up = false;
-        for (int i = 0; i < a.length; i++) {
-            char c = a[i];
-            if (c == '_') {
-                up = true;
-            } else {
-                if (up) {
-                    up = false;
-                    if (c >= '0' && c <= '9') {
-                        sb.append('_');
-                        sb.append(c);
-                    } else {
-                        sb.append(Character.toUpperCase(c));
-                    }
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        char[] ar = str.toCharArray();
+        int backref = 0;
+        ar[0] = Character.toLowerCase(ar[0]);
+        for (int i = 0; i < ar.length; i++) {
+            if (ar[i] == '_') {
+                if (ar[i + 1] >= '0' && ar[i + 1] <= '9') {
+                    ar[i - backref] = ar[i];
                 } else {
-                    if (c >= 'A' && c <= 'Z') {
-                        c += 'a' - 'A';
-                    }
-                    sb.append(c);
+                    ar[i - backref++] = Character.toUpperCase(ar[i++ + 1]);
                 }
+            } else {
+                ar[i - backref] = ar[i];
             }
         }
-        return sb.toString();
+        return new String(ar).substring(0, ar.length - backref);
     }
 
     /**
      * Convert strings of thisStyle to this_style.
-     * 
+     *
      * @param str
      * @return underscored_words from camelCase
      */
     public static String underscoreFromCamel(String str) {
-        if (str == null)
+        if (str == null) {
             return null;
+        }
         StringBuffer sb = new StringBuffer();
         char[] a = str.toCharArray();
-        for (int i = 0; i < a.length; i++) {
-            char c = a[i];
+        for (char element : a) {
+            char c = element;
             if (c >= 'A' && c <= 'Z') {
                 sb.append('_');
                 c += ('a' - 'A');
+            } else if (c == '_') {
+                sb.append('_');
+            } else if (c >= '0' && c <= '9' && sb.length() > 0 && sb.charAt(sb.length() - 1) == '_') {
+                sb.setLength(sb.length() - 1);
             }
             sb.append(c);
         }
@@ -202,9 +203,8 @@ public class StringTool {
     }
 
     /**
-     * Collapses a string with whitespace characters, including carriage returns, into a
-     * one-line string with no spaces or tabs.
-     * 
+     * Collapses a string with whitespace characters, including carriage returns, into a one-line string with no spaces or tabs.
+     *
      * @param str
      * @return A string with all whitespace removed.
      */
@@ -225,7 +225,7 @@ public class StringTool {
 
     /**
      * Right-pad a string to a fixed width with spaces.
-     * 
+     *
      * @param str
      * @param width
      * @return Padded string of minimal width.
@@ -241,56 +241,55 @@ public class StringTool {
         }
         return sb.toString();
     }
-    
+
     /**
      * Convert a shell command to an equivalent String array.
-     * 
+     *
      * @param cmd Command including parameters.
      * @return String array parsed from cmd.
      */
     public static String[] parseCommand(String cmd) {
-    	ArrayList<String> list=new ArrayList<String>();
-    	StringBuffer sb=new StringBuffer();
-    	char[] chars=cmd.toCharArray();
-    	boolean isLiteral=false;
-    	char litchar=' ';
-		String[] command={};
-		for (int i=0; i<chars.length; i++) {
-    		char c=chars[i];
-    		if (isLiteral) {
-    			if (c==litchar) {
-    				isLiteral=false;
-    				if (c=='`') {
-    					sb.append(c);
-    				}
-    			} else {
-    				sb.append(c);
-    			}
-    		} else {
-    			if (c=='\'' || c=='\"' || c=='`') {
-    				isLiteral=true;
-    				litchar=c;
-    				if (c=='`') {
-    					sb.append(c);
-    				}
-    			} else if (c==' ') {
-    				if (sb.length()>0) {
-	    				list.add(sb.toString());
-	    				sb.setLength(0);
-    				}
-    			} else {
-    				sb.append(c);
-    			}
-    		}
-    	}
-		if (sb.length()>0) {
-			list.add(sb.toString());
-			sb.setLength(0);
-		}
-		if (isLiteral) {
-			throw new IllegalArgumentException("Unclosed quotes in argument.");
-		}
-		return list.toArray(command);
+        ArrayList<String> list = new ArrayList<String>();
+        StringBuffer sb = new StringBuffer();
+        char[] chars = cmd.toCharArray();
+        boolean isLiteral = false;
+        char litchar = ' ';
+        String[] command = {};
+        for (char c : chars) {
+            if (isLiteral) {
+                if (c == litchar) {
+                    isLiteral = false;
+                    if (c == '`') {
+                        sb.append(c);
+                    }
+                } else {
+                    sb.append(c);
+                }
+            } else {
+                if (c == '\'' || c == '\"' || c == '`') {
+                    isLiteral = true;
+                    litchar = c;
+                    if (c == '`') {
+                        sb.append(c);
+                    }
+                } else if (c == ' ') {
+                    if (sb.length() > 0) {
+                        list.add(sb.toString());
+                        sb.setLength(0);
+                    }
+                } else {
+                    sb.append(c);
+                }
+            }
+        }
+        if (sb.length() > 0) {
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+        if (isLiteral) {
+            throw new IllegalArgumentException("Unclosed quotes in argument.");
+        }
+        return list.toArray(command);
     }
 
 }
