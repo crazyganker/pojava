@@ -5,8 +5,8 @@ import java.util.List;
 
 public class People {
 
-    List<Person> people = new ArrayList<Person>();
-    Person leader = null;
+    private List<Person> people = new ArrayList<Person>();
+    private Person leader = null;
 
     public List<Person> getPeople() {
         return people;

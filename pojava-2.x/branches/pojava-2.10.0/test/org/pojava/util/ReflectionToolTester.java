@@ -1,15 +1,21 @@
 package org.pojava.util;
 
-import java.lang.reflect.Method;
-import java.util.Map;
-
 import junit.framework.TestCase;
-
 import org.pojava.datetime.DateTime;
+import org.pojava.datetime.DateTimeConfig;
 import org.pojava.examples.People;
 import org.pojava.examples.Person;
+import org.pojava.lang.Accessors;
+
+import java.lang.reflect.Method;
+import java.util.*;
 
 public class ReflectionToolTester extends TestCase {
+
+    @Override
+    public void setUp() {
+        DateTimeConfig.setGlobalDefault(null);
+    }
 
     public Person newPerson(int i) {
         Person person = new Person();
@@ -31,7 +37,7 @@ public class ReflectionToolTester extends TestCase {
         person.setId(123);
         person.setName("Bob");
         person.setBirth(new DateTime("2008-08-08 08:08:08"));
-        assertEquals(new Integer(123), ReflectionTool.getNestedValue("id", person));
+        assertEquals(123, ReflectionTool.getNestedValue("id", person));
         assertEquals("Bob", ReflectionTool.getNestedValue("name", person));
         assertEquals(new DateTime("2008-08-08 08:08:08"), ReflectionTool.getNestedValue(
                 "birth", person));
@@ -42,7 +48,7 @@ public class ReflectionToolTester extends TestCase {
         people[0] = new Person(1, "one", new DateTime(1));
         people[1] = new Person(2, "two", new DateTime(2));
         people[2] = new Person(3, "three", new DateTime(3));
-        assertEquals(new Integer(1), ReflectionTool.getNestedValue("[0].id", people));
+        assertEquals(1, ReflectionTool.getNestedValue("[0].id", people));
         assertEquals("two", ReflectionTool.getNestedValue("[1].name", people));
         assertEquals(new DateTime(3), ReflectionTool.getNestedValue("[2].birth", people));
     }
@@ -75,10 +81,10 @@ public class ReflectionToolTester extends TestCase {
         People people = new People();
         people.addPerson(person2);
         people.setLeader(person1);
-        ReflectionTool.setNestedValue("leader.id", people, new Integer(111));
+        ReflectionTool.setNestedValue("leader.id", people, 111);
         ReflectionTool.setNestedValue("people[0].name", people, "test");
         assertEquals(111, people.getLeader().getId());
-        assertEquals("test", ((Person) people.getPeople().get(0)).getName());
+        assertEquals("test", people.getPeople().get(0).getName());
     }
 
     public void testGetterMethods() throws Exception {
@@ -95,7 +101,7 @@ public class ReflectionToolTester extends TestCase {
         people.setLeader(person1);
         Method[] getters = ReflectionTool.getterMethodDrilldown(People.class, "leader.id");
         Object obj = ReflectionTool.getNestedValue(getters, people);
-        assertEquals(new Integer(1), obj);
+        assertEquals(1, obj);
     }
 
     public void testNestedValueNotExisting() throws Exception {
@@ -121,7 +127,7 @@ public class ReflectionToolTester extends TestCase {
         }
     }
 
-    public void testAccessors() throws Exception {
+    public void testAccessorsFromDrilldown() throws Exception {
         Method[] getters;
         Method[] setters;
         getters = ReflectionTool.getterMethodDrilldown(People.class, "leader.name");
@@ -136,6 +142,37 @@ public class ReflectionToolTester extends TestCase {
         assertEquals(String.class, getters[1].getReturnType());
     }
 
+    public void testAccessorsFromClass() throws Exception {
+        Accessors accessors = ReflectionTool.accessors(Person.class);
+        Map<String, Method> getters = accessors.getGetters();
+        Map<String, Method> setters = accessors.getSetters();
+        assertEquals(3, getters.size());
+        assertTrue(getters.containsKey("id"));
+        assertTrue(getters.containsKey("name"));
+        assertTrue(getters.containsKey("birth"));
+        assertEquals(3, setters.size());
+        assertTrue(setters.containsKey("id"));
+        assertTrue(setters.containsKey("name"));
+        assertTrue(setters.containsKey("birth"));
+    }
+
+    public void testAccessorsHandPickedFromClass() throws Exception {
+        Set<String> getterFilter = new HashSet<String>();
+        Set<String> setterFilter = new HashSet<String>();
+        Collections.addAll(getterFilter, "id", "name", "birth");
+        Collections.addAll(setterFilter, "id", "name");
+        Accessors accessors = ReflectionTool.accessors(Person.class, getterFilter, setterFilter);
+        Map<String, Method> getters = accessors.getGetters();
+        Map<String, Method> setters = accessors.getSetters();
+        assertEquals(3, getters.size());
+        assertTrue(getters.containsKey("id"));
+        assertTrue(getters.containsKey("name"));
+        assertTrue(getters.containsKey("birth"));
+        assertEquals(2, setters.size());
+        assertTrue(setters.containsKey("id"));
+        assertTrue(setters.containsKey("name"));
+    }
+
     public void testSetNestedValueFromMethod() throws Exception {
         People peeps = new People();
         Method[] getters = ReflectionTool.getterMethodDrilldown(People.class, "leader.name");
@@ -144,4 +181,42 @@ public class ReflectionToolTester extends TestCase {
         assertEquals("Alvin", peeps.getLeader().getName());
 
     }
+
+    public void testIsBasic() throws Exception {
+        assertTrue(ReflectionTool.isBasic(byte.class));
+        assertTrue(ReflectionTool.isBasic(Byte.class));
+        assertTrue(ReflectionTool.isBasic(short.class));
+        assertTrue(ReflectionTool.isBasic(Short.class));
+        assertTrue(ReflectionTool.isBasic(int.class));
+        assertTrue(ReflectionTool.isBasic(Integer.class));
+        assertTrue(ReflectionTool.isBasic(long.class));
+        assertTrue(ReflectionTool.isBasic(Long.class));
+        assertTrue(ReflectionTool.isBasic(float.class));
+        assertTrue(ReflectionTool.isBasic(Float.class));
+        assertTrue(ReflectionTool.isBasic(double.class));
+        assertTrue(ReflectionTool.isBasic(Double.class));
+        assertTrue(ReflectionTool.isBasic(boolean.class));
+        assertTrue(ReflectionTool.isBasic(Boolean.class));
+        assertTrue(ReflectionTool.isBasic(char.class));
+        assertTrue(ReflectionTool.isBasic(Character.class));
+        assertTrue(ReflectionTool.isBasic(String.class));
+        assertFalse(ReflectionTool.isBasic(Date.class));
+        assertFalse(ReflectionTool.isBasic(People.class));
+        assertFalse(ReflectionTool.isBasic(int[].class));
+    }
+
+    public void testPopulateFromMap() throws Exception {
+        Person ray = new Person();
+        Accessors accessors = ReflectionTool.accessors(Person.class);
+        Map<String, Object[]> propertyData = new HashMap<String, Object[]>();
+        propertyData.put("id", new Object[]{12});
+        propertyData.put("name", new Object[]{"Ray"});
+        propertyData.put("birth", new Object[]{DateTime.parse("1973-03-09")});
+        ReflectionTool.populateFromMap(ray, propertyData, accessors.getSetters());
+        assertEquals(12, ray.getId());
+        assertEquals("Ray", ray.getName());
+        assertEquals("1973-03-09", ray.getBirth().toString("yyyy-MM-dd"));
+    }
+
+
 }

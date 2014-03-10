@@ -19,13 +19,12 @@ package org.pojava.exception;
 /**
  * This wraps a number of exceptions that generally indicate a problem relating to the task of
  * persisting an object to an external medium, such as JDBC, a file, or a service.
- * 
+ * <p/>
  * The general purpose is to allow the business end of your code to be insulated from changes to
  * a particular storage medium, so you can more easily switch, for example, from direct SQL to
  * an ESB or other service.
- * 
+ *
  * @author John Pile
- * 
  */
 public class PersistenceException extends RuntimeException {
 

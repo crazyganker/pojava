@@ -20,9 +20,8 @@ import java.io.Serializable;
 
 /**
  * Duration is a fixed measurement of time.
- * 
+ *
  * @author John Pile
- * 
  */
 public class Duration implements Comparable<Duration>, Serializable {
 
@@ -68,10 +67,14 @@ public class Duration implements Comparable<Duration>, Serializable {
      */
     private static final int NANOS_PER_MILLI = 1000000;
 
-    /** Non-leap Milliseconds since an epoch */
+    /**
+     * Non-leap Milliseconds since an epoch
+     */
     protected long millis = 0;
 
-    /** Nanoseconds used by high-resolution time stamps */
+    /**
+     * Nanoseconds used by high-resolution time stamps
+     */
     protected int nanos = 0;
 
     /**
@@ -80,91 +83,91 @@ public class Duration implements Comparable<Duration>, Serializable {
     public Duration() {
         // Default is zero duration
     }
-    
+
     /**
      * Constructor parsing from a string.
+     *
      * @param duration String representation of a duration.
      */
     public Duration(String duration) {
-        char[] chars=duration.toCharArray();
-        double accum=0.0;
-        double tot=0.0;
-        double dec=1.0;
-        int sign=1;
+        char[] chars = duration.toCharArray();
+        double accum = 0.0;
+        double tot = 0.0;
+        double dec = 1.0;
+        int sign = 1;
         // Weeks, days, hours, minutes, seconds, nanoseconds [wdhmsn]
-        for (int i=0; i<chars.length; i++) {
-            char c=chars[i];
-            if (c=='.') {
-                dec/=10;
-            } else if (c=='-') {
-            	sign=-1;
-            } else if (c>='0' && c<='9') {
-                if (Math.abs(dec)>0.5) {
-                    accum=accum*10+sign*dec*(c-'0');
+        for (char c : chars) {
+            if (c == '.') {
+                dec /= 10;
+            } else if (c == '-') {
+                sign = -1;
+            } else if (c >= '0' && c <= '9') {
+                if (Math.abs(dec) > 0.5) {
+                    accum = accum * 10 + sign * dec * (c - '0');
                 } else {
-                    accum+=sign*dec*(c-'0');
-                    dec/=10;                
+                    accum += sign * dec * (c - '0');
+                    dec /= 10;
                 }
-            } else if (c=='w' || c=='W') {
-                if (accum!=0) {
-                    tot+=Duration.WEEK*accum;
-                    accum=0;
-                    dec=1;
+            } else if (c == 'w' || c == 'W') {
+                if (accum != 0) {
+                    tot += Duration.WEEK * accum;
+                    accum = 0;
+                    dec = 1;
                 }
-            } else if (c=='d' || c=='D') {
-                if (accum!=0) {
-                    tot+=Duration.DAY*accum;
-                    accum=0;
-                    dec=1;
+            } else if (c == 'd' || c == 'D') {
+                if (accum != 0) {
+                    tot += Duration.DAY * accum;
+                    accum = 0;
+                    dec = 1;
                 }
-            } else if (c=='h' || c=='H') {
-                if (accum!=0) {
-                    tot+=Duration.HOUR*accum;
-                    accum=0;
-                    dec=1;
+            } else if (c == 'h' || c == 'H') {
+                if (accum != 0) {
+                    tot += Duration.HOUR * accum;
+                    accum = 0;
+                    dec = 1;
                 }
-            } else if (c=='m' || c=='M' || c=='\'') {
-                if (accum!=0) {
-                    tot+=Duration.MINUTE*accum;
-                    accum=0;
-                    dec=1;
+            } else if (c == 'm' || c == 'M' || c == '\'') {
+                if (accum != 0) {
+                    tot += Duration.MINUTE * accum;
+                    accum = 0;
+                    dec = 1;
                 }
-            } else if (c=='s' || c=='S' || c=='\"') {
-                if (accum!=0) {
-                    tot+=Duration.SECOND*accum;
-                    accum=0;
-                    dec=1;
+            } else if (c == 's' || c == 'S' || c == '\"') {
+                if (accum != 0) {
+                    tot += Duration.SECOND * accum;
+                    accum = 0;
+                    dec = 1;
                 }
-            } else if (c=='n' || c=='N') {
-                if (accum!=0) {
-                    tot+=accum/Duration.NANOS_PER_MILLI;
-                    accum=0;
-                    dec=1;
+            } else if (c == 'n' || c == 'N') {
+                if (accum != 0) {
+                    tot += accum / Duration.NANOS_PER_MILLI;
+                    accum = 0;
+                    dec = 1;
                 }
             }
         }
         // tot is in whole and fractional milliseconds
-        if (tot>0) {
-            tot+=0.0000001;
+        if (tot > 0) {
+            tot += 0.0000001;
         } else {
-            tot-=0.0000001;
+            tot -= 0.0000001;
         }
-        this.millis=(long)tot;
-        tot/=1000;
-        tot-=(long)tot;
-        tot*=1000;
-        this.nanos=(int)(tot*Duration.NANOS_PER_MILLI);
+        this.millis = (long) tot;
+        tot /= 1000;
+        tot -= (long) tot;
+        tot *= 1000;
+        this.nanos = (int) (tot * Duration.NANOS_PER_MILLI);
     }
 
     /**
      * Duration specified in milliseconds.
-     * 
+     *
      * @param millis
      */
     public Duration(long millis) {
         this.millis = millis;
-        int calcNanos=(int) (millis % SECOND) * NANOS_PER_MILLI;
-        if (calcNanos<0)
+        int calcNanos = (int) (millis % SECOND) * NANOS_PER_MILLI;
+        if (calcNanos < 0)
             this.nanos = 1000000000 + calcNanos;
         else
             this.nanos = calcNanos;
@@ -174,7 +177,7 @@ public class Duration implements Comparable<Duration>, Serializable {
      * Seconds + nanos pair will always be adjusted so that nanos is positive.
      * It's a strange arrangement, but useful when representing time as an
      * offset of Epoch, where a negative value usually represents a positive year.
-     * 
+     *
      * @param seconds
      * @param nanos
      */
@@ -195,7 +198,7 @@ public class Duration implements Comparable<Duration>, Serializable {
 
     /**
      * Add a duration, producing a new duration.
-     * 
+     *
      * @param dur
      * @return A newly calculated Duration.
      */
@@ -205,7 +208,7 @@ public class Duration implements Comparable<Duration>, Serializable {
 
     /**
      * Add fixed number of (+/-) milliseconds to a Duration, producing a new Duration.
-     * 
+     *
      * @param milliseconds
      * @return A newly calculated Duration.
      */
@@ -217,7 +220,7 @@ public class Duration implements Comparable<Duration>, Serializable {
 
     /**
      * Add seconds and nanoseconds to a Duration, producing a new Duration.
-     * 
+     *
      * @param seconds
      * @param nanos
      * @return A newly calculated Duration.
@@ -233,9 +236,8 @@ public class Duration implements Comparable<Duration>, Serializable {
 
     /**
      * Return relative comparison between two Durations.
-     * 
-     * @param other
-     * 		Duration to compare to
+     *
+     * @param other Duration to compare to
      * @return -1, 0, or 1 of left compared to right.
      */
     public int compareTo(Duration other) {
@@ -250,16 +252,12 @@ public class Duration implements Comparable<Duration>, Serializable {
 
     /**
      * Two durations are equal if internal values are identical.
-     * 
-     * @param other
-     *            is a Duration or derived object
+     *
+     * @param other is a Duration or derived object
      * @return True if durations match.
      */
     public boolean equals(Object other) {
-        if (other instanceof Duration) {
-            return compareTo((Duration) other) == 0;
-        }
-        return false;
+        return other instanceof Duration && compareTo((Duration) other) == 0;
     }
 
     @Override
@@ -270,7 +268,7 @@ public class Duration implements Comparable<Duration>, Serializable {
     /**
      * Return fractional seconds in nanoseconds<br/>
      * Sign of value will match whole time value.
-     * 
+     *
      * @return Sub-second portion of Duration specified in nanoseconds.
      */
     public int getNanos() {
@@ -279,7 +277,7 @@ public class Duration implements Comparable<Duration>, Serializable {
 
     /**
      * Return time truncated to milliseconds
-     * 
+     *
      * @return Number of whole milliseconds in Duration.
      */
     public long toMillis() {
@@ -288,71 +286,72 @@ public class Duration implements Comparable<Duration>, Serializable {
 
     /**
      * Return duration truncated seconds.
-     * 
+     *
      * @return Number of whole seconds in Duration.
      */
     public long getSeconds() {
         return millis / 1000 - (nanos < 0 ? 1 : 0);
     }
-    
+
     /**
      * Return a duration parsed from a string.
      * Expected string is of regex format "(-?[0-9]*\.?[0-9]+ *['"wdhmsnWDHMSN][^-0-9.]*)+"
+     *
      * @param str of format similar to "1h15m12s" or "8 weeks, 3.5 days" or [5'13"]
      * @return a new Duration object
      */
     public static Duration parse(String str) {
-        Duration dur=new Duration(str);
-        return dur;
+        return new Duration(str);
     }
-    
+
     /**
      * Helper to build out a duration string
-     * @param ms milliseconds remaining
+     *
+     * @param ms       milliseconds remaining
      * @param interval number of milliseconds per discrete chunk
-     * @param label character representing chunk size (w,d,h,m,s)
-     * @param sb current duration on which to append
+     * @param label    character representing chunk size (w,d,h,m,s)
+     * @param sb       current duration on which to append
      * @return ms remaining
      */
     private long extract(long ms, long interval, String label, StringBuilder sb) {
-        long unit=0;
-        unit=ms/interval;
+        long unit = 0;
+        unit = ms / interval;
         sb.append(unit);
         sb.append(label);
-        ms-=unit*interval;
+        ms -= unit * interval;
         return ms;
     }
-    
+
     /**
      * Output duration as a string.
      */
     public String toString() {
-        StringBuilder sb=new StringBuilder();
-        long ms=this.millis;
-        int ns=this.nanos;
-        if (ms<0 || (ms==0 && ns<0)) {
-        	sb.append("-");
-        	ms*=-1;
-        	ns*=-1;
+        StringBuilder sb = new StringBuilder();
+        long ms = this.millis;
+        int ns = this.nanos;
+        if (ms < 0 || (ms == 0 && ns < 0)) {
+            sb.append("-");
+            ms *= -1;
+            ns *= -1;
         }
-        if (ms>Duration.DAY) {
-            ms=extract(ms, Duration.DAY, "d", sb);
+        if (ms > Duration.DAY) {
+            ms = extract(ms, Duration.DAY, "d", sb);
         }
-        if (ms>Duration.HOUR) {
-            ms=extract(ms, Duration.HOUR, "h", sb);
+        if (ms > Duration.HOUR) {
+            ms = extract(ms, Duration.HOUR, "h", sb);
         }
-        if (ms>Duration.MINUTE) {
-            ms=extract(ms, Duration.MINUTE, "m", sb);
+        if (ms > Duration.MINUTE) {
+            ms = extract(ms, Duration.MINUTE, "m", sb);
         }
-        if (ms>Duration.SECOND) {
-        	// Findbugs complains of "dead store" if assigned to ms here
+        if (ms > Duration.SECOND) {
+            // Findbugs complains of "dead store" if assigned to ms here
             extract(ms, Duration.SECOND, "s", sb);
         }
-        if (ns>0) {
+        if (ns > 0) {
             sb.append(ns);
             sb.append("n");
         }
         return sb.toString();
     }
-    
+
 }

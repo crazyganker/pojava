@@ -16,25 +16,24 @@ package org.pojava.lang;
  limitations under the License.
  */
 
+import org.pojava.datetime.DateTime;
+import org.pojava.datetime.DateTimeFormat;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.pojava.datetime.DateTime;
-import org.pojava.datetime.DateTimeFormat;
-
 /**
  * A BoundString represents a String with Bindings. Each binding is represented by a placeholder
  * mapped sequentially to a list of Binding objects.
- * 
+ *
  * @author John Pile
- * 
  */
 public class BoundString {
 
-    private static char PLACEHOLDER = '?';
-    private static final char quot = '\'';
+    private static final char PLACEHOLDER = '?';
+    private static final char QUOT = '\'';
     private final StringBuffer sb = new StringBuffer();
     private final List<UncheckedBinding> bindings = new ArrayList<UncheckedBinding>();
     private static final String date2ms = "MM/dd/yyyy HH:mm:ss.SSS";
@@ -54,7 +53,7 @@ public class BoundString {
 
     /**
      * Append to the existing string.
-     * 
+     *
      * @param str
      */
     public void append(String str) {
@@ -63,7 +62,7 @@ public class BoundString {
 
     /**
      * Insert in front of the existing string.
-     * 
+     *
      * @param str
      */
     public void insert(String str) {
@@ -72,8 +71,8 @@ public class BoundString {
 
     /**
      * Append another bound string including both string and bindings.
-     * 
-     * @param bstr
+     *
+     * @param bstr bound string to append
      */
     public void append(BoundString bstr) {
         this.sb.append(bstr.getString());
@@ -82,8 +81,8 @@ public class BoundString {
 
     /**
      * Insert another bound string including both string and bindings.
-     * 
-     * @param bstr
+     *
+     * @param bstr bound string to insert
      */
     public void insert(BoundString bstr) {
         this.sb.insert(0, bstr.getString());
@@ -92,7 +91,7 @@ public class BoundString {
 
     /**
      * Return the bindings bound to the string.
-     * 
+     *
      * @return List of Binding objects.
      */
     public List<UncheckedBinding> getBindings() {
@@ -101,7 +100,7 @@ public class BoundString {
 
     /**
      * Return the string being bound
-     * 
+     *
      * @return String into which Binding objects are bound.
      */
     public String getString() {
@@ -110,11 +109,9 @@ public class BoundString {
 
     /**
      * Add a binding
-     * 
-     * @param type
-     *            class of object to bind.
-     * @param obj
-     *            object to bind.
+     *
+     * @param type class of object to bind.
+     * @param obj  object to bind.
      */
     public <T> void addBinding(Class<T> type, T obj) {
         this.bindings.add(new Binding<T>(type, obj));
@@ -126,7 +123,7 @@ public class BoundString {
 
     /**
      * Add a collection of bindings.
-     * 
+     *
      * @param bindings
      */
     public void addBindings(Collection<UncheckedBinding> bindings) {
@@ -143,7 +140,7 @@ public class BoundString {
 
     /**
      * Verify placeholder count against bindings count.
-     * 
+     *
      * @return True if placeholder count mismatches binding count.
      */
     public boolean isImbalanced() {
@@ -158,7 +155,7 @@ public class BoundString {
 
     /**
      * Chop last ct characters off of string
-     * 
+     *
      * @param ct
      */
     public void chop(int ct) {
@@ -168,18 +165,17 @@ public class BoundString {
     /**
      * Display an unbound equivalent of this BoundString with String versions of each bound
      * value represented in-line in place of the markers.
-     * 
+     *
      * @return String with toString versions of bound values inserted back into the String.
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         int marker = 0;
         char quot = '\'';
         char[] sql = this.getString().toCharArray();
-        for (int i = 0; i < sql.length; i++) {
-            char c = sql[i];
+        for (char c : sql) {
             if (c == '?') {
-                UncheckedBinding binding = (UncheckedBinding) getBindings().get(marker++);
+                UncheckedBinding binding = getBindings().get(marker++);
                 if (binding.getObj() == null) {
                     sb.append("null");
                 } else {
@@ -207,20 +203,20 @@ public class BoundString {
 
     /**
      * Format a date, chopping off zeros.
-     * 
-     * @param date
+     *
+     * @param dt
      * @return a string version of a date with zeros truncated.
      */
     private String formatDate(DateTime dt) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(quot);
+        StringBuilder sb = new StringBuilder();
+        sb.append(QUOT);
         sb.append(DateTimeFormat.format(BoundString.date2ms, dt));
         if (sb.substring(11).equals(" 00:00:00.000")) {
             sb.setLength(11);
         } else if (sb.substring(20).equals(".000")) {
             sb.setLength(20);
         }
-        sb.append(quot);
+        sb.append(QUOT);
         return sb.toString();
     }
 

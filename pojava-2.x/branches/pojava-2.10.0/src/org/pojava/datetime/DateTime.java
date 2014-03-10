@@ -15,6 +15,9 @@ package org.pojava.datetime;
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
+import org.pojava.util.StringTool;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -22,8 +25,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
-
-import org.pojava.util.StringTool;
 
 /**
  * <p>
@@ -34,7 +35,7 @@ import org.pojava.util.StringTool;
  * nanos.
  * </p>
  * <p>
- * You may think of a DateTime object as a fixed offset of System time measured from the Unix epoch in non-leap milliseconds or
+ * You may think of a DateTime object as a fixed offset of time measured from the Unix epoch in non-leap milliseconds or
  * non-leap seconds and nanoseconds. Leap years are calculated according to the Gregorian Calendar, matching the same
  * interpretation as the java.util.Date object (every 4th year is a leap year, except for years divisible by 100 but not divisible
  * by 400). The times are stored according to the UTC (aka GMT) time zone, and a TimeZone object is referenced to translate to a
@@ -54,31 +55,30 @@ import org.pojava.util.StringTool;
  * <p>
  * Some notes on the date interpretations:
  * </p>
- * 
+ * <p/>
  * <p>
  * All dates are interpreted in your local time zone, unless a time zone is specified in the String. Time zones are configurable
  * in the DateTimeConfig object, so you can determine for your own application whether CST, for example, would adjust to Central
  * Standard Time or Chinese Standard Time.
  * </p>
- * 
+ * <p/>
  * <p>
  * A two-digit year will assume up to 80 years in the past and 20 years in the future. It is prudent in many cases to follow this
  * with a check based on whether you know the date to represent a past or future date. If you know you parsed a birthday, you can
  * compare with today's date and subtract 100 yrs if needed (references to birthdays 20 years in the future are rare). Similarly,
  * if you're dealing with an annuity date, you can add 100 years if the parsed date occurred in the past.
  * </p>
- * 
+ * <p/>
  * <p>
  * If you're parsing European dates expecting DD/MM/YYYY instead of MM/DD/YYYY, then you can alter the global DateTimeConfig
  * setting by first calling, " <code>DateTimeConfig.globalEuropeanDateFormat();</code>".
  * </p>
- * 
+ *
  * @author John Pile
- * 
  */
 public class DateTime implements Serializable, Comparable<DateTime> {
 
-    private static final long serialVersionUID = 201L;
+    private static final long serialVersionUID = 300L;
 
     /**
      * These months have less than 31 days
@@ -100,21 +100,28 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      */
     protected Duration systemDur = null;
 
-    private static final Pattern partsPattern = Pattern.compile("[^A-Z0-9_]+");
+    private static final Pattern partsPattern = Pattern.compile("[^\\p{L}\\d]+");
 
     /**
      * Default constructor gives current time to millisecond.
      */
     public DateTime() {
-        this.systemDur = new Duration(System.currentTimeMillis());
         config();
+        this.systemDur = new Duration(config.systemTime());
+    }
+
+    /**
+     * DateTime with a specified config
+     */
+    public DateTime(IDateTimeConfig config) {
+        this.config = config;
+        this.systemDur = new Duration(config.systemTime());
     }
 
     /**
      * DateTime constructed from time in milliseconds since epoch.
-     * 
-     * @param millis
-     *            time
+     *
+     * @param millis time since epoch
      */
     public DateTime(long millis) {
         config();
@@ -123,10 +130,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * DateTime constructed from time in milliseconds since epoch.
-     * 
+     *
      * @param millis
-     * @param config
-     *            time
+     * @param config time
      */
     public DateTime(long millis, IDateTimeConfig config) {
         this.config = config;
@@ -135,41 +141,33 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * DateTime constructed from time in milliseconds since epoch.
-     * 
-     * @param millis
-     *            Number of milliseconds since epoch
-     * @param tz
-     *            Override the output Time Zone
+     *
+     * @param millis Number of milliseconds since epoch
+     * @param tz     Override the output Time Zone
      */
     public DateTime(long millis, TimeZone tz) {
-        DateTimeConfig newConfig = DateTimeConfig.getGlobalDefault().clone();
-        newConfig.setOutputTimeZone(tz);
-        this.config = newConfig;
+        this.config = LocalConfig.instanceOverridingOutputTimeZone(DateTimeConfig.getGlobalDefault(), tz);
         this.systemDur = new Duration(millis);
     }
 
     /**
      * DateTime constructed from time in milliseconds since epoch.
-     * 
-     * @param millis
-     *            Number of milliseconds since epoch
-     * @param tzId
-     *            Override the output time zone
+     *
+     * @param millis Number of milliseconds since epoch
+     * @param tzId   Override the output time zone
      */
     public DateTime(long millis, String tzId) {
-        DateTimeConfig newConfig = DateTimeConfig.getGlobalDefault().clone();
-        newConfig.setOutputTimeZone(newConfig.lookupTimeZone(tzId));
-        this.config = newConfig;
+        IDateTimeConfig globalConfig = DateTimeConfig.getGlobalDefault();
+        TimeZone tz = globalConfig.lookupTimeZone(tzId);
+        this.config = LocalConfig.instanceOverridingOutputTimeZone(globalConfig, tz);
         this.systemDur = new Duration(millis);
     }
 
     /**
      * Construct a DateTime from seconds and fractional seconds.
-     * 
-     * @param seconds
-     *            Number of seconds since epoch (typically 1970-01-01)
-     * @param nanos
-     *            Nanosecond offset in range +/- 999999999
+     *
+     * @param seconds Number of seconds since epoch (typically 1970-01-01)
+     * @param nanos   Nanosecond offset in range +/- 999999999
      */
     public DateTime(long seconds, int nanos) {
         config();
@@ -178,47 +176,36 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Construct a DateTime from seconds and fractional seconds.
-     * 
-     * @param seconds
-     *            Number of seconds since epoch (typically 1970-01-01)
-     * @param nanos
-     *            Nanosecond offset in range +/- 999999999
-     * @param tz
-     *            Override the output time zone
+     *
+     * @param seconds Number of seconds since epoch (typically 1970-01-01)
+     * @param nanos   Nanosecond offset in range +/- 999999999
+     * @param tz      Override the output time zone
      */
     public DateTime(long seconds, int nanos, TimeZone tz) {
-        DateTimeConfig newConfig = DateTimeConfig.getGlobalDefault().clone();
-        newConfig.setOutputTimeZone(tz);
-        this.config = newConfig;
+        this.config = LocalConfig.instanceOverridingOutputTimeZone(DateTimeConfig.getGlobalDefault(), tz);
         this.systemDur = new Duration(seconds, nanos);
     }
 
     /**
      * Construct a DateTime from seconds and fractional seconds.
-     * 
-     * @param seconds
-     *            Number of seconds since epoch (typically 1970-01-01)
-     * @param nanos
-     *            Nanosecond offset in range +/- 999999999
-     * @param tzId
-     *            Override the output time zone
+     *
+     * @param seconds Number of seconds since epoch (typically 1970-01-01)
+     * @param nanos   Nanosecond offset in range +/- 999999999
+     * @param tzId    Override the output time zone
      */
     public DateTime(long seconds, int nanos, String tzId) {
-        DateTimeConfig newConfig = DateTimeConfig.getGlobalDefault().clone();
-        newConfig.setOutputTimeZone(newConfig.lookupTimeZone(tzId));
-        this.config = newConfig;
+        IDateTimeConfig globalConfig = DateTimeConfig.getGlobalDefault();
+        TimeZone tz = globalConfig.lookupTimeZone(tzId);
+        this.config = LocalConfig.instanceOverridingOutputTimeZone(globalConfig, tz);
         this.systemDur = new Duration(seconds, nanos);
     }
 
     /**
      * Construct a DateTime from seconds and fractional seconds.
-     * 
-     * @param seconds
-     *            Number of seconds since epoch (typically 1970-01-01)
-     * @param nanos
-     *            Nanosecond offset in range +/- 999999999
-     * @param config
-     *            Provide custom configuration options
+     *
+     * @param seconds Number of seconds since epoch (typically 1970-01-01)
+     * @param nanos   Nanosecond offset in range +/- 999999999
+     * @param config  Provide custom configuration options
      */
     public DateTime(long seconds, int nanos, IDateTimeConfig config) {
         this.config = config;
@@ -227,7 +214,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * DateTime constructed from a string using global defaults.
-     * 
+     *
      * @param str
      */
     public DateTime(String str) {
@@ -237,12 +224,10 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     }
 
     /**
-     * DateTime constructed from a string using global defaults.
-     * 
-     * @param str
-     *            String to parse
-     * @param config
-     *            Custom configuration options
+     * DateTime constructed from a string using specified defaults.
+     *
+     * @param str    String to parse
+     * @param config Custom configuration options
      */
     public DateTime(String str, IDateTimeConfig config) {
         this.config = config;
@@ -251,10 +236,36 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     }
 
     /**
+     * DateTime parsed from a string at a specified time zone
+     *
+     * @param str Date string to parse
+     * @param tz  Time zone used for both parsing input and formatting output
+     */
+    public DateTime(String str, TimeZone tz) {
+        IDateTimeConfig globalConfig = DateTimeConfig.getGlobalDefault();
+        this.config = LocalConfig.instanceOverridingTimeZones(globalConfig, tz, tz);
+        DateTime dt = parse(str, this.config);
+        this.systemDur = dt.systemDur;
+    }
+
+    /**
+     * DateTime parsed from a string at a specified time zone
+     *
+     * @param str      Date string to parse
+     * @param inputTz  Time Zone of the date being parsed
+     * @param outputTz Time Zone under which toString will format dates
+     */
+    public DateTime(String str, TimeZone inputTz, TimeZone outputTz) {
+        IDateTimeConfig globalConfig = DateTimeConfig.getGlobalDefault();
+        this.config = LocalConfig.instanceOverridingTimeZones(globalConfig, inputTz, outputTz);
+        DateTime dt = parse(str, this.config);
+        this.systemDur = dt.systemDur;
+    }
+
+    /**
      * DateTime constructed from a Timestamp includes nanos.
-     * 
-     * @param ts
-     *            Timestamp
+     *
+     * @param ts Timestamp
      */
     public DateTime(Timestamp ts) {
         config();
@@ -263,17 +274,17 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Derive a time zone descriptor from the right side of the date/time string.
-     * 
-     * @param str
-     *            String to parse date/time
-     * @return
+     *
+     * @param str String to parse date/time
+     * @return TimeZone id descriptor extracted from string (null if not found)
      */
-    private static final String tzParse(String str) {
+    private static String tzParse(String str) {
         char[] chars = str.toCharArray();
-        int min = 7;
+        int min = 7; // Any less than 7 characters from left would encroach on the date itself
         int max = str.length() - 1;
         int idx = max;
         char c = '\0';
+        // Working right to left, skip past numbers and colons
         while (idx > min) {
             c = chars[idx];
             if (c >= '0' && c <= '9' || c == ':') {
@@ -282,15 +293,20 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                 break;
             }
         }
+        // Recognize umeric offset such as -0800 or +05:30
         if (idx >= min && (c == '+' || c == '-')) {
             return str.substring(idx);
         }
+        // Still here?  Looking for a non-numeric time zone like "EST" or "America/New_York"
         while (idx >= min) {
             c = chars[idx];
-            if (c >= 'A' && c <= 'Z' || c == '/' || c >= '0' && c <= '9') {
+            if (c >= 'A' && c <= 'Z' || c == '_' || c == '/' || c >= '0' && c <= '9') {
+                // rewind to just before the beginning of a word
                 idx--;
             } else {
+                // set index to first character of that word
                 ++idx;
+                // skip past any numbers
                 while (idx < max && chars[idx] >= '0' && chars[idx] <= '9') {
                     if (++idx == max) {
                         break;
@@ -311,9 +327,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Compare two DateTime objects to determine ordering.
-     * 
-     * @param other
-     *            DateTime to compare to this
+     *
+     * @param other DateTime to compare to this
      * @return -1, 0, or 1 based on comparison to another DateTime.
      */
     public int compareTo(DateTime other) {
@@ -325,7 +340,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Get a timestamp useful for JDBC
-     * 
+     *
      * @return This DateTime as a Timestamp object.
      */
     public Timestamp toTimestamp() {
@@ -338,7 +353,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Get Date/Time as a Java Date object.
-     * 
+     *
      * @return this DateTime truncated and converted to a java.util.Date object.
      */
     public Date toDate() {
@@ -346,8 +361,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     }
 
     /**
-     * Get the TimeZone
-     * 
+     * Get the TimeZone used for formatted string output
+     *
      * @return this TimeZone.
      */
     public TimeZone timeZone() {
@@ -357,19 +372,17 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * By default, the toString method gives a sortable ISO 8601 date and time to nearest second in the same time zone as the
      * system. The default format can be redefined in DateTimeConfig.
-     * 
+     *
      * @return DateTime using the default config options
      */
     @Override
     public String toString() {
-        String formatStr = config().getFormat();
-        String str = DateTimeFormat.format(formatStr, this, config.getOutputTimeZone(), config.getLocale());
-        return str;
+        return DateTimeFormat.format(config().getFormat(), this, config.getOutputTimeZone(), config.getLocale());
     }
 
     /**
      * Return a String according to the provided format.
-     * 
+     *
      * @param format
      * @return A formatted string version of the current DateTime.
      */
@@ -379,10 +392,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Return a String according to the provided format.
-     * 
+     *
      * @param format
-     * @param tz
-     *            Show formatted date & time at the given TimeZone
+     * @param tz     Show formatted date & time at the given TimeZone
      * @return A formatted string version of the current DateTime.
      */
     public String toString(String format, TimeZone tz) {
@@ -391,10 +403,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Return a String according to the provided format.
-     * 
-     * @param format
-     * @param locale
-     *            Show formatted date & time at the given TimeZone
+     *
+     * @param format Date format specifier
+     * @param locale Show formatted date & time at the given TimeZone
      * @return A formatted string version of the current DateTime.
      */
     public String toString(String format, Locale locale) {
@@ -403,9 +414,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Return a String according to the provided format.
-     * 
-     * @param tz
-     *            Show formatted date & time at the given TimeZone
+     *
+     * @param tz Show formatted date & time at the given TimeZone
      * @return A formatted string version of the current DateTime.
      */
     public String toString(TimeZone tz) {
@@ -414,12 +424,10 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Return a String according to the provided format.
-     * 
-     * @param format
-     * @param tz
-     *            Show formatted date & time at the given TimeZone
-     * @param locale
-     *            Display date words like month or day of week in a given language.
+     *
+     * @param format Date format specifier
+     * @param tz     Show formatted date & time at the given TimeZone
+     * @param locale Display date words like month or day of week in a given language.
      * @return A formatted string version of the current DateTime.
      */
     public String toString(String format, TimeZone tz, Locale locale) {
@@ -428,8 +436,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Add a fixed duration of time
-     * 
-     * @param dur
+     *
+     * @param dur Duration
      * @return Newly calculated DateTime object.
      */
     public DateTime add(Duration dur) {
@@ -439,8 +447,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Add a fixed duration in milliseconds. The Duration object provides fixed multipliers such as SECOND or HOUR.
-     * 
-     * @param milliseconds
+     *
+     * @param milliseconds Duration in milliseconds
      * @return Newly calculated DateTime object.
      */
     public DateTime add(long milliseconds) {
@@ -450,48 +458,60 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Add +/- a block of time to a date in it's OutputTimeZone.
-     * 
-     * @param calUnit
-     * @param qty
+     *
+     * @param calUnit CalendarUnit (MINUTE, DAY, WEEK, MONTH, etc)
+     * @param qty     May be positive or negative.
      * @return recalculated DateTime
      */
     public DateTime add(CalendarUnit calUnit, int qty) {
         return shift(calUnit, qty);
     }
 
+    private DateTime shiftUsingRecalculatedOffset(long milliseconds) {
+        long beginningOffset = config.getOutputTimeZone().getOffset(toMillis());
+        long unadjustedShift = toMillis() + milliseconds;
+        long endingOffset = config.getOutputTimeZone().getOffset(unadjustedShift);
+        return add(milliseconds - beginningOffset + endingOffset);
+    }
+
     /**
-     * Add increments of any calendar time unit from a nanosecond to a century. This is different from a Duration in that it will
-     * make adjustments to preserve non-linear values such as daylight saving or day-of-month offsets.
-     * 
-     * @param calUnit
-     * @param qty
-     *            May be positive or negative.
+     * Add increments of any calendar time unit from a nanosecond to a century. This is different from a Duration in
+     * that it will make adjustments to preserve variables such as daylight saving or day-of-month offsets.
+     *
+     * @param calUnit CalendarUnit (MINUTE, DAY, WEEK, MONTH, etc)
+     * @param qty     May be positive or negative.
      * @return Newly calculated DateTime object.
      */
     public DateTime shift(CalendarUnit calUnit, int qty) {
         /* Fixed durations */
         if (calUnit.compareTo(CalendarUnit.DAY) < 0) {
             if (calUnit == CalendarUnit.HOUR) {
-                return this.add(qty * 3600000L);
+                return shiftUsingRecalculatedOffset(qty * 3600000L);
             }
             if (calUnit == CalendarUnit.MINUTE) {
-                return this.add(qty * 60000L);
+                return shiftUsingRecalculatedOffset(qty * 60000L);
             }
             if (calUnit == CalendarUnit.SECOND) {
-                return this.add(qty * 1000L);
+                return shiftUsingRecalculatedOffset(qty * 1000L);
             }
             if (calUnit == CalendarUnit.MILLISECOND) {
-                return this.add(qty);
+                return shiftUsingRecalculatedOffset(qty);
             }
             if (calUnit == CalendarUnit.MICROSECOND) {
-                return this.add(new Duration(0, qty * 1000));
+                long nanos = this.getNanos() + qty * 1000;
+                long seconds = nanos / 1000000000L;
+                int remainder = (int) (nanos - seconds * 1000000000L);
+                return new DateTime(systemDur.getSeconds() + seconds, remainder, config);
             }
             if (calUnit == CalendarUnit.NANOSECOND) {
-                return this.add(new Duration(0, qty));
+                long nanos = this.getNanos() + qty;
+                long seconds = nanos / 1000000000L;
+                int remainder = (int) (nanos - seconds * 1000000000L);
+                return new DateTime(systemDur.getSeconds() + seconds, remainder, config);
             }
         }
         /* Calendar periods (same time, different day) */
-        Calendar cal = Calendar.getInstance(config().getOutputTimeZone(), config().getLocale());
+        Calendar cal = Calendar.getInstance(config().getInputTimeZone(), config().getLocale());
         cal.setTimeInMillis(this.systemDur.millis);
         if (calUnit == CalendarUnit.DAY) {
             cal.add(Calendar.DATE, qty);
@@ -511,9 +531,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Shift this DateTime +/- a Shift offset.
-     * 
-     * @param shift
-     *            a pre-defined shift of various calendar time increments.
+     *
+     * @param shift a pre-defined shift of various calendar time increments.
      * @return a new DateTime offset by the values specified.
      */
     public DateTime shift(Shift shift) {
@@ -548,9 +567,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Shift this DateTime +/- a Shift offset specified as an ISO 8601 string.
-     * 
-     * @param iso8601
-     *            A string of format "P[#Y][#M][#D][T[#H][#M][#S[.#]]" holding a list of offsets.
+     *
+     * @param iso8601 A string of format "P[#Y][#M][#D][T[#H][#M][#S[.#]]" holding a list of offsets.
      * @return a new DateTime shifted by the specified amounts.
      */
     public DateTime shift(String iso8601) {
@@ -559,7 +577,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Return numeric day of week, usually Sun=1, Mon=2, ... , Sat=7;
-     * 
+     *
      * @return Numeric day of week, usually Sun=1, Mon=2, ... , Sat=7. See DateTimeConfig.
      */
     public int weekday() {
@@ -577,17 +595,15 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Parse a time reference that fits in a single word. Supports: YYYYMMDD, [+-]D, [0-9]+Y
-     * 
-     * @param str
-     *            Date/Time string to be parsed.
-     * @param config
-     *            Configuration parameters governing parsing and presentation.
+     *
+     * @param str    Date/Time string to be parsed.
+     * @param config Configuration parameters governing parsing and presentation.
      * @return New DateTime interpreted from string.
      */
     private static DateTime parseRelativeDate(String str, IDateTimeConfig config) {
         char firstChar = str.charAt(0);
         char lastChar = str.charAt(str.length() - 1);
-        DateTime dt = new DateTime();
+        DateTime dt = new DateTime(config);
         if ((firstChar == '+' || firstChar == '-') && lastChar >= '0' && lastChar <= '9') {
             if (StringTool.onlyDigits(str.substring(1))) {
                 int offset = (new Integer((firstChar == '+') ? str.substring(1) : str)).intValue();
@@ -600,7 +616,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                 unit = CalendarUnit.DAY;
             } else if (lastChar == 'Y') {
                 unit = CalendarUnit.YEAR;
-            } else if (lastChar == 'M') {
+            } else {
                 unit = CalendarUnit.MONTH;
             }
             String inner = str.substring((firstChar >= '0' && firstChar <= '9') ? 0 : 1, str.length() - 1);
@@ -624,45 +640,268 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Interpret a DateTime from a String using global defaults.
-     * 
-     * @param str
-     *            Date/Time string to be parsed.
-     * 
+     *
+     * @param str Date/Time string to be parsed.
      * @return New DateTime interpreted from string.
      */
     public static DateTime parse(String str) {
-        DateTimeConfig config = DateTimeConfig.getGlobalDefault();
+        IDateTimeConfig config = DateTimeConfig.getGlobalDefault();
         return parse(str, config);
+    }
+
+    private static class HasDatepart {
+        boolean year;
+        boolean month;
+        boolean day;
+        boolean hour;
+        boolean minute;
+        boolean second;
+        boolean nanosecond;
+    }
+
+    private static class DateState {
+        boolean isYearFirst;
+        boolean isTwoDigitYear;
+        boolean isBC;
+        int centuryTurn;
+        int thisYear;
+        int year;
+        int month;
+        int day = 1;
+        int hour;
+        int minute;
+        int second;
+        int nanosecond;
+        String[] parts;
+        boolean[] integers;
+        boolean[] usedint;
+    }
+
+    public static void assignIntegersToRemainingSlots(IDateTimeConfig config, HasDatepart hasDatepart,
+                                                      DateState dateState) {
+        // Assign integers to remaining slots in order
+        for (int i = 0; i < dateState.parts.length; i++) {
+            if (dateState.integers[i] && !dateState.usedint[i]) {
+                int part = StringTool.parseIntFragment(dateState.parts[i]);
+                if (!hasDatepart.day && part < 32 && config.isDmyOrder()) {
+                    /*
+                     * If one sets the isDmyOrder to true in DateTimeConfig, then this will properly interpret DD before MM in
+                     * DD-MM-yyyy dates. If the first number is a year, then an ISO 8601 date is assumed, in which MM comes before
+                     * DD.
+                     */
+                    if (!dateState.isYearFirst) {
+                        dateState.day = part;
+                        hasDatepart.day = true;
+                        dateState.usedint[i] = true;
+                        continue;
+                    }
+                }
+                if (!hasDatepart.month) {
+                    if (part < 1 || part > 12) {
+                        throw new IllegalArgumentException("Invalid month parsed from [" + part + "].");
+                    }
+                    dateState.month = part - 1;
+                    hasDatepart.month = true;
+                    dateState.usedint[i] = true;
+                    continue;
+                }
+                if (!hasDatepart.day) {
+                    if (part < 1 || part > 31) {
+                        throw new IllegalArgumentException("Invalid day parsed from [" + part + "].");
+                    }
+                    dateState.day = part;
+                    hasDatepart.day = true;
+                    dateState.usedint[i] = true;
+                    continue;
+                }
+                if (!hasDatepart.year && part < 1000) {
+                    if (part > 99) {
+                        dateState.year = 1900 + part;
+                    } else {
+                        dateState.isTwoDigitYear = true;
+                        if (dateState.centuryTurn + part - dateState.thisYear > 20) {
+                            dateState.year = dateState.centuryTurn + part - 100;
+                        } else {
+                            dateState.year = dateState.centuryTurn + part;
+                        }
+                    }
+                    hasDatepart.year = true;
+                    dateState.usedint[i] = true;
+                    continue;
+                }
+                if (!hasDatepart.day || !hasDatepart.year) {
+                    throw new IllegalArgumentException("Unable to determine valid placement for parsed value [" + part + "].");
+                }
+                if (!hasDatepart.hour) {
+                    if (part >= 24) {
+                        throw new IllegalArgumentException("Invalid hour parsed from [" + part + "].");
+                    }
+                    dateState.hour = part;
+                    hasDatepart.hour = true;
+                    if (dateState.parts[i].indexOf('H') == -1) {
+                        dateState.usedint[i] = true;
+                        continue;
+                    }
+                    dateState.parts[i] = dateState.parts[i].substring(dateState.parts[i].indexOf('H') + 1);
+                    part = StringTool.parseIntFragment(dateState.parts[i]);
+                }
+                if (!hasDatepart.minute) {
+                    if (part >= 60) {
+                        throw new IllegalArgumentException("Invalid minute parsed from [" + part + "].");
+                    }
+                    dateState.minute = part;
+                    hasDatepart.minute = true;
+                    if (dateState.parts[i].indexOf('M') == -1) {
+                        dateState.usedint[i] = true;
+                        continue;
+                    }
+                    dateState.parts[i] = dateState.parts[i].substring(dateState.parts[i].indexOf('M') + 1);
+                    part = StringTool.parseIntFragment(dateState.parts[i]);
+                }
+                if (!hasDatepart.second) {
+                    if (part < 60 || part == 60 && dateState.minute == 59 && dateState.hour == 23 && dateState.day >= 30
+                            && (dateState.month == 11 || dateState.month == 5)) {
+                        dateState.second = part;
+                        hasDatepart.second = true;
+                        dateState.usedint[i] = true;
+                        continue;
+                    } else {
+                        throw new IllegalArgumentException("Invalid second parsed from [" + part + "].");
+                    }
+                }
+                if (!hasDatepart.nanosecond) {
+                    if (part >= 1000000000) {
+                        throw new IllegalArgumentException("Invalid nanosecond parsed from [" + part + "].");
+                    }
+                    dateState.nanosecond = Integer.parseInt((dateState.parts[i].split("[^0-9]+")[0] + "00000000").substring(0, 9));
+                    hasDatepart.nanosecond = true;
+                    dateState.usedint[i] = true;
+                }
+            }
+        }
+    }
+
+    private static void scanForTextualMonth(IDateTimeConfig config, HasDatepart hasDatepart,
+                                            DateState dateState) {
+        // First, scan for text month
+        for (int i = 0; i < dateState.parts.length; i++) {
+            if (!dateState.integers[i] && dateState.parts[i].length() > 2) {
+                Integer monthIndex = config.lookupMonthIndex(dateState.parts[i]);
+
+                if (monthIndex != null) {
+                    dateState.month = monthIndex;
+                    hasDatepart.month = true;
+                    break;
+                }
+            }
+            if (hasDatepart.month) {
+                break;
+            }
+        }
+
+    }
+
+    private static void adjustHourBasedOnAMPM(DateState dateState) {
+        /**
+         * Adjust 12AM and 1-11PM.
+         */
+        for (String part : dateState.parts) {
+            if (part.endsWith("M")) {
+                if (part.endsWith("PM") && dateState.hour > 0 && dateState.hour < 12) {
+                    dateState.hour += 12;
+                } else if (part.endsWith("AM") && dateState.hour == 12) {
+                    dateState.hour = 0;
+                }
+            }
+        }
+    }
+
+    private static void scanForYYYYOrYYYYMMDD(IDateTimeConfig config, HasDatepart hasDatepart, DateState dateState) {
+        // Scan for 4-digit year or an 8 digit YYYYMMDD
+        for (int i = 0; i < dateState.parts.length; i++) {
+            if (dateState.integers[i] && !dateState.usedint[i]) {
+                if (!hasDatepart.year && (dateState.parts[i].length() == 4 || dateState.parts[i].length() == 5)) {
+                    char c = dateState.parts[i].charAt(dateState.parts[i].length() - 1);
+                    if (c >= '0' && c <= '9') {
+                        dateState.year = StringTool.parseIntFragment(dateState.parts[i]);
+                        hasDatepart.year = true;
+                        dateState.usedint[i] = true;
+                        dateState.isYearFirst = (i == 0);
+                        // If integer is to the immediate left of year, use now.
+                        if (config.isDmyOrder()) {
+                            if (!hasDatepart.month && i > 0 && dateState.integers[i - 1] && !dateState.usedint[i - 1]) {
+                                dateState.month = StringTool.parseIntFragment(dateState.parts[i - 1]);
+                                dateState.month--;
+                                hasDatepart.month = true;
+                                dateState.usedint[i - 1] = true;
+                            }
+                        } else {
+                            if (!hasDatepart.day && i > 0 && dateState.integers[i - 1] && !dateState.usedint[i - 1]) {
+                                dateState.day = StringTool.parseIntFragment(dateState.parts[i - 1]);
+                                hasDatepart.day = true;
+                                dateState.usedint[i - 1] = true;
+                            }
+                        }
+                        break;
+                    }
+                }
+                if (!hasDatepart.year && !hasDatepart.month && !hasDatepart.day && dateState.parts[i].length() == 8) {
+                    dateState.year = Integer.parseInt(dateState.parts[i].substring(0, 4));
+                    dateState.month = Integer.parseInt(dateState.parts[i].substring(4, 6));
+                    dateState.month--;
+                    dateState.day = Integer.parseInt(dateState.parts[i].substring(6, 8));
+                    hasDatepart.year = true;
+                    hasDatepart.month = true;
+                    hasDatepart.day = true;
+                    dateState.usedint[i] = true;
+                }
+            }
+        }
+    }
+
+    private static void validateParsedDate(String dateString, HasDatepart hasDatepart, DateState dateState) {
+        /**
+         * Validate
+         */
+        if (!hasDatepart.year || !hasDatepart.month) {
+            throw new IllegalArgumentException("Could not determine Year, Month, and Day from '" + dateString + "'");
+        }
+        if (dateState.month == FEB) {
+            if (dateState.day > 28 + (dateState.year % 4 == 0 ? 1 : 0)) {
+                throw new IllegalArgumentException("February " + dateState.day + " does not exist in " + dateState.year);
+            }
+        } else if (dateState.month == SEP || dateState.month == APR || dateState.month == JUN || dateState.month == NOV) {
+            if (dateState.day > 30) {
+                throw new IllegalArgumentException("30 days hath Sep, Apr, Jun, and Nov... not " + dateState.day);
+            }
+        } else if (dateState.month < 0 || dateState.month > 11) {
+            throw new IllegalArgumentException("Could not determine a valid month");
+        } else if (dateState.day > 31) {
+            throw new IllegalArgumentException("No month has " + dateState.day + " days in it.");
+        }
+
     }
 
     /**
      * Interpret a DateTime from a String.
-     * 
-     * @param str
-     *            Date/Time string to be parsed.
-     * @param config
-     *            Configuration parameters governing parsing and presentation.
+     *
+     * @param str    Date/Time string to be parsed.
+     * @param config Configuration parameters governing parsing and presentation.
      * @return New DateTime interpreted from string according to alternate rules.
      */
     public static DateTime parse(String str, IDateTimeConfig config) {
-        boolean isYearFirst = false;
 
-        // boolean guessedYear = false;
-        boolean isTwoDigitYear = false;
-
-        boolean hasYear = false, hasMonth = false, hasDay = false;
-        boolean hasHour = false, hasMinute = false, hasSecond = false;
-        boolean hasNanosecond = false;
-        boolean isBC = false;
+        HasDatepart hasDatepart = new HasDatepart();
+        DateState dateState = new DateState();
 
         if (config == null) {
-            config = DateTimeConfig.getGlobalDefault().clone();
+            config = DateTimeConfig.getGlobalDefault();
         }
         if (str == null) {
-            return new DateTime(System.currentTimeMillis(), config);
+            return new DateTime(config.systemTime(), config);
         }
         // Normalize the string a bit
-        str = str.trim().toUpperCase(config.getLocale()).replace('\u00c9', 'E');
+        str = str.trim().toUpperCase(config.getLocale());
         if (str.length() == 0) {
             throw new IllegalArgumentException("Cannot parse DateTime from empty string.");
         }
@@ -685,7 +924,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         }
         if ("BC".equals(tzString) || "BCE".equals(tzString)) {
             tzString = null;
-            isBC = true;
+            dateState.isBC = true;
         }
         if (tzString != null && tzString.endsWith("0")) {
             if (tzString.matches("[+-][0-9]{2}:[0-9]{2}")) {
@@ -696,242 +935,66 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                 str = str.substring(0, str.length() - 5);
             }
         }
-        TimeZone tz = config.lookupTimeZone(tzString);
-        Tm tm = new Tm(System.currentTimeMillis(), tz);
-        String[] parts = partsPattern.split(str);
-        int year = 0, month = 0, day = 1;
-        int hour = 0, minute = 0, second = 0, nanosecond = 0;
-        int thisYear = tm.getYear();
-        int centuryTurn = thisYear - (thisYear % 100);
+        TimeZone tz = tzString == null ? config.getInputTimeZone() : config.lookupTimeZone(tzString);
+        Tm tm = new Tm(config.systemTime(), tz);
+        dateState.parts = partsPattern.split(str);
+        dateState.thisYear = tm.getYear();
+        dateState.centuryTurn = dateState.thisYear - (dateState.thisYear % 100);
         // Build a table describing which fields are integers.
-        boolean[] integers = new boolean[parts.length];
-        boolean[] usedint = new boolean[parts.length];
-        for (int i = 0; i < parts.length; i++) {
-            if (StringTool.startsWithDigit(parts[i])) {
-                integers[i] = true;
+        dateState.integers = new boolean[dateState.parts.length];
+        dateState.usedint = new boolean[dateState.parts.length];
+        for (int i = 0; i < dateState.parts.length; i++) {
+            if (StringTool.startsWithDigit(dateState.parts[i])) {
+                dateState.integers[i] = true;
             }
         }
-        // First, scan for text month
-        for (int i = 0; i < parts.length; i++) {
-            if (!integers[i] && parts[i].length() > 2) {
-                Object[] langs = config.getSupportedLanguages();
-                for (Object lang2 : langs) {
-                    String[] mos = config.getMonthArray((String) lang2);
-                    int mo = StringTool.indexedStartMatch(mos, parts[i]);
-                    if (mo >= 0) {
-                        month = mo;
-                        hasMonth = true;
-                        break;
-                    }
-                }
-            }
-            if (hasMonth) {
-                break;
-            }
-        }
-        // Next scan for 4-digit year or an 8 digit YYYYMMDD
-        for (int i = 0; i < parts.length; i++) {
-            if (integers[i] && !usedint[i]) {
-                if (!hasYear && (parts[i].length() == 4 || parts[i].length() == 5)) {
-                    char c = parts[i].charAt(parts[i].length() - 1);
-                    if (c >= '0' && c <= '9') {
-                        year = StringTool.parseIntFragment(parts[i]);
-                        hasYear = true;
-                        usedint[i] = true;
-                        isYearFirst = (i == 0);
-                        // If integer is to the immediate left of year, use now.
-                        if (config.isDmyOrder()) {
-                            if (!hasMonth && i > 0 && integers[i - 1] && !usedint[i - 1]) {
-                                month = StringTool.parseIntFragment(parts[i - 1]);
-                                month--;
-                                hasMonth = true;
-                                usedint[i - 1] = true;
-                            }
-                        } else {
-                            if (!hasDay && i > 0 && integers[i - 1] && !usedint[i - 1]) {
-                                day = StringTool.parseIntFragment(parts[i - 1]);
-                                hasDay = true;
-                                usedint[i - 1] = true;
-                            }
-                        }
-                        break;
-                    }
-                }
-                if (!hasYear && !hasMonth && !hasDay && parts[i].length() == 8) {
-                    year = Integer.parseInt(parts[i].substring(0, 4));
-                    month = Integer.parseInt(parts[i].substring(4, 6));
-                    month--;
-                    day = Integer.parseInt(parts[i].substring(6, 8));
-                    hasYear = true;
-                    hasMonth = true;
-                    hasDay = true;
-                    usedint[i] = true;
-                }
-            }
-        }
-        if (hasYear && year == 0) {
+        scanForTextualMonth(config, hasDatepart, dateState);
+
+        scanForYYYYOrYYYYMMDD(config, hasDatepart, dateState);
+
+        if (hasDatepart.year && dateState.year == 0) {
             throw new IllegalArgumentException("Invalid zero year parsed.");
         }
         // One more scan for Date.toString() style
-        if (!hasYear && str.endsWith("T " + parts[parts.length - 1])) {
-            year = Integer.parseInt(parts[parts.length - 1]);
-            hasYear = true;
-            usedint[usedint.length - 1] = true;
+        if (!hasDatepart.year && str.endsWith("T " + dateState.parts[dateState.parts.length - 1])) {
+            dateState.year = Integer.parseInt(dateState.parts[dateState.parts.length - 1]);
+            hasDatepart.year = true;
+            dateState.usedint[dateState.usedint.length - 1] = true;
         }
-        if (!hasYear) {
+        if (!hasDatepart.year) {
             /* Remove time and alpha */
             String masked = str.replaceAll("[0-9]+:[0-9:]+|[a-zA-Z]+", "");
             if (masked.matches("^\\s*[0-9]+\\s*$")) {
                 /* No year given. We'll use this year and test for Dec/Jan at end. */
-                year = thisYear;
-                hasYear = true;
-                // guessedYear=true;
+                dateState.year = dateState.thisYear;
+                hasDatepart.year = true;
             }
         }
-        // Assign integers to remaining slots in order
-        for (int i = 0; i < parts.length; i++) {
-            if (integers[i] && !usedint[i]) {
-                int part = StringTool.parseIntFragment(parts[i]);
-                if (!hasDay && part < 32 && config.isDmyOrder()) {
-                    /*
-                     * If one sets the isDmyOrder to true in DateTimeConfig, then this will properly interpret DD before MM in
-                     * DD-MM-yyyy dates. If the first number is a year, then an ISO 8601 date is assumed, in which MM comes before
-                     * DD.
-                     */
-                    if (!isYearFirst) {
-                        day = part;
-                        hasDay = true;
-                        usedint[i] = true;
-                        continue;
-                    }
-                }
-                if (!hasMonth) {
-                    if (part < 1 || part > 12) {
-                        throw new IllegalArgumentException("Invalid month parsed from [" + part + "].");
-                    }
-                    month = part - 1;
-                    hasMonth = true;
-                    usedint[i] = true;
-                    continue;
-                }
-                if (!hasDay) {
-                    if (part < 1 || part > 31) {
-                        throw new IllegalArgumentException("Invalid day parsed from [" + part + "].");
-                    }
-                    day = part;
-                    hasDay = true;
-                    usedint[i] = true;
-                    continue;
-                }
-                if (!hasYear && part < 1000) {
-                    if (part > 99) {
-                        year = 1900 + part;
-                    } else {
-                        isTwoDigitYear = true;
-                        if (centuryTurn + part - thisYear > 20) {
-                            year = centuryTurn + part - 100;
-                        } else {
-                            year = centuryTurn + part;
-                        }
-                    }
-                    hasYear = true;
-                    usedint[i] = true;
-                    continue;
-                }
-                if (!hasDay || !hasYear) {
-                    throw new IllegalArgumentException("Unable to determine valid placement for parsed value [" + part + "].");
-                }
-                if (!hasHour) {
-                    if (part >= 24) {
-                        throw new IllegalArgumentException("Invalid hour parsed from [" + part + "].");
-                    }
-                    hour = part;
-                    hasHour = true;
-                    usedint[i] = true;
-                    continue;
-                }
-                if (!hasMinute) {
-                    if (part >= 60) {
-                        throw new IllegalArgumentException("Invalid minute parsed from [" + part + "].");
-                    }
-                    minute = part;
-                    hasMinute = true;
-                    usedint[i] = true;
-                    continue;
-                }
-                if (!hasSecond) {
-                    if (part < 60 || part == 60 && minute == 59 && hour == 23 && day >= 30 && (month == 11 || month == 5)) {
-                        second = part;
-                        hasSecond = true;
-                        usedint[i] = true;
-                        continue;
-                    } else {
-                        throw new IllegalArgumentException("Invalid second parsed from [" + part + "].");
-                    }
-                }
-                if (!hasNanosecond) {
-                    if (part >= 1000000000) {
-                        throw new IllegalArgumentException("Invalid nanosecond parsed from [" + part + "].");
-                    }
-                    nanosecond = Integer.parseInt((parts[i].split("[^0-9]+")[0] + "00000000").substring(0, 9));
-                    hasNanosecond = true;
-                    usedint[i] = true;
-                    continue;
-                }
-            }
-        }
-        /**
-         * Adjust 12AM and 1-11PM.
-         */
-        for (String part : parts) {
-            if (part.endsWith("M")) {
-                if (part.endsWith("PM") && hour > 0 && hour < 12) {
-                    hour += 12;
-                } else if (part.endsWith("AM") && hour == 12) {
-                    hour = 0;
-                }
-            }
-        }
+        assignIntegersToRemainingSlots(config, hasDatepart, dateState);
+        adjustHourBasedOnAMPM(dateState);
+        validateParsedDate(str, hasDatepart, dateState);
 
-        /**
-         * Validate
-         */
-        if (!hasYear || !hasMonth) {
-            throw new IllegalArgumentException("Could not determine Year, Month, and Day from '" + str + "'");
+        if (dateState.isBC && dateState.year >= 0) {
+            dateState.year = -dateState.year + 1;
         }
-        if (month == FEB) {
-            if (day > 28 + (year % 4 == 0 ? 1 : 0)) {
-                throw new IllegalArgumentException("February " + day + " does not exist in " + year);
-            }
-        } else if (month == SEP || month == APR || month == JUN || month == NOV) {
-            if (day > 30) {
-                throw new IllegalArgumentException("30 days hath Sep, Apr, Jun, and Nov... not " + day);
-            }
-        } else {
-            if (day > 31) {
-                throw new IllegalArgumentException("No month has " + day + " days in it.");
-            }
-        }
-        if (isBC && year >= 0) {
-            year = -year + 1;
-        }
-        DateTime returnDt = new DateTime(Tm.calcTime(year, 1 + month, day, hour, minute, second, nanosecond / 1000000, tz),
+        DateTime returnDt = new DateTime(Tm.calcTime(dateState.year, 1 + dateState.month, dateState.day, dateState.hour, dateState.minute, dateState.second, dateState.nanosecond / 1000000, tz),
                 config);
-        if (isTwoDigitYear && config.isUnspecifiedCenturyAlwaysInPast()) {
-            if (returnDt.getSeconds() * 1000 > System.currentTimeMillis()) {
+
+        if (dateState.isTwoDigitYear && config.isUnspecifiedCenturyAlwaysInPast()) {
+            if (returnDt.getSeconds() * 1000 > config.systemTime()) {
                 returnDt = returnDt.shift(CalendarUnit.CENTURY, -1);
             }
         }
 
-        returnDt.systemDur.nanos = nanosecond;
+
+        returnDt.systemDur.nanos = dateState.nanosecond;
         return returnDt;
     }
 
     /**
      * Truncate DateTime down to its nearest time unit as a time. CalendarUnit.(WEEK|DAY|HOUR|MINUTE|SECOND|MILLISECOND)
-     * 
-     * @param unit
-     *            Unit of time to which new DateTime will be truncated.
+     *
+     * @param unit Unit of time to which new DateTime will be truncated.
      * @return A newly calculated DateTime.
      */
     public DateTime truncate(CalendarUnit unit) {
@@ -1011,7 +1074,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Whole seconds offset from epoch.
-     * 
+     *
      * @return Whole seconds offset from epoch (1970-01-01 00:00:00).
      */
     public long getSeconds() {
@@ -1020,7 +1083,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Whole milliseconds offset from epoch.
-     * 
+     *
      * @return Milliseconds offset from epoch (1970-01-01 00:00:00).
      */
     public long toMillis() {
@@ -1029,7 +1092,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Positive nanosecond offset from Seconds.
-     * 
+     *
      * @return Fractional second in nanoseconds for the given time.
      */
     public int getNanos() {
@@ -1039,9 +1102,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * This compares a DateTime with another DateTime.
-     * 
-     * @param dateTime
-     *            DateTime to which this DateTime will be compared.
+     *
+     * @param dateTime DateTime to which this DateTime will be compared.
      * @return True if DateTime values represent the same point in time.
      */
     @Override
@@ -1068,7 +1130,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Return the global configuration used by DateTime.
-     * 
+     *
      * @return the global DateTimeConfig object used by DateTime.
      */
     public IDateTimeConfig config() {

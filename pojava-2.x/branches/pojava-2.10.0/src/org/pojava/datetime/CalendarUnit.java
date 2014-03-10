@@ -19,13 +19,12 @@ package org.pojava.datetime;
 /**
  * A CalendarUnit represents a time interval whose duration is allowed to vary in order to
  * adjust to Daylight Saving Time where needed.
- * 
+ * <p/>
  * The fundamental difference between CalendarUnit and Duration is that calculations performed
  * with CalendarUnit will seek to match an equivalent time of day should a DST to non-DST
  * boundary be crossed, whereas calculations with Duration will simply add a fixed unit of time.
- * 
+ *
  * @author John Pile
- * 
  */
 public enum CalendarUnit {
     NANOSECOND, /* A NANOSECOND = a billionth of a second */

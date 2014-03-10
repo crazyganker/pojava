@@ -9,14 +9,14 @@ public class EncodingToolTester extends TestCase {
     /**
      * This reference message was taken from http://en.wikipedia.org/wiki/Base64
      */
-    String pasted = "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBie\n"
+    private String pasted = "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBie\n"
             + "\tSB0aGlzIHNpbmd1bGFyIHBhc3Npb24gZnJvbSBvdGhlciBhbmltYWxzLCB3aGljaCBpcyBhIGx1c\n"
             + "\t3Qgb2YgdGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY\n"
             + "\t29udGludWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZ\n"
             + "\tWRzIHRoZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
-    String encoded = StringTool.stripWhitespace(pasted);
+    private String encoded = StringTool.stripWhitespace(pasted);
 
-    String decoded = "Man is distinguished, not only by his reason, but by this singular"
+    private String decoded = "Man is distinguished, not only by his reason, but by this singular"
             + " passion from other animals, which is a lust of the mind, that by a perseverance"
             + " of delight in the continued and indefatigable generation of knowledge, exceeds"
             + " the short vehemence of any carnal pleasure.";
@@ -31,7 +31,7 @@ public class EncodingToolTester extends TestCase {
     }
 
     public void testBase64Encode() {
-        String test = new String(EncodingTool.base64Encode(decoded.getBytes()));
+        String test = EncodingTool.base64Encode(decoded.getBytes());
         assertEquals(encoded, test);
     }
 
@@ -41,7 +41,7 @@ public class EncodingToolTester extends TestCase {
      */
     public void testBase64Padding() {
         for (int i = 0; i < 10; i++) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             for (int j = 0; j < i; j++) {
                 sb.append(j);
             }
@@ -50,11 +50,11 @@ public class EncodingToolTester extends TestCase {
             assertEquals(sb.toString(), decoded);
         }
     }
-    
+
     public void testBase64Negative() {
-        byte[] raw={-28, -120};
-        String encoded=EncodingTool.base64Encode(raw);
-        byte[] decoded=EncodingTool.base64Decode(encoded);
+        byte[] raw = {-28, -120};
+        String encoded = EncodingTool.base64Encode(raw);
+        byte[] decoded = EncodingTool.base64Decode(encoded);
         assertEquals(raw[0], decoded[0]);
     }
 

@@ -20,7 +20,7 @@ package org.pojava.util;
  * A class for reversible encodings. Typical encodings are designed to represent binary data in
  * a more portable or printable format. Currently supported encodings include Base64,
  * Hexadecimal.
- * 
+ *
  * @author John Pile
  */
 public class EncodingTool {
@@ -43,7 +43,7 @@ public class EncodingTool {
 
     /**
      * Encode binary data into a Base-64 array of printable characters.
-     * 
+     *
      * @param src
      * @return Base-64 encoded string
      */
@@ -78,12 +78,10 @@ public class EncodingTool {
 
     /**
      * Decode a String from Base64 format. It strips whitespace before decoding.
-     * 
-     * @param s
-     *            a Base64 String to be decoded.
+     *
+     * @param s a Base64 String to be decoded.
      * @return An array containing the decoded data.
-     * @throws IllegalArgumentException
-     *             if the input is not valid Base64 encoded data.
+     * @throws IllegalArgumentException if the input is not valid Base64 encoded data.
      */
     public static byte[] base64Decode(String s) {
         if (s == null) {
@@ -94,9 +92,8 @@ public class EncodingTool {
 
     /**
      * Decode a Base64 message back to its original byte array.
-     * 
-     * @param encoded
-     *            a character array containing the Base64 encoded data.
+     *
+     * @param encoded a character array containing the Base64 encoded data.
      * @return A byte array containing the decoded data.
      */
     public static byte[] base64Decode(char[] encoded) {
@@ -134,9 +131,8 @@ public class EncodingTool {
 
     /**
      * Interpret a hex character as a nybble.
-     * 
-     * @param c
-     *            hexadecimal character to encode
+     *
+     * @param c hexadecimal character to encode
      * @return integer between 0 and 15.
      */
     private static int hex2int(char c) {
@@ -156,7 +152,7 @@ public class EncodingTool {
     /**
      * Convert a hex-encoded string back to a byte array. This String version strips whitespace
      * before decoding.
-     * 
+     *
      * @param hex
      * @return decoded array of bytes
      */
@@ -169,9 +165,8 @@ public class EncodingTool {
 
     /**
      * Convert a hex-encoded character array back to a byte array.
-     * 
-     * @param hexChars
-     *            array of hex-encoded characters
+     *
+     * @param hexChars array of hex-encoded characters
      * @return original byte array
      */
     public static byte[] hexDecode(char[] hexChars) {
@@ -188,31 +183,28 @@ public class EncodingTool {
 
     /**
      * Output a hex-encoded representation of a byte array
-     * 
-     * @param bytes
-     *            of binary data to encode
+     *
+     * @param bytes of binary data to encode
      * @return Hex encoded representation of binary data
      */
     public static String hexEncode(byte[] bytes) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < bytes.length; i++) {
-            sb.append(hexmap[0x0F & (bytes[i] >>> 4)]);
-            sb.append(hexmap[0x0F & bytes[i]]);
+        StringBuilder sb = new StringBuilder();
+        for (byte aByte : bytes) {
+            sb.append(hexmap[0x0F & (aByte >>> 4)]);
+            sb.append(hexmap[0x0F & aByte]);
         }
         return sb.toString();
     }
 
     /**
      * Convert a sequence of binary data into '0' and '1' characters.
-     * 
-     * @param bytes
-     *            binary data to encode
+     *
+     * @param bytes binary data to encode
      * @return sequence of ones and zeros representing binary values.
      */
     public static String base2Encode(byte[] bytes) {
-        StringBuffer sb = new StringBuffer(bytes.length);
-        for (int i = 0; i < bytes.length; i++) {
-            byte b = bytes[i];
+        StringBuilder sb = new StringBuilder(bytes.length);
+        for (byte b : bytes) {
             sb.append((b & 0x80) == 0 ? '0' : '1');
             sb.append((b & 0x40) == 0 ? '0' : '1');
             sb.append((b & 0x20) == 0 ? '0' : '1');
@@ -227,11 +219,9 @@ public class EncodingTool {
 
     /**
      * Convert a sequence of '1' and '0' characters back into byte values.
-     * 
-     * @param chars
-     *            array of packed characters in the set [01].
-     * @return
-     *            binary array derived from zeros and ones
+     *
+     * @param chars array of packed characters in the set [01].
+     * @return binary array derived from zeros and ones
      */
     public static byte[] base2Decode(char[] chars) {
         if (chars.length % 8 != 0) {
@@ -260,16 +250,14 @@ public class EncodingTool {
 
     /**
      * Convert a sequence of '0' and '1' characters into a byte array, ignoring whitespace.
-     * 
-     * @param onesAndZeros
-     *            a string of [01] and whitespace characters.
+     *
+     * @param onesAndZeros a string of [01] and whitespace characters.
      * @return binary encoded version of ones and zeros packed into bytes.
      */
     public static byte[] base2Decode(String onesAndZeros) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         char[] chars = onesAndZeros.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            char c = chars[i];
+        for (char c : chars) {
             if (c == '1' || c == '0') {
                 sb.append(c);
             } else if (!(c == ' ' || c == '\t' || c == '\n' || c == '\r')) {

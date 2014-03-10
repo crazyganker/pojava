@@ -1,9 +1,9 @@
 package org.pojava.lang;
 
+import junit.framework.TestCase;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 public class BindingTester extends TestCase {
 

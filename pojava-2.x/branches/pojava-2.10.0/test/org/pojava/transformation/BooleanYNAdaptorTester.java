@@ -1,7 +1,6 @@
 package org.pojava.transformation;
 
 import junit.framework.TestCase;
-
 import org.pojava.lang.Binding;
 
 public class BooleanYNAdaptorTester extends TestCase {
@@ -22,7 +21,7 @@ public class BooleanYNAdaptorTester extends TestCase {
      * How will the system cope if type-checking is suppressed so an invalid type can be
      * inserted?
      */
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void testDirtyCase() {
         BindingAdaptor adaptor = new BooleanIntegerAdaptor();
         try {

@@ -19,9 +19,8 @@ package org.pojava.exception;
 /**
  * This wraps a number of exceptions that generally indicate that a mapping or permissions issue
  * occurred while performing a reflection based action.
- * 
+ *
  * @author John Pile
- * 
  */
 public class ReflectionException extends RuntimeException {
 

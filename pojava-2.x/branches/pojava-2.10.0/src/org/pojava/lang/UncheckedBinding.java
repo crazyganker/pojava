@@ -19,9 +19,8 @@ package org.pojava.lang;
 /**
  * An UncheckedBinding provides loose requirements for mixing multiple Binding types into the
  * same list. A Binding is representation of an object (including null) with its class.
- * 
+ *
  * @author John Pile
- * 
  */
 public class UncheckedBinding {
 
@@ -34,7 +33,7 @@ public class UncheckedBinding {
 
     /**
      * Construct a Binding from an object.
-     * 
+     *
      * @param type
      * @param obj
      */

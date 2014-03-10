@@ -16,19 +16,25 @@ package org.pojava.lang;
  limitations under the License.
  */
 
+import junit.framework.TestCase;
+import org.pojava.datetime.DateTime;
+import org.pojava.datetime.DateTimeConfig;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import junit.framework.TestCase;
-
-import org.pojava.datetime.DateTime;
-
 public class BoundStringTester extends TestCase {
+
+    @Override
+    public void setUp() {
+        // Clear any test value
+        DateTimeConfig.setGlobalDefault(null);
+    }
 
     public void testEmpty() {
         BoundString bs = new BoundString();
-        assertEquals(new ArrayList<String>(), bs.getBindings());
+        assertEquals(new ArrayList<UncheckedBinding>(), bs.getBindings());
         assertEquals("", bs.getString());
     }
 
@@ -96,9 +102,9 @@ public class BoundStringTester extends TestCase {
 
     public void testChop() {
         BoundString bs = new BoundString();
-        String[] words = { "one", "two", "three", "four" };
-        for (int i = 0; i < words.length; i++) {
-            bs.append(words[i]);
+        String[] words = {"one", "two", "three", "four"};
+        for (String word : words) {
+            bs.append(word);
             bs.append(", ");
         }
         bs.chop(2);
@@ -115,9 +121,9 @@ public class BoundStringTester extends TestCase {
         assertFalse(bs.isImbalanced());
         bs.append("one=?");
         assertTrue(bs.isImbalanced());
-        bs.addBinding(Integer.class, new Integer(1));
+        bs.addBinding(Integer.class, 1);
         assertFalse(bs.isImbalanced());
-        bs.addBinding(Integer.class, new Integer(2));
+        bs.addBinding(Integer.class, 2);
         assertTrue(bs.isImbalanced());
         bs.append(", two=?");
         assertFalse(bs.isImbalanced());
@@ -126,20 +132,20 @@ public class BoundStringTester extends TestCase {
     public void testAddBindings() {
         List<UncheckedBinding> bindings = new ArrayList<UncheckedBinding>();
         bindings.add(new Binding<String>(String.class, "two"));
-        bindings.add(new Binding<Integer>(Integer.class, new Integer(3)));
+        bindings.add(new Binding<Integer>(Integer.class, 3));
         BoundString bs = new BoundString();
         bs.append("(?, ?, ?)");
         bs.addBinding(DateTime.class, new DateTime("1/1/1"));
         bs.addBindings(bindings);
         assertEquals(DateTime.class, ((UncheckedBinding) bs.getBindings().get(0)).getType());
-        assertEquals("two", ((UncheckedBinding) bs.getBindings().get(1)).getObj().toString());
+        assertEquals("two", (bs.getBindings().get(1)).getObj().toString());
         assertEquals(3, bs.getBindings().size());
     }
 
     public void testUnbind() {
         List<UncheckedBinding> bindings = new ArrayList<UncheckedBinding>();
         bindings.add(new Binding<String>(String.class, "two"));
-        bindings.add(new Binding<Integer>(Integer.class, new Integer(3)));
+        bindings.add(new Binding<Integer>(Integer.class, 3));
         BoundString bs = new BoundString("(?, ?, ?, ?)");
         bs.addBinding(DateTime.class, new DateTime("1/1/1"));
         bs.addBindings(bindings);

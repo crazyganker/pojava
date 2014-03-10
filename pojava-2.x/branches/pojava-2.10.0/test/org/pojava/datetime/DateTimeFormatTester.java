@@ -1,23 +1,39 @@
 package org.pojava.datetime;
 
+import junit.framework.TestCase;
+import org.pojava.examples.EuroDateTimeConfig;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
-
 /**
+ * Unit tests to verify formatter output against SimpleDateFormat output
+ * <p/>
  * http://download.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html
- * 
+ *
  * @author John Pile
- * 
  */
 public class DateTimeFormatTester extends TestCase {
 
+    private DateTimeConfigBuilder configBuilder() {
+        DateTimeConfigBuilder dtcBuilder = DateTimeConfigBuilder.newInstance();
+        TimeZone tz = TimeZone.getDefault();
+        dtcBuilder.setMonthMap(MonthMap.fromAllLocales());
+        dtcBuilder.getTzMap().put("Z", "UTC");
+        dtcBuilder.getTzCache().put(tz.getID(), tz);
+        return dtcBuilder;
+    }
+
+    @Override
+    public void setUp() {
+        DateTimeConfig.setGlobalDefaultFromBuilder(configBuilder());
+    }
+
     public void testCommonFormats() {
         DateTime dt = new DateTime("1/23/45 6:7:8.9101112");
-        compareStatic("y/M/d", dt);
+        compareStatic("yy/M/d", dt);
         compareStatic("yyyyy/MMMMM/ddddd", dt);
         compareStatic("MM/dd/yyyy h:m:s.SSS", dt);
         compareStatic("h 'o''clock' a", dt);
@@ -30,38 +46,45 @@ public class DateTimeFormatTester extends TestCase {
         assertEquals("2045-01-23 06:07:08.910111200", DateTimeFormat.format(fmt, dt));
     }
 
+    public void testHTimeFormat() {
+        IDateTimeConfig config = new EuroDateTimeConfig();
+        DateTime dt = new DateTime("21.09.2012 - 21h48", config);
+        assertEquals("2012-09-21 21:48:00", dt.toString());
+    }
+
     public void testFormat_G_BC() {
         DateTime dt = new DateTime("1/23/2045 BC");
-        String expect[] = { "BC", "BC", "BC", "BC" };
+        String expect[] = {"BC", "BC", "BC", "BC"};
         compareFormat(dt, 'G', expect);
         compareFormat(dt, 'G', dt.config().getLocale());
     }
 
     public void testFormat_G_AD() {
         DateTime dt = new DateTime("1/23/2045");
-        String expect[] = { "AD", "AD", "AD", "AD" };
+        String expect[] = {"AD", "AD", "AD", "AD"};
         compareFormat(dt, 'G', expect);
         compareFormat(dt, 'G', dt.config().getLocale());
     }
 
     public void testFormat_g_BC() {
         DateTime dt = new DateTime("1/23/2045 BC");
-        String expect[] = { "BCE", "BCE", "BCE", "BCE" };
+        String expect[] = {"BCE", "BCE", "BCE", "BCE"};
         compareFormat(dt, 'g', expect);
     }
 
     public void testFormat_g_AD() {
         DateTime dt = new DateTime("1/23/2045");
-        String expect[] = { "CE", "CE", "CE", "CE" };
+        String expect[] = {"CE", "CE", "CE", "CE"};
         compareFormat(dt, 'g', expect);
     }
 
     public void testFormat_y_BC() {
         DateTime dt = new DateTime("1/23/2045 BC");
-        String expect[] = { "-45", "-45", "-045", "-2045" };
+        String expect[] = {"-45", "-45", "-045", "-2045"};
         compareFormat(dt, 'y', expect);
-        DateTimeConfig dtc = DateTimeConfig.getGlobalDefault().clone();
-        dtc.setBcPrefix("");
+        DateTimeConfigBuilder dtcBuilder = DateTimeConfigBuilder.newInstance();
+        dtcBuilder.bcPrefix("");
+        DateTimeConfig dtc = DateTimeConfig.fromBuilder(dtcBuilder);
         DateTime dt2 = new DateTime("1/23/2045 BC", dtc);
         assertEquals("2045", dt2.toString("yyyy"));
         // Default behavior shows a bare BC year as negative
@@ -73,53 +96,56 @@ public class DateTimeFormatTester extends TestCase {
 
     public void testFormat_y_AD() {
         DateTime dt = new DateTime("1/23/2045 6:7:8.9101112");
-        String expect[] = { "45", "45", "045", "2045" };
+        String expect[] = {"45", "45", "045", "2045"};
         compareFormat(dt, 'y', expect);
         // SimpleDateFormat truncates "yyy" to two-digit year.
-        // DateTimefortat truncates "yyy" to three-digit year.
+        // DateTime.format truncates "yyy" to three-digit year.
     }
 
     public void testFormat_M() {
         DateTime dt = new DateTime("1/23/2045 6:7:8.9101112");
-        String expect[] = { "1", "01", "Jan", "January" };
+        String expect[] = {"1", "01", "Jan", "January"};
         compareFormat(dt, 'M', dt.config().getLocale());
         compareFormat(dt, 'M', expect);
     }
 
     public void testFormat_M_FR() {
-        DateTimeConfig dtc = DateTimeConfig.getGlobalDefault().clone();
-        dtc.setLocale(Locale.FRENCH);
+        DateTimeConfigBuilder builder = configBuilder();
+        builder.setLocale(Locale.FRENCH);
+        DateTimeConfig dtc = DateTimeConfig.fromBuilder(builder);
         DateTime dt = new DateTime("1/23/2045 6:7:8.9101112", dtc);
-        String expect[] = { "1", "01", "janv.", "janvier" };
+        String expect[] = {"1", "01", "janv.", "janvier"};
         compareFormat(dt, 'M', Locale.FRENCH);
         compareFormat(dt, 'M', expect);
     }
 
     public void testFormat_M_DE() {
-        DateTimeConfig dtc = DateTimeConfig.getGlobalDefault().clone();
-        dtc.setLocale(Locale.GERMAN);
+        DateTimeConfigBuilder builder = configBuilder();
+        builder.setLocale(Locale.GERMAN);
+        DateTimeConfig dtc = DateTimeConfig.fromBuilder(builder);
         DateTime dt = new DateTime("10/23/2045 6:7:8.9101112", dtc);
-        String expect[] = { "10", "10", "Okt", "Oktober" };
+        String expect[] = {"10", "10", "Okt", "Oktober"};
         compareFormat(dt, 'M', Locale.GERMAN);
         compareFormat(dt, 'M', expect);
     }
 
     public void testFormat_M_IT() {
-        DateTimeConfig dtc = DateTimeConfig.getGlobalDefault().clone();
-        dtc.setLocale(Locale.ITALIAN);
+        DateTimeConfigBuilder builder = configBuilder();
+        builder.setLocale(Locale.ITALIAN);
+        DateTimeConfig dtc = DateTimeConfig.fromBuilder(builder);
         DateTime dt = new DateTime("1/23/2045 6:7:8.9101112", dtc);
-        String expect[] = { "1", "01", "gen", "gennaio" };
+        String expect[] = {"1", "01", "gen", "gennaio"};
         compareFormat(dt, 'M', Locale.ITALIAN);
         compareFormat(dt, 'M', expect);
     }
 
     /**
-     * Differs from SimpleDateTime This version uses RFC-8601 definition of week-in-month
+     * Differs from SimpleDateTime. This version uses RFC-8601 definition of week-in-month
      */
     public void testFormat_W() { // Week in month
         // Dec 1 2014 starts on a Monday
         DateTime dt = new DateTime("12/13/2014 15:16:17:18.192021");
-        String expect[] = { "2", "02", "002", "0002" };
+        String expect[] = {"2", "02", "002", "0002"};
         compareFormat(dt, 'W', dt.config().getLocale());
         compareFormat(dt, 'W', expect);
     }
@@ -136,7 +162,7 @@ public class DateTimeFormatTester extends TestCase {
 
     public void testFormat_w() { // Week in year
         DateTime dt = new DateTime("12/13/2014 15:16:17:18.192021");
-        String expect[] = { "50", "50", "050", "0050" };
+        String expect[] = {"50", "50", "050", "0050"};
         compareFormat(dt, 'w', dt.config().getLocale());
         compareFormat(dt, 'w', expect);
     }
@@ -153,14 +179,14 @@ public class DateTimeFormatTester extends TestCase {
 
     public void testFormat_D() { // Day of the year
         DateTime dt = new DateTime("2/23/2045 6:7:8.9101112");
-        String expect[] = { "54", "54", "054", "0054" };
+        String expect[] = {"54", "54", "054", "0054"};
         compareFormat(dt, 'D', dt.config().getLocale());
         compareFormat(dt, 'D', expect);
     }
 
     public void testFormat_d() { // Day of month
         DateTime dt = new DateTime("4/4/2045 6:7:8.9101112");
-        String expect[] = { "4", "04", "004", "0004" };
+        String expect[] = {"4", "04", "004", "0004"};
         compareFormat(dt, 'd', dt.config().getLocale());
         compareFormat(dt, 'd', expect);
     }
@@ -168,7 +194,7 @@ public class DateTimeFormatTester extends TestCase {
     public void testFormat_E() { // Day of week
         // 12/31/1998 is a Wednesday
         DateTime dt = new DateTime("12/31/1997 15:16:17.192021");
-        String expect[] = { "Wed", "Wed", "Wed", "Wednesday" };
+        String expect[] = {"Wed", "Wed", "Wed", "Wednesday"};
         compareFormat(dt, 'E', dt.config().getLocale());
         compareFormat(dt, 'E', expect);
     }
@@ -176,7 +202,7 @@ public class DateTimeFormatTester extends TestCase {
     public void testFormat_F() { // Numeric day of week in month
         // Dec 1 2014 starts on a Monday
         DateTime dt = new DateTime("12/13/2014 15:16:17.192021");
-        String expect[] = { "2", "02", "002", "0002" };
+        String expect[] = {"2", "02", "002", "0002"};
         compareFormat(dt, 'F', dt.config().getLocale());
         compareFormat(dt, 'F', expect);
     }
@@ -184,7 +210,7 @@ public class DateTimeFormatTester extends TestCase {
     public void testFormat_a_AM() { // AM / PM
         // Dec 1 2014 starts on a Monday
         DateTime dt = new DateTime("12/13/2014 00:16:17.192021");
-        String expect[] = { "AM", "AM", "AM", "AM" };
+        String expect[] = {"AM", "AM", "AM", "AM"};
         compareFormat24(dt, 'a', dt.config().getLocale());
         compareFormat(dt, 'a', expect);
     }
@@ -192,49 +218,49 @@ public class DateTimeFormatTester extends TestCase {
     public void testFormat_a_PM() { // AM / PM
         // Dec 1 2014 starts on a Monday
         DateTime dt = new DateTime("12/13/2014 15:16:17.192021");
-        String expect[] = { "PM", "PM", "PM", "PM" };
+        String expect[] = {"PM", "PM", "PM", "PM"};
         compareFormat24(dt, 'a', dt.config().getLocale());
         compareFormat(dt, 'a', expect);
     }
 
     public void testFormat_H() { // 24 hour
         DateTime dt = new DateTime("12/13/2014 15:16:17.192021");
-        String expect[] = { "15", "15", "015", "0015" };
+        String expect[] = {"15", "15", "015", "0015"};
         compareFormat24(dt, 'H', dt.config().getLocale());
         compareFormat(dt, 'H', expect);
     }
 
     public void testFormat_h() { // 12 hour
         DateTime dt = new DateTime("12/13/2014 15:16:17.192021");
-        String expect[] = { "3", "03", "003", "0003" };
+        String expect[] = {"3", "03", "003", "0003"};
         compareFormat24(dt, 'h', dt.config().getLocale());
         compareFormat(dt, 'h', expect);
     }
 
     public void testFormat_k() { // 24 hour 1-24
         DateTime dt = new DateTime("12/13/2014 15:16:17.192021");
-        String expect[] = { "15", "15", "015", "0015" };
+        String expect[] = {"15", "15", "015", "0015"};
         compareFormat24(dt, 'k', dt.config().getLocale());
         compareFormat(dt, 'k', expect);
     }
 
     public void testFormat_K() { // 24 hour 1-24
         DateTime dt = new DateTime("12/13/2014 15:16:17.192021");
-        String expect[] = { "3", "03", "003", "0003" };
+        String expect[] = {"3", "03", "003", "0003"};
         compareFormat24(dt, 'K', dt.config().getLocale());
         compareFormat(dt, 'K', expect);
     }
 
     public void testFormat_m() { // minute
         DateTime dt = new DateTime("12/13/2014 15:16:17.192021");
-        String expect[] = { "16", "16", "016", "0016" };
+        String expect[] = {"16", "16", "016", "0016"};
         compareFormat(dt, 'm', dt.config().getLocale());
         compareFormat(dt, 'm', expect);
     }
 
     public void testFormat_s() { // second
         DateTime dt = new DateTime("12/13/2014 15:16:17.192021");
-        String expect[] = { "17", "17", "017", "0017" };
+        String expect[] = {"17", "17", "017", "0017"};
         compareFormat(dt, 's', dt.config().getLocale());
         compareFormat(dt, 's', expect);
     }
@@ -263,7 +289,7 @@ public class DateTimeFormatTester extends TestCase {
      */
     public void testFormat_S() { // sub-second
         DateTime dt = new DateTime("12/13/2014 15:16:17.192021");
-        String expect[] = { "1", "19", "192", "1920", "19202", "192021", "1920210" };
+        String expect[] = {"1", "19", "192", "1920", "19202", "192021", "1920210"};
         compareFormat(dt, 'S', expect);
     }
 
@@ -276,13 +302,13 @@ public class DateTimeFormatTester extends TestCase {
 
     /**
      * Verify that formatting matches expected output
-     * 
-     * @param dt
-     * @param formatChar
-     * @param expected
+     *
+     * @param dt         DateTime
+     * @param formatChar character to test repeated formats
+     * @param expected   output expected for 1 char, 2 chars, ..., n+1 chars
      */
     private void compareFormat(DateTime dt, char formatChar, String[] expected) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (String element : expected) {
             sb.append(formatChar);
             assertEquals(element, dt.toString(sb.toString()));
@@ -291,13 +317,13 @@ public class DateTimeFormatTester extends TestCase {
 
     /**
      * Verify that formatting matches output SimpleDateFormat
-     * 
-     * @param dt
-     * @param formatChar
-     * @param loc
+     *
+     * @param dt         DateTime
+     * @param formatChar character to test repeated formats
+     * @param loc        Locale influencing format
      */
     private void compareFormat(DateTime dt, char formatChar, Locale loc) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 4; i++) {
             sb.append(formatChar);
             Locale orig = Locale.getDefault();
@@ -313,6 +339,9 @@ public class DateTimeFormatTester extends TestCase {
         compareStatic("zzzz", dt, Locale.FRENCH);
     }
 
+
+    // Helper methods to verify DateTimeFormat matches SimpleDateFormat
+    // ================================================================
     private void compareStatic(String fmt, DateTime dt) {
         Date date = dt.toDate();
         SimpleDateFormat sdf = new SimpleDateFormat(fmt);

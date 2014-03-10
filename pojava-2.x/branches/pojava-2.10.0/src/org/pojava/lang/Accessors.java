@@ -22,15 +22,22 @@ import java.util.Map;
 
 public class Accessors {
 
-    Class<?> type;
-    Map<String, Method> getters = new HashMap<String, Method>();
-    Map<String, Method> setters = new HashMap<String, Method>();
+    private Class<?> type;
+    private final Map<String, Method> getters = new HashMap<String, Method>();
+    private final Map<String, Method> setters = new HashMap<String, Method>();
 
-    public Class<? extends Object> getType() {
+    public Accessors() {
+    }
+
+    public Accessors(Class<?> type) {
+        this.type = type;
+    }
+
+    public Class<?> getType() {
         return type;
     }
 
-    public void setType(Class<? extends Object> type) {
+    public void setType(Class<?> type) {
         this.type = type;
     }
 

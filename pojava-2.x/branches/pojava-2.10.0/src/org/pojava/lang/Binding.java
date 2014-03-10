@@ -19,15 +19,14 @@ package org.pojava.lang;
 /**
  * A Binding is representation of an object with its class. Its class can be inferred even when
  * the object is null.
- * 
+ *
  * @author John Pile
- * 
  */
 public class Binding<T> extends UncheckedBinding {
 
     /**
      * Construct a Binding from an object.
-     * 
+     *
      * @param type
      * @param obj
      */
@@ -46,7 +45,7 @@ public class Binding<T> extends UncheckedBinding {
 
     /**
      * Retrieve typed value of object.
-     * 
+     *
      * @return Typed value of object.
      */
     @SuppressWarnings("unchecked")
@@ -57,7 +56,7 @@ public class Binding<T> extends UncheckedBinding {
 
     /**
      * Store a new value into this object.
-     * 
+     *
      * @param obj
      */
     public void setValue(T obj) {

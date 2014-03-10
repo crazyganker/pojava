@@ -1,7 +1,7 @@
 package org.pojava.datetime;
 
 /*
- Copyright 2008-09 John Pile
+ Copyright 2008-14 John Pile
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@ package org.pojava.datetime;
  */
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
@@ -28,29 +28,28 @@ import java.util.TimeZone;
  * Establish global defaults for shaping DateTime behavior. This version supports English,
  * German, French and Spanish month names in the date parser, and can be customized by your
  * applications to interpret other languages.
- * 
+ *
  * @author John Pile
- * 
  */
-public class DateTimeConfig implements IDateTimeConfig, Serializable, Cloneable {
+public class DateTimeConfig implements IDateTimeConfig, Serializable {
 
     /**
      * Compulsory serial ID.
      */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * Singleton pattern. The globalDefault variable is referenced by DateTime, so changes you
      * make here affect new calls to DateTime.
      */
-    private static DateTimeConfig globalDefault = new DateTimeConfig();
+    private static IDateTimeConfig globalDefault = null;
 
     /**
      * This determines the default interpretation of a ##/##/#### date, whether Day precedes
      * Month or vice versa.
      */
     private boolean isDmyOrder = false;
-    
+
     private boolean isUnspecifiedCenturyAlwaysInPast = false;
 
     /**
@@ -65,14 +64,16 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable, Cloneable 
     private String format = "yyyy-MM-dd HH:mm:ss";
 
     private String defaultJdbcFormat = "yyyy-MM-dd HH:mm:ss.SSS";
-    
+
     private TimeZone inputTimeZone = TimeZone.getDefault();
 
     private TimeZone outputTimeZone = TimeZone.getDefault();
-    
+
     private Locale locale = Locale.getDefault();
 
     private String bcPrefix = "-";
+
+    private MonthMap monthMap;
 
     /**
      * <p>
@@ -80,83 +81,73 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable, Cloneable 
      * that's not supported or should be overridden? Fix it locally by updating your custom
      * tzMap!
      * </p>
-     * 
+     * <p/>
      * <pre>
      * // Example change CST from U.S. Central to Chinese.
      * class CustomTzMap {
      * 	private static Map&lt;String, String&amp;gt tzMap = DateTimeConfig.getTzMap();
      * 	static {
      * 		tzMap.put(&quot;CST&quot;, &quot;Asia/Hong_Kong&quot;);
-     * 	}
+     *    }
      * }
      * </pre>
      */
-    private Map<String, String> tzMap = new HashMap<String, String>();
-    static {
-        globalDefault.tzMap.put("Z", "UTC");
-    }
+    private final Map<String, String> tzMap = new HashMap<String, String>();
 
     private final Map<String, TimeZone> tzCache = new HashMap<String, TimeZone>();
-    static {
+
+
+    /**
+     * Reset the global default to a different DateTimeConfig object.
+     *
+     * @param globalDefault Set this DateTimeConfig instance as the global default.
+     */
+    public static void setGlobalDefault(IDateTimeConfig globalDefault) {
+        if (globalDefault != null) {
+            globalDefault.validate();
+        }
+        synchronized (DateTimeConfig.class) {
+            DateTimeConfig.globalDefault = globalDefault;
+        }
+    }
+
+    /**
+     * @return The singleton used as the default DateTimeConfig.
+     */
+    public static IDateTimeConfig getGlobalDefault() {
+        if (globalDefault == null) {
+            synchronized (DateTimeConfig.class) {
+                if (globalDefault == null) {
+                    globalDefault = defaultDateTimeConfig();
+                }
+            }
+        }
+        return globalDefault;
+    }
+
+    private static DateTimeConfig defaultDateTimeConfig() {
         TimeZone tz = TimeZone.getDefault();
-        globalDefault.tzCache.put(tz.getID(), tz);
-    }
-
-    private static final String[] MONTHS_EN_ENG = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-            "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
-    private static final String[] MONTHS_DE_GER = { "JAN", "FEB", "MAR", "APR", "MAI", "JUN",
-            "JUL", "AUG", "SEP", "OKT", "NOV", "DEZ" };
-    private static final String[] MONTHS_FR_FRE = { "JAN", "FEV", "MAR", "AVR", "MAI", "JUIN",
-            "JUIL", "AOU", "SEP", "OCT", "NOV", "DEC" };
-    private static final String[] MONTHS_ES_SPA = { "ENE", "FEB", "MAR", "ABR", "MAY", "JUN",
-            "JUL", "AGO", "SEP", "OCT", "NOV", "DIC" };
-
-    /**
-     * LANGUAGE_MONTHS maps a language to a string array of 12 calendar month prefixes.
-     */
-    public final Map<String, String[]> LANGUAGE_MONTHS = new HashMap<String, String[]>();
-    static {
-    	globalDefault.LANGUAGE_MONTHS.put("DE", MONTHS_DE_GER);
-    	globalDefault.LANGUAGE_MONTHS.put("EN", MONTHS_EN_ENG);
-    	globalDefault.LANGUAGE_MONTHS.put("FR", MONTHS_FR_FRE);
-    	globalDefault.LANGUAGE_MONTHS.put("ES", MONTHS_ES_SPA);
-    }
-    
-    public String[] getMonthArray(String langAbbr) {
-    	return LANGUAGE_MONTHS.get(langAbbr);
-    }
-
-    /**
-     * SUPPORTED_LANGUAGES determines the order and selection in which different languages are
-     * checked against calendar names. You can increase performance of the parser by ordering or
-     * removing entries.
-     */
-    public final List<String> SUPPORTED_LANGUAGES = new ArrayList<String>();
-    static {
-    	globalDefault.SUPPORTED_LANGUAGES.add("EN");
-    	globalDefault.SUPPORTED_LANGUAGES.add("ES");
-    	globalDefault.SUPPORTED_LANGUAGES.add("FR");
-    	globalDefault.SUPPORTED_LANGUAGES.add("DE");
+        DateTimeConfig dtc = new DateTimeConfig();
+        dtc.monthMap = MonthMap.fromAllLocales();
+        dtc.tzMap.put("Z", "UTC");
+        dtc.tzCache.put(tz.getID(), tz);
+        dtc.validate();
+        DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
+        if (df instanceof SimpleDateFormat) {
+            String pattern = ((SimpleDateFormat) df).toPattern();
+            dtc.isDmyOrder = !pattern.startsWith("M");
+        }
+        return dtc;
     }
 
     /**
      * Returns true if 01/02/1970 is interpreted as 1970-02-01, returns false if 01/02/1970 is
      * interpreted as 1970-01-02.
-     * 
+     *
      * @return True if DD/MM/YYYY is recognized by parser over MM/DD/YYYY.
      */
     public boolean isDmyOrder() {
         return this.isDmyOrder;
-    }
-
-    /**
-     * Set true if parser should interpret dates as DD/MM/YYYY instead of MM/DD/YYYY.
-     * 
-     * @param isDmyOrder
-     * 		Resolve ambiguity of whether ##/##/YYYY is MM/DD or DD/YY.
-     */
-    public void setDmyOrder(boolean isDmyOrder) {
-        this.isDmyOrder = isDmyOrder;
     }
 
     /**
@@ -168,7 +159,7 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable, Cloneable 
 
     /**
      * Merge a Map of time zones recognized by DateTime
-     * 
+     *
      * @param tzMap
      */
     public void addTzMap(Map<String, String> tzMap) {
@@ -176,27 +167,24 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable, Cloneable 
     }
 
     /**
-     * 
-     * @return The singleton used as the default DateTimeConfig.
+     * Ensure that object is complete and consistent
      */
-    public static DateTimeConfig getGlobalDefault() {
-        return globalDefault;
-    }
-
-    /**
-     * Reset the global default to a different DateTimeConfig object.
-     * 
-     * @param globalDefault
-     * 		Set this DateTimeConfig instance as the global default.
-     */
-    public static void setGlobalDefault(DateTimeConfig globalDefault) {
-        DateTimeConfig.globalDefault = globalDefault;
+    public void validate() {
+        if (this.monthMap == null || this.monthMap.isEmpty()) {
+            throw new IllegalStateException("Month Map is required.");
+        }
+        if (this.inputTimeZone == null) {
+            throw new IllegalStateException("Input TimeZone must be non-null.");
+        }
+        if (this.outputTimeZone == null) {
+            throw new IllegalStateException("Output TimeZone must be non-null.");
+        }
     }
 
     /**
      * Get the day of week offset on the epoch date. This is used to calculate the day of week
      * for all other dates.
-     * 
+     *
      * @return Day of week offset of the epoch date.
      */
     public int getEpochDOW() {
@@ -204,31 +192,8 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable, Cloneable 
     }
 
     /**
-     * Set the day of week offset on the epoch date.
-     * @param epochDOW
-     * 		Set the numeric day of week on the date of the epoch. 
-     */
-    public void setEpochDOW(int epochDOW) {
-        this.epochDOW = epochDOW;
-    }
-
-    /**
-     * Set the default for the parser to interpret MM/DD/YYYY
-     */
-    public static void globalAmericanDateFormat() {
-        globalDefault.setDmyOrder(false);
-    }
-
-    /**
-     * Set the default for the parser to interpret DD/MM/YYYY
-     */
-    public static void globalEuropeanDateFormat() {
-        globalDefault.setDmyOrder(true);
-    }
-
-    /**
      * Get the default date format.
-     * 
+     *
      * @return A format string for dates.
      */
     public String getFormat() {
@@ -236,18 +201,8 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable, Cloneable 
     }
 
     /**
-     * Set the default date format.
-     * 
-     * @param dateTimeFormat
-     * 		Set the default format of the DateTime toString() output
-     */
-    public void setFormat(String dateTimeFormat) {
-        this.format = dateTimeFormat;
-    }
-
-    /**
      * Get the default JDBC date format.
-     * 
+     *
      * @return the default format desired for JDBC.
      */
     public String getDefaultJdbcFormat() {
@@ -255,141 +210,89 @@ public class DateTimeConfig implements IDateTimeConfig, Serializable, Cloneable 
     }
 
     /**
-     * Set the default JDBC date format.
-     * 
-     * @param defaultJdbcFormat
-     */
-    public void setDefaultJdbcFormat(String defaultJdbcFormat) {
-        this.defaultJdbcFormat = defaultJdbcFormat;
-    }
-
-    /**
-     * Get an array of supported languages.
-     */
-    public Object[] getSupportedLanguages() {
-    	return SUPPORTED_LANGUAGES.toArray();
-    }
-
-    /**
-     * Add your own uniquely named time zone to the list of interpreted zones.
-     * 
-     * @param id
-     *            the name identifying your time zone
-     * @param tz
-     *            a TimeZone object
-     */
-    public static void addTimeZone(String id, TimeZone tz) {
-        globalDefault.tzCache.put(id, tz);
-    }
-
-    /**
      * Lookup the TimeZone, including custom time zones.
      */
     public TimeZone lookupTimeZone(String id) {
         TimeZone tz;
-        if (id==null) {
+        if (id == null) {
             tz = this.inputTimeZone;
         } else if (!tzCache.containsKey(id)) {
             tz = TimeZone.getTimeZone(id);
-            if (tz==null) {
-            	throw new IllegalArgumentException("Invalid (or unregistered) Time Zone: " + id);
-            } else {
-            	tzCache.put(id, tz);
+            // TimeZone defaults to GMT if it can't match a parsed timezone.
+            if ("GMT".equals(tz.getID())) {
+                if (!("GMT".equals(id) || "UTC".equals(id) || "CUT".equals(id) || "Z".equals(id) || "WET".equals(id))) {
+                    // If it's GMT due to parse error, we'll default to input time.
+                    return inputTimeZone;
+                }
             }
+            tzCache.put(id, tz);
         } else {
-            tz = (TimeZone) tzCache.get(id);
+            tz = tzCache.get(id);
         }
-        return tz;    	
+        return tz;
+    }
+
+    @Override
+    public Integer lookupMonthIndex(String monthNameOrAbbreviation) {
+        return monthMap.monthIndex(monthNameOrAbbreviation);
     }
 
     /**
      * @return Input TimeZone default for parser.
      */
-	public TimeZone getInputTimeZone() {
-		return inputTimeZone;
-	}
-
-	/**
-	 * @param inputTimeZone
-	 * 		TimeZone under which parsed date/time is assumed if unspecified
-	 */
-	public void setInputTimeZone(TimeZone inputTimeZone) {
-		this.inputTimeZone = inputTimeZone;
-	}
-
-	/**
-	 * @return  Default TimeZone for DateTime.toString formatter.
-	 */
-	public TimeZone getOutputTimeZone() {
-		return outputTimeZone;
-	}
-
-	/**
-	 * @param outputTimeZone
-	 * 		Default TimeZone for DateTime.toString formatter.
-	 */
-	public void setOutputTimeZone(TimeZone outputTimeZone) {
-		this.outputTimeZone = outputTimeZone;
-	}
-
-	/**
-	 * Locale under which toString words are translated
-	 */
-	public Locale getLocale() {
-		return locale;
-	}
-
-	/**
-	 * 
-	 * @param locale
-	 * 		Locale under which toString words are translated
-	 */
-	public void setLocale(Locale locale) {
-		this.locale = locale;
-	}
-
-	/**
-	 * @return
-	 * 		When true, a date missing century is always assumed to be a past date
-	 */
-	public boolean isUnspecifiedCenturyAlwaysInPast() {
-		return isUnspecifiedCenturyAlwaysInPast;
-	}
-
-	/**
-	 * @param isUnspecifiedCenturyAlwaysInPast
-	 * 		When true, a date missing century is always assumed to be a past date
-	 */
-	public void setUnspecifiedCenturyAlwaysInPast(
-			boolean isUnspecifiedCenturyAlwaysInPast) {
-		this.isUnspecifiedCenturyAlwaysInPast = isUnspecifiedCenturyAlwaysInPast;
-	}
-
-	public String getBcPrefix() {
-		return bcPrefix;
-	}
-
-	public void setBcPrefix(String bcPrefix) {
-		this.bcPrefix = bcPrefix;
-	}
-
-	/**
-	 * Return a clone of this DateTimeConfig
-	 */
-	public DateTimeConfig clone() {
-		try {
-			super.clone();
-		} catch (CloneNotSupportedException ex) {
-			// Not strictly needed
-		}
-    	DateTimeConfig dtc=new DateTimeConfig();
-    	dtc.setFormat(this.format);
-    	dtc.setDefaultJdbcFormat(this.defaultJdbcFormat);
-    	dtc.setDmyOrder(this.isDmyOrder);
-    	dtc.setEpochDOW(this.epochDOW);
-    	dtc.setInputTimeZone(this.inputTimeZone);
-    	dtc.setLocale(this.locale);
-    	dtc.setOutputTimeZone(this.outputTimeZone);
-    	return dtc;
+    public TimeZone getInputTimeZone() {
+        return inputTimeZone;
     }
+
+    /**
+     * @return Default TimeZone for DateTime.toString formatter.
+     */
+    public TimeZone getOutputTimeZone() {
+        return outputTimeZone;
+    }
+
+    /**
+     * Locale under which toString words are translated
+     */
+    public Locale getLocale() {
+        return locale;
+    }
+
+    /**
+     * @return When true, a date missing century is always assumed to be a past date
+     */
+    public boolean isUnspecifiedCenturyAlwaysInPast() {
+        return isUnspecifiedCenturyAlwaysInPast;
+    }
+
+    public String getBcPrefix() {
+        return bcPrefix;
+    }
+
+    public long systemTime() {
+        return System.currentTimeMillis();
+    }
+
+    public static void setGlobalDefaultFromBuilder(DateTimeConfigBuilder builder) {
+        globalDefault = fromBuilder(builder);
+    }
+
+    public static DateTimeConfig fromBuilder(DateTimeConfigBuilder builder) {
+        DateTimeConfig dtc = new DateTimeConfig();
+        dtc.monthMap = builder.getMonthMap();
+        dtc.bcPrefix = builder.getBcPrefix();
+        dtc.defaultJdbcFormat = builder.getDefaultJdbcFormat();
+        dtc.epochDOW = builder.getEpochDOW();
+        dtc.format = builder.getFormat();
+        dtc.inputTimeZone = builder.getInputTimeZone();
+        dtc.isDmyOrder = builder.isDmyOrder();
+        dtc.isUnspecifiedCenturyAlwaysInPast = builder.isUnspecifiedCenturyAlwaysInPast();
+        dtc.locale = builder.getLocale();
+        dtc.outputTimeZone = builder.getOutputTimeZone();
+        dtc.tzMap.putAll(builder.getTzMap());
+        dtc.tzCache.putAll(builder.getTzCache());
+        dtc.validate();
+        return dtc;
+    }
+
 }

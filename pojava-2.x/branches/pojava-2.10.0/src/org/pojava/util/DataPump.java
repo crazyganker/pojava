@@ -16,12 +16,7 @@ package org.pojava.util;
  limitations under the License.
  */
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.IOException;
-import java.io.BufferedInputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,12 +28,12 @@ import java.util.logging.Logger;
  * pipe while you're waiting for data on the other pipe, it can block and may never get around
  * to either writing to or closing the pipe you're reading-- a classic deadlock preventable by
  * threading.
- * 
+ *
  * @author John Pile
  */
-public class DataPump extends Thread {
-    
-    private static Logger logger = Logger.getLogger("org.pojava.util.DataPump");
+public class DataPump implements Runnable {
+
+    private static final Logger LOGGER = Logger.getLogger("org.pojava.util.DataPump");
 
     /**
      * Source of data stream
@@ -57,11 +52,9 @@ public class DataPump extends Thread {
 
     /**
      * Connect pump from an Input Stream to an Output Stream
-     * 
-     * @param dataSource
-     *            Data Source
-     * @param dataDest
-     *            Data Destination
+     *
+     * @param dataSource Data Source
+     * @param dataDest   Data Destination
      */
     public DataPump(final InputStream dataSource, final OutputStream dataDest) {
         this.in = dataSource;
@@ -70,11 +63,9 @@ public class DataPump extends Thread {
 
     /**
      * Connect pump from an Input Stream to a String Buffer
-     * 
-     * @param dataSource
-     *            Data Source
-     * @param buffer
-     *            Data Buffer (holding pond)
+     *
+     * @param dataSource Data Source
+     * @param buffer     Data Buffer (holding pond)
      */
     public DataPump(final InputStream dataSource, final StringBuffer buffer) {
         this.in = dataSource;
@@ -92,20 +83,17 @@ public class DataPump extends Thread {
                 DataPump.pump(in, textBuffer);
             }
         } catch (IOException ex) {
-            logger.log(Level.WARNING, ex.getMessage(), ex);
+            LOGGER.log(Level.WARNING, ex.getMessage(), ex);
             // Just eat the exception. You're in a secondary stream.
         }
     }
 
     /**
      * This pump pulls data from one stream, pushing it to another.
-     * 
-     * @param in
-     *            Data Source
-     * @param out
-     *            Data Destination
-     * @throws IOException
-     *             if read/write fails
+     *
+     * @param in  Data Source
+     * @param out Data Destination
+     * @throws IOException if read/write fails
      */
     public static void pump(final InputStream in, final OutputStream out) throws IOException {
         BufferedInputStream buffer = new BufferedInputStream(in);
@@ -117,21 +105,16 @@ public class DataPump extends Thread {
                 out.write(bucket, 0, drawn);
             }
         } finally {
-            if (buffer != null) {
-                buffer.close();
-            }
+            buffer.close();
         }
     }
 
     /**
      * This pump extracts text from an input stream into a StringBuffer.
-     * 
-     * @param in
-     *            Data Source
-     * @param buffer
-     *            Holding Buffer
-     * @throws IOException
-     *             if read/write fails
+     *
+     * @param in     Data Source
+     * @param buffer Holding Buffer
+     * @throws IOException if read/write fails
      */
     public static void pump(final InputStream in, final StringBuffer buffer) throws IOException {
         BufferedReader bReader = new BufferedReader(new InputStreamReader(in));
@@ -143,9 +126,7 @@ public class DataPump extends Thread {
                 buffer.append(bucket, 0, drawn);
             }
         } finally {
-            if (bReader != null) {
-                bReader.close();
-            }
+            bReader.close();
         }
     }
 

@@ -18,9 +18,8 @@ package org.pojava.util;
 
 /**
  * A HashingAlgorithm represents a hashing algorithm supported by HashingTool.
- * 
+ *
  * @author John Pile
- * 
  */
 public enum HashingAlgorithm {
 

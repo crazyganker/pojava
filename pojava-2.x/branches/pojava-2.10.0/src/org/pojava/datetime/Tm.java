@@ -23,9 +23,8 @@ import java.util.TimeZone;
 /**
  * This class converts a DateTime into year, month, day, hour, minute, second, millisecond,
  * nanosecond. It is similar to the tm struct in C.
- * 
+ *
  * @author John Pile
- * 
  */
 public class Tm {
 
@@ -39,9 +38,9 @@ public class Tm {
     private static final long CENT = QUADYEAR * 25 - DAY;
     private static final long QUADCENT = 4 * CENT + DAY;
     // Our year starts March 1
-    private static final long[] MONTH = { 0, 31 * DAY, 61 * DAY, 92 * DAY, 122 * DAY,
+    private static final long[] MONTH = {0, 31 * DAY, 61 * DAY, 92 * DAY, 122 * DAY,
             153 * DAY, 184 * DAY, 214 * DAY, 245 * DAY, 275 * DAY, 306 * DAY, 337 * DAY,
-            365 * DAY };
+            365 * DAY};
     /**
      * The true Gregorian Calendar was initiated in October 1582, but this start date is easier
      * for calculations, so I use it as an epoch. The year starts on March 1 so that a leap day
@@ -64,9 +63,8 @@ public class Tm {
 
     /**
      * Populate year, month, day, hour, min, sec, nano from a DateTime
-     * 
-     * @param dt
-     *            DateTime object
+     *
+     * @param dt DateTime object
      */
     public Tm(DateTime dt) {
         init(dt, dt.timeZone());
@@ -74,8 +72,9 @@ public class Tm {
 
     /**
      * Constructor
+     *
      * @param dt Populate year, month, day, hour, min, sec, nano from a DateTime
-     * @param tz Assert the time zone under which those values are sampled.
+     * @param tz Assert a time zone under which those values are represented.
      */
     public Tm(DateTime dt, TimeZone tz) {
         init(dt, tz);
@@ -83,33 +82,32 @@ public class Tm {
 
     /**
      * Populate year, month, day, hour, min, sec, nano
-     * 
-     * @param millis
-     *            Date/Time in UTC assuming the default time zone.
+     *
+     * @param millis Date/Time in UTC assuming the default time zone.
      */
     public Tm(long millis) {
-    	DateTimeConfig config=DateTimeConfig.getGlobalDefault();
+        IDateTimeConfig config = DateTimeConfig.getGlobalDefault();
         init(new DateTime(millis, config), config.getOutputTimeZone());
     }
 
     /**
      * Constructor
+     *
      * @param millis Millis since epoch
-     * @param tz TimeZone under which the date is assumed
+     * @param tz     TimeZone represented by the Tm
      */
     public Tm(long millis, TimeZone tz) {
-    	DateTimeConfig config=DateTimeConfig.getGlobalDefault().clone();
-    	if (tz!=null) {
-    		config.setOutputTimeZone(tz);
-    	}
+        IDateTimeConfig globalDefault = DateTimeConfig.getGlobalDefault();
+        if (tz == null) tz = globalDefault.getOutputTimeZone();
+        LocalConfig config = LocalConfig.instanceOverridingOutputTimeZone(globalDefault, tz);
         init(new DateTime(millis, config), tz);
     }
 
     /**
      * We'll direct the pre-GREG_EPOCH times here for now. Most folks don't use them, so
      * optimizing is not my highest priority.
-     * 
-     * @param millis
+     *
+     * @param millis Number of milliseconds since epoch (typically negative)
      */
     private void initYeOlde(long millis) {
         // Taking the easy way out...
@@ -122,24 +120,19 @@ public class Tm {
         this.minute = cal.get(Calendar.MINUTE);
         this.second = cal.get(Calendar.SECOND);
         this.weekday = cal.get(Calendar.DAY_OF_WEEK);
-        if (millis<START_OF_AD) {
-        	year=-year;
+        if (millis < START_OF_AD) {
+            year = -year;
         }
     }
 
     /**
      * Calculate date parts.
-     * 
-     * @param dt
-     *          DateTime
-     * @param timeZone
-     * 			TimeZone
+     *
+     * @param dt       DateTime
+     * @param timeZone TimeZone under which Tm will be represented
      */
     private void init(DateTime dt, TimeZone timeZone) {
-        if (timeZone==null) {
-            timeZone=dt.config().getInputTimeZone();
-        }
-        this.tz=timeZone;
+        this.tz = timeZone != null ? timeZone : dt.config().getOutputTimeZone();
         long millis = dt.toMillis();
         // Compensate for difference between the system time zone and the recorded time zone
         long duration = millis - GREG_EPOCH_UTC + timeZone.getOffset(dt.toMillis());
@@ -187,14 +180,14 @@ public class Tm {
                 month -= 12;
             }
         }
-        
+
     }
 
     /**
      * Return numeric day of week, usually Sun=1, Mon=2, ... , Sat=7;
-     * 
-     * @param millis
-     * @param timeZone
+     *
+     * @param millis   milliseconds since epoch
+     * @param timeZone TimeZone under which Tm will be represented
      * @return Numeric day of week, usually Sun=1, Mon=2, ... , Sat=7. See DateTimeConfig.
      */
     public static int calcWeekday(long millis, TimeZone timeZone) {
@@ -213,97 +206,60 @@ public class Tm {
 
     /**
      * Determine "time" in milliseconds since epoch, UTC, as of the entered local time.
-     * 
-     * @param year calendar year
+     *
+     * @param year  calendar year
      * @param month calendar month
-     * @param day calendar day
+     * @param day   calendar day
      * @return time in milliseconds since epoch, UTC.
      */
     public static long calcTime(int year, int month, int day) {
-    	DateTimeConfig config=DateTimeConfig.getGlobalDefault();
+        IDateTimeConfig config = DateTimeConfig.getGlobalDefault();
         return calcTime(year, month, day, 0, 0, 0, 0, config.getOutputTimeZone());
     }
 
     /**
      * Determine "time" in milliseconds since epoch, UTC, as of the entered local time.
-     * 
-     * @param year calendar year
+     * It is acceptable to use numbers outside of a normal range, such as a 15th month, or 64th minute.
+     *
+     * @param year  calendar year
      * @param month calendar month
-     * @param day calendar day
-     * @param hour
-     * @param min
-     * @param sec
-     * @param milli
+     * @param day   calendar day
+     * @param hour  hour of day
+     * @param min   minute of hour
+     * @param sec   seconds
+     * @param milli milliseconds
      * @return time in milliseconds since epoch, UTC.
      */
     public static long calcTime(int year, int month, int day, int hour, int min, int sec,
-            int milli) {
-    	DateTimeConfig config=DateTimeConfig.getGlobalDefault();
+                                int milli) {
+        IDateTimeConfig config = DateTimeConfig.getGlobalDefault();
         return calcTime(year, month, day, hour, min, sec, milli, config.getOutputTimeZone());
     }
 
     /**
      * Determine "time" in milliseconds since epoch, UTC, as of the given time zone provided.
-     * 
-     * @param year calendar year
+     *
+     * @param year  calendar year
      * @param month calendar month
-     * @param day calendar day
-     * @param hour
-     * @param min
-     * @param sec
-     * @param milli
-     * @param tz time zone in which the date parts are given
+     * @param day   calendar day
+     * @param hour  hour of day
+     * @param min   minute of hour
+     * @param sec   seconds
+     * @param milli millisecons
+     * @param tz    time zone in which the date parts are given
      * @return number of milliseconds since Epoch
      */
     public static long calcTime(int year, int month, int day, int hour, int min, int sec,
-            int milli, TimeZone tz) {
-        long millis = GREG_EPOCH_UTC;
-        int yyyy = year;
-        if (year < 1600) {
-            Calendar cal = Calendar.getInstance(tz);
-            cal.set(Calendar.YEAR, year);
-            cal.set(Calendar.MONTH, month - 1);
-            cal.set(Calendar.DAY_OF_MONTH, day);
-            cal.set(Calendar.HOUR_OF_DAY, hour);
-            cal.set(Calendar.MINUTE, min);
-            cal.set(Calendar.SECOND, sec);
-            cal.set(Calendar.MILLISECOND, milli);
-            return cal.getTimeInMillis();
-        }
-        year -= 1600;
-        int ct = year / 400;
-        millis += QUADCENT * ct;
-        year -= 400 * ct;
-        ct = year / 100;
-        millis += CENT * ct;
-        year -= 100 * ct;
-        ct = year / 4;
-        millis += QUADYEAR * ct;
-        year -= 4 * ct;
-        millis += YEAR * year;
-        // Years, Months, Days
-        if (month < 3) {
-            millis -= (yyyy % 4 == 0 && (yyyy % 100 != 0 || yyyy % 400 == 0)) ? DAY * 60
-                    : DAY * 59;
-            if (month == 2) {
-                millis += DAY * 31;
-            }
-        } else {
-            if (month > 8) {
-                millis += DAY
-                        * ((month > 10) ? (month == 11 ? 245 : 275) : (month == 9 ? 184 : 214));
-            } else if (month > 4) {
-                millis += DAY
-                        * ((month > 6) ? (month == 7 ? 122 : 153) : (month == 5 ? 61 : 92));
-            } else if (month == 4) {
-                millis += DAY * 31;
-            }
-        }
-        millis += DAY * (day - 1);
-        // Hours, Minutes, Seconds, Milliseconds
-        millis += Duration.HOUR * hour + Duration.MINUTE * min + Duration.SECOND * sec + milli;
-        millis -= tz.getOffset(millis);
-        return millis;
+                                int milli, TimeZone tz) {
+        Calendar cal = Calendar.getInstance(tz);
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month - 1);
+        cal.set(Calendar.DAY_OF_MONTH, day);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, min);
+        cal.set(Calendar.SECOND, sec);
+        cal.set(Calendar.MILLISECOND, milli);
+        return cal.getTimeInMillis();
     }
 
     /**
@@ -316,7 +272,7 @@ public class Tm {
     /**
      * Returns month between 1 and 12. Differs from C version of tm, but you can always subtract
      * 1 if you want zero-based.
-     * 
+     *
      * @return Month as Jan=1, Feb=2, ..., Dec=12
      */
     public int getMonth() {
@@ -325,7 +281,7 @@ public class Tm {
 
     /**
      * Returns day of month between 1 and 31.
-     * 
+     *
      * @return Day of month.
      */
     public int getDay() {
@@ -334,7 +290,7 @@ public class Tm {
 
     /**
      * Returns hour of day between 0 and 23.
-     * 
+     *
      * @return Hour of day.
      */
     public int getHour() {
@@ -343,7 +299,7 @@ public class Tm {
 
     /**
      * Returns minute of hour between 0 and 59.
-     * 
+     *
      * @return Minute of hour.
      */
     public int getMinute() {
@@ -352,7 +308,7 @@ public class Tm {
 
     /**
      * Returns second of minute between 0 and 59.
-     * 
+     *
      * @return Second of minute.
      */
     public int getSecond() {
@@ -361,7 +317,7 @@ public class Tm {
 
     /**
      * Returns millisecond fraction of second between 0 and 999999.
-     * 
+     *
      * @return Millisecond fraction of second.
      */
     public int getMillisecond() {
@@ -370,7 +326,7 @@ public class Tm {
 
     /**
      * Returns nanosecond fraction of second between 0 and 999999999.
-     * 
+     *
      * @return Nanosecond fraction of second.
      */
     public int getNanosecond() {
@@ -379,7 +335,7 @@ public class Tm {
 
     /**
      * Returns weekday between 1 and 7
-     * 
+     *
      * @return Typically (although configurable) Sun=1 .. Sat=7
      */
     public int getWeekday() {

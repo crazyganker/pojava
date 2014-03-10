@@ -21,12 +21,11 @@ import org.pojava.lang.Binding;
 /**
  * A BindingAdaptor is a two-way data transformer used for translating a single typed value with
  * an external representation.
- * 
+ * <p/>
  * It is responsible for translating both the data and the expected class in both directions,
  * even for null values.
- * 
+ *
  * @author John Pile
- * 
  */
 public abstract class BindingAdaptor<I, O> {
 
@@ -36,7 +35,7 @@ public abstract class BindingAdaptor<I, O> {
 
     /**
      * Inbound example might be from the persistence layer to the business layer.
-     * 
+     *
      * @param obj
      * @return a new binding translated from the old
      */
@@ -44,7 +43,7 @@ public abstract class BindingAdaptor<I, O> {
 
     /**
      * Outbound is typically originating from the business layer to the persistence layer.
-     * 
+     *
      * @param obj
      * @return a new binding translated from the old
      */

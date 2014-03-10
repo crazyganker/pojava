@@ -20,9 +20,8 @@ import org.pojava.lang.Binding;
 
 /**
  * The BooleanIntegerAdaptor transforms a Boolean true/false value to an Integer 1/0 value.
- * 
+ *
  * @author John Pile
- * 
  */
 public class BooleanIntegerAdaptor extends BindingAdaptor<Boolean, Integer> {
 
@@ -39,7 +38,7 @@ public class BooleanIntegerAdaptor extends BindingAdaptor<Boolean, Integer> {
         if (fromBinding == null || fromBinding.getObj() == null) {
             return toBinding;
         }
-        toBinding.setObj(Boolean.valueOf(fromBinding.getValue().intValue() != 0));
+        toBinding.setObj(fromBinding.getValue().intValue() != 0);
         return toBinding;
     }
 
@@ -48,7 +47,7 @@ public class BooleanIntegerAdaptor extends BindingAdaptor<Boolean, Integer> {
         if (fromBinding == null || fromBinding.getObj() == null) {
             return toBinding;
         }
-        toBinding.setObj(Integer.valueOf(fromBinding.getValue().equals(Boolean.TRUE) ? 1 : 0));
+        toBinding.setObj(fromBinding.getValue().equals(Boolean.TRUE) ? 1 : 0);
         return toBinding;
     }
 

@@ -16,31 +16,25 @@ package org.pojava.util;
  limitations under the License.
  */
 
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-
 import org.pojava.exception.ReflectionException;
 import org.pojava.lang.Accessors;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
+
 /**
  * The ReflectionTool class provides static methods for accessing an object's properties.
- * 
+ *
  * @author John Pile
- * 
  */
 public class ReflectionTool {
 
     /**
      * Returns true if class derives from Collection
-     * 
-     * @param type
-     *            Class to test.
+     *
+     * @param type Class to test.
      * @return True if class is a type of Collection, else false.
      */
     public static boolean isCollection(Class<?> type) {
@@ -49,9 +43,8 @@ public class ReflectionTool {
 
     /**
      * Returns true if class derives from Set
-     * 
-     * @param type
-     *            Class to test.
+     *
+     * @param type Class to test.
      * @return True if object is Map, else false.
      */
     public static boolean isMap(Class<?> type) {
@@ -60,9 +53,9 @@ public class ReflectionTool {
 
     /**
      * Return true if object is equivalent to a primitive type.
-     * 
+     *
      * @param propClass
-     * @return true if class is primitive or an object equivalent
+     * @return true if class is primitive, object equivalent, or a String
      */
     public static boolean isBasic(Class<?> propClass) {
         return propClass.isPrimitive() || propClass == String.class
@@ -74,9 +67,8 @@ public class ReflectionTool {
 
     /**
      * Make content safe for XML or URI by encoding illegal characters.
-     * 
-     * @param obj
-     *            Object being encoded
+     *
+     * @param obj Object being encoded
      * @return A non-null string.
      */
     public static String clean(String obj) {
@@ -89,16 +81,14 @@ public class ReflectionTool {
 
     /**
      * Extract a property Map from a class by its getters.
-     * 
-     * @param baseClass
-     *            Class of properties to harvest.
+     *
+     * @param baseClass Class of properties to harvest.
      * @return Map of names to classes.
      */
     public static Map<String, Class<?>> propertyMap(Class<?> baseClass) {
         Map<String, Class<?>> map = new HashMap<String, Class<?>>();
         Method[] methods = baseClass.getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
+        for (Method method : methods) {
             String name = method.getName();
             if (name.startsWith("get")) {
                 if (!name.equals("getClass")) {
@@ -120,8 +110,8 @@ public class ReflectionTool {
             throws NoSuchMethodException, IllegalAccessException, InstantiationException {
         Object innerObject = parent;
         Object tempObject = null;
-        Class<? extends Object> propClass = null;
-        Class<? extends Object> innerObjectClass = null;
+        Class<?> propClass = null;
+        Class<?> innerObjectClass = null;
         Method method = null;
         Object[] params = new Object[1];
         Class<?>[] parameterTypes = new Class<?>[1];
@@ -156,8 +146,8 @@ public class ReflectionTool {
                         // collection, construct one.
                         if (tempObject == null) {
                             tempObject = innerObjectClass.newInstance();
-                            Class<?>[] classes = { innerObjectClass };
-                            Object[] objects = { tempObject };
+                            Class<?>[] classes = {innerObjectClass};
+                            Object[] objects = {tempObject};
                             method = innerObjectClass.getMethod(setter(pathPart[p]), classes);
                             method.invoke(innerObject, objects);
                         }
@@ -169,8 +159,7 @@ public class ReflectionTool {
                     } else if (isCollection(innerObjectClass)) {
                         innerObject = ((Collection<?>) innerObject).toArray()[offset.intValue()];
                     } else if (isMap(innerObjectClass)) {
-                        // Order is not guaranteed, but a map can be fully
-                        // iterated.
+                        // Order is not guaranteed, but a map can be fully iterated.
                         innerObject = ((Map<?, ?>) innerObject).values().toArray()[offset
                                 .intValue() - 1];
                     } else {
@@ -218,8 +207,7 @@ public class ReflectionTool {
      * Drill down to a nested property and set its value
      */
     public static void setNestedValue(Method[] getters, Method[] setters, Object parent,
-            Object value) throws NoSuchMethodException, IllegalAccessException,
-            InstantiationException {
+                                      Object value) throws IllegalAccessException, InstantiationException {
         Object innerObject = parent;
         Object tempObject = null;
         Object[] params = new Object[1];
@@ -249,7 +237,7 @@ public class ReflectionTool {
 
     /**
      * Determine get accessor name from property name
-     * 
+     *
      * @param name
      * @return name of get accessor derived from property name.
      */
@@ -259,7 +247,7 @@ public class ReflectionTool {
 
     /**
      * Determine set accessor name from property name
-     * 
+     *
      * @param name
      * @return name of set accessor derived from property name
      */
@@ -269,11 +257,9 @@ public class ReflectionTool {
 
     /**
      * Determine the class of a property
-     * 
-     * @param baseClass
-     *            of object serving as root of property reference
-     * @param property
-     *            reference to an object's property
+     *
+     * @param baseClass of object serving as root of property reference
+     * @param property  reference to an object's property
      * @return Class of the specified property.
      */
     public static Class<?> propertyType(Class<?> baseClass, String property)
@@ -284,11 +270,11 @@ public class ReflectionTool {
             property = property.substring(2);
         }
         String[] path = property.split("[./]");
-        for (int p = 0; p < path.length; p++) {
+        for (String aPath : path) {
             try {
-                method = innerClass.getMethod(getter(path[p]), (Class<?>[]) null);
+                method = innerClass.getMethod(getter(aPath), (Class<?>[]) null);
             } catch (NoSuchMethodException ex) {
-                method = innerClass.getMethod(path[p], (Class<?>[]) null);
+                method = innerClass.getMethod(aPath, (Class<?>[]) null);
             }
             innerClass = method.getReturnType();
         }
@@ -297,7 +283,7 @@ public class ReflectionTool {
 
     /**
      * Array of setter methods that drill down to a property.
-     * 
+     *
      * @param getterMethods
      * @return array of setter methods that drill down to a property.
      * @throws NoSuchMethodException
@@ -311,7 +297,7 @@ public class ReflectionTool {
             String getterName = getter.getName();
             String setterName = "set"
                     + getterName.substring(getterName.charAt(0) == 'i' ? 2 : 3);
-            Class<?>[] params = { getter.getReturnType() };
+            Class<?>[] params = {getter.getReturnType()};
             setters[i] = parent.getMethod(setterName, params);
         }
         return setters;
@@ -319,30 +305,24 @@ public class ReflectionTool {
 
     /**
      * Extract the getters and setters for a class.
-     * 
-     * @param type
-     *            hold class of object containing the get accessors
+     *
+     * @param type hold class of object containing the get accessors
      * @return array of getter methods drilling down to a property
      */
     public static Accessors accessors(Class<?> type) {
         Method[] allMethods = type.getMethods();
-        Accessors accessors = new Accessors();
-        accessors.setType(type);
+        Accessors accessors = new Accessors(type);
         Map<String, Method> getters = accessors.getGetters();
         Map<String, Method> setters = accessors.getSetters();
-        for (int i = 0; i < allMethods.length; i++) {
-            Method meth = allMethods[i];
-            String methName = meth.getName();
-            char c = methName.charAt(0);
-            if (c == 's') {
-                if (meth.getParameterTypes().length == 1) {
-                    setters.put(propertyFor(methName), meth);
-                }
-            } else if (c == 'g' || c == 'i' || c == 'h') {
-                if (meth.getParameterTypes().length == 0) {
-                    if (!"getClass".equals(methName) && !"hashCode".equals(methName)) {
-                        getters.put(propertyFor(methName), meth);
-                    }
+        for (Method meth : allMethods) {
+            String methodName = meth.getName();
+            String property = propertyFor(methodName);
+            if (property == null) continue;
+            if (methodName.charAt(0) == 's') {
+                setters.put(property, meth);
+            } else {
+                if (!"class".equals(property)) {
+                    getters.put(property, meth);
                 }
             }
         }
@@ -350,23 +330,25 @@ public class ReflectionTool {
     }
 
     /**
-     * Specify the getters and setters for a class.
-     * 
-     * @param type
-     *            class of object containing the accessors
+     * Specify a subset of the getters and setters for a class.
+     *
+     * @param type             class of object containing the desired accessors
+     * @param getterProperties the set of property names to include as getters
+     * @param setterProperties the set of property names to include as setters
      * @return referenced getters and setters for a class
      */
-    public static Accessors accessors(Class<?> type, Map<String, Method> getterNames,
-            Map<String, Method> setterNames) throws NoSuchMethodException {
+    public static Accessors accessors(Class<?> type, Set<String> getterProperties,
+                                      Set<String> setterProperties) throws NoSuchMethodException {
         Method[] allMethods = type.getMethods();
         Accessors accessors = new Accessors();
-        for (int i = 0; i < allMethods.length; i++) {
-            Method meth = allMethods[i];
-            String name = meth.getName();
-            if (getterNames.containsKey(name) && meth.getParameterTypes().length == 0) {
-                getterNames.put(name, meth);
-            } else if (setterNames.containsKey(name) && meth.getParameterTypes().length == 1) {
-                setterNames.put(name, meth);
+        Map<String, Method> getters = accessors.getGetters();
+        Map<String, Method> setters = accessors.getSetters();
+        for (Method meth : allMethods) {
+            String property = propertyFor(meth.getName());
+            if (getterProperties.contains(property) && meth.getParameterTypes().length == 0) {
+                getters.put(property, meth);
+            } else if (setterProperties.contains(property) && meth.getParameterTypes().length == 1) {
+                setters.put(property, meth);
             }
         }
         return accessors;
@@ -374,11 +356,9 @@ public class ReflectionTool {
 
     /**
      * Array of getter methods that drill down to a nested bean property
-     * 
-     * @param type
-     *            hold class of object containing the get accessors
-     * @param property
-     *            hold a reference to a bean property
+     *
+     * @param type     hold class of object containing the get accessors
+     * @param property hold a reference to a bean property
      * @return array of getter methods drilling down to a property
      */
     public static Method[] getterMethodDrilldown(Class<?> type, String property)
@@ -410,12 +390,9 @@ public class ReflectionTool {
 
     /**
      * Drill down to a nested bean property from predetermined methods.
-     * 
-     * @param getters
-     *            A trail of nested methods leading to the property.
-     * 
-     * @param bean
-     *            Root bean
+     *
+     * @param getters A trail of nested methods leading to the property.
+     * @param bean    Root bean
      * @return Result from getter method represented by the inner-most nested property.
      */
     public static Object getNestedValue(Method[] getters, Object bean) {
@@ -426,29 +403,19 @@ public class ReflectionTool {
                 innerObject = getters[i].invoke(innerObject, (Object[]) null);
             }
         } catch (IllegalAccessException ex) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("Failed to invoke getter ");
-            sb.append(getters[i].getName());
-            sb.append(".");
-            throw new ReflectionException(sb.toString(), ex);
+            throw new ReflectionException("Failed to invoke getter " + getters[i].getName() + ".", ex);
         } catch (InvocationTargetException ex) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("Failed to invoke getter ");
-            sb.append(getters[i].getName());
-            sb.append(".");
-            throw new ReflectionException(sb.toString(), ex);
+            throw new ReflectionException("Failed to invoke getter " + getters[i].getName() + ".", ex);
         }
         return innerObject;
     }
 
     /**
      * Drill down to a nested bean property
-     * 
-     * @param relativePath
-     *            Property specifier for relative path starting at bean as the root node. Both
-     *            property.property and ./xpath/to/property are interpreted.
-     * @param bean
-     *            Root bean
+     *
+     * @param relativePath Property specifier for relative path starting at bean as the root node. Both
+     *                     property.property and ./xpath/to/property are interpreted.
+     * @param bean         Root bean
      * @return Result from getter method represented by dottedShortName
      */
     public static Object getNestedValue(String relativePath, Object bean) {
@@ -460,24 +427,24 @@ public class ReflectionTool {
         }
         String[] path = relativePath.split("[./]");
         try {
-            for (int p = 0; p < path.length; p++) {
+            for (String aPath : path) {
                 innerObjectClass = innerObject.getClass();
                 Integer offset = null;
                 try {
-                    if (path[p].indexOf('[') >= 0) {
-                        offset = new Integer(path[p].substring(path[p].indexOf('[') + 1,
-                                path[p].indexOf(']')));
+                    if (aPath.indexOf('[') >= 0) {
+                        offset = new Integer(aPath.substring(aPath.indexOf('[') + 1,
+                                aPath.indexOf(']')));
                     } else {
-                        method = innerObjectClass.getMethod(getter(path[p]), (Class<?>[]) null);
+                        method = innerObjectClass.getMethod(getter(aPath), (Class<?>[]) null);
                     }
                 } catch (NoSuchMethodException ex) {
-                    method = innerObjectClass.getMethod(path[p], (Class<?>[]) null);
+                    method = innerObjectClass.getMethod(aPath, (Class<?>[]) null);
                 }
                 if (offset == null) {
                     innerObject = method.invoke(innerObject, (Object[]) null);
                 } else {
                     if (!(innerObjectClass.isArray() || isCollection(innerObjectClass) || isMap(innerObjectClass))) {
-                        method = innerObjectClass.getMethod(getter(path[p].substring(0, path[p]
+                        method = innerObjectClass.getMethod(getter(aPath.substring(0, aPath
                                 .indexOf('['))), (Class<?>[]) null);
                         innerObject = method.invoke(innerObject, (Object[]) null);
                         innerObjectClass = innerObject.getClass();
@@ -498,68 +465,55 @@ public class ReflectionTool {
                 }
             }
         } catch (NoSuchMethodException ex) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("Failed to invoke getter ");
-            sb.append(relativePath);
-            sb.append(".");
-            throw new ReflectionException(sb.toString(), ex);
+            throw new ReflectionException("Failed to invoke getter " + relativePath + ".", ex);
         } catch (InvocationTargetException ex) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("Failed to invoke getter ");
-            sb.append(relativePath);
-            sb.append(".");
-            throw new ReflectionException(sb.toString(), ex);
+            throw new ReflectionException("Failed to invoke getter " + relativePath + ".", ex);
         } catch (IllegalAccessException ex) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("Failed to invoke getter ");
-            sb.append(relativePath);
-            sb.append(".");
-            throw new ReflectionException(sb.toString(), ex);
+            throw new ReflectionException("Failed to invoke getter " + relativePath + ".", ex);
         }
         return innerObject;
     }
 
+    /**
+     * Extract a property name from a Method.  This requires that an accessor or mutator follows
+     * the naming convention, "getSomething", "setSomething", or "isSomething", and will return
+     * the property name "something", or null if not found.
+     *
+     * @param method Method
+     * @return Short property name found for the method (or null if not found)
+     */
     public static String propertyFor(Method method) {
         if (method == null) {
             return null;
         }
-        char[] chars = method.getName().toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            char c = chars[i];
-            if (c < 'a' || c > 'z') {
-                StringBuffer sb = new StringBuffer();
-                sb.append(Character.toLowerCase(c));
-                sb.append(method.getName().substring(1 + i));
-                return sb.toString();
-            }
-        }
-        return null;
+        return propertyFor(method.getName());
     }
 
     /**
      * Return the property name for a getter or setter name.
-     * 
+     *
      * @param accessorName
      * @return Property name derived from getter or setter name.
      */
     public static String propertyFor(String accessorName) {
-        char[] chars = accessorName.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            char c = chars[i];
-            if (c < 'a' || c > 'z') {
-                StringBuffer sb = new StringBuffer();
-                sb.append(Character.toLowerCase(c));
-                sb.append(accessorName.substring(1 + i));
-                return sb.toString();
+        if (accessorName.length() > 3 && (accessorName.startsWith("get") || accessorName.startsWith("set"))) {
+            char c = accessorName.charAt(3);
+            if (c >= 'A' && c <= 'Z') {
+                return Character.toLowerCase(c) + accessorName.substring(4);
+            }
+        } else if (accessorName.length() > 2 && accessorName.startsWith("is")) {
+            char c = accessorName.charAt(2);
+            if (c >= 'A' && c <= 'Z') {
+                return Character.toLowerCase(c) + accessorName.substring(3);
             }
         }
         return null;
     }
 
     /**
-     * Invoke any setters of an object whose properties are reference in a map, passing the
+     * Invoke any setters of an object whose properties are referenced in a map, passing the
      * values of that map into their respective setters.
-     * 
+     *
      * @param obj
      * @param properties
      * @param setters
@@ -567,64 +521,19 @@ public class ReflectionTool {
      * @throws InvocationTargetException
      */
     public static void populateFromMap(Object obj, Map<String, Object[]> properties,
-            Map<String, Method> setters) throws IllegalAccessException,
+                                       Map<String, Method> setters) throws IllegalAccessException,
             InvocationTargetException {
         if (obj == null || setters == null || setters.isEmpty()) {
             return;
         }
-        for (Iterator<Map.Entry<String, Method>> it = setters.entrySet().iterator(); it
-                .hasNext();) {
-            Method setter = it.next().getValue();
+        for (Map.Entry<String, Method> stringMethodEntry : setters.entrySet()) {
+            Method setter = stringMethodEntry.getValue();
             String prop = propertyFor(setter);
             if (properties.containsKey(prop)) {
-                Object[] args = { properties.get(prop) };
+                Object[] args = properties.get(prop);
                 setter.invoke(obj, args);
             }
         }
     }
 
-    /**
-     * Return a map of all get accessors for a class
-     * 
-     * @param pojoClass
-     * @return Map of all getters for a class
-     */
-    public static Map<String, Method[]> getterChains(Class<?> pojoClass) {
-        Map<String, Method[]> getterChains = new HashMap<String, Method[]>();
-        Method[] methods = pojoClass.getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            String name = methods[i].getName();
-            if (name.startsWith("get") && methods[i].getParameterTypes().length == 0) {
-                Method[] getterChain = { methods[i] };
-                getterChains.put(name, getterChain);
-            }
-        }
-        return getterChains;
-    }
-
-    /**
-     * Return a map of all set accessors for a class determined from the name and type of a list
-     * of get accessors.
-     * 
-     * @param getterChains
-     * @return Map of all setters for a class matching the getters
-     */
-    public static Map<String, Method[]> setterChains(Map<String, Method[]> getterChains) {
-        Map<String, Method[]> setterChains = new HashMap<String, Method[]>();
-        for (Iterator<Map.Entry<String, Method[]>> it = getterChains.entrySet().iterator(); it
-                .hasNext();) {
-            Map.Entry<String, Method[]> entry = it.next();
-            Method[] getters = entry.getValue();
-            Method[] setters = new Method[getters.length];
-            try {
-                for (int i = 0; i < getters.length; i++) {
-                    String name = "set" + getters[i].getName().substring(3);
-                    setters[i] = getters[i].getReturnType().getMethod(name, (Class<?>[]) null);
-                }
-            } catch (NoSuchMethodException ex) {
-                // ignore
-            }
-        }
-        return setterChains;
-    }
 }

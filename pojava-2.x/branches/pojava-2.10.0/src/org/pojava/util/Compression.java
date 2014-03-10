@@ -24,9 +24,8 @@ import java.util.zip.Inflater;
 /**
  * This class provides a simplified interface for compressing binary data using the "Deflate"
  * algorithm common to "zip" compression.
- * 
+ *
  * @author John Pile
- * 
  */
 public class Compression {
 
@@ -41,9 +40,8 @@ public class Compression {
 
     /**
      * Compress using the ubiquitous "zip" compression.
-     * 
-     * @param input
-     *            Usually myString.getBytes()
+     *
+     * @param input Usually myString.getBytes()
      * @return Compressed version of byte array.
      */
     public byte[] compress(byte[] input) {
@@ -63,9 +61,8 @@ public class Compression {
 
     /**
      * Decompress data that has already been compressed.
-     * 
-     * @param compressedData
-     *            byte array of zipped data
+     *
+     * @param compressedData byte array of zipped data
      * @return original data contained in a byte array.
      */
     public byte[] decompress(byte[] compressedData) throws DataFormatException {

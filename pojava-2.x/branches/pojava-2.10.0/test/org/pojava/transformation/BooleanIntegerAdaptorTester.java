@@ -1,7 +1,6 @@
 package org.pojava.transformation;
 
 import junit.framework.TestCase;
-
 import org.pojava.lang.Binding;
 
 public class BooleanIntegerAdaptorTester extends TestCase {
@@ -9,14 +8,14 @@ public class BooleanIntegerAdaptorTester extends TestCase {
     public void testCleanCase() {
         BindingAdaptor<Boolean, Integer> adaptor = new BooleanIntegerAdaptor();
         Binding<Boolean> local = new Binding<Boolean>(Boolean.class, Boolean.TRUE);
-        Binding<Integer> remote = new Binding<Integer>(Integer.class, new Integer(1));
+        Binding<Integer> remote = new Binding<Integer>(Integer.class, 1);
         Binding<Boolean> adaptedIn = adaptor.inbound(remote);
         Binding<Integer> adaptedOut = adaptor.outbound(local);
         assertEquals(local.getObj(), adaptedIn.getObj());
         assertEquals(remote.getObj(), adaptedOut.getObj());
     }
 
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void testDirtyCase() {
         BindingAdaptor<Boolean, Integer> adaptor = new BooleanIntegerAdaptor();
         try {

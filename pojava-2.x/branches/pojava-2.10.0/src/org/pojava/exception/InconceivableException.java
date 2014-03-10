@@ -15,6 +15,7 @@ package org.pojava.exception;
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
 /**
  * The InconceivableException was conceived for the purpose of covering cases where the
  * developer doesn't want to pass on the joy of handling exceptions he believes can't happen to

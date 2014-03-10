@@ -1,11 +1,10 @@
 package org.pojava.util;
 
+import junit.framework.TestCase;
+
 import java.security.Provider;
 import java.security.Security;
-import java.util.Iterator;
 import java.util.Set;
-
-import junit.framework.TestCase;
 
 public class HashingToolTester extends TestCase {
 
@@ -15,8 +14,8 @@ public class HashingToolTester extends TestCase {
         Provider[] providers = Security.getProviders();
         if (DEBUG) {
             System.out.println("\nPROVIDERS\n=========");
-            for (int i = 0; i < providers.length; i++) {
-                System.out.println(providers[i].getName());
+            for (Provider provider : providers) {
+                System.out.println(provider.getName());
             }
         }
     }
@@ -25,8 +24,8 @@ public class HashingToolTester extends TestCase {
         Set<String> algorithms = Security.getAlgorithms("MessageDigest");
         if (DEBUG) {
             System.out.println("\nALGORITHMS\n==========");
-            for (Iterator<String> it = algorithms.iterator(); it.hasNext();) {
-                System.out.println(it.next());
+            for (String algorithm : algorithms) {
+                System.out.println(algorithm);
             }
         }
     }

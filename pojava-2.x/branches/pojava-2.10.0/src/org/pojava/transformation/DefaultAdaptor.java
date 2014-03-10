@@ -16,20 +16,19 @@ package org.pojava.transformation;
  limitations under the License.
  */
 
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.Date;
-
 import org.pojava.datetime.DateTime;
 import org.pojava.lang.Binding;
 import org.pojava.lang.UncheckedBinding;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.Date;
+
 /**
  * The DefaultAdaptor passes most data through directly, but performs some specialized
  * transformations on date types.
- * 
+ *
  * @author John Pile
- * 
  */
 public class DefaultAdaptor implements UncheckedAdaptor {
 

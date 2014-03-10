@@ -4,17 +4,15 @@ import junit.framework.TestCase;
 
 public class CompressionTester extends TestCase {
 
-    String testData = generateTestString();
-
     /**
      * This dataset returns a comma-separated list of numbers and characters.
-     * 
-     * @return
+     *
+     * @return some numbers and characters for testing
      */
     private String generateTestString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 1000; i++) {
-            sb.append(new Integer(i).toString());
+            sb.append(Integer.toString(i));
             sb.append(", ");
             sb.append(Character.forDigit(i % 36, 36));
             sb.append(", ");
@@ -25,8 +23,8 @@ public class CompressionTester extends TestCase {
 
     /**
      * This dataset uses all characters and is highly compressible.
-     * 
-     * @return
+     *
+     * @return some binary data for testing
      */
     private byte[] generateTestBinary() {
         int loop = 100;
@@ -46,8 +44,8 @@ public class CompressionTester extends TestCase {
         byte[] original = generateTestString().getBytes();
         byte[] compressed = compressor.compress(original);
         byte[] uncompressed = compressor.decompress(compressed);
-        double ratio = new Double(compressed.length).doubleValue()
-                / new Double(uncompressed.length).doubleValue();
+        double ratio = compressed.length
+                / new Double(uncompressed.length);
         // Do we have data to compress?
         assertTrue(original.length > 0);
         // Did compression result in compressed data?
@@ -63,8 +61,8 @@ public class CompressionTester extends TestCase {
         byte[] original = generateTestBinary();
         byte[] compressed = compressor.compress(original);
         byte[] uncompressed = compressor.decompress(compressed);
-        double ratio = new Double(compressed.length).doubleValue()
-                / new Double(uncompressed.length).doubleValue();
+        double ratio = compressed.length
+                / new Double(uncompressed.length);
         // Do we have data to compress?
         assertTrue(original.length > 0);
         // Did compression result in compressed data?

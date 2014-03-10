@@ -1,13 +1,12 @@
 package org.pojava.transformation;
 
-import java.sql.Timestamp;
-import java.util.Date;
-
 import junit.framework.TestCase;
-
 import org.pojava.datetime.DateTime;
 import org.pojava.lang.Binding;
 import org.pojava.lang.UncheckedBinding;
+
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class DefaultAdaptorTester extends TestCase {
 
