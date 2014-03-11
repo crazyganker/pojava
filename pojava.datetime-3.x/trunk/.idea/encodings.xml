@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/pojava/datetime/CalendarUnit.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/pojava/datetime/DateTime.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/pojava/datetime/DateTimeConfig.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/pojava/datetime/DateTimeConfigBuilder.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/pojava/datetime/DateTimeFormat.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/pojava/datetime/Duration.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/pojava/datetime/IDateTimeConfig.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/pojava/datetime/LocalConfig.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/pojava/datetime/MonthMap.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/pojava/datetime/Shift.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/pojava/datetime/Tm.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/pojava/datetime/package.html" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/test/java/org/pojava/datetime/CalendarUnitTester.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/test/java/org/pojava/datetime/DateTimeConfigTester.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/test/java/org/pojava/datetime/DateTimeFormatTester.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/test/java/org/pojava/datetime/DateTimeTester.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/test/java/org/pojava/datetime/DurationTester.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/test/java/org/pojava/datetime/MonthMapTester.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/test/java/org/pojava/datetime/ShiftTester.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/test/java/org/pojava/datetime/TmTester.java" charset="UTF-8" />
+  </component>
+</project>
+
