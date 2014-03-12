@@ -1,0 +1,63 @@
+<html>
+<head>
+<title>POJava Howto: Ordinal</title>
+<LINK REL="stylesheet" HREF="/style/pojava.css" TYPE="text/css" MEDIA="screen" />
+</head>
+<body>
+<h1>HOWTO Use and Create Ordinals</h1>
+<h2>What is an Ordinal?</h2>
+<p>There are times when you want to support only a specific set of values as a parameter to a method or
+constructor.  One common way of accomplishing this is to accept an int value as your parameter, and use
+an object with a limited set of public static final values to restrict the set of values you will accept.
+Unfortunately, your parameter still ends up being an int, and that doesn't always communicate to users 
+of your object or method where to find that fixed set of intended values.  A popular example of this is
+the Calendar object-- it provides its own set of int values to represent units of time.</p>
+
+<p>Your goal is an object type that is simple to use-- where you type in an object name and your
+IDE presents the set of available options.  You also may want the objects to have ordinality, where
+instances of your object have values that can be compared to each other.</p>
+
+<p>If you are supporting only Java 1.5 or later, you can use the newer Enum type to define a discrete
+selection of choices.  If you need to be able to support prior versions of Java, then POJava's Ordinal
+class can provide very similar functionality in a backward-compatible way.</p>
+
+<h2>Defining Your Ordinal</h2>
+<p>As a simple example, let's say you have a fictitious Dessert class has a method called 
+useUtensil(Untensil utensil).  You only want to allow someone to pass either a fork, knife, or 
+spoon.  You create your Utensil class by extending Ordinal and following a simple pattern.</p>
+
+<pre>
+public class Utensil extends Ordinal {
+
+	private static final OrdinalSet ordinals = new OrdinalSet();
+
+	public static final CalendarUnit FORK = new CalendarUnit("FORK");
+	public static final CalendarUnit KNIFE = new CalendarUnit("KNIFE");
+	public static final CalendarUnit SPOON = new CalendarUnit("SPOON");
+	private Utensil(String name) {
+		register(ordinals, name, this);
+	}
+	public Iterator iterator() {
+		return ordinals.iterator();
+	}
+	public static Utensil valueOf(String name) {
+		Ordinal located = ordinals.get(name);
+		if (located == null) {
+			throw new IllegalArgumentException("No ordinal class "
+					+ Utensil.class.getName() + "." + name);
+		}
+		return (Utensil) located;
+	}
+}
+</pre>
+
+<p>That's pretty much it.  You can only pass Utensil.FORK, Utensil.KNIFE or Utensil.SPOON, which
+is much more restrictive than just int or String.  It is also easy to know what object will provide
+those values, because the values are instances of that object type.  It's not that hard to set up,
+but more importantly, it is very easy to use.</p>
+<pre>
+Dessert pudding=new Dessert();
+pudding.useUtensil(Utensil.SPOON);
+</pre>
+</body> 
+</html>

@@ -1,0 +1,57 @@
+<html>
+<head>
+<title>POJava Howto: Encryption</title>
+<LINK REL="stylesheet" HREF="/style/pojava.css" TYPE="text/css" MEDIA=screen />
+</head>
+<body>
+<h1>HOWTO Use Encryption</h1>
+<p>Java includes some good tools for performing encryption.  POJava wraps those tools to create a
+simpler and more accessible interface.</p>
+<p>This document will demonstrate creation and storage of a portable key, and use of that key in
+encrypting and decrypting a document.</p>
+<h2>Key generation</h2>
+<p>A key is essentially a password that is harder than most to guess.  It is used to shape how the
+binary data is encrypted.  You can provide your own key, or have the tool generate one for you.  A
+key is itself composed of binary data, but we can export the key into a String format so we can 
+more easily store it in an xml document, property file, database, or elsewhere.</p>
+<pre>
+String keyString=EncryptionTool.generateAES256WithCBCKeyString();
+</pre>
+<p>POJava's keyString describes both the encryption algorithm and the key.  You would typically
+generate the keyString, then store it wherever you store your other passwords.  For example, you
+could access it through JNDI, and have Tomcat load it from your server.xml file.  To use it, you
+retrieve the key and pass it as a parameter to your EncryptionTool.encrypt(...) method.</p>
+<h2>Encryption</h2>
+Encryption produces binary data in the form of a byte array.
+<pre>
+String keyString=(String) JNDIRegistry.lookupEnv("my.app.key");
+byte[] encrypted=EncryptionTool.encrypt(doc.getBytes(), keyString);
+</pre>
+What you do with the encrypted byte array is your business.  Publish it, Base64 encode it and 
+store it in a client cookie, whatever.  Just be careful about your key and your data will remain 
+safely secured by whichever encryption method is described in your keyString.
+<h2>Decryption</h2>
+When you're ready to decrypt it, you use EncryptionTool.decrypt(...) to get the original data.
+<pre>
+String keyString=(String) JNDIRegistry.lookupEnv("my.app.key");
+byte[] decrypted=EncryptionTool.decrypt(encrypted, keyString);
+String decryptedDoc=new String(decrypted);
+</pre>
+<h2>Encryption Strengths and Settings</h2>
+<p>Java (TM) has a default limit of 128 bit encryption so their software can be more easily
+distributed worldwide and still be in compliance with U.S. export laws.  Sun (now Oracle) provides
+a JCE (Java Cryptography Extension) library that removes that 128 bit restriction, and there may
+be restrictions outside of the U.S. and Canada governing access to that library.</p>
+<p>POJava provides the convenience of making Java's encryption easy to use and manage.  If the
+JCE is not installed, POJava's encryption and decryption methods will be able perform encryption
+up to 128 bits.  Stronger encryption is possible when the JCE is installed.</p>
+<p>The keyString used to define the encryption algorithm and key is formatted as follows.<br>
+<pre>
+"{algorithm} {base64key}"
+</pre>
+The {algorithm} is the same parameter one uses when constructing a Cipher object.<br>
+The {base64key} is a base64 encoding of often random binary data of the proper bit length.
+For example, a binary key used for 128-bit encryption is 128 bits long before base64 encoding.
+<br>
+</body>
+</html>

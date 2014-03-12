@@ -1,0 +1,46 @@
+<html>
+<head>
+<title>POJava Howto: XML Serialization</title>
+<LINK REL="stylesheet" HREF="/style/pojava.css" TYPE="text/css" MEDIA="screen" />
+</head>
+<body>
+<h1>HOWTO Serialize Objects To and From XML</h1>
+<p>Serialization is the conversion of an object to a data stream for the purpose
+of portability.  POJava Persistence provides two utility objects for serialization
+by converting objects to XML and back.  While serialization to a binary format is
+useful, serialization to a <em>document</em> provides an even more portable medium,
+one that can be easily stored in a String, a varchar in a database table, or
+imbedded in another XML document.</p>
+<p>This HOWTO document will demonstrate the use of the org.pojava.persistence.serial classes XmlParser
+and XmlSerializer to convert objects to and from XML.</p>
+<h2>XmlSerializer</h2>
+<p>The XmlSerializer is designed to serialize POJO's to XML with almost no
+coding or configuration effort.  Typical usage looks like this:</p>
+<pre>
+MyPojo pojo=new MyPojo();
+XmlSerializer serializer=new XmlSerializer();
+String document=serializer.toXml(pojo);
+</pre>
+<h2>XmlParser</h2>
+The parser is the reverse of the serializer, converting an XML document back to Object form.  If the
+document was generated from XmlSerializer, it is equally simple to use.  The parser returns your object
+as type "Object", so you'll usually cast it in your call to the parser.
+<pre>
+XmlParser parser=new XmlParser();
+MoPojo newPojo=(MyPojo) parser.parse(document);
+</pre>
+<h3>What is a POJO?</h3>
+<p>A POJO is a "plain old java object".  Conceptually, if you start with a new
+empty class, define some private properties with camel-cased names consisting of primitives, 
+their object equivalents, and other POJO's, and let your code editor auto-generate getters
+and setters, then you have a POJO.</p>
+<p>POJava uses reflection to determine the public getters and setters of a class (also known as
+accessors and mutators) and generates XML that matches property names to tag names
+where available, and uses the name "obj" on tags where a name is unavailable.  Where a type is not
+inherent in the property itself, such as an object stored within a property whose type is Object
+or List, then an attribute is added within the XML to specify the class of the object stored.</p>
+<p>POJava's serializer detects multiple references to the same object, and will restore those
+relationships when deserializing.</p>
+
+</body>
+</html>
