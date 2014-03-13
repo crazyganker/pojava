@@ -36,7 +36,7 @@ public abstract class BindingAdaptor<I, O> {
     /**
      * Inbound example might be from the persistence layer to the business layer.
      *
-     * @param obj
+     * @param obj Inbound object
      * @return a new binding translated from the old
      */
     public abstract Binding<I> inbound(Binding<O> obj);
@@ -44,7 +44,7 @@ public abstract class BindingAdaptor<I, O> {
     /**
      * Outbound is typically originating from the business layer to the persistence layer.
      *
-     * @param obj
+     * @param obj Outbound object
      * @return a new binding translated from the old
      */
     public abstract Binding<O> outbound(Binding<I> obj);

@@ -54,7 +54,7 @@ public class ReflectionTool {
     /**
      * Return true if object is equivalent to a primitive type.
      *
-     * @param propClass
+     * @param propClass Class of property
      * @return true if class is primitive, object equivalent, or a String
      */
     public static boolean isBasic(Class<?> propClass) {
@@ -109,9 +109,9 @@ public class ReflectionTool {
     public static void setNestedValue(String path, Object parent, Object child)
             throws NoSuchMethodException, IllegalAccessException, InstantiationException {
         Object innerObject = parent;
-        Object tempObject = null;
-        Class<?> propClass = null;
-        Class<?> innerObjectClass = null;
+        Object tempObject;
+        Class<?> propClass;
+        Class<?> innerObjectClass;
         Method method = null;
         Object[] params = new Object[1];
         Class<?>[] parameterTypes = new Class<?>[1];
@@ -155,13 +155,12 @@ public class ReflectionTool {
                         innerObjectClass = innerObject.getClass();
                     }
                     if (innerObjectClass.isArray()) {
-                        innerObject = Array.get(innerObject, offset.intValue());
+                        innerObject = Array.get(innerObject, offset);
                     } else if (isCollection(innerObjectClass)) {
-                        innerObject = ((Collection<?>) innerObject).toArray()[offset.intValue()];
+                        innerObject = ((Collection<?>) innerObject).toArray()[offset];
                     } else if (isMap(innerObjectClass)) {
                         // Order is not guaranteed, but a map can be fully iterated.
-                        innerObject = ((Map<?, ?>) innerObject).values().toArray()[offset
-                                .intValue() - 1];
+                        innerObject = ((Map<?, ?>) innerObject).values().toArray()[offset - 1];
                     } else {
                         throw new IllegalStateException("Failed to extract '" + path
                                 + "' from object of class " + child.getClass().getName());
@@ -209,12 +208,11 @@ public class ReflectionTool {
     public static void setNestedValue(Method[] getters, Method[] setters, Object parent,
                                       Object value) throws IllegalAccessException, InstantiationException {
         Object innerObject = parent;
-        Object tempObject = null;
         Object[] params = new Object[1];
         try {
             // Get or Create our way down to a method
             for (int p = 0; p < getters.length - 1; p++) {
-                tempObject = getters[p].invoke(innerObject, (Object[]) null);
+                Object tempObject = getters[p].invoke(innerObject, (Object[]) null);
                 if (tempObject == null) {
                     // The requested child object doesn't exist yet and we
                     // need to drill down to one of its properties...
@@ -238,7 +236,7 @@ public class ReflectionTool {
     /**
      * Determine get accessor name from property name
      *
-     * @param name
+     * @param name Simple property name without "get" or "set"
      * @return name of get accessor derived from property name.
      */
     private static String getter(String name) {
@@ -248,7 +246,7 @@ public class ReflectionTool {
     /**
      * Determine set accessor name from property name
      *
-     * @param name
+     * @param name Simple property name without "get" or "set"
      * @return name of set accessor derived from property name
      */
     private static String setter(String name) {
@@ -265,7 +263,7 @@ public class ReflectionTool {
     public static Class<?> propertyType(Class<?> baseClass, String property)
             throws NoSuchMethodException {
         Class<?> innerClass = baseClass;
-        Method method = null;
+        Method method;
         if (property.startsWith("./")) {
             property = property.substring(2);
         }
@@ -284,7 +282,7 @@ public class ReflectionTool {
     /**
      * Array of setter methods that drill down to a property.
      *
-     * @param getterMethods
+     * @param getterMethods Array of get methods
      * @return array of setter methods that drill down to a property.
      * @throws NoSuchMethodException
      */
@@ -338,7 +336,7 @@ public class ReflectionTool {
      * @return referenced getters and setters for a class
      */
     public static Accessors accessors(Class<?> type, Set<String> getterProperties,
-                                      Set<String> setterProperties) throws NoSuchMethodException {
+                                      Set<String> setterProperties) {
         Method[] allMethods = type.getMethods();
         Accessors accessors = new Accessors();
         Map<String, Method> getters = accessors.getGetters();
@@ -364,7 +362,7 @@ public class ReflectionTool {
     public static Method[] getterMethodDrilldown(Class<?> type, String property)
             throws NoSuchMethodException {
         Class<?> innerClass = type;
-        Method method = null;
+        Method method;
         if (property.startsWith("./")) {
             property = property.substring(2);
         }
@@ -420,7 +418,7 @@ public class ReflectionTool {
      */
     public static Object getNestedValue(String relativePath, Object bean) {
         Object innerObject = bean;
-        Class<?> innerObjectClass = null;
+        Class<?> innerObjectClass;
         Method method = null;
         if (relativePath.startsWith("./")) {
             relativePath = relativePath.substring(2);
@@ -450,14 +448,13 @@ public class ReflectionTool {
                         innerObjectClass = innerObject.getClass();
                     }
                     if (innerObjectClass.isArray()) {
-                        innerObject = Array.get(innerObject, offset.intValue());
+                        innerObject = Array.get(innerObject, offset);
                     } else if (isCollection(innerObjectClass)) {
-                        innerObject = ((Collection<?>) innerObject).toArray()[offset.intValue() - 1];
+                        innerObject = ((Collection<?>) innerObject).toArray()[offset - 1];
                     } else if (isMap(innerObjectClass)) {
                         // Order is not guaranteed, but a map can be fully
                         // iterated.
-                        innerObject = ((Map<?, ?>) innerObject).values().toArray()[offset
-                                .intValue() - 1];
+                        innerObject = ((Map<?, ?>) innerObject).values().toArray()[offset - 1];
                     } else {
                         throw new IllegalStateException("Failed to extract '" + relativePath
                                 + "' from object of class " + bean.getClass().getName());
@@ -492,7 +489,7 @@ public class ReflectionTool {
     /**
      * Return the property name for a getter or setter name.
      *
-     * @param accessorName
+     * @param accessorName Name of accessor method, typically "getSomething", "setSomething" or "isSomething".
      * @return Property name derived from getter or setter name.
      */
     public static String propertyFor(String accessorName) {
@@ -514,9 +511,9 @@ public class ReflectionTool {
      * Invoke any setters of an object whose properties are referenced in a map, passing the
      * values of that map into their respective setters.
      *
-     * @param obj
-     * @param properties
-     * @param setters
+     * @param obj Object to mutate
+     * @param properties Property values to populate into obj
+     * @param setters Mapped setter methods
      * @throws IllegalAccessException
      * @throws java.lang.reflect.InvocationTargetException
      */

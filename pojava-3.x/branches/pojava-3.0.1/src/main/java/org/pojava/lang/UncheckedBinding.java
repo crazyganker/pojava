@@ -34,8 +34,8 @@ public class UncheckedBinding {
     /**
      * Construct a Binding from an object.
      *
-     * @param type
-     * @param obj
+     * @param type Class of bound object
+     * @param obj Object to bind (may be null)
      */
     public UncheckedBinding(Class<?> type, Object obj) {
         this.type = type;

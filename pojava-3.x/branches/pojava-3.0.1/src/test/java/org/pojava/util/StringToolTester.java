@@ -110,7 +110,7 @@ public class StringToolTester extends TestCase {
         assertEquals("to", cmd[2]);
         assertEquals("Captain", cmd[3]);
         try {
-            cmd = StringTool.parseCommand("My shell wouldn't tolerate this");
+            StringTool.parseCommand("My shell wouldn't tolerate this");
             fail("Uncaught open single quote.");
         } catch (IllegalArgumentException ex) {
             assertEquals("Unclosed quotes in argument.", ex.getMessage());

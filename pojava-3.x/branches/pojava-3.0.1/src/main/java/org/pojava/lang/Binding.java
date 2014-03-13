@@ -27,8 +27,8 @@ public class Binding<T> extends UncheckedBinding {
     /**
      * Construct a Binding from an object.
      *
-     * @param type
-     * @param obj
+     * @param type Class of bound object
+     * @param obj Bound object
      */
     public Binding(Class<T> type, T obj) {
         super(type, obj);
@@ -39,8 +39,7 @@ public class Binding<T> extends UncheckedBinding {
      */
     @SuppressWarnings("unchecked")
     public Class<T> getType() {
-        Class<T> clazz = (Class<T>) super.getType();
-        return clazz;
+        return (Class<T>) super.getType();
     }
 
     /**
@@ -50,14 +49,13 @@ public class Binding<T> extends UncheckedBinding {
      */
     @SuppressWarnings("unchecked")
     public T getValue() {
-        T obj = (T) super.getObj();
-        return obj;
+        return (T) super.getObj();
     }
 
     /**
      * Store a new value into this object.
      *
-     * @param obj
+     * @param obj Bound object
      */
     public void setValue(T obj) {
         super.setObj(obj);

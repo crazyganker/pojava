@@ -44,7 +44,7 @@ public class EncodingTool {
     /**
      * Encode binary data into a Base-64 array of printable characters.
      *
-     * @param src
+     * @param src Binary data to encode
      * @return Base-64 encoded string
      */
     public static String base64Encode(byte[] src) {
@@ -108,7 +108,7 @@ public class EncodingTool {
             }
         }
         byte[] decoded = new byte[length];
-        long buffer = 0x00000000;
+        long buffer;
         int e = 0;
         int d = 0;
         while (e < encoded.length) {
@@ -136,7 +136,7 @@ public class EncodingTool {
      * @return integer between 0 and 15.
      */
     private static int hex2int(char c) {
-        int nybble = 0;
+        int nybble;
         if (c >= '0' && c <= '9') {
             nybble = c - '0';
         } else if (c >= 'a' && c <= 'f') {
@@ -153,7 +153,7 @@ public class EncodingTool {
      * Convert a hex-encoded string back to a byte array. This String version strips whitespace
      * before decoding.
      *
-     * @param hex
+     * @param hex Hexadecimal string
      * @return decoded array of bytes
      */
     public static byte[] hexDecode(String hex) {

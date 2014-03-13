@@ -84,8 +84,7 @@ public class EncodingToolTester extends TestCase {
     }
 
     public void testHexDecodeNullString() {
-        String s = null;
-        byte[] decoded = EncodingTool.hexDecode(s);
+        byte[] decoded = EncodingTool.hexDecode((String) null);
         assertEquals(0, decoded.length);
     }
 

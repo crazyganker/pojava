@@ -26,9 +26,10 @@ public class StringTool {
     /**
      * Returns a zero-based offset if the left-most characters of str match all of the characters of any member of list.
      *
-     * @param list
-     * @param str
+     * @param list list of strings from which you want to match a prefix
+     * @param str prefix
      * @return -1 if no match, else indexed offset
+     * @deprecated better to attack this problem from a different angle
      */
     public static int indexedStartMatch(String[] list, String str) {
         for (int i = 0; i < list.length; i++) {
@@ -43,8 +44,8 @@ public class StringTool {
     /**
      * True if a string matches /^[-]?[0-9]+$/
      *
-     * @param s
-     * @return true if string is numeric
+     * @param s String to match
+     * @return true if string is a valid integer
      */
     public static boolean isInteger(String s) {
         if (s == null || s.length() == 0) {
@@ -60,7 +61,7 @@ public class StringTool {
     /**
      * True if a string matches /^[tTyY1].*$/
      *
-     * @param s
+     * @param s string to match
      * @return true if string represents true
      */
     public static boolean isTrue(String s) {
@@ -74,7 +75,7 @@ public class StringTool {
     /**
      * True if a string has only digits in it.
      *
-     * @param s
+     * @param s string to match
      * @return true if string is composed of only digits.
      */
     public static boolean onlyDigits(String s) {
@@ -93,7 +94,7 @@ public class StringTool {
     /**
      * True if a string starts with a digit.
      *
-     * @param s
+     * @param s string to match
      * @return true if string starts with a digit.
      */
     public static boolean startsWithDigit(String s) {
@@ -107,7 +108,7 @@ public class StringTool {
     /**
      * Parse an integer from left-to-right until non-digit reached
      *
-     * @param str
+     * @param str string to parse
      * @return first integer greedily matched from a string
      */
     public static int parseIntFragment(String str) {
@@ -139,7 +140,7 @@ public class StringTool {
     /**
      * Capitalize the first character of a String.
      *
-     * @param str
+     * @param str string to change
      * @return Capitalize the first character.
      */
     public static String capitalize(String str) {
@@ -149,9 +150,9 @@ public class StringTool {
     }
 
     /**
-     * Convert strings of this_style to thisStyle.
+     * Convert string of this_style to thisStyle.
      *
-     * @param str
+     * @param str string to change
      * @return camelCase from underscored_words
      */
     public static String camelFromUnderscore(String str) {
@@ -178,14 +179,14 @@ public class StringTool {
     /**
      * Convert strings of thisStyle to this_style.
      *
-     * @param str
+     * @param str string to change
      * @return underscored_words from camelCase
      */
     public static String underscoreFromCamel(String str) {
         if (str == null) {
             return null;
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         char[] a = str.toCharArray();
         for (char element : a) {
             char c = element;
@@ -205,17 +206,14 @@ public class StringTool {
     /**
      * Collapses a string with whitespace characters, including carriage returns, into a one-line string with no spaces or tabs.
      *
-     * @param str
+     * @param str string to change
      * @return A string with all whitespace removed.
      */
     public static String stripWhitespace(String str) {
         char[] from = str.toCharArray();
         char[] to = new char[from.length];
-        int f = 0;
         int t = 0;
-        int last = from.length;
-        for (f = 0; f < last; f++) {
-            char c = from[f];
+        for (char c : from) {
             if (!(c == ' ' || c == '\t' || c == '\n' || c == '\r')) {
                 to[t++] = c;
             }
@@ -226,15 +224,15 @@ public class StringTool {
     /**
      * Right-pad a string to a fixed width with spaces.
      *
-     * @param str
-     * @param width
+     * @param str string to right-pad
+     * @param width new minimum width (will not truncate non-spaces)
      * @return Padded string of minimal width.
      */
     public static String pad(String str, int width) {
         if (width < str.length()) {
             return str;
         }
-        StringBuffer sb = new StringBuffer(width);
+        StringBuilder sb = new StringBuilder(width);
         sb.append(str);
         for (int i = 0; i < width - str.length(); i++) {
             sb.append(' ');
@@ -250,7 +248,7 @@ public class StringTool {
      */
     public static String[] parseCommand(String cmd) {
         ArrayList<String> list = new ArrayList<String>();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         char[] chars = cmd.toCharArray();
         boolean isLiteral = false;
         char litchar = ' ';

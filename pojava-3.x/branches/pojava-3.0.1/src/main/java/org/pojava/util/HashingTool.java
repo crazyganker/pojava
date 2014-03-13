@@ -77,15 +77,14 @@ public class HashingTool {
     /**
      * Hash based on any algorithm named in Security.getAlgorithms("MessageDigest")
      *
-     * @param hashMe
-     * @param algorithm
+     * @param hashMe Data to hash
+     * @param algorithm Name of algorithm found in Security.getAlgorithms("MessageDigest")
      * @return binary hash of a byte array
      * @throws java.security.NoSuchAlgorithmException
      */
     public static byte[] hash(final byte[] hashMe, String algorithm)
             throws NoSuchAlgorithmException {
-        MessageDigest digest = null;
-        digest = MessageDigest.getInstance(algorithm);
+        MessageDigest digest = MessageDigest.getInstance(algorithm);
         digest.update(hashMe);
         return digest.digest();
     }

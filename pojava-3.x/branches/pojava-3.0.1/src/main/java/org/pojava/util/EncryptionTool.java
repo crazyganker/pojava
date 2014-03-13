@@ -74,10 +74,10 @@ public class EncryptionTool {
     /**
      * Encrypt or decrypt a message, depending on request.
      *
-     * @param message
-     * @param keyString
-     * @param cipherMode
-     * @param ivps
+     * @param message Data to encrypt or decrypt
+     * @param keyString String-based representation of key
+     * @param cipherMode See Cipher static constants
+     * @param ivps Initialization Vector
      * @return byte[] of transformed data
      * @throws java.security.InvalidKeyException
      * @throws java.security.InvalidAlgorithmParameterException
@@ -103,7 +103,7 @@ public class EncryptionTool {
     /**
      * Encrypt a message.
      *
-     * @param message
+     * @param message Binary data to encrypt
      * @param keyString a string of the format 'ALG base64key'
      * @return An encrypted byte array from the source.
      * @throws java.security.GeneralSecurityException
@@ -132,7 +132,7 @@ public class EncryptionTool {
     /**
      * Encrypt a message.
      *
-     * @param message
+     * @param message Binary data to encrypt
      * @param keyString a string of the format 'ALG base64key'
      * @param ivps      Initialization Value
      * @return An encrypted byte array from the source.
@@ -158,8 +158,8 @@ public class EncryptionTool {
     /**
      * Generate an IvParameterSpec from a binary MD5 hash of a string.
      *
-     * @param hashMe
-     * @return IvParameterSpec
+     * @param hashMe Plaintext value to hash
+     * @return IvParameterSpec Initialization Vector (salt)
      */
     public static IvParameterSpec md5IvParameterSpec(String hashMe) {
         byte[] iv = HashingTool.md5Hash(hashMe).getBytes();

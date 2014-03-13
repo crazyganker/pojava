@@ -38,7 +38,7 @@ public class BooleanIntegerAdaptor extends BindingAdaptor<Boolean, Integer> {
         if (fromBinding == null || fromBinding.getObj() == null) {
             return toBinding;
         }
-        toBinding.setObj(fromBinding.getValue().intValue() != 0);
+        toBinding.setObj(fromBinding.getValue() != 0);
         return toBinding;
     }
 

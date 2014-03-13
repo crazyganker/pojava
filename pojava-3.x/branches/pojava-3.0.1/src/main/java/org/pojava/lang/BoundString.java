@@ -54,7 +54,7 @@ public class BoundString {
     /**
      * Append to the existing string.
      *
-     * @param str
+     * @param str String to be appended
      */
     public void append(String str) {
         this.sb.append(str);
@@ -63,7 +63,7 @@ public class BoundString {
     /**
      * Insert in front of the existing string.
      *
-     * @param str
+     * @param str String to be inserted
      */
     public void insert(String str) {
         this.sb.insert(0, str);
@@ -124,7 +124,7 @@ public class BoundString {
     /**
      * Add a collection of bindings.
      *
-     * @param bindings
+     * @param bindings Bindings to apply
      */
     public void addBindings(Collection<UncheckedBinding> bindings) {
         this.bindings.addAll(bindings);
@@ -156,7 +156,7 @@ public class BoundString {
     /**
      * Chop last ct characters off of string
      *
-     * @param ct
+     * @param ct Number of characters to excise
      */
     public void chop(int ct) {
         this.sb.setLength(Math.max(0, this.sb.length() - ct));
@@ -204,7 +204,7 @@ public class BoundString {
     /**
      * Format a date, chopping off zeros.
      *
-     * @param dt
+     * @param dt Date to format
      * @return a string version of a date with zeros truncated.
      */
     private String formatDate(DateTime dt) {
