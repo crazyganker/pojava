@@ -2,19 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="d3b1b8a3-01d2-4e4f-8949-a50611c5c397" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/pojava/lang/Binding.java" afterPath="$PROJECT_DIR$/src/main/java/org/pojava/lang/Binding.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/pojava/transformation/BindingAdaptor.java" afterPath="$PROJECT_DIR$/src/main/java/org/pojava/transformation/BindingAdaptor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/pojava/lang/BindingTester.java" afterPath="$PROJECT_DIR$/src/test/java/org/pojava/lang/BindingTester.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/pojava/transformation/BooleanIntegerAdaptor.java" afterPath="$PROJECT_DIR$/src/main/java/org/pojava/transformation/BooleanIntegerAdaptor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/pojava/lang/BoundString.java" afterPath="$PROJECT_DIR$/src/main/java/org/pojava/lang/BoundString.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/pojava/util/EncodingTool.java" afterPath="$PROJECT_DIR$/src/main/java/org/pojava/util/EncodingTool.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/pojava/util/EncodingToolTester.java" afterPath="$PROJECT_DIR$/src/test/java/org/pojava/util/EncodingToolTester.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/pojava/util/EncryptionTool.java" afterPath="$PROJECT_DIR$/src/main/java/org/pojava/util/EncryptionTool.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/pojava/util/HashingTool.java" afterPath="$PROJECT_DIR$/src/main/java/org/pojava/util/HashingTool.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/pojava/util/ReflectionTool.java" afterPath="$PROJECT_DIR$/src/main/java/org/pojava/util/ReflectionTool.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/pojava/util/StringTool.java" afterPath="$PROJECT_DIR$/src/main/java/org/pojava/util/StringTool.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/pojava/util/StringToolTester.java" afterPath="$PROJECT_DIR$/src/test/java/org/pojava/util/StringToolTester.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/pojava/lang/UncheckedBinding.java" afterPath="$PROJECT_DIR$/src/main/java/org/pojava/lang/UncheckedBinding.java" />
+      <change type="MOVED" beforePath="C:\Users\Costco\IdeaProjects\pojava-3.0.1\pojava-3.0.0.iml" afterPath="$PROJECT_DIR$/pojava-3.x.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="pojava-3.0.0.iws" />
@@ -79,19 +67,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="ReflectionTool.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/util/ReflectionTool.java">
+      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="241" column="0" selection-start="10410" selection-end="10410" vertical-scroll-proportion="0.87169814" vertical-offset="3764" max-vertical-offset="9112">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="EncodingTool.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/util/EncodingTool.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="138" column="18" selection-start="4620" selection-end="4620" vertical-scroll-proportion="0.0" vertical-offset="2251" max-vertical-offset="4709">
+            <state line="7" column="22" selection-start="346" selection-end="346" vertical-scroll-proportion="0.3979933" vertical-offset="0" max-vertical-offset="2839">
               <folding />
             </state>
           </provider>
@@ -100,10 +79,8 @@
       <file leaf-file-name="HashingTool.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/util/HashingTool.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="86" column="29" selection-start="3059" selection-end="3059" vertical-scroll-proportion="0.0" vertical-offset="1278" max-vertical-offset="2023">
-              <folding>
-                <element signature="imports" expanded="false" />
-              </folding>
+            <state line="86" column="29" selection-start="3059" selection-end="3059" vertical-scroll-proportion="0.0" vertical-offset="1462" max-vertical-offset="2108">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -111,7 +88,7 @@
       <file leaf-file-name="HashingToolTester.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/org/pojava/util/HashingToolTester.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="13" column="19" selection-start="298" selection-end="298" vertical-scroll-proportion="0.0" vertical-offset="58" max-vertical-offset="1326">
+            <state line="13" column="19" selection-start="298" selection-end="298" vertical-scroll-proportion="0.0" vertical-offset="221" max-vertical-offset="1394">
               <folding />
             </state>
           </provider>
@@ -138,7 +115,7 @@
       <file leaf-file-name="UncheckedBinding.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/lang/UncheckedBinding.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="37" column="14" selection-start="1084" selection-end="1084" vertical-scroll-proportion="0.0" vertical-offset="530" max-vertical-offset="969">
+            <state line="37" column="14" selection-start="1084" selection-end="1084" vertical-scroll-proportion="0.0" vertical-offset="629" max-vertical-offset="1071">
               <folding />
             </state>
           </provider>
@@ -165,12 +142,8 @@
       <file leaf-file-name="BindingTester.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/org/pojava/lang/BindingTester.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="27" column="45" selection-start="973" selection-end="973" vertical-scroll-proportion="0.0" vertical-offset="228" max-vertical-offset="561">
-              <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#238#246#0" expanded="false" />
-                <element signature="e#463#469#0" expanded="false" />
-              </folding>
+            <state line="27" column="45" selection-start="973" selection-end="973" vertical-scroll-proportion="0.0" vertical-offset="459" max-vertical-offset="612">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -238,6 +211,7 @@
     </navigator>
     <panes>
       <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -273,6 +247,14 @@
               <option name="myItemId" value="test" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pojava" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -287,10 +269,39 @@
               <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pojava-3.0.0" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pojava-3.0.1" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pojava" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -302,6 +313,7 @@
     <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="recentsLimit" value="5" />
     <property name="dynamic.classpath" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/.." />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -471,6 +483,19 @@
       <option name="PORT" value="5005" />
       <method />
     </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <method />
+    </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
       <module name="" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -496,19 +521,6 @@
       <envs />
       <properties />
       <listeners />
-      <method />
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -637,7 +649,11 @@
       <created>1394516373115</created>
       <updated>1394516373115</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Version 3.0.1&#10;========&#10;* Fixed bug in ReflectionTool.populateFromMap(...), which needed to covert the setter property to an Object[] (and in the unit test, which was passing an Object[] instead of an object).&#10;* Fleshed out missing JavaDoc property descriptions.&#10;* Performed a bunch of micro-optimizations suggested by my IDE (remove unnecessary init assignments, inline instead of using temp variables, use StringBuilder instead of StringBuffer, use foreach, etc.) &#10;">
+      <created>1394725296117</created>
+      <updated>1394725296117</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -649,24 +665,24 @@
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292683" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.39721254" sideWeight="0.4995809" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39721254" sideWeight="0.4995809" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.39721254" sideWeight="0.50041914" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292683" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3436714" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39721254" sideWeight="0.4995809" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2372171" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292683" sideWeight="0.4995809" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292683" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292683" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39721254" sideWeight="0.4995809" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -682,7 +698,8 @@
       <TodoPanelSettings />
     </option>
     <MESSAGE value="Version 3.0.x of Pojava has separated out the org.pojava.datetime package into it's own separate project.  This now depends on org.pojava.datetime, but does not duplicate its content.  Although it's now a dependency, it's worth noting that there were some significant improvements in the org.pojava.datetime library, including automatic support of nearly all languages, more intelligent defaults to determine DMY or MDY order based on locale, and a much simpler and better approach to managing configuration defaults and changes.  Aside from that,  a few deprecated classes were removed, and more unit tests put in place." />
-    <option name="LAST_COMMIT_MESSAGE" value="Version 3.0.x of Pojava has separated out the org.pojava.datetime package into it's own separate project.  This now depends on org.pojava.datetime, but does not duplicate its content.  Although it's now a dependency, it's worth noting that there were some significant improvements in the org.pojava.datetime library, including automatic support of nearly all languages, more intelligent defaults to determine DMY or MDY order based on locale, and a much simpler and better approach to managing configuration defaults and changes.  Aside from that,  a few deprecated classes were removed, and more unit tests put in place." />
+    <MESSAGE value="Version 3.0.1&#10;========&#10;* Fixed bug in ReflectionTool.populateFromMap(...), which needed to covert the setter property to an Object[] (and in the unit test, which was passing an Object[] instead of an object).&#10;* Fleshed out missing JavaDoc property descriptions.&#10;* Performed a bunch of micro-optimizations suggested by my IDE (remove unnecessary init assignments, inline instead of using temp variables, use StringBuilder instead of StringBuffer, use foreach, etc.) &#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="Version 3.0.1&#10;========&#10;* Fixed bug in ReflectionTool.populateFromMap(...), which needed to covert the setter property to an Object[] (and in the unit test, which was passing an Object[] instead of an object).&#10;* Fleshed out missing JavaDoc property descriptions.&#10;* Performed a bunch of micro-optimizations suggested by my IDE (remove unnecessary init assignments, inline instead of using temp variables, use StringBuilder instead of StringBuffer, use foreach, etc.) &#10;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -694,6 +711,76 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/util/ReflectionTool.java">
       <provider selected="true" editor-type-id="text-editor">
+        <state line="108" column="23" selection-start="3694" selection-end="3694" vertical-scroll-proportion="0.0" vertical-offset="1836" max-vertical-offset="9112">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/util/EncodingTool.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="138" column="18" selection-start="4620" selection-end="4620" vertical-scroll-proportion="0.0" vertical-offset="2251" max-vertical-offset="4709">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/util/HashingTool.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="86" column="29" selection-start="3059" selection-end="3059" vertical-scroll-proportion="0.0" vertical-offset="1462" max-vertical-offset="2108">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/pojava/util/HashingToolTester.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="19" selection-start="298" selection-end="298" vertical-scroll-proportion="0.0" vertical-offset="221" max-vertical-offset="1394">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/util/StringTool.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="215" column="8" selection-start="6496" selection-end="6496" vertical-scroll-proportion="0.0" vertical-offset="3577" max-vertical-offset="5083">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/pojava/util/CompressionTester.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="47" column="18" selection-start="1505" selection-end="1505" vertical-scroll-proportion="0.0" vertical-offset="700" max-vertical-offset="1377">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/lang/UncheckedBinding.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="37" column="14" selection-start="1084" selection-end="1084" vertical-scroll-proportion="0.0" vertical-offset="629" max-vertical-offset="1071">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/pojava/util/EncodingToolTester.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="86" column="0" selection-start="3432" selection-end="3432" vertical-scroll-proportion="0.0" vertical-offset="1380" max-vertical-offset="2295">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/pojava/util/StringToolTester.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="122" column="12" selection-start="5338" selection-end="5338" vertical-scroll-proportion="0.0" vertical-offset="1822" max-vertical-offset="2227">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/pojava/lang/BindingTester.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="27" column="45" selection-start="973" selection-end="973" vertical-scroll-proportion="0.0" vertical-offset="459" max-vertical-offset="612">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/util/ReflectionTool.java">
+      <provider selected="true" editor-type-id="text-editor">
         <state line="497" column="57" selection-start="21234" selection-end="21273" vertical-scroll-proportion="0.0" vertical-offset="8273" max-vertical-offset="9265">
           <folding />
         </state>
@@ -701,9 +788,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/pojava/util/ReflectionToolTester.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="214" column="29" selection-start="9261" selection-end="9261" vertical-scroll-proportion="0.0" vertical-offset="3638" max-vertical-offset="3876">
-          <folding />
-        </state>
+        <state line="214" column="29" selection-start="9261" selection-end="9261" vertical-scroll-proportion="0.0" vertical-offset="3638" max-vertical-offset="3876" />
       </provider>
     </entry>
     <entry file="jar://$M2_REPO$/org/pojava/datetime/3.0.0/datetime-3.0.0-sources.jar!/org/pojava/datetime/MonthMap.java">
@@ -723,77 +808,47 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/pojava/util/ReflectionToolTester.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="214" column="29" selection-start="9261" selection-end="9261" vertical-scroll-proportion="0.0" vertical-offset="3277" max-vertical-offset="3740">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="22" selection-start="346" selection-end="346" vertical-scroll-proportion="0.0" vertical-offset="2304" max-vertical-offset="2839">
-          <folding />
-        </state>
+        <state line="214" column="29" selection-start="9261" selection-end="9261" vertical-scroll-proportion="0.0" vertical-offset="3277" max-vertical-offset="3740" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/util/DataPump.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="24" selection-start="1499" selection-end="1499" vertical-scroll-proportion="0.0" vertical-offset="547" max-vertical-offset="2312">
-          <folding />
-        </state>
+        <state line="40" column="24" selection-start="1499" selection-end="1499" vertical-scroll-proportion="0.0" vertical-offset="547" max-vertical-offset="2312" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/util/ProcessTool.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="102" column="4" selection-start="4033" selection-end="4033" vertical-scroll-proportion="0.0" vertical-offset="2116" max-vertical-offset="2414">
-          <folding />
-        </state>
+        <state line="102" column="4" selection-start="4033" selection-end="4033" vertical-scroll-proportion="0.0" vertical-offset="2116" max-vertical-offset="2414" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/transformation/BooleanIntegerAdaptor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="25" selection-start="1278" selection-end="1278" vertical-scroll-proportion="0.0" vertical-offset="581" max-vertical-offset="1020">
-          <folding>
-            <element signature="e#1114#1123#0" expanded="false" />
-            <element signature="e#1458#1467#0" expanded="false" />
-          </folding>
-        </state>
+        <state line="40" column="25" selection-start="1278" selection-end="1278" vertical-scroll-proportion="0.0" vertical-offset="581" max-vertical-offset="1020" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/lang/Binding.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="57" column="30" selection-start="1486" selection-end="1486" vertical-scroll-proportion="0.0" vertical-offset="870" max-vertical-offset="1190">
-          <folding />
-        </state>
+        <state line="57" column="30" selection-start="1486" selection-end="1486" vertical-scroll-proportion="0.0" vertical-offset="870" max-vertical-offset="1190" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/transformation/BindingAdaptor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="52" column="0" selection-start="1569" selection-end="1569" vertical-scroll-proportion="0.0" vertical-offset="620" max-vertical-offset="986">
-          <folding />
-        </state>
+        <state line="52" column="0" selection-start="1569" selection-end="1569" vertical-scroll-proportion="0.0" vertical-offset="620" max-vertical-offset="986" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/lang/BoundString.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="206" column="31" selection-start="5869" selection-end="5869" vertical-scroll-proportion="0.0" vertical-offset="3369" max-vertical-offset="3859">
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
+        <state line="206" column="31" selection-start="5869" selection-end="5869" vertical-scroll-proportion="0.0" vertical-offset="3369" max-vertical-offset="3859" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/util/EncryptionTool.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="161" column="59" selection-start="6184" selection-end="6184" vertical-scroll-proportion="0.0" vertical-offset="2472" max-vertical-offset="2822">
-          <folding />
-        </state>
+        <state line="161" column="59" selection-start="6184" selection-end="6184" vertical-scroll-proportion="0.0" vertical-offset="2472" max-vertical-offset="2822" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/lang/Accessors.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="13" selection-start="688" selection-end="688" vertical-scroll-proportion="0.0" vertical-offset="241" max-vertical-offset="816">
-          <folding />
-        </state>
+        <state line="22" column="13" selection-start="688" selection-end="688" vertical-scroll-proportion="0.0" vertical-offset="241" max-vertical-offset="816" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/pojava/util/StringToolTester.java">
@@ -806,11 +861,7 @@
     <entry file="file://$PROJECT_DIR$/src/test/java/org/pojava/lang/BindingTester.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="27" column="45" selection-start="973" selection-end="973" vertical-scroll-proportion="0.0" vertical-offset="228" max-vertical-offset="561">
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#238#246#0" expanded="false" />
-            <element signature="e#463#469#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -838,9 +889,7 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/util/HashingTool.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="86" column="29" selection-start="3059" selection-end="3059" vertical-scroll-proportion="0.0" vertical-offset="1278" max-vertical-offset="2023">
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -867,7 +916,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/org/pojava/util/ReflectionTool.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="241" column="0" selection-start="10410" selection-end="10410" vertical-scroll-proportion="0.87169814" vertical-offset="3764" max-vertical-offset="9112">
+        <state line="108" column="23" selection-start="3694" selection-end="3694" vertical-scroll-proportion="-0.3411371" vertical-offset="1836" max-vertical-offset="9112">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pojava-3.x.iml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="408">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="7" column="22" selection-start="346" selection-end="346" vertical-scroll-proportion="0.3979933" vertical-offset="0" max-vertical-offset="2839">
           <folding />
         </state>
       </provider>
