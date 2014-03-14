@@ -7,6 +7,8 @@ CREATE ROLE pojava LOGIN
   NOSUPERUSER NOINHERIT NOCREATEDB NOCREATEROLE;
 GRANT test_users TO pojava;
 
+set schema = 'pojava';
+
 CREATE TABLE type_test
 (
   test_id integer NOT NULL,

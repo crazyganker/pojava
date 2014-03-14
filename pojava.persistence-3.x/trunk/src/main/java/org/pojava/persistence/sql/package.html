@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+    <!--
+      @(#)package.html	1.00 2008/10/20
+      Copyright 2008 John Pile
+    -->
+</head>
+<body bgcolor="white">
+<p>The sql package contains classes for providing ORM (Object Relational
+    Model) functionality to POJava. A bean or POJO is mapped to a table or view in
+    a database using a TableMap. Each field in that mapping is specified in
+    a FieldMap. Finally, the transformations that occur in adapting field data
+    from the Database to the POJO and back are managed by AdaptorMaps.</p>
+
+<p>There is a DataSourceMetadata object for capturing MetaData about a
+    database, and there is a DatabaseCache for quick access to a variety of
+    data objects gathered.</p>
+
+<p>There are also objects for coordinating transactions between multiple
+    Connection objects. Collectively, these objects provide a very smooth
+    and minimalistic means of handling the vast majority of database
+    interactions.</p>
+Here's a brief (if impractical) example:
+<code>
+    DistributedTransaction trans=new DistributedTransaction();
+    List widgets=WidgetDao.listByQuery(trans, new WidgetQuery().forColor("purple"));
+    for (Iterator it=widgets.iterator(); it.hasNext();) {
+    Widget widget=(Widget) it.next();
+    Woozle woozle=new Woozle(widget.getId(), widget.getGizzard());
+    WoozleDao.updateInsert(trans, woozle);
+    }
+    trans.commit();
+</code>
+</body>
+</html>
