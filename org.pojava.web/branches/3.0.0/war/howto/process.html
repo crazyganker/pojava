@@ -8,58 +8,38 @@
 <p>ProcessTool provides an interface for executing binary programs found on
 your server from within your Java application.  It captures stdout and stderr
 into StringBuffers at the same time using separate threads.</p>
+<h3>Example capturing to two StringBuffers</h3>
 <pre>
-StringBuffer stdout=new StringBuffer();
-StringBuffer stderr=new StringBuffer();
-Strint cmd="grep \"ERROR\" /logs/myapp/*";
-ProcessTool.exec(cmd, stdout, stderr);
-if (stderr.length()!=0) {
-  throw new IAmSoShockedException("Gasp!");
-}
-System.out.println(stderr.toString());
+    StringBuffer stdout = new StringBuffer();
+    StringBuffer stderr = new StringBuffer();
+    String[] cmd = {"java", "-help"};
+    ProcessTool.exec(cmd, stdout, stderr);
+    String str = stdout.toString() + stderr.toString();
 </pre>
 
-<h2>Why not use the "Process" Object provided by Java?</h2>
+<h3>Example using an OutputStream for stdout and a StringBuffer for stderr.</h3>
+<pre>
+	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    StringBuffer stderr = new StringBuffer();
+    String cmd = "java -help";
+    ProcessTool.exec(cmd, baos, stderr);
+    String str = baos.toString("UTF-8") + stderr.toString();
+</pre>
+
+
+<h2>Why not just use the "Process" Object provided by Java?</h2>
 <p>There's nothing wrong with the Java "Process" object-- in fact, ProcessTool
-wraps that object.  One value-add from using ProcessTool
-is safety from the rare (but insidious) instances in which the
-application being executed writes to both stdout and stderr.  If you
-are just using "Process" in a single thread, and first capturing stdout,
-waiting for it to finish, and then capturing stderr and waiting for it to
-finish, then you run a risk of deadlock.</p>
+wraps that object.  Its value add is in automatically spawning a background thread 
+to capture stderr to prevent the possibility of deadlock due to a single threaded
+process waiting for your app to read from stderr.</p>
 <p>A key to understanding the risk is understanding that there is a buffer for each
 stream that could vary in size depending on configuration of the OS, but
 frequently consists of eight 512 byte blocks.  A process can write to stdout or stderr
 without another process reading from it until either buffer is full.  At that point,
 it will stop and wait for the next block to become available before it can continue
-writing.  When another process reads a block from the same stream, it frees it to be
-refilled.</p>
-<p>A process that writes less data than the buffer can resume other work without 
-waiting for that buffer to be read.  If nothing is reading, then it stops when the
-buffer is full and resumes when it can.  If it is single threaded, then it will
-typically block and wait without doing any other task until another process reads
-from that stream.</p>
-<p>Consider an external process, for example, that performs some action on a
-list of files before deleting them.  An error of some sort is encountered, perhaps
-from a corrupted file or a permissions issue. 
-Your process outputs an error message, throws in some
-additional details, and there is enough content (a stack trace, for example)
-to overfill a 4k buffer.  The expected content is another 6k of text.</p>
-<p>If that process prints out all of its good text, followed by all of its error
-messages, then you should be able to process it fine.  The process would print its 
-stdout into the same buffer you're initially reading, and would thus be able to output
-all it needs until it's done.  You would read all of the stdout, then all of the stderr,
-in the same order in which it is written.</p>
-<p>The problem arises when it doesn't finish writing to stdout before writing to stderr.  If
-it needs to write 6k to stderr, then has even 1 more byte to write to stdout, then stdout will be
-held open.  Your app downstream will patiently wait for the next block to be written to stdout, the
-upstream process will wait for a block to be read from stderr (because the 4k buffer is full)
-and your app will not read stderr until it is done with stdout.  You need another thread
-to pull down stderr so the process will resume its work and write to stdout again.</p>
-<p>Another value-add is convenience.  Starting with version 2.6.0, ProcessTool can parse and run statements like,
-<pre>
-  echo "a b" 'cd' "O'Sean"
-</pre>
-in much the same way they would be parsed by a typical shell like BASH or DOS.</p>
+writing.  If you're reading from both places at once, it's not a problem.  If you're
+only reading from stdin with plans to read from stderr later, you'll encounter deadlock
+if the stderr buffer fills up without being read.   
+</p>
 </body> 
 </html>

@@ -14,57 +14,13 @@ time components to build up to a date and time.</p>
 
 <h3>Usage Examples</h3>
 <pre>
-DateTime nowDT=new DateTime();
-DateTime hourDT=nowDT.truncate(CalendarUnit.HOUR);
-</pre>
-Calculations can be chained left to right, so that 10:00pm yesterday could be calculated as the following:
-<pre>
-DateTime tenPM=new DateTime().truncate(CalendarUnit.DAY).add(CalendarUnit.HOUR,-2);
-</pre>
-<h2>DateTime's Parser</h2>
-A parser is a process that interprets a String or other data format.  DateTime's date parser is unusually flexible and robust.  It uses
-heuristics to determine dates, times, and timezones, rather than a specific set of formats.  The result of this approach is that data
-with wide variations of formats, such as resumes, job applications, or web form fields, can be easily interpreted with very few rejected
-values.  Passing a String to DateTime's constructor will cause it to parse the String as a DateTime.
-<pre>
-DateTime dob1=new DateTime("1/26/69");
-DateTime dob2=new DateTime("January 26, 1969 at 3:21 PM");
-DateTime dob3=new DateTime("26-jan-1969 at 3:21:00.123 pm");
-DateTime dob4=new DateTime("1969-01-26 15:21:00.123456 PM PST");
-</pre>
+// Create a quick millisecond time, knowing year, month, and day.
+long timeInMillis=Tm.calcTime(2014, 02, 28);
 
-<h2>DateTime's Formatter</h2>
-<p>You've probably used a java.text.SimpleDateFormat class to format a java.util.Date.  POJava's DateTime class has a built-in
-method for creating similar output by allowing you to pass a format to an overlayed "toString()" method.  It is compatible with
-formats used for SimpleDateFormat, but also includes support for fractional seconds down to the nanosecond.</p>
-<p>If you really prefer using a separate class like DateFormat or SimpleDateFormat, then you might also try
-POJava's DateTimeFormat class.</p>
-<h2>Advanced Settings</h2>
-<p>The DateTime parser will include the TimeZone as part of the calculation.  Java supplies a default set of TimeZone's, but not all popular time
-zones are supported.  POJava works with this infrastructure, but also allows you to easily add your own timezones to the list.  If you know of
-a time zone that is already defined, you can use POJava to define an alias time zone name to reference that same TimeZone.  Additionally, you
-can configure the parser to interpret the arrangement of the Month and Day order of fields to support the European DD/MM/YYYY instead of the
-Western MM/DD/YYYY format.</p>
-<h3>Global Settings</h3>
-<pre>
-DateTimeConfig.globalEuropeanDateFormat();
-DateTime dt1=new DateTime("01/02/2003");
-DateTimeConfig.globalAmericanDateFormat();
-DateTime dt2=new DateTime("02/01/2003");
-assertEquals(dt1, dt2);
-</pre>
-
-<h2>Tips and Tricks</h2>
-<p>While use of four-digit years is recommended to remove ambiguity, POJava's DateTime parser will still
-interpret a two-digit year as falling in the range from 20 years into the future to 80 years into the past.
-This covers most cases, such as upcoming events or birthdays.  If you know for certain you are parsing
-a past date, such as a birthday, you can support two digit dates very reliably with one additional step.
-If you see a birthday interpreted in the future, subtract a century.  That's it.</p>
-<pre>
-DateTime dob=new DateTime(gatheredTime);
-if (dob.getMillis() > System.currentTimeMillis()) {
-    dob=dob.add(CalendarUnit.CENTURY, -1);
-}
+// Extract various date parts, given a millisecond timestamp
+Tm dateParts=new Tm(timeInMillis, TimeZone.getTimeZone("America/Chicago"));
+int year=dateParts.getYear();
+int hour=dateParts.getHour();
 </pre>
 
 </body>

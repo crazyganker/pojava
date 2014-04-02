@@ -11,11 +11,12 @@ Date and Time. It provides a number of advances over Java's Date object,
 including immutability, nanosecond precision, and calculation functions
 such as "add" and "truncate". It can parse dates and times without
 requiring a specific format, and has integrated formatting into its
-toString() output to make custom formatting simple and elegant.</p>
+toString() output to make custom formatting simple and elegant.
+</p>
 <p>DateTime has excellent support for business use cases involving
-multiple time zones, locales and formats.  Default behaviors can be
-customized globally, for a set of dates sharing a common isolated
-configuration, or catered to individual instances.</p>
+multiple time zones, languages, locales and formats.  Default behaviors can be
+customized either globally, for a set of dates sharing a common isolated
+configuration, or catered to individual DateTime instances.</p>
 
 <h3>Parsing Flexibility</h3>
 <p>DateTime will correctly parse precise date and time from the following
@@ -26,16 +27,41 @@ strings without specifying any formats.
 <li>January 26, 1969 at 3:21 PM</li>
 <li>26-jan-1969 at 3:21:00.123 pm</li>
 <li>1969-01-26 15:21:00.123456 PM PST</li>
+<li>This 4th day of July, 1776</li>
 <li>le 26.1.1969</li>
+<li>el 29 de febrero de 2000</li>
+<li>il 12 luglio del 2013</li>
 </ul>
 
-<h3>It supports European or American ordering of month and day</h3>
+<h3>It supports both MDY and DMY ordering of month and day</h3>
+<p>A date specified as, say, "11/10/2014" is ambiguous from an international perspective.  In some locales, such as
+the United States or the Phillipines, that date would be interpreted as "2014-11-10" (November 10, 2014).  In the vast majority
+of the world, such as Europe or Brazil, that same date string is interpreted as "2014-10-11" (October 11, 2014).  The DateTime
+object always uses an IDateTimeConfig to resolve such differences, either from the default specified in the DateTimeConfig singleton,
+or from a custom IDateTimeConfig passed to the constructor as a parameter to determine which interpretation to use.</p>
+<p>Let's look at the default behavior.  When a DateTime is constructed with no IDateTimeConfig parameter, it looks to
+DateTimeConfig.getGlobalDefault() to provide a default.  If it's defined, it will use it.  If not, it will construct and and retain
+a static instance of DateTimeConfig, which it will initialize based on the system's TimeZone and Locale registered in Java.
+Specifically, both the parser and formatter will be registered to use the system's default time zone, and the interpretation of
+DMY vs MDY order will be determined by the system's Locale.  A desktop app or a local server using DateTime will typically
+need no special configuration and things will just work as one would expect.</p>
 <pre>
-DateTimeConfig.globalEuropeanDateFormat();
 DateTime dt1=new DateTime("01/02/2003");
-DateTimeConfig.globalAmericanDateFormat();
-DateTime dt2=new DateTime("02/01/2003");
-assertEquals(dt1, dt2);
+// This would, by default, be interpreted by a server in France as 2003-02-01, and as 2003-01-02 on a server in the U.S.
+</pre>
+<p>Now, let's say you're hosting a server near the Brazillian west coast, and processing data from a customer in the U.S.
+east coast which is outputting localized dates in Pacific Daylight Time.  You don't want your system
+defaults to be configured that way, so one way to handle this is to build a custom DateTimeConfig and use that one
+config to process all dates in the batch.</p>
+<pre>
+DateTimeConfigBuilder builder = DateTimeConfigBuilder.newInstance();
+builder.setDmyOrder(false);
+builder.setInputTimeZone(TimeZone.getTimeZone("America/Los_Angeles")); // Used by parser
+builder.setOutputTimeZone(TimeZone.getTimeZone("America/Porto_Velho")); // Used by formatter
+IDateTimeConfig config=DateTimeConfig.fromBuilder(builder);
+DateTime dt1=new DateTime("01/02/2003 13:30", config);
+// This would be interpreted as 2003-01-02 13:30:00 PDT, which is 3 hours behind.
+// The toString() output would be "2013-01-02 16:30:00", based on the output time zone.
 </pre>
 
 <h2>How do I work with this DateTime class?</h2>
@@ -48,27 +74,26 @@ mostly intuitive, it helps to understand a few basic concepts.</p>
 	Coordinated), informally GMT or Zulu time. You can select the time
 	zone, format, and locale (language) of displayed or printed output.</p>
 	<li><em>Relationship with DateTimeConfig</em>
-	<p>Every DateTime value is associated with a DateTimeConfig object.
+	<p>Every DateTime value is associated with an implementation of IDateTimeConfig.
 	That object holds several variables affecting how DateTime will perform
 	during input, processing, and output of values. When unspecified, the
 	static DateTimeConfig.globalDefault is used. You can specify a time
 	zone or locale in the constructor to override the default. In that
-	case, a cloned copy of the DateTimeConfig is associated and those
-	values are substituted in that config object.</p>
+	case, a wrapper class called LocalConfig is used as a proxy which overrides
+    a few of the variables and serves the others as a pass-through.</p>
 	</li>
 	<li><em>Input Rules</em>
 	<p>The config.inputTimeZone determines the default time zone
 	assumed for an input string when no time zone is specified in the
 	string itself. The DateTime object will use that time zone to calculate
-	the internal UTC representation of that instant in time. For activities
-	after that initial parse the original time zone is ignored and all
-	outputs are based on config.outputTimeZone.<br></br>
+	the internal UTC representation of that instant in time, as well as any
+    other input calculations. All formatted outputs are based on config.outputTimeZone.<br></br>
 	</p>
-	<p>European and American formatting of dates can be a source of
+	<p>DMY vs MDY formatting of dates can be a source of
 	ambiguity, as one may interpret the date 01/02/2003 as February 1, and
 	the other as January 2. You can choose whether the parser interprets
 	such dates in Day/Month/Year order or Month/Day/Year order by setting
-	the value config.dmyOrder to true or false. Two digit years are also
+	the value dmyOrder to true or false. Two digit years are also
 	ambiguous. By default, POJava treats such dates as 80 years in the past
 	and 20 years into the future. When a date to parse is known to always
 	be in the past, such as a date of birth, you can set the value
@@ -100,29 +125,19 @@ System.out.println(dt.toString());
 </pre>
 
 <h3>Conversion of UTC to Eastern Standard Time</h3>
-One method is by overriding the toString output.
+One method is by overriding the toString() format.
 <pre>
 String utc="2011/12/13T14:15:16Z";
 DateTime dt=new DateTime(utc);
 System.out.println(dt.toString("yyyy-MM-dd HH:mm:ss z", TimeZone.getTimeZone("EST"));
 </pre>
-Another method is to predefine the expected time zones in the global configuration.
+Another method is to declare both input and output timezones in the constructor.
 <pre>
 String utc="2011/12/13T14:15:16Z";
-DateTimeConfig config=DateTimeConfig.getGlobalDefault();
-config.setOutputTimeZone(TimeZone.getTimeZone("EST"));
-DateTime dt=new DateTime(utc);
-System.out.println(dt.toString());
+TimeZone tzUTC=TimeZone.getTimeZone("UTC");
+TimeZone tzEST=TimeZone.getTimeZone("EST");
+System.out.println(new DateTime(utc, tzUTC, tzEST).toString());
 </pre>
-A third method is to use a custom configuration.
-<pre>
-String utc="2011/12/13T14:15:16Z";
-DateTimeConfig config=DateTimeConfig.getGlobalDefault().clone();
-config.setOutputTimeZone(TimeZone.getTimeZone("EST"));
-DateTime dt=new DateTime(utc, config);
-System.out.println(dt.toString());
-</pre>
-
 
 </body>
 </html>

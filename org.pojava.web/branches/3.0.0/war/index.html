@@ -5,31 +5,46 @@
 <body>
 <img src="img/pojava7.png">
 <h3>What is POJava?</h3>
-<p>POJava is a very light-weight utility library providing a practical assortment of data transformations.
-Its goal is to provide a foundation for POJO-based handling of data with no dependencies and no alterations
-required of the POJO itself.  The base jar, POJava, provides common functions for string and binary conversions,
-such as compression, encryption, and encoding, and other tools for accessing, validating, and altering data
-such as date manipulation, reflection, external process invocation, and language binding.</p>
-<p>A key strength of the base POJava library is its handling of dates and times.  Its immutable DateTime object parses dates
-from text in multiple languages and formats down to nanosecond precision.  It can perform date math, such as truncating
-to a whole time period, or adding a period to a date, or performing multiple in-line operations.  It's really easy to use.</p>
+<p>POJava is a set of very light-weight utility libraries providing a practical assortment of data transformations.
+The base jar, POJava, provides simplified functions for string and binary conversions, such as compression,
+encryption, and encoding, and tools for date manipulation, reflection, external process invocation, and language 
+binding.</p>
+<p>A key strength of the POJava library is its handling of dates and times.  Its immutable DateTime object will
+quickly parse dates from a string in most languages and formats without having to specify either.  It allows
+for system-global definition of the several default behaviors of the DateTime object, including the toString()
+format, input and output time zones, MDY vs DMY interpretation of ambiguous formats, and interpretation of two
+digit years.  It can perform date math, such as truncating to an hour or subtracting a month.
+</p>
 <p>The POJava Persistence jar layers additional support for database-to-object (ORM) and object-to-xml
-exchanges in both directions.  It depends only on POJava, so it also has a very small footprint.
+exchanges in both directions.
 </p>
 <h2>What's new and cool in POJava?</h2>
-<p>As of version 2.7.0, POJava's DateTime class switched switched from relying on
-the TimeZone.getDefault() static to determine a time zone, to using a combination
-of InputTimeZone and OutputTimeZone stored in an IDateTimeConfig, and allowing
-a custom IDateTimeConfig to be specified.  The DateTimeConfig class was updated to
-support this as well, providing a singleton version of itself as a global default,
-and a quick means of creating and customizing clones.  The end result is that 
-DateTime can be more easily used for sites offering independent services using 
-multiple time zones for multiple customers.</p>
+<p>As of version 3.0.0, POJava has separated DateTime into a separate project and includes it as a dependency.
+The DateTimeConfig object was refactored to get rid of all static variables except for the one used as a singleton,
+which now returns an instance of IDateTimeConfig, rather than the DateTimeConfig object, so it can be overridden
+as needed.  The DateTime object now uses the IDateTimeConfig.systemTime() to fetch the system time, rather than 
+System.currentTimeMillis(), so it can be overridden for testing.
+</p>
+<p>The DateTimeConfig object is immutable, and there is now a mutable DateTimeConfigBuilder object that can be
+used to more easily define a custom configuration.  The algorithm for interpreting text-based months has changed,
+so the IDateTimeConfig now supports a MonthMap object that maps month names and abbreviations to their respective
+calendar month offsets.  This new approach made it easy to add nearly all languages to the default, and support 
+custom additions in case there are known abbreviations or languages that are not yet supported.  
+</p>
+<p>When constructing a DateTime while specifying a Time Zone, the DateTime object will no longer clone the
+default config, but will wrap it in a LocalConfig object that overrides only what is needed.  This reduces
+garbage collection and complexity.
+</p>
 <h2>Generated Documentation</h2>
 <table>
 <tr>
-<td><a href="/site/pojava-2.7.0/">POJava 2.7.0</a> <a href="/site/pojava-2.7.0/apidocs/">JavaDocs</a></td>
+<td><a href="/site/pojava-3.0.0/">POJava 3.0.0</a> <a href="/site/pojava-3.0.0/apidocs/">JavaDocs</a></td>
 <td>POJava provides utilities for managing data using simple POJOs (Plain Old Java Objects).</td>
+</tr>
+<tr>
+<td><a href="/site/pojava-datetime-3.0.0/">POJava DateTime 3.0.0</a> <a href="/site/pojava-datetime-3.0.0/apidocs/">JavaDocs</a></td>
+<td>POJava DateTime combines an intelligent date parser with date manipulation features such as advanced formatting,
+simple time zone conversions, and date arithmetic.</td>
 </tr>
 <tr>
 <td><a href="/site/pojava-persistence-2.6.0/">Persistence 2.6.0</a> <a href="/site/pojava-persistence-2.6.0/apidocs/">JavaDocs</a></td>
